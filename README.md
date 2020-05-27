@@ -14,7 +14,7 @@ from a single service.
 
 ## Architecture
 
-![External Data Pipeline diagram](docs/Smart proxy architecture.png "External Data Pipeline Diagram")
+![external-data-pipeline-arch](docs/Smart%20proxy%20architecture.png "External Data Pipeline Architecture")
 
 ## Results Smart Proxy in the external data pipeline
 
