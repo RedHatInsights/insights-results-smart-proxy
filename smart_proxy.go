@@ -17,5 +17,29 @@ limitations under the License.
 // Entry point to the insights results smart proxy
 package main
 
+import (
+	"os"
+	"strings"
+)
+
+// ExitStatusOK means that the tool finished with success
+const ExitStatusOK = iota
+
+func handleCommand(command string) int {
+	switch command {
+	case "start-service":
+		return ExitStatusOK
+	}
+
+	return ExitStatusOK
+}
+
 func main() {
+	command := "start-service"
+
+	if len(os.Args) >= 2 {
+		command = strings.ToLower(strings.TrimSpace(os.Args[1]))
+	}
+
+	os.Exit(handleCommand(command))
 }
