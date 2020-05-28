@@ -112,6 +112,14 @@ func handleCommand(command string) int {
 	case "print-help":
 		printHelp()
 		return ExitStatusOK
+
+	case "print-config":
+		printConfig()
+		return ExitStatusOK
+
+	case "print-env":
+		printEnv()
+		return ExitStatusOK
 	}
 
 	return ExitStatusOK

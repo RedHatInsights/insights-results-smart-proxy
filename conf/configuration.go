@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
 const (
@@ -36,7 +37,8 @@ const (
 
 // Config has exactly the same structure as *.toml file
 var Config struct {
-	Server server.Configuration `mapstructure:"server" toml:"server"`
+	Server                server.Configuration   `mapstructure:"server" toml:"server"`
+	ServicesBaseEndpoints services.Configuration `mapstructure:"services" toml:"services"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in configFileEnvVariableName or from env
@@ -96,6 +98,11 @@ func GetServerConfiguration() server.Configuration {
 	}
 
 	return Config.Server
+}
+
+// GetServicesConfiguration returns the services endpoints configuration
+func GetServicesConfiguration() services.Configuration {
+	return Config.ServicesBaseEndpoints
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file, otherwise it returns corresponding error
