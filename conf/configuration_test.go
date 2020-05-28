@@ -27,6 +27,7 @@ import (
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
 func init() {
@@ -147,6 +148,11 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 		UseHTTPS:    false,
 		EnableCORS:  true,
 	}, conf.GetServerConfiguration())
+
+	assert.Equal(t, services.Configuration{
+		AggregatorBaseEndpoint: "http://localhost:8080/api/v1",
+		ContentBaseEndpoint:    "http://localhost:8081/api/v1",
+	}, conf.GetServicesConfiguration())
 }
 
 func setEnvVariables(t *testing.T) {
@@ -156,4 +162,7 @@ func setEnvVariables(t *testing.T) {
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_PREFIX", "/api/v1/")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE", "openapi.json")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__DEBUG", "true")
+
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR", "http://localhost:8080/api/v1")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT", "http://localhost:8081/api/v1")
 }
