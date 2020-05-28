@@ -1,0 +1,60 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Insights Results Smart Proxy",
+    "description": "Smart proxy for the results of running Insights rules.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "paths": {
+    "/openapi.json": {
+      "get": {
+        "summary": "Returns the OpenAPI specification JSON.",
+        "operationId": "getOpenApi",
+        "responses": {
+          "200": {
+            "description": "A JSON containing the OpenAPI specification for this service.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "openapi": {
+                      "type": "string"
+                    },
+                    "info": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "paths": {
+                      "type": "object",
+                      "description": "Available paths and their descriptions."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    }
+  },
+  "security": [],
+  "servers": [],
+  "components": {
+    "links": {},
+    "callbacks": {},
+    "schemas": {}
+  }
+}

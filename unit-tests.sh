@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Copyright 2020 Red Hat, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# this is improper - we need to start using tags in GitHub properly
-version=0.1
+function run_unit_tests() {
+    # shellcheck disable=SC2046
+    if ! go test -coverprofile coverage.out $(go list ./... | grep -v tests | tr '\n' ' ')
+    then
+        echo "unit tests failed"
+        exit 1
+    fi
+}
 
-buildtime=$(date)
-branch=$(git rev-parse --abbrev-ref HEAD)
-commit=$(git rev-parse HEAD)
-
-go build -ldflags="-X 'main.BuildTime=$buildtime' -X 'main.BuildVersion=$version' -X 'main.BuildBranch=$branch' -X 'main.BuildCommit=$commit'"
-exit $?
+run_unit_tests

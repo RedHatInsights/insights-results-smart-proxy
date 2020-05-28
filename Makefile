@@ -55,7 +55,7 @@ run: clean build ## Build the project and executes the binary
 	./insights-results-smart-proxy
 
 test: clean build ## Run the unit tests
-	go test -coverprofile coverage.out $(shell go list ./... | grep -v tests)
+	./unit-tests.sh
 
 cover: test
 	@go tool cover -html=coverage.out
