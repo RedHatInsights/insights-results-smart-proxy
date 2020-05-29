@@ -179,9 +179,7 @@ func (server *HTTPServer) Stop(ctx context.Context) error {
 
 // genericHandle
 func (server HTTPServer) genericAggregatorRedirect(writer http.ResponseWriter, request *http.Request) {
-	endpointComps := strings.Split(request.RequestURI, server.Config.APIPrefix)
-	endpoint := strings.Join(endpointComps[1:], ",")
-	endpointURL, err := url.Parse(server.ServicesConfig.AggregatorBaseEndpoint + endpoint)
+	endpointURL, err := server.composeEndpoint(server.ServicesConfig.AggregatorBaseEndpoint, request.RequestURI)
 
 	if err != nil {
 		log.Error().Err(err).Msg("Error during endpoint URL parsing")
@@ -200,14 +198,13 @@ func (server HTTPServer) genericAggregatorRedirect(writer http.ResponseWriter, r
 		handleServerError(writer, err)
 	}
 
+	log.Info().Msgf("Redirecting to %s", endpointURL.String())
 	http.Redirect(writer, request, endpointURL.String(), 302)
 }
 
 // genericHandle
 func (server HTTPServer) genericContentServiceRedirect(writer http.ResponseWriter, request *http.Request) {
-	endpointComps := strings.Split(request.RequestURI, server.Config.APIPrefix)
-	endpoint := strings.Join(endpointComps[1:], "/")
-	endpointURL, err := url.Parse(server.ServicesConfig.ContentBaseEndpoint + endpoint)
+	endpointURL, err := server.composeEndpoint(server.ServicesConfig.ContentBaseEndpoint, request.RequestURI)
 
 	if err != nil {
 		log.Error().Err(err).Msg("Error during endpoint URL parsing")
@@ -226,5 +223,11 @@ func (server HTTPServer) genericContentServiceRedirect(writer http.ResponseWrite
 		handleServerError(writer, err)
 	}
 
+	log.Info().Msgf("Redirecting to %s", endpointURL.String())
 	http.Redirect(writer, request, endpointURL.String(), 302)
+}
+
+func (server HTTPServer) composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error) {
+	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIPrefix)
+	return url.Parse(baseEndpoint + endpoint)
 }

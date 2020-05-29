@@ -28,5 +28,5 @@ func TestMakeURLToEndpointWithValidValue(t *testing.T) {
 
 	retval := server.MakeURLToEndpoint(apiPrefix, endpoint)
 
-	assert.Equal(t, retval, "api/v1/some_valid_endpoint")
+	assert.Equal(t, "api/v1/some_valid_endpoint", retval)
 }
