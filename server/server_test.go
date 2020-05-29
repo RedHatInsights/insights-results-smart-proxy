@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
 var config = server.Configuration{
@@ -49,7 +50,11 @@ func TestServerStartError(t *testing.T) {
 	testServer := server.New(server.Configuration{
 		Address:   "localhost:99999",
 		APIPrefix: "",
-	})
+	}, services.Configuration{
+		AggregatorBaseEndpoint: "http://localhost:8081/api/v1/",
+		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
+	},
+	)
 
 	err := testServer.Start()
 	assert.EqualError(t, err, "listen tcp: address 99999: invalid port")

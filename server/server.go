@@ -25,6 +25,8 @@ package server
 import (
 	"context"
 	"net/http"
+	"net/url"
+	"strings"
 
 	// we just have to import this package in order to expose pprof interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
@@ -33,22 +35,25 @@ import (
 	"path/filepath"
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
+	"github.com/RedHatInsights/insights-results-aggregator/types"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 
-	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
 // HTTPServer in an implementation of Server interface
 type HTTPServer struct {
-	Config Configuration
-	Serv   *http.Server
+	Config         Configuration
+	ServicesConfig services.Configuration
+	Serv           *http.Server
 }
 
 // New constructs new implementation of Server interface
-func New(config Configuration) *HTTPServer {
+func New(config Configuration, servicesConfig services.Configuration) *HTTPServer {
 	return &HTTPServer{
-		Config: config,
+		Config:         config,
+		ServicesConfig: servicesConfig,
 	}
 }
 
@@ -170,4 +175,56 @@ func (server *HTTPServer) Start() error {
 // Stop stops server's execution
 func (server *HTTPServer) Stop(ctx context.Context) error {
 	return server.Serv.Shutdown(ctx)
+}
+
+// genericHandle
+func (server HTTPServer) genericAggregatorRedirect(writer http.ResponseWriter, request *http.Request) {
+	endpointComps := strings.Split(request.RequestURI, server.Config.APIPrefix)
+	endpoint := strings.Join(endpointComps[1:], ",")
+	endpointURL, err := url.Parse(server.ServicesConfig.AggregatorBaseEndpoint + endpoint)
+
+	if err != nil {
+		log.Error().Err(err).Msg("Error during endpoint URL parsing")
+		handleServerError(writer, err)
+	}
+
+	// test service available
+	_, err = http.Get(endpointURL.String())
+	if err != nil {
+		log.Error().Err(err).Msg("Aggregator service unavailable")
+
+		if _, ok := err.(*url.Error); ok {
+			err = &AggregatorServiceUnavailableError{}
+		}
+
+		handleServerError(writer, err)
+	}
+
+	http.Redirect(writer, request, endpointURL.String(), 302)
+}
+
+// genericHandle
+func (server HTTPServer) genericContentServiceRedirect(writer http.ResponseWriter, request *http.Request) {
+	endpointComps := strings.Split(request.RequestURI, server.Config.APIPrefix)
+	endpoint := strings.Join(endpointComps[1:], "/")
+	endpointURL, err := url.Parse(server.ServicesConfig.ContentBaseEndpoint + endpoint)
+
+	if err != nil {
+		log.Error().Err(err).Msg("Error during endpoint URL parsing")
+		handleServerError(writer, err)
+	}
+
+	// test service available
+	_, err = http.Get(endpointURL.String())
+	if err != nil {
+		log.Error().Err(err).Msg("Content service unavailable")
+
+		if _, ok := err.(*url.Error); ok {
+			err = &ContentServiceUnavailableError{}
+		}
+
+		handleServerError(writer, err)
+	}
+
+	http.Redirect(writer, request, endpointURL.String(), 302)
 }
