@@ -24,6 +24,7 @@ package server
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -177,57 +178,76 @@ func (server *HTTPServer) Stop(ctx context.Context) error {
 	return server.Serv.Shutdown(ctx)
 }
 
-// genericHandle
-func (server HTTPServer) genericAggregatorRedirect(writer http.ResponseWriter, request *http.Request) {
-	endpointURL, err := server.composeEndpoint(server.ServicesConfig.AggregatorBaseEndpoint, request.RequestURI)
+// redirectTo
+func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
 
-	if err != nil {
-		log.Error().Err(err).Msg("Error during endpoint URL parsing")
-		handleServerError(writer, err)
-	}
-
-	// test service available
-	_, err = http.Get(endpointURL.String())
-	if err != nil {
-		log.Error().Err(err).Msg("Aggregator service unavailable")
-
-		if _, ok := err.(*url.Error); ok {
-			err = &AggregatorServiceUnavailableError{}
+		if err != nil {
+			log.Error().Err(err).Msg("Error during endpoint URL parsing")
+			handleServerError(writer, err)
 		}
 
-		handleServerError(writer, err)
-	}
+		// test service available
+		_, err = http.Get(endpointURL.String())
+		if err != nil {
+			log.Error().Err(err).Msg("Aggregator service unavailable")
 
-	log.Info().Msgf("Redirecting to %s", endpointURL.String())
-	http.Redirect(writer, request, endpointURL.String(), 302)
+			if _, ok := err.(*url.Error); ok {
+				err = &AggregatorServiceUnavailableError{}
+			}
+
+			handleServerError(writer, err)
+		}
+
+		log.Info().Msgf("Redirecting to %s", endpointURL.String())
+		http.Redirect(writer, request, endpointURL.String(), 302)
+	}
 }
 
-// genericHandle
-func (server HTTPServer) genericContentServiceRedirect(writer http.ResponseWriter, request *http.Request) {
-	endpointURL, err := server.composeEndpoint(server.ServicesConfig.ContentBaseEndpoint, request.RequestURI)
+func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Info().Msg("Handling response as a proxy")
+		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
 
-	if err != nil {
-		log.Error().Err(err).Msg("Error during endpoint URL parsing")
-		handleServerError(writer, err)
-	}
-
-	// test service available
-	_, err = http.Get(endpointURL.String())
-	if err != nil {
-		log.Error().Err(err).Msg("Content service unavailable")
-
-		if _, ok := err.(*url.Error); ok {
-			err = &ContentServiceUnavailableError{}
+		if err != nil {
+			log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", request.RequestURI)
+			handleServerError(writer, err)
 		}
 
-		handleServerError(writer, err)
-	}
+		client := http.Client{}
+		req, _ := http.NewRequest(request.Method, endpointURL.String(), request.Body)
+		copyHeader(request.Header, req.Header)
 
-	log.Info().Msgf("Redirecting to %s", endpointURL.String())
-	http.Redirect(writer, request, endpointURL.String(), 302)
+		log.Debug().Msgf("Connecting to %s", endpointURL.String())
+		response, err := client.Do(req)
+		if err != nil {
+			log.Error().Err(err).Msgf("Error during retrieve of %s", endpointURL.String())
+			handleServerError(writer, err)
+		}
+
+		content, err := ioutil.ReadAll(response.Body)
+
+		if err != nil {
+			log.Error().Err(err).Msgf("Error while retrieving content from request to %s", endpointURL.String())
+			handleServerError(writer, err)
+		}
+		// Maybe this code should be on responses.SendRaw or something like that
+		writer.Header().Set("content-type", "application/json; charset=utf-8")
+		writer.WriteHeader(http.StatusOK)
+		writer.Write(content)
+	}
 }
 
 func (server HTTPServer) composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error) {
 	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIPrefix)
 	return url.Parse(baseEndpoint + endpoint)
+}
+
+func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
+	for headerKey, headerValues := range srcHeaders {
+		for _, value := range headerValues {
+			dstHeaders.Add(headerKey, value)
+		}
+	}
 }
