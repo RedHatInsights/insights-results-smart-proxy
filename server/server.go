@@ -235,7 +235,11 @@ func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http
 		// Maybe this code should be on responses.SendRaw or something like that
 		writer.Header().Set("content-type", "application/json; charset=utf-8")
 		writer.WriteHeader(http.StatusOK)
-		writer.Write(content)
+		_, err = writer.Write(content)
+		if err != nil {
+			log.Error().Err(err).Msgf("Error writing the response")
+			handleServerError(writer, err)
+		}
 	}
 }
 
