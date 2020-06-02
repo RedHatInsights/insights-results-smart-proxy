@@ -64,14 +64,14 @@ func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router) {
 	apiPrefix := server.Config.APIPrefix
 	aggregatorEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
 
-	router.HandleFunc(apiPrefix+OrganizationsEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+DeleteClustersEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+GetVoteOnRuleEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+RuleEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodPost)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodPost)
-	router.HandleFunc(apiPrefix+RuleEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+OrganizationsEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+DeleteClustersEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+GetVoteOnRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+RuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPost)
+	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPost)
+	router.HandleFunc(apiPrefix+RuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
 
 	// endpoints for pprof - needed for profiling, ie. usually in debug mode
 	router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
@@ -90,15 +90,15 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 
 	// common REST API endpoints
 	router.HandleFunc(apiPrefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+ReportEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+DislikeRuleEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+ResetVoteOnRuleEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.redirectTo(contentServiceEndpoint)).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.redirectTo(aggregatorEndpoint)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+ReportEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+DislikeRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ResetVoteOnRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.proxyTo(contentServiceEndpoint)).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
 
 	// Prometheus metrics
 	router.Handle(apiPrefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
