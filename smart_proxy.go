@@ -88,7 +88,8 @@ func printEnv() int {
 // startService starts service and returns error code
 func startServer() int {
 	serverCfg := conf.GetServerConfiguration()
-	serverInstance = server.New(serverCfg)
+	servicesCfg := conf.GetServicesConfiguration()
+	serverInstance = server.New(serverCfg, servicesCfg)
 
 	err := serverInstance.Start()
 	if err != nil {

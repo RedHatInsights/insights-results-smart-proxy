@@ -24,7 +24,10 @@ package server
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 
 	// we just have to import this package in order to expose pprof interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
@@ -33,22 +36,25 @@ import (
 	"path/filepath"
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
+	"github.com/RedHatInsights/insights-results-aggregator/types"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 
-	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
 // HTTPServer in an implementation of Server interface
 type HTTPServer struct {
-	Config Configuration
-	Serv   *http.Server
+	Config         Configuration
+	ServicesConfig services.Configuration
+	Serv           *http.Server
 }
 
 // New constructs new implementation of Server interface
-func New(config Configuration) *HTTPServer {
+func New(config Configuration, servicesConfig services.Configuration) *HTTPServer {
 	return &HTTPServer{
-		Config: config,
+		Config:         config,
+		ServicesConfig: servicesConfig,
 	}
 }
 
@@ -170,4 +176,80 @@ func (server *HTTPServer) Start() error {
 // Stop stops server's execution
 func (server *HTTPServer) Stop(ctx context.Context) error {
 	return server.Serv.Shutdown(ctx)
+}
+
+// redirectTo
+func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
+
+		if err != nil {
+			log.Error().Err(err).Msg("Error during endpoint URL parsing")
+			handleServerError(writer, err)
+		}
+
+		// test service available
+		_, err = http.Get(endpointURL.String())
+		if err != nil {
+			log.Error().Err(err).Msg("Aggregator service unavailable")
+
+			if _, ok := err.(*url.Error); ok {
+				err = &AggregatorServiceUnavailableError{}
+			}
+
+			handleServerError(writer, err)
+		}
+
+		log.Info().Msgf("Redirecting to %s", endpointURL.String())
+		http.Redirect(writer, request, endpointURL.String(), 302)
+	}
+}
+
+func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		log.Info().Msg("Handling response as a proxy")
+		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
+
+		if err != nil {
+			log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", request.RequestURI)
+			handleServerError(writer, err)
+		}
+
+		client := http.Client{}
+		req, _ := http.NewRequest(request.Method, endpointURL.String(), request.Body)
+		copyHeader(request.Header, req.Header)
+
+		log.Debug().Msgf("Connecting to %s", endpointURL.String())
+		response, err := client.Do(req)
+		if err != nil {
+			log.Error().Err(err).Msgf("Error during retrieve of %s", endpointURL.String())
+			handleServerError(writer, err)
+		}
+
+		content, err := ioutil.ReadAll(response.Body)
+
+		if err != nil {
+			log.Error().Err(err).Msgf("Error while retrieving content from request to %s", endpointURL.String())
+			handleServerError(writer, err)
+		}
+		// Maybe this code should be on responses.SendRaw or something like that
+		err = responses.Send(http.StatusOK, writer, content)
+		if err != nil {
+			log.Error().Err(err).Msgf("Error writing the response")
+			handleServerError(writer, err)
+		}
+	}
+}
+
+func (server HTTPServer) composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error) {
+	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIPrefix)
+	return url.Parse(baseEndpoint + endpoint)
+}
+
+func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
+	for headerKey, headerValues := range srcHeaders {
+		for _, value := range headerValues {
+			dstHeaders.Add(headerKey, value)
+		}
+	}
 }
