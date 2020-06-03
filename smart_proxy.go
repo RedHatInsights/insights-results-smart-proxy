@@ -23,11 +23,13 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
 const (
@@ -91,6 +93,8 @@ func startServer() int {
 	servicesCfg := conf.GetServicesConfiguration()
 	serverInstance = server.New(serverCfg, servicesCfg)
 
+	go updateGroupInfo(servicesCfg)
+
 	err := serverInstance.Start()
 	if err != nil {
 		log.Error().Err(err).Msg("HTTP(s) start error")
@@ -98,6 +102,32 @@ func startServer() int {
 	}
 
 	return ExitStatusOK
+}
+
+// updateGroupInfo
+func updateGroupInfo(servicesConf services.Configuration) {
+	groups, err := services.GetGroups(servicesConf)
+
+	if err != nil {
+		log.Error().Err(err).Msg("Error retrieving groups")
+	} else {
+		serverInstance.GroupsConfig = groups
+	}
+
+	uptimeTicker := time.NewTicker(60 * time.Second)
+
+	for {
+		select {
+		case <-uptimeTicker.C:
+			groups, err := services.GetGroups(servicesConf)
+
+			if err != nil {
+				log.Error().Err(err).Msg("Error retrieving groups")
+			} else {
+				serverInstance.GroupsConfig = groups
+			}
+		}
+	}
 }
 
 // handleCommand select the function to be called depending on command argument
