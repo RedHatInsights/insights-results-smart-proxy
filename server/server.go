@@ -116,8 +116,8 @@ func (server *HTTPServer) handleOptionsMethod(nextHandler http.Handler) http.Han
 }
 
 // Initialize perform the server initialization
-func (server *HTTPServer) Initialize(address string) http.Handler {
-	log.Info().Msgf("Initializing HTTP server at '%s'", address)
+func (server *HTTPServer) Initialize() http.Handler {
+	log.Info().Msgf("Initializing HTTP server at '%s'", server.Config.Address)
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(server.LogRequest)
@@ -156,7 +156,7 @@ func (server *HTTPServer) Initialize(address string) http.Handler {
 func (server *HTTPServer) Start() error {
 	address := server.Config.Address
 	log.Info().Msgf("Starting HTTP server at '%s'", address)
-	router := server.Initialize(address)
+	router := server.Initialize()
 	server.Serv = &http.Server{Addr: address, Handler: router}
 	var err error
 
