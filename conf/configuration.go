@@ -37,8 +37,8 @@ const (
 
 // Config has exactly the same structure as *.toml file
 var Config struct {
-	Server                server.Configuration   `mapstructure:"server" toml:"server"`
-	ServicesBaseEndpoints services.Configuration `mapstructure:"services" toml:"services"`
+	ServerConf   server.Configuration   `mapstructure:"server" toml:"server"`
+	ServicesConf services.Configuration `mapstructure:"services" toml:"services"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in configFileEnvVariableName or from env
@@ -92,17 +92,17 @@ func LoadConfiguration(defaultConfigFile string) error {
 
 // GetServerConfiguration returns server configuration
 func GetServerConfiguration() server.Configuration {
-	err := checkIfFileExists(Config.Server.APISpecFile)
+	err := checkIfFileExists(Config.ServerConf.APISpecFile)
 	if err != nil {
 		log.Fatal().Err(err).Msg("All customer facing APIs MUST serve the current OpenAPI specification")
 	}
 
-	return Config.Server
+	return Config.ServerConf
 }
 
 // GetServicesConfiguration returns the services endpoints configuration
 func GetServicesConfiguration() services.Configuration {
-	return Config.ServicesBaseEndpoints
+	return Config.ServicesConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file, otherwise it returns corresponding error

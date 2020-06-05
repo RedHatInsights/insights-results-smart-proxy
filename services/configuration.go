@@ -24,5 +24,5 @@ import (
 type Configuration struct {
 	AggregatorBaseEndpoint string        `mapstructure:"aggregator" toml:"aggregator"`
 	ContentBaseEndpoint    string        `mapstructure:"content" toml:"content"`
-	GroupsPollingTime      time.Duration `mapstructure:"groups_timeout" toml:"groups_timeout"`
+	GroupsPollingTime      time.Duration `mapstructure:"groups_poll_time" toml:"groups_poll_time"`
 }

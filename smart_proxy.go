@@ -114,7 +114,9 @@ func updateGroupInfo(servicesConf services.Configuration) {
 		serverInstance.GroupsConfig = groups
 	}
 
-	uptimeTicker := time.NewTicker(60 * time.Second)
+	pollingTimeInNsecs := servicesConf.GroupsPollingTime * time.Second
+	uptimeTicker := time.NewTicker(pollingTimeInNsecs)
+	log.Info().Msgf("Updating groups configuration each %f seconds", pollingTimeInNsecs.Seconds())
 
 	for {
 		select {
