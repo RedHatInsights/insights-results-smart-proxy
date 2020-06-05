@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
@@ -91,9 +92,10 @@ func printEnv() int {
 func startServer() int {
 	serverCfg := conf.GetServerConfiguration()
 	servicesCfg := conf.GetServicesConfiguration()
-	serverInstance = server.New(serverCfg, servicesCfg)
+	groupsChannel := make(chan []groups.Group)
+	serverInstance = server.New(serverCfg, servicesCfg, groupsChannel)
 
-	go updateGroupInfo(servicesCfg)
+	go updateGroupInfo(servicesCfg, groupsChannel)
 
 	err := serverInstance.Start()
 	if err != nil {
@@ -105,13 +107,14 @@ func startServer() int {
 }
 
 // updateGroupInfo
-func updateGroupInfo(servicesConf services.Configuration) {
+func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []groups.Group) {
+	var currentGroups []groups.Group
 	groups, err := services.GetGroups(servicesConf)
 
 	if err != nil {
 		log.Error().Err(err).Msg("Error retrieving groups")
 	} else {
-		serverInstance.GroupsConfig = groups
+		currentGroups = groups
 	}
 
 	pollingTimeInNsecs := servicesConf.GroupsPollingTime * time.Second
@@ -121,13 +124,15 @@ func updateGroupInfo(servicesConf services.Configuration) {
 	for {
 		select {
 		case <-uptimeTicker.C:
-			groups, err := services.GetGroups(servicesConf)
+			groups, err = services.GetGroups(servicesConf)
 
 			if err != nil {
 				log.Error().Err(err).Msg("Error retrieving groups")
 			} else {
-				serverInstance.GroupsConfig = groups
+				currentGroups = groups
 			}
+
+		case groupsChannel <- currentGroups:
 		}
 	}
 }
