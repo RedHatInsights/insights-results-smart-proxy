@@ -6,3 +6,6 @@ auth = false
 auth_type = "xrh"
 use_https = false
 enable_cors = true
+
+[services]
+groups_poll_time = 5

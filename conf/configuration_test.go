@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/RedHatInsights/insights-results-aggregator/tests/helpers"
 	"github.com/rs/zerolog"
@@ -149,9 +150,11 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 		EnableCORS:  true,
 	}, conf.GetServerConfiguration())
 
+	expectedGroupsPollTime, _ := time.ParseDuration("60s")
 	assert.Equal(t, services.Configuration{
 		AggregatorBaseEndpoint: "http://localhost:8080/api/v1",
 		ContentBaseEndpoint:    "http://localhost:8081/api/v1",
+		GroupsPollingTime:      expectedGroupsPollTime,
 	}, conf.GetServicesConfiguration())
 }
 
@@ -165,4 +168,6 @@ func setEnvVariables(t *testing.T) {
 
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR", "http://localhost:8080/api/v1")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT", "http://localhost:8081/api/v1")
+
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME", "60s")
 }
