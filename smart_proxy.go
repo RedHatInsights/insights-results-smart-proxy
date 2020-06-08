@@ -106,7 +106,9 @@ func startServer() int {
 	return ExitStatusOK
 }
 
-// updateGroupInfo
+// updateGroupInfo function is run in a goroutine. It runs forever, waiting for 1 of 2 events: a Ticker or a channel
+// * If ticker comes first, the groups configuration is updated, doing a request to the content-service
+// * If the channel comes first, the latest valid groups configuration is send through the channel
 func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []groups.Group) {
 	var currentGroups []groups.Group
 	groups, err := services.GetGroups(servicesConf)
