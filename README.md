@@ -75,20 +75,23 @@ only in devel environment. In production, `true` is used every time.
 Please note that if `auth` configuration option is turned off, not all REST API endpoints will be
 usable. Whole REST API schema is satisfied only for `auth = true`.
 
-## Service base endpoints configuration
+## Services configuration
 
-Service base endpoints configuration is in section `[services]` in config file
+Services configuration is in section `[services]` in config file
 
 ```toml
 [services]
 aggregator = "http://aggregator.service:8080/api/v1
 content = "http://content.service:8080/api/v1"
+groups_poll_time = 60
 ```
 
 * `aggregator` is the base endpoint URL for the Aggregator service where the Smart Proxy will connect and
 retrieve the requested reports.
 * `content` is the base endpoint URL for the Content service. Smart Proxy will retrieve and cache the
 remmediations static content and the configured groups from its endpoints.
+* `group_poll_time` is the time between groups configuration updates. It will be interpreted as the Golang
+[`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration) function.
 
 ## REST API schema based on OpenAPI 3.0
 

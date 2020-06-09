@@ -16,8 +16,13 @@ limitations under the License.
 
 package services
 
+import (
+	"time"
+)
+
 // Configuration represents configuration of REST API HTTP server
 type Configuration struct {
-	AggregatorBaseEndpoint string `mapstructure:"aggregator" toml:"aggregator"`
-	ContentBaseEndpoint    string `mapstructure:"content" toml:"content"`
+	AggregatorBaseEndpoint string        `mapstructure:"aggregator" toml:"aggregator"`
+	ContentBaseEndpoint    string        `mapstructure:"content" toml:"content"`
+	GroupsPollingTime      time.Duration `mapstructure:"groups_poll_time" toml:"groups_poll_time"`
 }

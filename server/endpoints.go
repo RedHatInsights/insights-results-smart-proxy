@@ -81,7 +81,6 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	apiPrefix := server.Config.APIPrefix
 	openAPIURL := apiPrefix + filepath.Base(server.Config.APISpecFile)
 	aggregatorEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
-	contentServiceEndpoint := server.ServicesConfig.ContentBaseEndpoint
 
 	// it is possible to use special REST API endpoints in debug mode
 	if server.Config.Debug {
@@ -97,7 +96,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.proxyTo(contentServiceEndpoint)).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
 
 	// Prometheus metrics

@@ -54,6 +54,7 @@ func TestServerStartError(t *testing.T) {
 		AggregatorBaseEndpoint: "http://localhost:8081/api/v1/",
 		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
 	},
+		nil,
 	)
 
 	err := testServer.Start()

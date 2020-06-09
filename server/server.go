@@ -24,6 +24,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -35,6 +36,7 @@ import (
 	_ "net/http/pprof"
 	"path/filepath"
 
+	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-results-aggregator/types"
 	"github.com/gorilla/mux"
@@ -47,14 +49,16 @@ import (
 type HTTPServer struct {
 	Config         Configuration
 	ServicesConfig services.Configuration
+	GroupsChannel  chan []groups.Group
 	Serv           *http.Server
 }
 
 // New constructs new implementation of Server interface
-func New(config Configuration, servicesConfig services.Configuration) *HTTPServer {
+func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group) *HTTPServer {
 	return &HTTPServer{
 		Config:         config,
 		ServicesConfig: servicesConfig,
+		GroupsChannel:  groupsChannel,
 	}
 }
 
@@ -238,6 +242,26 @@ func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http
 			log.Error().Err(err).Msgf("Error writing the response")
 			handleServerError(writer, err)
 		}
+	}
+}
+
+// getGroups retrives the groups configuration from a channel to get the latest valid one and send the response back to the client
+func (server *HTTPServer) getGroups(writer http.ResponseWriter, request *http.Request) {
+	groupsConfig := <-server.GroupsChannel
+	if groupsConfig == nil {
+		err := errors.New("No groups retrieved")
+		log.Error().Err(err).Msg("Groups cannot be retrieved from content service. Check logs")
+		handleServerError(writer, err)
+		return
+	}
+
+	responseContent := make(map[string]interface{})
+	responseContent["status"] = "ok"
+	responseContent["groups"] = groupsConfig
+	err := responses.SendOK(writer, responseContent)
+	if err != nil {
+		log.Error().Err(err).Msg("Cannot send response")
+		handleServerError(writer, err)
 	}
 }
 
