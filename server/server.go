@@ -36,6 +36,7 @@ import (
 	_ "net/http/pprof"
 	"path/filepath"
 
+	"github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-results-aggregator/types"
@@ -50,15 +51,17 @@ type HTTPServer struct {
 	Config         Configuration
 	ServicesConfig services.Configuration
 	GroupsChannel  chan []groups.Group
+	ContentChannel chan content.RuleContentDirectory
 	Serv           *http.Server
 }
 
 // New constructs new implementation of Server interface
-func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group) *HTTPServer {
+func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group, contentChannel chan content.RuleContentDirectory) *HTTPServer {
 	return &HTTPServer{
 		Config:         config,
 		ServicesConfig: servicesConfig,
 		GroupsChannel:  groupsChannel,
+		ContentChannel: contentChannel,
 	}
 }
 

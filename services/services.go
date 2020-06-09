@@ -15,18 +15,41 @@
 package services
 
 import (
+	"bytes"
+	"encoding/gob"
 	"encoding/json"
 	"net/http"
 	"net/url"
 
+	"github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/rs/zerolog/log"
 )
 
 const (
+	// ContentEndpoint is the content-service endpoint for getting the static content for all rules
+	ContentEndpoint = "content"
 	// GroupsEndpoint is the content-service endpoint for getting the list of groups
 	GroupsEndpoint = "groups"
 )
+
+func getFromURL(endpoint string) (*http.Response, error) {
+	parsedURL, err := url.Parse(endpoint)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", endpoint)
+		return nil, err
+	}
+
+	log.Debug().Msgf("Connecting to %s", parsedURL.String())
+
+	resp, err := http.Get(parsedURL.String())
+	if err != nil {
+		log.Error().Err(err).Msgf("Error during retrieve of %s", parsedURL.String())
+		return nil, err
+	}
+
+	return resp, nil
+}
 
 // GetGroups get the list of groups from content-service
 func GetGroups(conf Configuration) ([]groups.Group, error) {
@@ -38,18 +61,10 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 
 	log.Info().Msg("Updating groups information")
 
-	groupsURL, err := url.Parse(conf.ContentBaseEndpoint + GroupsEndpoint)
+	resp, err := getFromURL(conf.ContentBaseEndpoint + GroupsEndpoint)
 
 	if err != nil {
-		log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", groupsURL.String())
-		return nil, err
-	}
-
-	log.Debug().Msgf("Connecting to %s", groupsURL.String())
-	resp, err := http.Get(groupsURL.String())
-
-	if err != nil {
-		log.Error().Err(err).Msgf("Error during retrieve of %s", groupsURL.String())
+		// Log already shown
 		return nil, err
 	}
 
@@ -62,4 +77,38 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 
 	log.Info().Msgf("Received %d groups", len(receivedMsg.Groups))
 	return receivedMsg.Groups, nil
+}
+
+// GetContent get the static rule content from content-service
+func GetContent(conf Configuration) (*content.RuleContentDirectory, error) {
+	type contentResponse struct {
+		Status         string `json:"status"`
+		EncodedContent []byte `json:"rule-content"`
+	}
+	var receivedMsg contentResponse
+
+	log.Info().Msg("Updating rules static content")
+	resp, err := getFromURL(conf.ContentBaseEndpoint + ContentEndpoint)
+
+	if err != nil {
+		// Log already shown
+		return nil, err
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&receivedMsg)
+	if err != nil {
+		log.Error().Err(err).Msg("Error while decoding static content answer from content-service")
+		return nil, err
+	}
+
+	var receivedContent content.RuleContentDirectory
+	encodedContent := bytes.NewBuffer(receivedMsg.EncodedContent)
+	err = gob.NewDecoder(encodedContent).Decode(&receivedContent)
+
+	if err != nil {
+		log.Error().Err(err).Msg("Error trying to decode rules content from received answer")
+		return nil, err
+	}
+
+	return &receivedContent, nil
 }
