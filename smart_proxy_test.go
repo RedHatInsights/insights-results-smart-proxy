@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/RedHatInsights/insights-results-aggregator/tests/helpers"
+	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/bmizerany/assert"
 
 	main "github.com/RedHatInsights/insights-results-smart-proxy"

@@ -50,8 +50,8 @@ Usage:
 
 The commands are:
 
-    <EMPTY>             starts aggregator
-    start-service       starts aggregator
+    <EMPTY>             starts smart-proxy
+    start-service       starts smart-proxy
     help                prints help
     print-help          prints help
     print-config        prints current configuration set by files & env variables
