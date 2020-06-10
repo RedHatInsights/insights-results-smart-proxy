@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/RedHatInsights/insights-results-aggregator/tests/helpers"
+	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/gorilla/mux"
 )
 

@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20200601092442-c0311271b955
-	github.com/RedHatInsights/insights-operator-utils v1.0.1
+	github.com/RedHatInsights/insights-operator-utils v1.0.2-0.20200610143236-c868b2f93d2a
 	github.com/RedHatInsights/insights-results-aggregator v0.0.0-20200527194606-78d5e04acbc1
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -14,5 +14,5 @@ require (
 	github.com/prometheus/client_golang v1.6.0
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/viper v1.7.0
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 )
