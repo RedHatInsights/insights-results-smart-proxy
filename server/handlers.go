@@ -50,6 +50,7 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 		err := errors.New("No rules content")
 		log.Error().Err(err).Msg("Rules static content cannot be retrieved from content service. Check logs")
 		handleServerError(writer, err)
+		return
 	}
 
 	ruleID, err := readRuleID(writer, request)
@@ -61,19 +62,18 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 	stringfiedRuleID := string(ruleID)
 
 	for _, ruleContent := range contentConfig.Rules {
-		if stringfiedRuleID != ruleContent.Plugin.PythonModule {
-			continue
+		// Check if the given {rule_id} match with the Python module name, that is used as RuleID
+		if stringfiedRuleID == ruleContent.Plugin.PythonModule {
+			err = responses.SendOK(writer, responses.BuildOkResponseWithData("content", ruleContent))
+			if err != nil {
+				log.Error().Err(err)
+				handleServerError(writer, err)
+			}
+			return
 		}
-
-		err = responses.SendOK(writer, responses.BuildOkResponseWithData("content", ruleContent))
-		if err != nil {
-			log.Error().Err(err)
-			handleServerError(writer, err)
-		}
-		return
 	}
 
-	// ruleID not found
+	// if the loop ends without finding the ruleID, response with 404 code
 	err = responses.SendNotFound(writer, "No content found for the given rule ID")
 	if err != nil {
 		log.Error().Err(err)
