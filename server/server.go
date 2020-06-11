@@ -240,7 +240,7 @@ func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http
 			handleServerError(writer, err)
 		}
 		// Maybe this code should be on responses.SendRaw or something like that
-		err = responses.Send(http.StatusOK, writer, content)
+		err = responses.Send(response.StatusCode, writer, content)
 		if err != nil {
 			log.Error().Err(err).Msgf("Error writing the response")
 			handleServerError(writer, err)
