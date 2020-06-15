@@ -59,7 +59,7 @@ const (
 	// MetricsEndpoint returns prometheus metrics
 	MetricsEndpoint = "metrics"
 	// RuleContent returns static content for {rule_id}
-	RuleContent = "content/{rule_id}"
+	RuleContent = "rules/{rule_id}/content"
 )
 
 func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router) {
