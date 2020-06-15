@@ -58,6 +58,8 @@ const (
 	EnableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/enable"
 	// MetricsEndpoint returns prometheus metrics
 	MetricsEndpoint = "metrics"
+	// RuleContent returns static content for {rule_id}
+	RuleContent = "rules/{rule_id}/content"
 )
 
 func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router) {
@@ -98,6 +100,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)
 
 	// Prometheus metrics
 	router.Handle(apiPrefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
