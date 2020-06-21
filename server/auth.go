@@ -25,44 +25,16 @@ import (
 	"net/http"
 	"strings"
 
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/rs/zerolog/log"
-
 	"github.com/RedHatInsights/insights-operator-utils/collections"
-
-	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/RedHatInsights/insights-results-aggregator-utils/types"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/rs/zerolog/log"
 )
 
-type contextKey string
-
 const (
-	// ContextKeyUser is a constant for user authentication token in request
-	ContextKeyUser = contextKey("user")
 	// #nosec G101
 	malformedTokenMessage = "Malformed authentication token"
 )
-
-// Internal contains information about organization ID
-type Internal struct {
-	OrgID types.OrgID `json:"org_id,string"`
-}
-
-// Identity contains internal user info
-type Identity struct {
-	AccountNumber types.UserID `json:"account_number"`
-	Internal      Internal     `json:"internal"`
-}
-
-// Token is x-rh-identity struct
-type Token struct {
-	Identity Identity `json:"identity"`
-}
-
-// JWTPayload is structure that contain data from parsed JWT token
-type JWTPayload struct {
-	AccountNumber types.UserID `json:"account_number"`
-	OrgID         types.OrgID  `json:"org_id,string"`
-}
 
 // Authentication middleware for checking auth rights
 func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string) http.Handler {
@@ -87,21 +59,26 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			return
 		}
 
-		tk := &Token{}
+		tk := &types.Token{}
 
 		// If we took JWT token, it has different structure then x-rh-identity
 		if server.Config.AuthType == "jwt" {
-			jwt := &JWTPayload{}
-			err = json.Unmarshal([]byte(decoded), jwt)
+			jwtPayload := &types.JWTPayload{}
+			err = json.Unmarshal(decoded, jwtPayload)
 			if err != nil { //Malformed token, returns with http code 403 as usual
 				log.Error().Err(err).Msg(malformedTokenMessage)
 				handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
 				return
 			}
 			// Map JWT token to inner token
-			tk.Identity = Identity{AccountNumber: jwt.AccountNumber, Internal: Internal{OrgID: jwt.OrgID}}
+			tk.Identity = types.Identity{
+				AccountNumber: jwtPayload.AccountNumber,
+				Internal: types.Internal{
+					OrgID: jwtPayload.OrgID,
+				},
+			}
 		} else {
-			err = json.Unmarshal([]byte(decoded), tk)
+			err = json.Unmarshal(decoded, tk)
 
 			if err != nil { //Malformed token, returns with http code 403 as usual
 				log.Error().Err(err).Msg(malformedTokenMessage)
@@ -111,7 +88,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		}
 
 		// Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
-		ctx := context.WithValue(r.Context(), ContextKeyUser, tk.Identity)
+		ctx := context.WithValue(r.Context(), types.ContextKeyUser, tk.Identity)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
@@ -120,18 +97,34 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 
 // GetCurrentUserID retrieves current user's id from request
 func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID, error) {
-	i := request.Context().Value(ContextKeyUser)
+	i := request.Context().Value(types.ContextKeyUser)
 
 	if i == nil {
 		return "", &AuthenticationError{errString: "user id is not provided"}
 	}
 
-	identity, ok := i.(Identity)
+	identity, ok := i.(types.Identity)
 	if !ok {
 		return "", fmt.Errorf("contextKeyUser has wrong type")
 	}
 
 	return identity.AccountNumber, nil
+}
+
+// GetAuthToken returns current authentication token
+func (server *HTTPServer) GetAuthToken(request *http.Request) (*types.Identity, error) {
+	i := request.Context().Value(types.ContextKeyUser)
+
+	if i == nil {
+		return nil, &AuthenticationError{errString: "token is not provided"}
+	}
+
+	identity, ok := i.(types.Identity)
+	if !ok {
+		return nil, fmt.Errorf("contextKeyUser has wrong type")
+	}
+
+	return &identity, nil
 }
 
 func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool) {

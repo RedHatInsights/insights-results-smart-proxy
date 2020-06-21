@@ -17,33 +17,32 @@ limitations under the License.
 package server_test
 
 import (
+	"bytes"
+	"encoding/gob"
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"io/ioutil"
+	"net/http"
 	"testing"
+	"time"
 
+	ics_server "github.com/RedHatInsights/insights-content-service/server"
+	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
+	gock "gopkg.in/h2non/gock.v1"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
 
-var config = server.Configuration{
-	Address:     ":8080",
-	APIPrefix:   "/api/test/",
-	APISpecFile: "openapi.json",
-	Debug:       true,
-	Auth:        false,
-	UseHTTPS:    false,
-	EnableCORS:  true,
-}
+const (
+	testTimeout = 10 * time.Second
+)
 
 func init() {
 	zerolog.SetGlobalLevel(zerolog.WarnLevel)
-}
-
-func checkResponseCode(t *testing.T, expected, actual int) {
-	if expected != actual {
-		t.Errorf("Expected response code %d. Got %d\n", expected, actual)
-	}
 }
 
 func TestServerStartError(t *testing.T) {
@@ -55,9 +54,53 @@ func TestServerStartError(t *testing.T) {
 		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
 	},
 		nil,
-		nil,
 	)
 
 	err := testServer.Start()
 	assert.EqualError(t, err, "listen tcp: address 99999: invalid port")
 }
+
+func MustGobSerialize(t testing.TB, obj interface{}) []byte {
+	buf := new(bytes.Buffer)
+
+	err := gob.NewEncoder(buf).Encode(obj)
+	helpers.FailOnError(t, err)
+
+	res, err := ioutil.ReadAll(buf)
+	helpers.FailOnError(t, err)
+
+	return res
+}
+
+func TestHTTPServer_ReportEndpoint(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+		defer gock.Off()
+
+		gock.New(helpers.DefaultServicesConfig.AggregatorBaseEndpoint).
+			Get("/").
+			AddMatcher(helpers.NewGockAPIEndpointMatcher(ira_server.ReportEndpoint)).
+			Reply(200).
+			JSON(testdata.Report3RulesExpectedResponse)
+
+		gock.New(helpers.DefaultServicesConfig.ContentBaseEndpoint).
+			Get("/").
+			AddMatcher(helpers.NewGockAPIEndpointMatcher(ics_server.AllContentEndpoint)).
+			Reply(200).
+			Body(bytes.NewBuffer(MustGobSerialize(t, &testdata.RuleContentDirectory3Rules)))
+
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(testdata.SmartProxyReportResponse3Rules),
+		})
+	}, testTimeout)
+}
+
+// TODO: test more cases for report endpoint

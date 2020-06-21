@@ -15,11 +15,10 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
-	"regexp"
 
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -27,39 +26,40 @@ import (
 const (
 	// MainEndpoint returns status ok
 	MainEndpoint = ""
-	// DeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
-	DeleteOrganizationsEndpoint = "organizations/{organizations}"
-	// DeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
-	DeleteClustersEndpoint = "clusters/{clusters}"
-	// OrganizationsEndpoint returns all organizations
-	OrganizationsEndpoint = "organizations"
-	// ReportEndpoint returns report for provided {organization} and {cluster}
-	ReportEndpoint = "report/{organization}/{cluster}"
-	// LikeRuleEndpoint likes rule with {rule_id} for {cluster} using current user(from auth header)
-	LikeRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/like"
-	// DislikeRuleEndpoint dislikes rule with {rule_id} for {cluster} using current user(from auth header)
-	DislikeRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/dislike"
-	// ResetVoteOnRuleEndpoint resets vote on rule with {rule_id} for {cluster} using current user(from auth header)
-	ResetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/reset_vote"
-	// GetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
-	GetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/get_vote"
-	// RuleEndpoint is an endpoint to create&delete a rule. DEBUG only
-	RuleEndpoint = "rules/{rule_id}"
-	// RuleErrorKeyEndpoint is for endpoints to create&delete a rule_error_key (DEBUG only)
-	// and for endpoint to get a rule
-	RuleErrorKeyEndpoint = "rules/{rule_id}/error_keys/{error_key}"
-	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configruation
+	// ReportEndpoint returns report for provided {cluster}
+	ReportEndpoint = "clusters/{cluster}/report"
+	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configuration
 	RuleGroupsEndpoint = "groups"
-	// ClustersForOrganizationEndpoint returns all clusters for {organization}
-	ClustersForOrganizationEndpoint = "organizations/{organization}/clusters"
-	// DisableRuleForClusterEndpoint disables a rule for specified cluster
-	DisableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/disable"
-	// EnableRuleForClusterEndpoint re-enables a rule for specified cluster
-	EnableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/enable"
-	// MetricsEndpoint returns prometheus metrics
-	MetricsEndpoint = "metrics"
 	// RuleContent returns static content for {rule_id}
 	RuleContent = "rules/{rule_id}/content"
+	// MetricsEndpoint returns prometheus metrics
+	MetricsEndpoint = "metrics"
+
+	// LikeRuleEndpoint likes rule with {rule_id} for {cluster} using current user(from auth header)
+	LikeRuleEndpoint = ira_server.LikeRuleEndpoint
+	// DislikeRuleEndpoint dislikes rule with {rule_id} for {cluster} using current user(from auth header)
+	DislikeRuleEndpoint = ira_server.DislikeRuleEndpoint
+	// ResetVoteOnRuleEndpoint resets vote on rule with {rule_id} for {cluster} using current user(from auth header)
+	ResetVoteOnRuleEndpoint = ira_server.ResetVoteOnRuleEndpoint
+	// ClustersForOrganizationEndpoint returns all clusters for {organization}
+	ClustersForOrganizationEndpoint = ira_server.ClustersForOrganizationEndpoint
+	// DisableRuleForClusterEndpoint disables a rule for specified cluster
+	DisableRuleForClusterEndpoint = ira_server.DisableRuleForClusterEndpoint
+	// EnableRuleForClusterEndpoint re-enables a rule for specified cluster
+	EnableRuleForClusterEndpoint = ira_server.EnableRuleForClusterEndpoint
+	// RuleErrorKeyEndpoint is for endpoints to create&delete a rule_error_key (DEBUG only)
+	// and for endpoint to get a rule
+	RuleErrorKeyEndpoint = ira_server.RuleErrorKeyEndpoint
+	// OrganizationsEndpoint returns all organizations
+	OrganizationsEndpoint = ira_server.OrganizationsEndpoint
+	// DeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
+	DeleteOrganizationsEndpoint = ira_server.DeleteOrganizationsEndpoint
+	// DeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
+	DeleteClustersEndpoint = ira_server.DeleteClustersEndpoint
+	// GetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
+	GetVoteOnRuleEndpoint = ira_server.GetVoteOnRuleEndpoint
+	// RuleEndpoint is an endpoint to create&delete a rule. DEBUG only
+	RuleEndpoint = ira_server.RuleEndpoint
 )
 
 func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router) {
@@ -91,7 +91,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 
 	// common REST API endpoints
 	router.HandleFunc(apiPrefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+ReportEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+DislikeRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ResetVoteOnRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
@@ -107,11 +107,4 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 
 	// OpenAPI specs
 	router.HandleFunc(openAPIURL, server.serveAPISpecFile).Methods(http.MethodGet)
-}
-
-// MakeURLToEndpoint creates URL to endpoint, use constants from file endpoints.go
-func MakeURLToEndpoint(apiPrefix, endpoint string, args ...interface{}) string {
-	re := regexp.MustCompile(`\{[a-zA-Z_0-9]+\}`)
-	endpoint = re.ReplaceAllString(endpoint, "%v")
-	return apiPrefix + fmt.Sprintf(endpoint, args...)
 }

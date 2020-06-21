@@ -17,16 +17,15 @@ package server_test
 import (
 	"testing"
 
+	httputils "github.com/RedHatInsights/insights-results-aggregator-utils/http"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 )
 
 func TestMakeURLToEndpointWithValidValue(t *testing.T) {
 	apiPrefix := "api/v1/"
 	endpoint := "some_valid_endpoint"
 
-	retval := server.MakeURLToEndpoint(apiPrefix, endpoint)
+	retval := httputils.MakeURLToEndpoint(apiPrefix, endpoint)
 
 	assert.Equal(t, "api/v1/some_valid_endpoint", retval)
 }

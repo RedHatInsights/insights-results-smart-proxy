@@ -25,13 +25,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+
+	proxy_content "github.com/RedHatInsights/insights-results-smart-proxy/content"
 )
 
 const (
@@ -94,10 +95,10 @@ func startServer() int {
 	serverCfg := conf.GetServerConfiguration()
 	servicesCfg := conf.GetServicesConfiguration()
 	groupsChannel := make(chan []groups.Group)
-	contentChannel := make(chan content.RuleContentDirectory)
-	serverInstance = server.New(serverCfg, servicesCfg, groupsChannel, contentChannel)
+	serverInstance = server.New(serverCfg, servicesCfg, groupsChannel)
 
-	go updateGroupInfo(servicesCfg, groupsChannel, contentChannel)
+	go updateGroupInfo(servicesCfg, groupsChannel)
+	go proxy_content.RunUpdateContentLoop(servicesCfg)
 
 	err := serverInstance.Start()
 	if err != nil {
@@ -111,22 +112,14 @@ func startServer() int {
 // updateGroupInfo function is run in a goroutine. It runs forever, waiting for 1 of 2 events: a Ticker or a channel
 // * If ticker comes first, the groups configuration is updated, doing a request to the content-service
 // * If the channel comes first, the latest valid groups configuration is send through the channel
-func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []groups.Group, contentChannel chan content.RuleContentDirectory) {
+func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []groups.Group) {
 	var currentGroups []groups.Group
-	currentContent := &content.RuleContentDirectory{}
 
 	groups, err := services.GetGroups(servicesConf)
 	if err != nil {
 		log.Error().Err(err).Msg("Error retrieving groups")
 	} else {
 		currentGroups = groups
-	}
-
-	content, err := services.GetContent(servicesConf)
-	if err != nil {
-		log.Error().Err(err).Msg("Error retrieving static content")
-	} else {
-		currentContent = content
 	}
 
 	uptimeTicker := time.NewTicker(servicesConf.GroupsPollingTime)
@@ -141,16 +134,7 @@ func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []g
 			} else {
 				currentGroups = groups
 			}
-
-			content, err = services.GetContent(servicesConf)
-			if err != nil {
-				log.Error().Err(err).Msg("Error retrieving static content")
-			} else {
-				currentContent = content
-			}
-
 		case groupsChannel <- currentGroups:
-		case contentChannel <- *currentContent:
 		}
 	}
 }
@@ -193,12 +177,11 @@ func main() {
 		showVersion bool
 	)
 	flag.BoolVar(&showHelp, "help", false, "Show the help")
-	flag.BoolVar(&showVersion, "version", false, "Show the version an exit")
+	flag.BoolVar(&showVersion, "version", false, "Show the version and exit")
 	flag.Parse()
 
 	if showHelp {
-		printHelp()
-		os.Exit(ExitStatusOK)
+		os.Exit(printHelp())
 	}
 
 	if showVersion {
@@ -206,8 +189,7 @@ func main() {
 		os.Exit(ExitStatusOK)
 	}
 
-	var args []string
-	args = flag.Args()
+	args := flag.Args()
 
 	command := "start-service"
 	if len(args) >= 1 {

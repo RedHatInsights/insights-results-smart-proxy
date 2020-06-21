@@ -19,10 +19,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/RedHatInsights/insights-results-aggregator-utils/types"
+	"github.com/rs/zerolog/log"
 )
 
 // responseDataError is used as the error message when the responses functions return an error

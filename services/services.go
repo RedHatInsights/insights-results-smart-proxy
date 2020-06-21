@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -81,32 +82,22 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 
 // GetContent get the static rule content from content-service
 func GetContent(conf Configuration) (*content.RuleContentDirectory, error) {
-	type contentResponse struct {
-		Status         string `json:"status"`
-		EncodedContent []byte `json:"rule-content"`
-	}
-	var receivedMsg contentResponse
-
-	log.Info().Msg("Updating rules static content")
+	log.Info().Msg("getting rules static content")
 	resp, err := getFromURL(conf.ContentBaseEndpoint + ContentEndpoint)
 
 	if err != nil {
-		// Log already shown
 		return nil, err
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(&receivedMsg)
+	respBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error().Err(err).Msg("Error while decoding static content answer from content-service")
 		return nil, err
 	}
 
 	var receivedContent content.RuleContentDirectory
-	encodedContent := bytes.NewBuffer(receivedMsg.EncodedContent)
-	err = gob.NewDecoder(encodedContent).Decode(&receivedContent)
-
+	err = gob.NewDecoder(bytes.NewReader(respBytes)).Decode(&receivedContent)
 	if err != nil {
-		log.Error().Err(err).Msg("Error trying to decode rules content from received answer")
+		log.Error().Err(err).Msg("error trying to decode rules content from received answer")
 		return nil, err
 	}
 
