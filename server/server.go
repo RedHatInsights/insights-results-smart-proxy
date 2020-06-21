@@ -278,6 +278,7 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 		userID,
 	)
 
+	// #nosec G107
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
 		handleServerError(writer, err)

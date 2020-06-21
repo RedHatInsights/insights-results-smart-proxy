@@ -1,3 +1,17 @@
+// Copyright 2020 Red Hat, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package content provides API to get rule's content by its `rule id` and `error key`.
 // It takes all the work of caching rules taken from content service
 package content
@@ -33,6 +47,7 @@ type RulesWithContentStorage struct {
 	rules            map[types.RuleID]*ics_content.RuleContent
 }
 
+// GetRuleWithErrorKeyContent returns content for rule with error key
 func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
 ) (*types.RuleWithContent, bool) {
@@ -46,6 +61,7 @@ func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 	return res, found
 }
 
+// GetRuleContent returns content for rule
 func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, bool) {
 	s.RLock()
 	defer s.RUnlock()
@@ -54,6 +70,7 @@ func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*ics_cont
 	return res, found
 }
 
+// SetRuleWithContent sets content for rule with error key
 func (s *RulesWithContentStorage) SetRuleWithContent(
 	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent,
 ) {
@@ -66,6 +83,7 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 	}] = ruleWithContent
 }
 
+// SetRule sets content for rule
 func (s *RulesWithContentStorage) SetRule(
 	ruleID types.RuleID, ruleContent *ics_content.RuleContent,
 ) {

@@ -1,3 +1,17 @@
+// Copyright 2020 Red Hat, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package helpers
 
 import (
@@ -11,17 +25,25 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
+// APIRequest represents APIRequest
 type APIRequest = helpers.APIRequest
+
+// APIResponse represents APIResponse
 type APIResponse = helpers.APIResponse
 
 var (
-	ExecuteRequest             = helpers.ExecuteRequest
-	CheckResponseBodyJSON      = helpers.CheckResponseBodyJSON
+	// ExecuteRequest executes request
+	ExecuteRequest = helpers.ExecuteRequest
+	// CheckResponseBodyJSON checks response body
+	CheckResponseBodyJSON = helpers.CheckResponseBodyJSON
+	// AssertReportResponsesEqual fails if report responses aren't equal
 	AssertReportResponsesEqual = helpers.AssertReportResponsesEqual
+	// NewGockAPIEndpointMatcher creates a matcher for a given endpoint for gock
 	NewGockAPIEndpointMatcher = helpers.NewGockAPIEndpointMatcher
 )
 
 var (
+	// DefaultServerConfig is a default server config
 	DefaultServerConfig = server.Configuration{
 		Address:     ":8081",
 		APIPrefix:   "/api/v1/",
@@ -33,6 +55,7 @@ var (
 		EnableCORS:  false,
 	}
 
+	// DefaultServicesConfig is a default services config
 	DefaultServicesConfig = services.Configuration{
 		AggregatorBaseEndpoint: "http://localhost:8080/",
 		ContentBaseEndpoint:    "http://localhost:8082/",
@@ -67,4 +90,3 @@ func AssertAPIRequest(
 
 	helpers.AssertAPIRequest(t, testServer, serverConfig.APIPrefix, request, expectedResponse)
 }
-
