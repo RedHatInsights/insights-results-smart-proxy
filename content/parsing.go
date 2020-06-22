@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-content-service/content"
-	"github.com/RedHatInsights/insights-results-aggregator-utils/types"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
 )
 

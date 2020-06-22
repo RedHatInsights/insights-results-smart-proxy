@@ -14,7 +14,7 @@
 
 package types
 
-import "github.com/RedHatInsights/insights-results-aggregator-utils/types"
+import "github.com/RedHatInsights/insights-operator-utils/types"
 
 // UserID represents type for user id
 type UserID = types.UserID

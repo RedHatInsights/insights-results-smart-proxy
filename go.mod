@@ -8,7 +8,6 @@ require (
 	github.com/RedHatInsights/insights-operator-utils v1.0.2-0.20200610143236-c868b2f93d2a
 	github.com/RedHatInsights/insights-results-aggregator v0.0.0-20200604090056-3534f6dd9c1c
 	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20200512064850-2d04c5d0c9a6
-	github.com/RedHatInsights/insights-results-aggregator-utils v0.0.0-20200616074815-67f30b0e724d
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/google/uuid v1.1.1

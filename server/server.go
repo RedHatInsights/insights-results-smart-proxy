@@ -33,7 +33,7 @@ import (
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-results-aggregator-utils/types"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	// we just have to import this package in order to expose pprof interface in debug mode
@@ -42,7 +42,7 @@ import (
 	_ "net/http/pprof"
 	"path/filepath"
 
-	httputils "github.com/RedHatInsights/insights-results-aggregator-utils/http"
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"

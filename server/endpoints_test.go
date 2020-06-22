@@ -17,7 +17,7 @@ package server_test
 import (
 	"testing"
 
-	httputils "github.com/RedHatInsights/insights-results-aggregator-utils/http"
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/stretchr/testify/assert"
 )
 

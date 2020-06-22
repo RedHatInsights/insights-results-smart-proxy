@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/RedHatInsights/insights-results-aggregator-utils/types"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"

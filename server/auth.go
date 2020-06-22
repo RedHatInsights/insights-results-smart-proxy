@@ -26,7 +26,7 @@ import (
 	"strings"
 
 	"github.com/RedHatInsights/insights-operator-utils/collections"
-	"github.com/RedHatInsights/insights-results-aggregator-utils/types"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/rs/zerolog/log"
 )

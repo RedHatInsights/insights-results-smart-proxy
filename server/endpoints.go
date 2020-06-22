@@ -47,9 +47,6 @@ const (
 	DisableRuleForClusterEndpoint = ira_server.DisableRuleForClusterEndpoint
 	// EnableRuleForClusterEndpoint re-enables a rule for specified cluster
 	EnableRuleForClusterEndpoint = ira_server.EnableRuleForClusterEndpoint
-	// RuleErrorKeyEndpoint is for endpoints to create&delete a rule_error_key (DEBUG only)
-	// and for endpoint to get a rule
-	RuleErrorKeyEndpoint = ira_server.RuleErrorKeyEndpoint
 	// OrganizationsEndpoint returns all organizations
 	OrganizationsEndpoint = ira_server.OrganizationsEndpoint
 	// DeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
@@ -58,8 +55,6 @@ const (
 	DeleteClustersEndpoint = ira_server.DeleteClustersEndpoint
 	// GetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
 	GetVoteOnRuleEndpoint = ira_server.GetVoteOnRuleEndpoint
-	// RuleEndpoint is an endpoint to create&delete a rule. DEBUG only
-	RuleEndpoint = ira_server.RuleEndpoint
 )
 
 func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router) {
@@ -70,10 +65,6 @@ func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
 	router.HandleFunc(apiPrefix+DeleteClustersEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
 	router.HandleFunc(apiPrefix+GetVoteOnRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+RuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPost)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPost)
-	router.HandleFunc(apiPrefix+RuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
 
 	// endpoints for pprof - needed for profiling, ie. usually in debug mode
 	router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
@@ -99,7 +90,6 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)
 
 	// Prometheus metrics

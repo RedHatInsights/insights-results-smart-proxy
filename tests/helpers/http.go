@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-results-aggregator-utils/tests/helpers"
+	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
