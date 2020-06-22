@@ -19,7 +19,9 @@ package server_test
 import (
 	"bytes"
 	"encoding/gob"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -40,6 +42,76 @@ import (
 const (
 	testTimeout = 10 * time.Second
 )
+
+// TODO: consider moving to data repo
+var (
+	SmartProxyReportResponse3Rules = struct {
+		Status string                        `json:"status"`
+		Report *proxy_types.SmartProxyReport `json:"report"`
+	}{
+		Status: "ok",
+		Report: &SmartProxyReport3Rules,
+	}
+
+	SmartProxyReport3Rules = proxy_types.SmartProxyReport{
+		Meta: types.ReportResponseMeta{
+			Count:         3,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []proxy_types.RuleWithContentResponse{
+			{
+				RuleID:       testdata.Rule1.Module,
+				ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey1.Description,
+				Generic:      testdata.RuleErrorKey1.Generic,
+				Reason:       testdata.Rule1.Reason,
+				Resolution:   testdata.Rule1.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule1Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule1.MoreInfo,
+				Tags:         testdata.RuleErrorKey1.Tags,
+			},
+			{
+				RuleID:       testdata.Rule2.Module,
+				ErrorKey:     testdata.RuleErrorKey2.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey2.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey2.Description,
+				Generic:      testdata.RuleErrorKey2.Generic,
+				Reason:       testdata.Rule2.Reason,
+				Resolution:   testdata.Rule2.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule2Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule2.MoreInfo,
+				Tags:         testdata.RuleErrorKey2.Tags,
+			},
+			{
+				RuleID:       testdata.Rule3.Module,
+				ErrorKey:     testdata.RuleErrorKey3.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey3.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey3.Description,
+				Generic:      testdata.RuleErrorKey3.Generic,
+				Reason:       testdata.Rule3.Reason,
+				Resolution:   testdata.Rule3.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey3.Impact, testdata.RuleErrorKey3.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule3Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule3.MoreInfo,
+				Tags:         testdata.RuleErrorKey3.Tags,
+			},
+		},
+	}
+)
+
+// TODO: move to utils
+func calculateTotalRisk(impact, likelihood int) int {
+	return (impact + likelihood) / 2
+}
 
 func init() {
 	zerolog.SetGlobalLevel(zerolog.WarnLevel)
@@ -98,7 +170,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(testdata.SmartProxyReportResponse3Rules),
+			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
 		})
 	}, testTimeout)
 }
