@@ -21,7 +21,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/RedHatInsights/insights-content-service/content"
 	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
@@ -30,7 +29,7 @@ import (
 )
 
 var (
-	ruleContentDirectory      *content.RuleContentDirectory
+	ruleContentDirectory      *ics_content.RuleContentDirectory
 	ruleContentDirectoryReady = make(chan struct{})
 )
 
