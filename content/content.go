@@ -84,12 +84,12 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 
 // SetRule sets content for rule
 func (s *RulesWithContentStorage) SetRule(
-	ruleID types.RuleID, ruleContent *ics_content.RuleContent,
+	ruleID types.RuleID, ruleContent ics_content.RuleContent,
 ) {
 	s.Lock()
 	defer s.Unlock()
 
-	s.rules[ruleID] = ruleContent
+	s.rules[ruleID] = &ruleContent
 }
 
 var rulesWithContentStorage = RulesWithContentStorage{

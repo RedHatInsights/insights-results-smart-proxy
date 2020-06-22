@@ -30,7 +30,7 @@ func loadRuleContent(contentDir *content.RuleContentDirectory) {
 	for _, rule := range contentDir.Rules {
 		ruleID := types.RuleID(rule.Plugin.PythonModule)
 
-		rulesWithContentStorage.SetRule(ruleID, &rule)
+		rulesWithContentStorage.SetRule(ruleID, rule)
 
 		for errorKey, errorProperties := range rule.ErrorKeys {
 			impact, found := contentDir.Config.Impact[errorProperties.Metadata.Impact]
