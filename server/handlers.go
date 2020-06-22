@@ -20,14 +20,17 @@ import (
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/rs/zerolog/log"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 )
 
-// getGroups retrives the groups configuration from a channel to get the latest valid one and send the response back to the client
-func (server *HTTPServer) getGroups(writer http.ResponseWriter, request *http.Request) {
+// getGroups retrieves the groups configuration from a channel to get the latest valid one
+// and sends the response back to the client
+func (server *HTTPServer) getGroups(writer http.ResponseWriter, _ *http.Request) {
 	groupsConfig := <-server.GroupsChannel
 	if groupsConfig == nil {
-		err := errors.New("No groups retrieved")
-		log.Error().Err(err).Msg("Groups cannot be retrieved from content service. Check logs")
+		err := errors.New("no groups retrieved")
+		log.Error().Err(err).Msg("groups cannot be retrieved from content service. Check logs")
 		handleServerError(writer, err)
 		return
 	}
@@ -44,39 +47,21 @@ func (server *HTTPServer) getGroups(writer http.ResponseWriter, request *http.Re
 
 // getContentForRule retrieves the static content for the given ruleID
 func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *http.Request) {
-	contentConfig := <-server.ContentChannel
-
-	if contentConfig.Rules == nil {
-		err := errors.New("No rules content")
-		log.Error().Err(err).Msg("Rules static content cannot be retrieved from content service. Check logs")
-		handleServerError(writer, err)
-		return
-	}
-
 	ruleID, err := readRuleID(writer, request)
 	if err != nil {
 		// already handled in readRuleID
 		return
 	}
 
-	stringfiedRuleID := string(ruleID)
-
-	for _, ruleContent := range contentConfig.Rules {
-		// Check if the given {rule_id} match with the Python module name, that is used as RuleID
-		if stringfiedRuleID == ruleContent.Plugin.PythonModule {
-			err = responses.SendOK(writer, responses.BuildOkResponseWithData("content", ruleContent))
-			if err != nil {
-				log.Error().Err(err)
-				handleServerError(writer, err)
-			}
-			return
-		}
+	ruleContent, err := content.GetRuleContent(ruleID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
 	}
 
-	// if the loop ends without finding the ruleID, response with 404 code
-	err = responses.SendNotFound(writer, "No content found for the given rule ID")
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("content", ruleContent))
 	if err != nil {
-		log.Error().Err(err)
 		handleServerError(writer, err)
+		return
 	}
 }

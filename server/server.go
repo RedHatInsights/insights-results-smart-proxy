@@ -24,25 +24,31 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
+	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/responses"
+	"github.com/RedHatInsights/insights-operator-utils/types"
+	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 	// we just have to import this package in order to expose pprof interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
 	// #nosec G108
 	_ "net/http/pprof"
 	"path/filepath"
 
-	"github.com/RedHatInsights/insights-content-service/content"
-	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-results-aggregator/types"
-	"github.com/gorilla/mux"
-	"github.com/rs/zerolog/log"
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+
+	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 // HTTPServer in an implementation of Server interface
@@ -50,17 +56,15 @@ type HTTPServer struct {
 	Config         Configuration
 	ServicesConfig services.Configuration
 	GroupsChannel  chan []groups.Group
-	ContentChannel chan content.RuleContentDirectory
 	Serv           *http.Server
 }
 
 // New constructs new implementation of Server interface
-func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group, contentChannel chan content.RuleContentDirectory) *HTTPServer {
+func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group) *HTTPServer {
 	return &HTTPServer{
 		Config:         config,
 		ServicesConfig: servicesConfig,
 		GroupsChannel:  groupsChannel,
-		ContentChannel: contentChannel,
 	}
 }
 
@@ -232,14 +236,14 @@ func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http
 			handleServerError(writer, err)
 		}
 
-		content, err := ioutil.ReadAll(response.Body)
+		body, err := ioutil.ReadAll(response.Body)
 
 		if err != nil {
 			log.Error().Err(err).Msgf("Error while retrieving content from request to %s", endpointURL.String())
 			handleServerError(writer, err)
 		}
 		// Maybe this code should be on responses.SendRaw or something like that
-		err = responses.Send(response.StatusCode, writer, content)
+		err = responses.Send(response.StatusCode, writer, body)
 		if err != nil {
 			log.Error().Err(err).Msgf("Error writing the response")
 			handleServerError(writer, err)
@@ -257,5 +261,116 @@ func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
 		for _, value := range headerValues {
 			dstHeaders.Add(headerKey, value)
 		}
+	}
+}
+
+// readAggregatorReportForClusterID reads report from aggregator,
+// handles errors by sending corresponding message to the user.
+// Returns report and bool value set to true if there was no errors
+func (server HTTPServer) readAggregatorReportForClusterID(
+	orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter,
+) (*types.ReportResponse, bool) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ReportEndpoint,
+		orgID,
+		clusterID,
+		userID,
+	)
+
+	// #nosec G107
+	aggregatorResp, err := http.Get(aggregatorURL)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	var aggregatorResponse struct {
+		Report *types.ReportResponse `json:"report"`
+		Status string                `json:"status"`
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, false
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	return aggregatorResponse.Report, true
+}
+
+func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	if !successful {
+		return
+	}
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	userID := authToken.AccountNumber
+	orgID := authToken.Internal.OrgID
+
+	aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
+	if !successful {
+		return
+	}
+
+	var rules []proxy_types.RuleWithContentResponse
+
+	for _, aggregatorRule := range aggregatorResponse.Report {
+		ruleID := aggregatorRule.Module
+		errorKey := aggregatorRule.ErrorKey
+
+		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+		if err != nil {
+			handleServerError(writer, err)
+			return
+		}
+
+		rule := proxy_types.RuleWithContentResponse{
+			CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+			Description:  ruleWithContent.Description,
+			ErrorKey:     errorKey,
+			Generic:      ruleWithContent.Generic,
+			Reason:       ruleWithContent.Reason,
+			Resolution:   ruleWithContent.Resolution,
+			TotalRisk:    ruleWithContent.TotalRisk,
+			RiskOfChange: ruleWithContent.RiskOfChange,
+			RuleID:       ruleID,
+			TemplateData: aggregatorRule.TemplateData,
+			Tags:         ruleWithContent.Tags,
+			UserVote:     aggregatorRule.UserVote,
+			Disabled:     aggregatorRule.Disabled,
+		}
+
+		rules = append(rules, rule)
+	}
+
+	report := proxy_types.SmartProxyReport{
+		Meta: aggregatorResponse.Meta,
+		Data: rules,
+	}
+
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
 	}
 }
