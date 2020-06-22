@@ -39,6 +39,7 @@ import (
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 
@@ -97,30 +98,6 @@ func (server HTTPServer) serveAPISpecFile(writer http.ResponseWriter, request *h
 	http.ServeFile(writer, request, absPath)
 }
 
-// addCORSHeaders - middleware for adding headers that should be in any response
-func (server *HTTPServer) addCORSHeaders(nextHandler http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			nextHandler.ServeHTTP(w, r)
-		})
-}
-
-// handleOptionsMethod - middleware for handling OPTIONS method
-func (server *HTTPServer) handleOptionsMethod(nextHandler http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			if r.Method == "OPTIONS" {
-				w.WriteHeader(http.StatusOK)
-			} else {
-				nextHandler.ServeHTTP(w, r)
-			}
-		})
-}
-
 // Initialize perform the server initialization
 func (server *HTTPServer) Initialize() http.Handler {
 	log.Info().Msgf("Initializing HTTP server at '%s'", server.Config.Address)
@@ -149,8 +126,24 @@ func (server *HTTPServer) Initialize() http.Handler {
 	}
 
 	if server.Config.EnableCORS {
-		router.Use(server.addCORSHeaders)
-		router.Use(server.handleOptionsMethod)
+		headersOK := handlers.AllowedHeaders([]string{
+			"Content-Type",
+			"Content-Length",
+			"Accept-Encoding",
+			"X-CSRF-Token",
+			"Authorization",
+		})
+		originsOK := handlers.AllowedOrigins([]string{"*"})
+		methodsOK := handlers.AllowedMethods([]string{
+			http.MethodPost,
+			http.MethodGet,
+			http.MethodOptions,
+			http.MethodPut,
+			http.MethodDelete,
+		})
+		credsOK := handlers.AllowCredentials()
+		corsMiddleware := handlers.CORS(originsOK, headersOK, methodsOK, credsOK)
+		router.Use(corsMiddleware)
 	}
 
 	server.addEndpointsToRouter(router)

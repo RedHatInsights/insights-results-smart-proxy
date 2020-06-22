@@ -17,8 +17,10 @@ limitations under the License.
 package server_test
 
 import (
+	"net/http"
 	"testing"
 
+	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 
@@ -60,4 +62,34 @@ func TestServerStartError(t *testing.T) {
 
 	err := testServer.Start()
 	assert.EqualError(t, err, "listen tcp: address 99999: invalid port")
+}
+
+func TestAddCORSHeaders(t *testing.T) {
+	testServer := server.New(
+		config,
+		services.Configuration{
+			AggregatorBaseEndpoint: "http://localhost:8081/api/v1/",
+			ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
+		},
+		nil,
+		nil,
+	)
+
+	helpers.AssertAPIRequest(t, testServer, config.APIPrefix, &helpers.APIRequest{
+		Method:   http.MethodOptions,
+		Endpoint: server.RuleGroupsEndpoint,
+		ExtraHeaders: http.Header{
+			"Origin":                         []string{"http://example.com"},
+			"Access-Control-Request-Method":  []string{http.MethodOptions},
+			"Access-Control-Request-Headers": []string{"X-Csrf-Token,Content-Type,Content-Length"},
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Access-Control-Allow-Origin":      "*",
+			"Access-Control-Allow-Credentials": "true",
+			"Access-Control-Allow-Methods":     http.MethodOptions,
+			"Access-Control-Allow-Headers":     "X-Csrf-Token,Content-Type,Content-Length",
+		},
+	})
 }
