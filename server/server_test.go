@@ -28,7 +28,6 @@ import (
 	"time"
 
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
-	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
@@ -134,17 +133,7 @@ func TestServerStartError(t *testing.T) {
 }
 
 func TestAddCORSHeaders(t *testing.T) {
-	testServer := server.New(
-		config,
-		services.Configuration{
-			AggregatorBaseEndpoint: "http://localhost:8081/api/v1/",
-			ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
-		},
-		nil,
-		nil,
-	)
-
-	helpers.AssertAPIRequest(t, testServer, config.APIPrefix, &helpers.APIRequest{
+	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigCORS, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
 		Method:   http.MethodOptions,
 		Endpoint: server.RuleGroupsEndpoint,
 		ExtraHeaders: http.Header{
