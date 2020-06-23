@@ -12,20 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server_test
+package helpers
 
-import (
-	"testing"
+import "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 
-	httputils "github.com/RedHatInsights/insights-operator-utils/http"
-	"github.com/stretchr/testify/assert"
-)
+// FailOnError fails on error
+var FailOnError = helpers.FailOnError
 
-func TestMakeURLToEndpointWithValidValue(t *testing.T) {
-	apiPrefix := "api/v1/"
-	endpoint := "some_valid_endpoint"
+// ToJSONString converts anything to json string
+var ToJSONString = helpers.ToJSONString
 
-	retval := httputils.MakeURLToEndpoint(apiPrefix, endpoint)
-
-	assert.Equal(t, "api/v1/some_valid_endpoint", retval)
-}
+// RunTestWithTimeout runs test with timeToRun timeout and fails if it wasn't in time
+var RunTestWithTimeout = helpers.RunTestWithTimeout

@@ -173,22 +173,12 @@
         ]
       }
     },
-    "/report/{orgId}/{clusterId}": {
+    "/clusters/{clusterId}/report": {
       "get": {
-        "summary": "Returns the latest report for the given organization and cluster which contains information about rules that were hit by the cluster.",
+        "summary": "Returns the latest report for the a cluster which contains information about rules that were hit by the cluster. Information about the org_id and user_id is taken from the token.",
         "operationId": "getReportForCluster",
-        "description": "The report is specified by the organization ID and the cluster ID. The latest report available for the given combination will be returned.",
+        "description": "The report is specified by the cluster ID from params and information about the org_id and user_id is taken from the token. The latest report available for the given combination will be returned.",
         "parameters": [
-          {
-            "name": "orgId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "minimum": 0
-            }
-          },
           {
             "name": "clusterId",
             "in": "path",
