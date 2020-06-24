@@ -23,7 +23,6 @@ import (
 	"time"
 
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
