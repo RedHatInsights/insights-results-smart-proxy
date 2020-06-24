@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20200619153839-23a428468a08
-	github.com/RedHatInsights/insights-operator-utils v1.1.0
+	github.com/RedHatInsights/insights-operator-utils v1.2.0
 	github.com/RedHatInsights/insights-results-aggregator v0.0.0-20200622123018-31c3f8ac30bd
 	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20200622112651-e5a7c1d79015
 	github.com/RedHatInsights/insights-results-aggregator-utils v0.0.0-20200616074815-67f30b0e724d // indirect
@@ -15,6 +15,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/google/uuid v1.1.1
+	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/klauspost/compress v1.10.9 // indirect
 	github.com/mitchellh/mapstructure v1.3.2 // indirect

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
@@ -127,6 +128,26 @@ func TestServerStartError(t *testing.T) {
 
 	err := testServer.Start()
 	assert.EqualError(t, err, "listen tcp: address 99999: invalid port")
+}
+
+func TestAddCORSHeaders(t *testing.T) {
+	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigCORS, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
+		Method:   http.MethodOptions,
+		Endpoint: server.RuleGroupsEndpoint,
+		ExtraHeaders: http.Header{
+			"Origin":                         []string{"http://example.com"},
+			"Access-Control-Request-Method":  []string{http.MethodOptions},
+			"Access-Control-Request-Headers": []string{"X-Csrf-Token,Content-Type,Content-Length"},
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Access-Control-Allow-Origin":      "*",
+			"Access-Control-Allow-Credentials": "true",
+			"Access-Control-Allow-Methods":     http.MethodOptions,
+			"Access-Control-Allow-Headers":     "X-Csrf-Token,Content-Type,Content-Length",
+		},
+	})
 }
 
 func TestHTTPServer_ReportEndpoint(t *testing.T) {

@@ -61,6 +61,18 @@ var (
 		EnableCORS:  false,
 	}
 
+	// DefaultServerConfigCORS is a default server config with CORS enabled
+	DefaultServerConfigCORS = server.Configuration{
+		Address:     ":8081",
+		APIPrefix:   "/api/v1/",
+		APISpecFile: "openapi.json",
+		Debug:       true,
+		Auth:        false,
+		AuthType:    "",
+		UseHTTPS:    false,
+		EnableCORS:  true,
+	}
+
 	// DefaultServicesConfig is a default services config
 	DefaultServicesConfig = services.Configuration{
 		AggregatorBaseEndpoint: "http://localhost:8080/",

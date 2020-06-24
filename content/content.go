@@ -22,10 +22,10 @@ import (
 	"time"
 
 	ics_content "github.com/RedHatInsights/insights-content-service/content"
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 var (

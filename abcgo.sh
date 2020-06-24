@@ -26,7 +26,11 @@ if [[ $* == *verbose* ]]; then
     VERBOSE=true
 fi
 
-GO111MODULE=off go get -u github.com/droptheplot/abcgo
+if ! [ -x "$(command -v abcgo)" ]
+then
+    echo -e "${BLUE}Installing abcgo${NC}"
+    GO111MODULE=off go get -u github.com/droptheplot/abcgo
+fi
 
 if [ "$VERBOSE" = true ]; then
     echo -e "${BLUE}All ABC metrics${NC}:"
