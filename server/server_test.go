@@ -18,11 +18,6 @@ package server_test
 
 import (
 	"bytes"
-	"encoding/gob"
-	"github.com/RedHatInsights/insights-operator-utils/types"
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
-	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
-	"io/ioutil"
 	"net/http"
 	"testing"
 	"time"
@@ -34,9 +29,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	gock "gopkg.in/h2non/gock.v1"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -46,19 +43,19 @@ const (
 // TODO: consider moving to data repo
 var (
 	SmartProxyReportResponse3Rules = struct {
-		Status string                        `json:"status"`
-		Report *proxy_types.SmartProxyReport `json:"report"`
+		Status string                  `json:"status"`
+		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
 		Report: &SmartProxyReport3Rules,
 	}
 
-	SmartProxyReport3Rules = proxy_types.SmartProxyReport{
+	SmartProxyReport3Rules = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
 			Count:         3,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
-		Data: []proxy_types.RuleWithContentResponse{
+		Data: []types.RuleWithContentResponse{
 			{
 				RuleID:       testdata.Rule1.Module,
 				ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
@@ -132,18 +129,6 @@ func TestServerStartError(t *testing.T) {
 	assert.EqualError(t, err, "listen tcp: address 99999: invalid port")
 }
 
-func MustGobSerialize(t testing.TB, obj interface{}) []byte {
-	buf := new(bytes.Buffer)
-
-	err := gob.NewEncoder(buf).Encode(obj)
-	helpers.FailOnError(t, err)
-
-	res, err := ioutil.ReadAll(buf)
-	helpers.FailOnError(t, err)
-
-	return res
-}
-
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t *testing.T) {
 		defer gock.Off()
@@ -158,7 +143,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			Get("/").
 			AddMatcher(helpers.NewGockAPIEndpointMatcher(ics_server.AllContentEndpoint)).
 			Reply(200).
-			Body(bytes.NewBuffer(MustGobSerialize(t, &testdata.RuleContentDirectory3Rules)))
+			Body(bytes.NewBuffer(helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules)))
 
 		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 

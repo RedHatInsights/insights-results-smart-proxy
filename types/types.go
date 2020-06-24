@@ -47,3 +47,15 @@ type SmartProxyReport struct {
 	Meta types.ReportResponseMeta  `json:"meta"`
 	Data []RuleWithContentResponse `json:"data"`
 }
+
+// UserVote is a type for user's vote
+type UserVote = types.UserVote
+
+const (
+	// UserVoteDislike shows user's dislike
+	UserVoteDislike = types.UserVoteDislike
+	// UserVoteNone shows no vote from user
+	UserVoteNone = types.UserVoteNone
+	// UserVoteLike shows user's like
+	UserVoteLike = types.UserVoteLike
+)
