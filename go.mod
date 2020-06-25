@@ -7,7 +7,7 @@ require (
 	github.com/RedHatInsights/insights-content-service v0.0.0-20200619153839-23a428468a08
 	github.com/RedHatInsights/insights-operator-utils v1.2.1
 	github.com/RedHatInsights/insights-results-aggregator v0.0.0-20200622123018-31c3f8ac30bd
-	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20200622112651-e5a7c1d79015
+	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20200624135606-84f78db90ac2
 	github.com/Shopify/sarama v1.26.4 // indirect
 	github.com/aws/aws-sdk-go v1.32.6 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869

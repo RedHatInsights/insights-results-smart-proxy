@@ -19,6 +19,7 @@ import (
 	"testing"
 	"time"
 
+	cs_content "github.com/RedHatInsights/insights-content-service/content"
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	"github.com/stretchr/testify/assert"
@@ -105,4 +106,24 @@ func TestUpdateContent_CallMultipleTimes(t *testing.T) {
 			assert.Equal(t, testdata.RuleContent1, *ruleContent)
 		}
 	}, testTimeout)
+}
+
+func TestUpdateContentBadTime(t *testing.T) {
+	// using testdata.RuleContent4 because contains datetime in a different format
+	ruleContentDirectory := cs_content.RuleContentDirectory{
+		Config: cs_content.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]cs_content.RuleContent{
+			"rc4": testdata.RuleContent4,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+	content.RuleContentDirectoryReady.L.Lock()
+	content.RuleContentDirectoryReady.Broadcast()
+	content.RuleContentDirectoryReady.L.Unlock()
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	helpers.FailOnError(t, err)
 }
