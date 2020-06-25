@@ -30,7 +30,8 @@ import (
 
 var (
 	ruleContentDirectory      *ics_content.RuleContentDirectory
-	ruleContentDirectoryReady = make(chan struct{})
+	ruleContentDirectoryReady = sync.NewCond(&sync.Mutex{})
+	stopUpdateContentLoop     = make(chan struct{})
 )
 
 type ruleIDAndErrorKey struct {
@@ -97,15 +98,23 @@ var rulesWithContentStorage = RulesWithContentStorage{
 	rules:            map[types.RuleID]*ics_content.RuleContent{},
 }
 
+func waitForContentDirectoryToBeReady() {
+	// according to the example in the official dock,
+	// lock is required here
+	if ruleContentDirectory == nil {
+		ruleContentDirectoryReady.L.Lock()
+		ruleContentDirectoryReady.Wait()
+		ruleContentDirectoryReady.L.Unlock()
+	}
+}
+
 // GetRuleWithErrorKeyContent returns content for rule with provided `rule id` and `error key`.
 // Caching is done under the hood, don't worry about it.
 func GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
 ) (*types.RuleWithContent, error) {
-	// to be sure data is there
-	// it will wait only on opened channel
-	// something like condition variable
-	_, _ = <-ruleContentDirectoryReady
+	// to be sure the data is there
+	waitForContentDirectoryToBeReady()
 
 	res, found := rulesWithContentStorage.GetRuleWithErrorKeyContent(ruleID, errorKey)
 	if !found {
@@ -118,10 +127,8 @@ func GetRuleWithErrorKeyContent(
 // GetRuleContent returns content for rule with provided `rule id`
 // Caching is done under the hood, don't worry about it.
 func GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, error) {
-	// to be sure data is there
-	// it will wait only on opened channel
-	// something like condition variable
-	_, _ = <-ruleContentDirectoryReady
+	// to be sure the data is there
+	waitForContentDirectoryToBeReady()
 
 	res, found := rulesWithContentStorage.GetRuleContent(ruleID)
 	if !found {
@@ -137,8 +144,18 @@ func RunUpdateContentLoop(servicesConf services.Configuration) {
 
 	for {
 		updateContent(servicesConf)
-		<-ticker.C
+
+		select {
+		case <-ticker.C:
+		case <-stopUpdateContentLoop:
+			break
+		}
 	}
+}
+
+// StopUpdateContentLoop stops the loop
+func StopUpdateContentLoop() {
+	stopUpdateContentLoop <- struct{}{}
 }
 
 func updateContent(servicesConf services.Configuration) {
@@ -152,5 +169,7 @@ func updateContent(servicesConf services.Configuration) {
 
 	loadRuleContent(ruleContentDirectory)
 
-	close(ruleContentDirectoryReady)
+	ruleContentDirectoryReady.L.Lock()
+	ruleContentDirectoryReady.Broadcast()
+	ruleContentDirectoryReady.L.Unlock()
 }

@@ -40,6 +40,12 @@ var (
 	AssertReportResponsesEqual = helpers.AssertReportResponsesEqual
 	// NewGockAPIEndpointMatcher creates a matcher for a given endpoint for gock
 	NewGockAPIEndpointMatcher = helpers.NewGockAPIEndpointMatcher
+	// GockExpectAPIRequest makes gock expect the request with the baseURL and sends back the response
+	GockExpectAPIRequest = helpers.GockExpectAPIRequest
+	// CleanAfterGock cleans after gock library and prints all unmatched requests
+	CleanAfterGock = helpers.CleanAfterGock
+	// MustGobSerialize serializes an object using gob or panics
+	MustGobSerialize = helpers.MustGobSerialize
 )
 
 var (

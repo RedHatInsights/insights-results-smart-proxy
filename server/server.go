@@ -37,16 +37,18 @@ import (
 	"path/filepath"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
-	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
-	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+
 	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
