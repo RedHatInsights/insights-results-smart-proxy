@@ -17,7 +17,6 @@ limitations under the License.
 package server_test
 
 import (
-	"bytes"
 	"net/http"
 	"testing"
 	"time"
@@ -27,7 +26,6 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
-	gock "gopkg.in/h2non/gock.v1"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
@@ -151,21 +149,26 @@ func TestAddCORSHeaders(t *testing.T) {
 
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		defer gock.Off()
+		defer helpers.CleanAfterGock(t)
 
-		gock.New(helpers.DefaultServicesConfig.AggregatorBaseEndpoint).
-			Get("/").
-			AddMatcher(helpers.NewGockAPIEndpointMatcher(ira_server.ReportEndpoint)).
-			Reply(200).
-			JSON(testdata.Report3RulesExpectedResponse)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ira_server.ReportEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
 
-		gock.New(helpers.DefaultServicesConfig.ContentBaseEndpoint).
-			Get("/").
-			AddMatcher(helpers.NewGockAPIEndpointMatcher(ics_server.AllContentEndpoint)).
-			Reply(200).
-			Body(bytes.NewBuffer(helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules)))
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.RuleContentDirectory3Rules,
+		})
 
 		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
