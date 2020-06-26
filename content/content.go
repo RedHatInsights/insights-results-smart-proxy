@@ -18,6 +18,7 @@ package content
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -116,7 +117,9 @@ func GetRuleWithErrorKeyContent(
 	// to be sure the data is there
 	waitForContentDirectoryToBeReady()
 
-	res, found := rulesWithContentStorage.GetRuleWithErrorKeyContent(ruleID, errorKey)
+	trimmedRuledID := strings.TrimSuffix(string(ruleID), ".report")
+
+	res, found := rulesWithContentStorage.GetRuleWithErrorKeyContent(types.RuleID(trimmedRuledID), errorKey)
 	if !found {
 		return nil, &types.ItemNotFoundError{ItemID: fmt.Sprintf("%v/%v", ruleID, errorKey)}
 	}
