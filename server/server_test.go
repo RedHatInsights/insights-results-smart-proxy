@@ -152,19 +152,20 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 		defer helpers.CleanAfterGock(t)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ira_server.ReportEndpoint,
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: ics_server.AllContentEndpoint,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       testdata.RuleContentDirectory3Rules,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
 		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)

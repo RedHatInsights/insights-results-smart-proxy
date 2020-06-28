@@ -23,8 +23,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	timeParseFormat = "2006-01-02 15:04:05"
+var (
+	timeParseFormats = []string{
+		"2006-01-02 15:04:05",
+		time.RFC3339,
+	}
 )
 
 // TODO: consider moving parsing to content service
@@ -54,7 +57,6 @@ func loadRuleContent(contentDir *content.RuleContentDirectory) {
 			}
 
 			publishDate, err := timeParse(errorProperties.Metadata.PublishDate)
-
 			if err != nil {
 				return
 			}
@@ -103,18 +105,20 @@ func commaSeparatedStrToTags(str string) []string {
 
 func timeParse(value string) (time.Time, error) {
 	var err error
-	for _, datetimeLayout := range []string{timeParseFormat, time.RFC3339} {
+	for _, datetimeLayout := range timeParseFormats {
 		parsedDate, err := time.Parse(datetimeLayout, value)
 
 		if err == nil {
 			return parsedDate, nil
 		}
 
-		log.Error().Msgf(
-			`invalid to parse time "%v" using layout "%v"`,
+		log.Info().Msgf(
+			`unable to parse time "%v" using layout "%v"`,
 			value, datetimeLayout,
 		)
 	}
+
+	log.Error().Err(err)
 
 	return time.Time{}, err
 }
