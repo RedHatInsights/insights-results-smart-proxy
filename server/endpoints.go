@@ -15,11 +15,10 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
-	"regexp"
 
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -27,14 +26,16 @@ import (
 const (
 	// MainEndpoint returns status ok
 	MainEndpoint = ""
-	// DeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
-	DeleteOrganizationsEndpoint = "organizations/{organizations}"
-	// DeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
-	DeleteClustersEndpoint = "clusters/{clusters}"
-	// OrganizationsEndpoint returns all organizations
-	OrganizationsEndpoint = "organizations"
-	// ReportEndpoint returns report for provided {organization} and {cluster}
-	ReportEndpoint = "report/{organization}/{cluster}"
+	// ReportEndpoint returns report for provided {cluster}
+	ReportEndpoint = "clusters/{cluster}/report"
+	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configuration
+	RuleGroupsEndpoint = "groups"
+	// RuleContent returns static content for {rule_id}
+	RuleContent = "rules/{rule_id}/content"
+	// SingleRuleEndpoint returns single rule with static content for {cluster} and {rule_id}
+	SingleRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/report"
+	// MetricsEndpoint returns prometheus metrics
+	MetricsEndpoint = "metrics"
 	// LikeRuleEndpoint likes rule with {rule_id} for {cluster} using current user(from auth header)
 	LikeRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/like"
 	// DislikeRuleEndpoint dislikes rule with {rule_id} for {cluster} using current user(from auth header)
@@ -43,37 +44,35 @@ const (
 	ResetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/reset_vote"
 	// GetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
 	GetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/get_vote"
-	// RuleEndpoint is an endpoint to create&delete a rule. DEBUG only
-	RuleEndpoint = "rules/{rule_id}"
-	// RuleErrorKeyEndpoint is for endpoints to create&delete a rule_error_key (DEBUG only)
-	// and for endpoint to get a rule
-	RuleErrorKeyEndpoint = "rules/{rule_id}/error_keys/{error_key}"
-	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configruation
-	RuleGroupsEndpoint = "groups"
-	// ClustersForOrganizationEndpoint returns all clusters for {organization}
-	ClustersForOrganizationEndpoint = "organizations/{organization}/clusters"
 	// DisableRuleForClusterEndpoint disables a rule for specified cluster
 	DisableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/disable"
 	// EnableRuleForClusterEndpoint re-enables a rule for specified cluster
 	EnableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/enable"
-	// MetricsEndpoint returns prometheus metrics
-	MetricsEndpoint = "metrics"
-	// RuleContent returns static content for {rule_id}
-	RuleContent = "rules/{rule_id}/content"
+
+	// ClustersForOrganizationEndpoint returns all clusters for {organization}
+	ClustersForOrganizationEndpoint = ira_server.ClustersForOrganizationEndpoint
+	// OrganizationsEndpoint returns all organizations
+	OrganizationsEndpoint = ira_server.OrganizationsEndpoint
+	// DeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
+	DeleteOrganizationsEndpoint = ira_server.DeleteOrganizationsEndpoint
+	// DeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
+	DeleteClustersEndpoint = ira_server.DeleteClustersEndpoint
 )
 
 func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router) {
 	apiPrefix := server.Config.APIPrefix
-	aggregatorEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
+	aggregatorBaseURL := server.ServicesConfig.AggregatorBaseEndpoint
 
-	router.HandleFunc(apiPrefix+OrganizationsEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+DeleteClustersEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+GetVoteOnRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+RuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPost)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPost)
-	router.HandleFunc(apiPrefix+RuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+OrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+DeleteClustersEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+GetVoteOnRuleEndpoint, server.proxyTo(
+		aggregatorBaseURL,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.GetVoteOnRuleEndpoint),
+		}},
+	),
+	).Methods(http.MethodGet)
 
 	// endpoints for pprof - needed for profiling, ie. usually in debug mode
 	router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
@@ -91,15 +90,40 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 
 	// common REST API endpoints
 	router.HandleFunc(apiPrefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+ReportEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+DislikeRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+ResetVoteOnRuleEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+SingleRuleEndpoint, server.singleRuleEndpoint).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(
+		aggregatorEndpoint,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.LikeRuleEndpoint),
+		}},
+	)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+DislikeRuleEndpoint, server.proxyTo(
+		aggregatorEndpoint,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DislikeRuleEndpoint),
+		}},
+	)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ResetVoteOnRuleEndpoint, server.proxyTo(
+		aggregatorEndpoint,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.ResetVoteOnRuleEndpoint),
+		}},
+	)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.proxyTo(aggregatorEndpoint, nil)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(
+		aggregatorEndpoint,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DisableRuleForClusterEndpoint),
+		}},
+	)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(
+		aggregatorEndpoint,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.EnableRuleForClusterEndpoint),
+		}},
+	)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+RuleErrorKeyEndpoint, server.proxyTo(aggregatorEndpoint)).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)
 
 	// Prometheus metrics
@@ -107,11 +131,4 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 
 	// OpenAPI specs
 	router.HandleFunc(openAPIURL, server.serveAPISpecFile).Methods(http.MethodGet)
-}
-
-// MakeURLToEndpoint creates URL to endpoint, use constants from file endpoints.go
-func MakeURLToEndpoint(apiPrefix, endpoint string, args ...interface{}) string {
-	re := regexp.MustCompile(`\{[a-zA-Z_0-9]+\}`)
-	endpoint = re.ReplaceAllString(endpoint, "%v")
-	return apiPrefix + fmt.Sprintf(endpoint, args...)
 }

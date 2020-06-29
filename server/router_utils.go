@@ -22,11 +22,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
-
-	"github.com/RedHatInsights/insights-results-aggregator/types"
 )
 
 // getRouterParam retrieves parameter from URL like `/organization/{org_id}`
@@ -133,9 +132,9 @@ func readOrganizationID(writer http.ResponseWriter, request *http.Request, auth 
 }
 
 func checkPermissions(writer http.ResponseWriter, request *http.Request, orgID types.OrgID, auth bool) error {
-	identityContext := request.Context().Value(ContextKeyUser)
+	identityContext := request.Context().Value(types.ContextKeyUser)
 	if identityContext != nil && auth {
-		identity := identityContext.(Identity)
+		identity := identityContext.(types.Identity)
 		if identity.Internal.OrgID != orgID {
 			const message = "You have no permissions to get or change info about this organization"
 			log.Error().Msg(message)

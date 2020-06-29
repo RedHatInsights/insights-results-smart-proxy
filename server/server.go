@@ -24,25 +24,33 @@ package server
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
-
+	"time"
 	// we just have to import this package in order to expose pprof interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
 	// #nosec G108
 	_ "net/http/pprof"
 	"path/filepath"
 
-	"github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/RedHatInsights/insights-operator-utils/types"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+
+	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 // HTTPServer in an implementation of Server interface
@@ -50,17 +58,28 @@ type HTTPServer struct {
 	Config         Configuration
 	ServicesConfig services.Configuration
 	GroupsChannel  chan []groups.Group
-	ContentChannel chan content.RuleContentDirectory
 	Serv           *http.Server
 }
 
+// RequestModifier is a type of function which modifies request when proxying
+type RequestModifier func(request *http.Request) (*http.Request, error)
+
+// ResponseModifier is a type of function which modifies response when proxying
+type ResponseModifier func(response *http.Response) (*http.Response, error)
+
+// ProxyOptions alters behaviour of proxy server for each endpoint.
+// For example, you can set custom request and response modifiers
+type ProxyOptions struct {
+	RequestModifiers  []RequestModifier
+	ResponseModifiers []ResponseModifier
+}
+
 // New constructs new implementation of Server interface
-func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group, contentChannel chan content.RuleContentDirectory) *HTTPServer {
+func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group) *HTTPServer {
 	return &HTTPServer{
 		Config:         config,
 		ServicesConfig: servicesConfig,
 		GroupsChannel:  groupsChannel,
-		ContentChannel: contentChannel,
 	}
 }
 
@@ -97,30 +116,6 @@ func (server HTTPServer) serveAPISpecFile(writer http.ResponseWriter, request *h
 	http.ServeFile(writer, request, absPath)
 }
 
-// addCORSHeaders - middleware for adding headers that should be in any response
-func (server *HTTPServer) addCORSHeaders(nextHandler http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			nextHandler.ServeHTTP(w, r)
-		})
-}
-
-// handleOptionsMethod - middleware for handling OPTIONS method
-func (server *HTTPServer) handleOptionsMethod(nextHandler http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			if r.Method == "OPTIONS" {
-				w.WriteHeader(http.StatusOK)
-			} else {
-				nextHandler.ServeHTTP(w, r)
-			}
-		})
-}
-
 // Initialize perform the server initialization
 func (server *HTTPServer) Initialize() http.Handler {
 	log.Info().Msgf("Initializing HTTP server at '%s'", server.Config.Address)
@@ -149,8 +144,24 @@ func (server *HTTPServer) Initialize() http.Handler {
 	}
 
 	if server.Config.EnableCORS {
-		router.Use(server.addCORSHeaders)
-		router.Use(server.handleOptionsMethod)
+		headersOK := handlers.AllowedHeaders([]string{
+			"Content-Type",
+			"Content-Length",
+			"Accept-Encoding",
+			"X-CSRF-Token",
+			"Authorization",
+		})
+		originsOK := handlers.AllowedOrigins([]string{"*"})
+		methodsOK := handlers.AllowedMethods([]string{
+			http.MethodPost,
+			http.MethodGet,
+			http.MethodOptions,
+			http.MethodPut,
+			http.MethodDelete,
+		})
+		credsOK := handlers.AllowCredentials()
+		corsMiddleware := handlers.CORS(originsOK, headersOK, methodsOK, credsOK)
+		router.Use(corsMiddleware)
 	}
 
 	server.addEndpointsToRouter(router)
@@ -211,40 +222,101 @@ func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *h
 	}
 }
 
-func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		log.Info().Msg("Handling response as a proxy")
-		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
+func modifyRequest(requestModifiers []RequestModifier, request *http.Request) (*http.Request, error) {
+	for _, modifier := range requestModifiers {
+		var err error
+		request, err = modifier(request)
+		if err != nil {
+			return nil, err
+		}
+	}
 
+	return request, nil
+}
+
+func modifyResponse(responseModifiers []ResponseModifier, response *http.Response) (*http.Response, error) {
+	for _, modifier := range responseModifiers {
+		var err error
+		response, err = modifier(response)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return response, nil
+}
+
+func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		if options != nil {
+			var err error
+			request, err = modifyRequest(options.RequestModifiers, request)
+			if err != nil {
+				handleServerError(writer, err)
+				return
+			}
+		}
+
+		log.Info().Msg("Handling response as a proxy")
+
+		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
 		if err != nil {
 			log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", request.RequestURI)
 			handleServerError(writer, err)
+			return
 		}
 
 		client := http.Client{}
-		req, _ := http.NewRequest(request.Method, endpointURL.String(), request.Body)
+		req, err := http.NewRequest(request.Method, endpointURL.String(), request.Body)
+		if err != nil {
+			panic(err)
+		}
+
 		copyHeader(request.Header, req.Header)
 
-		log.Debug().Msgf("Connecting to %s", endpointURL.String())
-		response, err := client.Do(req)
-		if err != nil {
-			log.Error().Err(err).Msgf("Error during retrieve of %s", endpointURL.String())
-			handleServerError(writer, err)
+		response, body, successful := server.sendRequest(client, req, options, writer)
+		if !successful {
+			return
 		}
 
-		content, err := ioutil.ReadAll(response.Body)
-
-		if err != nil {
-			log.Error().Err(err).Msgf("Error while retrieving content from request to %s", endpointURL.String())
-			handleServerError(writer, err)
-		}
 		// Maybe this code should be on responses.SendRaw or something like that
-		err = responses.Send(response.StatusCode, writer, content)
+		err = responses.Send(response.StatusCode, writer, body)
 		if err != nil {
 			log.Error().Err(err).Msgf("Error writing the response")
 			handleServerError(writer, err)
+			return
 		}
 	}
+}
+
+func (server HTTPServer) sendRequest(
+	client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter,
+) (*http.Response, []byte, bool) {
+	log.Debug().Msgf("Connecting to %s", req.RequestURI)
+	response, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error during retrieve of %s", req.RequestURI)
+		handleServerError(writer, err)
+		return nil, nil, false
+	}
+
+	if options != nil {
+		var err error
+		response, err = modifyResponse(options.ResponseModifiers, response)
+		if err != nil {
+			handleServerError(writer, err)
+			return nil, nil, false
+		}
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error while retrieving content from request to %s", req.RequestURI)
+		handleServerError(writer, err)
+		return nil, nil, false
+	}
+
+	return response, body, true
 }
 
 func (server HTTPServer) composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error) {
@@ -257,5 +329,220 @@ func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
 		for _, value := range headerValues {
 			dstHeaders.Add(headerKey, value)
 		}
+	}
+}
+
+// readAggregatorReportForClusterID reads report from aggregator,
+// handles errors by sending corresponding message to the user.
+// Returns report and bool value set to true if there was no errors
+func (server HTTPServer) readAggregatorReportForClusterID(
+	orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter,
+) (*types.ReportResponse, bool) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ReportEndpoint,
+		orgID,
+		clusterID,
+		userID,
+	)
+
+	// #nosec G107
+	aggregatorResp, err := http.Get(aggregatorURL)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	var aggregatorResponse struct {
+		Report *types.ReportResponse `json:"report"`
+		Status string                `json:"status"`
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, false
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	return aggregatorResponse.Report, true
+}
+
+func (server HTTPServer) fetchAggregatorReport(
+	writer http.ResponseWriter, request *http.Request,
+) (*types.ReportResponse, bool) {
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	// Error message handled by function
+	if !successful {
+		return nil, false
+	}
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	userID := authToken.AccountNumber
+	orgID := authToken.Internal.OrgID
+
+	aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
+	if !successful {
+		return nil, false
+	}
+	return aggregatorResponse, true
+}
+
+func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
+	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
+	if !successful {
+		return
+	}
+
+	var rules []proxy_types.RuleWithContentResponse
+
+	for _, aggregatorRule := range aggregatorResponse.Report {
+		ruleID := aggregatorRule.Module
+		errorKey := aggregatorRule.ErrorKey
+
+		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+		if err != nil {
+			handleServerError(writer, err)
+			return
+		}
+
+		rule := proxy_types.RuleWithContentResponse{
+			CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+			Description:  ruleWithContent.Description,
+			ErrorKey:     errorKey,
+			Generic:      ruleWithContent.Generic,
+			Reason:       ruleWithContent.Reason,
+			Resolution:   ruleWithContent.Resolution,
+			TotalRisk:    ruleWithContent.TotalRisk,
+			RiskOfChange: ruleWithContent.RiskOfChange,
+			RuleID:       ruleID,
+			TemplateData: aggregatorRule.TemplateData,
+			Tags:         ruleWithContent.Tags,
+			UserVote:     aggregatorRule.UserVote,
+			Disabled:     aggregatorRule.Disabled,
+		}
+
+		rules = append(rules, rule)
+	}
+
+	report := proxy_types.SmartProxyReport{
+		Meta: aggregatorResponse.Meta,
+		Data: rules,
+	}
+
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+func (server HTTPServer) findRule(
+	writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID,
+) (proxy_types.RuleWithContentResponse, bool) {
+	var rule proxy_types.RuleWithContentResponse
+	found := false
+
+	for _, aggregatorRule := range report {
+		ruleID := aggregatorRule.Module
+		if ruleID == requestRuleID {
+			errorKey := aggregatorRule.ErrorKey
+
+			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+			if err != nil {
+				handleServerError(writer, err)
+				return rule, false
+			}
+
+			rule = proxy_types.RuleWithContentResponse{
+				CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+				Description:  ruleWithContent.Description,
+				ErrorKey:     errorKey,
+				Generic:      ruleWithContent.Generic,
+				Reason:       ruleWithContent.Reason,
+				Resolution:   ruleWithContent.Resolution,
+				TotalRisk:    ruleWithContent.TotalRisk,
+				RiskOfChange: ruleWithContent.RiskOfChange,
+				RuleID:       ruleID,
+				TemplateData: aggregatorRule.TemplateData,
+				Tags:         ruleWithContent.Tags,
+				UserVote:     aggregatorRule.UserVote,
+				Disabled:     aggregatorRule.Disabled,
+			}
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		handleServerError(writer, &types.ItemNotFoundError{
+			ItemID: fmt.Sprintf("%v", requestRuleID),
+		})
+		return rule, false
+	}
+
+	return rule, true
+}
+
+func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
+	ruleID, err := readRuleID(writer, request)
+	if err != nil {
+		return
+	}
+
+	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
+	// Error message handled by function
+	if !successful {
+		return
+	}
+
+	rule, successful := server.findRule(writer, aggregatorResponse.Report, ruleID)
+	// Error message handled by function
+	if !successful {
+		return
+	}
+
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", rule))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) func(*http.Request) (*http.Request, error) {
+	return func(request *http.Request) (*http.Request, error) {
+		identity, err := server.GetAuthToken(request)
+		if err != nil {
+			return nil, err
+		}
+
+		vars := mux.Vars(request)
+		vars["user_id"] = string(identity.AccountNumber)
+
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIPrefix, newEndpoint, vars)
+		request.URL, err = url.Parse(newURL)
+		if err != nil {
+			return nil, err
+		}
+
+		request.RequestURI = request.URL.RequestURI()
+
+		return request, nil
 	}
 }

@@ -173,22 +173,12 @@
         ]
       }
     },
-    "/report/{orgId}/{clusterId}": {
+    "/clusters/{clusterId}/report": {
       "get": {
-        "summary": "Returns the latest report for the given organization and cluster which contains information about rules that were hit by the cluster.",
+        "summary": "Returns the latest report for the a cluster which contains information about rules that were hit by the cluster. Information about the org_id and user_id is taken from the token.",
         "operationId": "getReportForCluster",
-        "description": "The report is specified by the organization ID and the cluster ID. The latest report available for the given combination will be returned.",
+        "description": "The report is specified by the cluster ID from params and information about the org_id and user_id is taken from the token. The latest report available for the given combination will be returned.",
         "parameters": [
-          {
-            "name": "orgId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64",
-              "minimum": 0
-            }
-          },
           {
             "name": "clusterId",
             "in": "path",
@@ -311,6 +301,137 @@
                               }
                             }
                           }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "prod"
+        ]
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/report": {
+      "get": {
+        "summary": "Returns the latest single rule report for a cluster that contains information and content. Information about the org_id and user_id is taken from the token.",
+        "operationId": "getSingleReportForCluster",
+        "description": "The rule is specified by the cluster ID and rule ID from params and information about the org_id and user_id is taken from the token. The latest rule report available for the given combination will be returned.",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "ruleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest available rule report for the given organization, cluster combination and rule ID. Returns rule and it description that were hit by the cluster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "report": {
+                      "type": "object",
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                          "description": "The title of the rule, a short description.",
+                          "example": "Authentication operator is degraded while having a cluster wide proxy configured"
+                        },
+                        "details": {
+                          "type": "string",
+                          "description": "Details of the rule - templates rendered on frontend.",
+                          "example": "State of operator: {{=condition}}"
+                        },
+                        "reason": {
+                          "type": "string",
+                          "description": "Reason for the issue, giving the user more accurate description of the cause."
+                        },
+                        "resolution": {
+                          "type": "string",
+                          "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base."
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "2020-01-02T16:15:59.478901889Z"
+                        },
+                        "total_risk": {
+                          "type": "integer",
+                          "description": "Total risk - calculated from rule impact and likelihood.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ]
+                        },
+                        "risk_of_change": {
+                          "type": "integer",
+                          "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ]
+                        },
+                        "extra_data": {
+                          "type": "object",
+                          "description": "Used as templating data for other content (details, resolution, etc.), has varying structure depending on the rules in the report.",
+                          "example": {
+                            "condition": "Degraded"
+                          }
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "List of tags that the rule contains, forming rule groups"
+                        },
+                        "user_vote": {
+                          "type": "integer",
+                          "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
+                          "enum": [
+                            -1,
+                            0,
+                            1
+                          ]
+                        },
+                        "disabled": {
+                          "type": "boolean",
+                          "description": "If this rule result disabled or not. This field can be used in the UI to show only specific set of rules results."
+                        },
+                        "rule_id": {
+                          "type": "string",
+                          "description": "ID of a rule.",
+                          "example": "some.python.module"
                         }
                       }
                     },

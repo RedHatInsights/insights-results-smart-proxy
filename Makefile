@@ -1,13 +1,17 @@
 .PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo json-check style run test cover integration_tests rest_api_tests rules_content sqlite_db license before_commit help
 
 SOURCES:=$(shell find . -name '*.go')
+BINARY:=insights-results-smart-proxy
+DOCFILES:=$(addprefix docs/packages/, $(addsuffix .html, $(basename ${SOURCES})))
 
 default: build
 
 clean: ## Run go clean
 	@go clean
 
-build: ## Run go build
+build: ${BINARY} ## Keep this rule for compatibility
+
+${BINARY}: ${SOURCES}
 	./build.sh
 
 fmt: ## Run go fmt -w for all sources
@@ -75,3 +79,9 @@ help: ## Show this help screen
 	@grep -E '^[ a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ''
+
+docs/packages/%.html: %.go
+	mkdir -p $(dir $@)
+	docgo -outdir $(dir $@) $^
+
+godoc: ${DOCFILES}
