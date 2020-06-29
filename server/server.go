@@ -61,6 +61,19 @@ type HTTPServer struct {
 	Serv           *http.Server
 }
 
+// RequestModifier is a type of function which modifies request when proxying
+type RequestModifier func(request *http.Request) (*http.Request, error)
+
+// ResponseModifier is a type of function which modifies response when proxying
+type ResponseModifier func(response *http.Response) (*http.Response, error)
+
+// ProxyOptions alters behaviour of proxy server for each endpoint.
+// For example, you can set custom request and response modifiers
+type ProxyOptions struct {
+	RequestModifiers  []RequestModifier
+	ResponseModifiers []ResponseModifier
+}
+
 // New constructs new implementation of Server interface
 func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group) *HTTPServer {
 	return &HTTPServer{
@@ -209,40 +222,101 @@ func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *h
 	}
 }
 
-func (server HTTPServer) proxyTo(baseURL string) func(http.ResponseWriter, *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		log.Info().Msg("Handling response as a proxy")
-		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
+func modifyRequest(requestModifiers []RequestModifier, request *http.Request) (*http.Request, error) {
+	for _, modifier := range requestModifiers {
+		var err error
+		request, err = modifier(request)
+		if err != nil {
+			return nil, err
+		}
+	}
 
+	return request, nil
+}
+
+func modifyResponse(responseModifiers []ResponseModifier, response *http.Response) (*http.Response, error) {
+	for _, modifier := range responseModifiers {
+		var err error
+		response, err = modifier(response)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return response, nil
+}
+
+func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(http.ResponseWriter, *http.Request) {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		if options != nil {
+			var err error
+			request, err = modifyRequest(options.RequestModifiers, request)
+			if err != nil {
+				handleServerError(writer, err)
+				return
+			}
+		}
+
+		log.Info().Msg("Handling response as a proxy")
+
+		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
 		if err != nil {
 			log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", request.RequestURI)
 			handleServerError(writer, err)
+			return
 		}
 
 		client := http.Client{}
-		req, _ := http.NewRequest(request.Method, endpointURL.String(), request.Body)
+		req, err := http.NewRequest(request.Method, endpointURL.String(), request.Body)
+		if err != nil {
+			panic(err)
+		}
+
 		copyHeader(request.Header, req.Header)
 
-		log.Debug().Msgf("Connecting to %s", endpointURL.String())
-		response, err := client.Do(req)
-		if err != nil {
-			log.Error().Err(err).Msgf("Error during retrieve of %s", endpointURL.String())
-			handleServerError(writer, err)
+		response, body, successful := server.sendRequest(client, req, options, writer)
+		if !successful {
+			return
 		}
 
-		body, err := ioutil.ReadAll(response.Body)
-
-		if err != nil {
-			log.Error().Err(err).Msgf("Error while retrieving content from request to %s", endpointURL.String())
-			handleServerError(writer, err)
-		}
 		// Maybe this code should be on responses.SendRaw or something like that
 		err = responses.Send(response.StatusCode, writer, body)
 		if err != nil {
 			log.Error().Err(err).Msgf("Error writing the response")
 			handleServerError(writer, err)
+			return
 		}
 	}
+}
+
+func (server HTTPServer) sendRequest(
+	client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter,
+) (*http.Response, []byte, bool) {
+	log.Debug().Msgf("Connecting to %s", req.RequestURI)
+	response, err := client.Do(req)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error during retrieve of %s", req.RequestURI)
+		handleServerError(writer, err)
+		return nil, nil, false
+	}
+
+	if options != nil {
+		var err error
+		response, err = modifyResponse(options.ResponseModifiers, response)
+		if err != nil {
+			handleServerError(writer, err)
+			return nil, nil, false
+		}
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error while retrieving content from request to %s", req.RequestURI)
+		handleServerError(writer, err)
+		return nil, nil, false
+	}
+
+	return response, body, true
 }
 
 func (server HTTPServer) composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error) {
@@ -448,5 +522,27 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", rule))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) func(*http.Request) (*http.Request, error) {
+	return func(request *http.Request) (*http.Request, error) {
+		identity, err := server.GetAuthToken(request)
+		if err != nil {
+			return nil, err
+		}
+
+		vars := mux.Vars(request)
+		vars["user_id"] = string(identity.AccountNumber)
+
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIPrefix, newEndpoint, vars)
+		request.URL, err = url.Parse(newURL)
+		if err != nil {
+			return nil, err
+		}
+
+		request.RequestURI = request.URL.RequestURI()
+
+		return request, nil
 	}
 }

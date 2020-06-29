@@ -17,7 +17,6 @@ limitations under the License.
 package server_test
 
 import (
-	"bytes"
 	"net/http"
 	"testing"
 	"time"
@@ -27,7 +26,6 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
-	gock "gopkg.in/h2non/gock.v1"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
@@ -42,28 +40,6 @@ const (
 
 // TODO: consider moving to data repo
 var (
-	SmartProxySingleReportResponse1Rule = struct {
-		Status string                         `json:"status"`
-		Report *types.RuleWithContentResponse `json:"report"`
-	}{
-		Status: "ok",
-		Report: &types.RuleWithContentResponse{
-			RuleID:       testdata.Rule1.Module,
-			ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
-			CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
-			Description:  testdata.RuleErrorKey1.Description,
-			Generic:      testdata.RuleErrorKey1.Generic,
-			Reason:       testdata.Rule1.Reason,
-			Resolution:   testdata.Rule1.Resolution,
-			TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
-			RiskOfChange: 0,
-			Disabled:     testdata.Rule1Disabled,
-			UserVote:     types.UserVoteNone,
-			TemplateData: testdata.Rule1.MoreInfo,
-			Tags:         testdata.RuleErrorKey1.Tags,
-		},
-	}
-
 	SmartProxyReportResponse3Rules = struct {
 		Status string                  `json:"status"`
 		Report *types.SmartProxyReport `json:"report"`
@@ -173,21 +149,27 @@ func TestAddCORSHeaders(t *testing.T) {
 
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		defer gock.Off()
+		defer helpers.CleanAfterGock(t)
 
-		gock.New(helpers.DefaultServicesConfig.AggregatorBaseEndpoint).
-			Get("/").
-			AddMatcher(helpers.NewGockAPIEndpointMatcher(ira_server.ReportEndpoint)).
-			Reply(200).
-			JSON(testdata.Report3RulesExpectedResponse)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
 
-		gock.New(helpers.DefaultServicesConfig.ContentBaseEndpoint).
-			Get("/").
-			AddMatcher(helpers.NewGockAPIEndpointMatcher(ics_server.AllContentEndpoint)).
-			Reply(200).
-			Body(bytes.NewBuffer(helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules)))
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
 
 		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -198,37 +180,6 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
-		})
-	}, testTimeout)
-}
-
-func TestHTTPServer_SingleRuleEndpoint(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		defer gock.Off()
-
-		gock.New(helpers.DefaultServicesConfig.AggregatorBaseEndpoint).
-			Get("/").
-			AddMatcher(helpers.NewGockAPIEndpointMatcher(ira_server.ReportEndpoint)).
-			Reply(200).
-			JSON(testdata.Report3RulesExpectedResponse)
-
-		gock.New(helpers.DefaultServicesConfig.ContentBaseEndpoint).
-			Get("/").
-			AddMatcher(helpers.NewGockAPIEndpointMatcher(ics_server.AllContentEndpoint)).
-			Reply(200).
-			Body(bytes.NewBuffer(helpers.MustGobSerialize(t, &testdata.RuleContentDirectory3Rules)))
-
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
-
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.SingleRuleEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxySingleReportResponse1Rule),
 		})
 	}, testTimeout)
 }

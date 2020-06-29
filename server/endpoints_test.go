@@ -15,10 +15,16 @@
 package server_test
 
 import (
+	"net/http"
 	"testing"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
+	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
 
 func TestMakeURLToEndpointWithValidValue(t *testing.T) {
@@ -29,3 +35,49 @@ func TestMakeURLToEndpointWithValidValue(t *testing.T) {
 
 	assert.Equal(t, "api/v1/some_valid_endpoint", retval)
 }
+
+func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
+	testCases := []struct {
+		name        string
+		method      string
+		endpoint    string
+		newEndpoint string
+	}{
+		{"like", http.MethodPut, server.LikeRuleEndpoint, ira_server.LikeRuleEndpoint},
+		{"dislike", http.MethodPut, server.DislikeRuleEndpoint, ira_server.DislikeRuleEndpoint},
+		{"reset_vote", http.MethodPut, server.ResetVoteOnRuleEndpoint, ira_server.ResetVoteOnRuleEndpoint},
+		{"enable", http.MethodPut, server.EnableRuleForClusterEndpoint, ira_server.EnableRuleForClusterEndpoint},
+		{"disable", http.MethodPut, server.DisableRuleForClusterEndpoint, ira_server.DisableRuleForClusterEndpoint},
+		{"get_vote", http.MethodGet, server.GetVoteOnRuleEndpoint, ira_server.GetVoteOnRuleEndpoint},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t *testing.T) {
+				defer helpers.CleanAfterGock(t)
+
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+					Method:       testCase.method,
+					Endpoint:     testCase.newEndpoint,
+					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.UserID},
+				}, &helpers.APIResponse{
+					StatusCode: http.StatusOK,
+					Body:       `{"status": "ok"}`,
+				})
+
+				helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+					Method:       testCase.method,
+					Endpoint:     testCase.endpoint,
+					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID},
+					UserID:       testdata.UserID,
+					OrgID:        testdata.OrgID,
+				}, &helpers.APIResponse{
+					StatusCode: http.StatusOK,
+					Body:       `{"status": "ok"}`,
+				})
+			}, testTimeout)
+		})
+	}
+}
+
+// TODO: test that proxying is done correctly including request / response modifiers for all endpoints

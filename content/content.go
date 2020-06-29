@@ -117,9 +117,9 @@ func GetRuleWithErrorKeyContent(
 	// to be sure the data is there
 	waitForContentDirectoryToBeReady()
 
-	trimmedRuledID := strings.TrimSuffix(string(ruleID), ".report")
+	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
-	res, found := rulesWithContentStorage.GetRuleWithErrorKeyContent(types.RuleID(trimmedRuledID), errorKey)
+	res, found := rulesWithContentStorage.GetRuleWithErrorKeyContent(ruleID, errorKey)
 	if !found {
 		return nil, &types.ItemNotFoundError{ItemID: fmt.Sprintf("%v/%v", ruleID, errorKey)}
 	}
@@ -132,6 +132,8 @@ func GetRuleWithErrorKeyContent(
 func GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, error) {
 	// to be sure the data is there
 	waitForContentDirectoryToBeReady()
+
+	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
 	res, found := rulesWithContentStorage.GetRuleContent(ruleID)
 	if !found {
