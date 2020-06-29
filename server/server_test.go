@@ -40,6 +40,28 @@ const (
 
 // TODO: consider moving to data repo
 var (
+	SmartProxySingleReportResponse1Rule = struct {
+		Status string                         `json:"status"`
+		Report *types.RuleWithContentResponse `json:"report"`
+	}{
+		Status: "ok",
+		Report: &types.RuleWithContentResponse{
+			RuleID:       testdata.Rule1.Module,
+			ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+			CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.Rule1.Reason,
+			Resolution:   testdata.Rule1.Resolution,
+			TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+			RiskOfChange: 0,
+			Disabled:     testdata.Rule1Disabled,
+			UserVote:     types.UserVoteNone,
+			TemplateData: testdata.Rule1.MoreInfo,
+			Tags:         testdata.RuleErrorKey1.Tags,
+		},
+	}
+
 	SmartProxyReportResponse3Rules = struct {
 		Status string                  `json:"status"`
 		Report *types.SmartProxyReport `json:"report"`
@@ -152,6 +174,42 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 		defer helpers.CleanAfterGock(t)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           ira_server.ReportEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        testdata.Report3RulesExpectedResponse,
+		})
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		content.StopUpdateContentLoop()
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_SingleRuleEndpoint(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+		defer helpers.CleanAfterGock(t)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ReportEndpoint,
 			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
@@ -173,13 +231,13 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
+			Endpoint:     server.SingleRuleEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID},
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
+			Body:       helpers.ToJSONString(SmartProxySingleReportResponse1Rule),
 		})
 	}, testTimeout)
 }

@@ -25,6 +25,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -380,22 +381,33 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	return aggregatorResponse.Report, true
 }
 
-func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
+func (server HTTPServer) fetchAggregatorReport(
+	writer http.ResponseWriter, request *http.Request,
+) (*types.ReportResponse, bool) {
 	clusterID, successful := httputils.ReadClusterName(writer, request)
+	// Error message handled by function
 	if !successful {
-		return
+		return nil, false
 	}
 
 	authToken, err := server.GetAuthToken(request)
 	if err != nil {
 		handleServerError(writer, err)
-		return
+		return nil, false
 	}
 
 	userID := authToken.AccountNumber
 	orgID := authToken.Internal.OrgID
 
 	aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
+	if !successful {
+		return nil, false
+	}
+	return aggregatorResponse, true
+}
+
+func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
+	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
 	if !successful {
 		return
 	}
@@ -436,7 +448,78 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		Data: rules,
 	}
 
-	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+func (server HTTPServer) findRule(
+	writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID,
+) (proxy_types.RuleWithContentResponse, bool) {
+	var rule proxy_types.RuleWithContentResponse
+	found := false
+
+	for _, aggregatorRule := range report {
+		ruleID := aggregatorRule.Module
+		if ruleID == requestRuleID {
+			errorKey := aggregatorRule.ErrorKey
+
+			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+			if err != nil {
+				handleServerError(writer, err)
+				return rule, false
+			}
+
+			rule = proxy_types.RuleWithContentResponse{
+				CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+				Description:  ruleWithContent.Description,
+				ErrorKey:     errorKey,
+				Generic:      ruleWithContent.Generic,
+				Reason:       ruleWithContent.Reason,
+				Resolution:   ruleWithContent.Resolution,
+				TotalRisk:    ruleWithContent.TotalRisk,
+				RiskOfChange: ruleWithContent.RiskOfChange,
+				RuleID:       ruleID,
+				TemplateData: aggregatorRule.TemplateData,
+				Tags:         ruleWithContent.Tags,
+				UserVote:     aggregatorRule.UserVote,
+				Disabled:     aggregatorRule.Disabled,
+			}
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		handleServerError(writer, &types.ItemNotFoundError{
+			ItemID: fmt.Sprintf("%v", requestRuleID),
+		})
+		return rule, false
+	}
+
+	return rule, true
+}
+
+func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
+	ruleID, err := readRuleID(writer, request)
+	if err != nil {
+		return
+	}
+
+	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
+	// Error message handled by function
+	if !successful {
+		return
+	}
+
+	rule, successful := server.findRule(writer, aggregatorResponse.Report, ruleID)
+	// Error message handled by function
+	if !successful {
+		return
+	}
+
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", rule))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
