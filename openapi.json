@@ -70,6 +70,9 @@
         "summary": "Get all rule groups and their relevant information",
         "description": "This simply redirects to an endpoint of the same name of a service called insights-operator-service",
         "parameters": [],
+        "tags": [
+          "prod"
+        ],
         "operationId": "getRuleGroups",
         "responses": {
           "200": {
