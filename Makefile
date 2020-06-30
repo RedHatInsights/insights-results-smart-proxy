@@ -1,4 +1,4 @@
-.PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo json-check style run test cover integration_tests rest_api_tests rules_content sqlite_db license before_commit help
+.PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo json-check style run test cover integration_tests rest_api_tests rules_content sqlite_db license before_commit openapi-check help
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -85,3 +85,6 @@ docs/packages/%.html: %.go
 	docgo -outdir $(dir $@) $^
 
 godoc: ${DOCFILES}
+
+openapi-check:
+	./check_openapi.sh

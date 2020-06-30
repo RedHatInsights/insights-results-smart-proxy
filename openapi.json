@@ -70,12 +70,45 @@
         "summary": "Get all rule groups and their relevant information",
         "description": "This simply redirects to an endpoint of the same name of a service called insights-operator-service",
         "parameters": [],
+        "tags": [
+          "prod"
+        ],
         "operationId": "getRuleGroups",
         "responses": {
-          "302": {
-            "description": "Found redirect: response containing all rule groups",
+          "200": {
+            "description": "A JSON array of groups.",
             "content": {
-              "text/plain": {}
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "strings"
+                          },
+                          "description": {
+                            "type": "strings"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
             }
           },
           "503": {
