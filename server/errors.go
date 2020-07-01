@@ -80,6 +80,13 @@ func (*AggregatorServiceUnavailableError) Error() string {
 	return "Aggregator service us unrechable"
 }
 
+// ParamsParsingError error meaning that the cluster name cannot be handled
+type ParamsParsingError struct{}
+
+func (*ParamsParsingError) Error() string {
+	return "the parameters contains invalid characters and cannot be used"
+}
+
 // handleServerError handles separate server errors and sends appropriate responses
 func handleServerError(writer http.ResponseWriter, err error) {
 	log.Error().Err(err).Msg("handleServerError()")
@@ -87,7 +94,7 @@ func handleServerError(writer http.ResponseWriter, err error) {
 	var respErr error
 
 	switch err := err.(type) {
-	case *RouterMissingParamError, *RouterParsingError, *json.SyntaxError, *NoBodyError:
+	case *RouterMissingParamError, *RouterParsingError, *json.SyntaxError, *NoBodyError, *ParamsParsingError:
 		respErr = responses.SendBadRequest(writer, err.Error())
 	case *json.UnmarshalTypeError:
 		respErr = responses.SendBadRequest(writer, "bad type in json data")

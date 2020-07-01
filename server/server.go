@@ -538,7 +538,7 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIPrefix, newEndpoint, vars)
 		request.URL, err = url.Parse(newURL)
 		if err != nil {
-			return nil, err
+			return nil, &ParamsParsingError{}
 		}
 
 		request.RequestURI = request.URL.RequestURI()
