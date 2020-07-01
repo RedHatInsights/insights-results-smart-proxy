@@ -21,6 +21,5 @@ package content
 // to see why this trick is needed.
 var (
 	UpdateContent             = updateContent
-	LoadRuleContent           = loadRuleContent
 	RuleContentDirectoryReady = ruleContentDirectoryReady
 )

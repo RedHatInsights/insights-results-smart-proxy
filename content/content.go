@@ -99,7 +99,8 @@ var rulesWithContentStorage = RulesWithContentStorage{
 	rules:            map[types.RuleID]*ics_content.RuleContent{},
 }
 
-func waitForContentDirectoryToBeReady() {
+// WaitForContentDirectoryToBeReady ensures the rule content directory is safe to read/write
+func WaitForContentDirectoryToBeReady() {
 	// according to the example in the official dock,
 	// lock is required here
 	if ruleContentDirectory == nil {
@@ -115,7 +116,7 @@ func GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
 ) (*types.RuleWithContent, error) {
 	// to be sure the data is there
-	waitForContentDirectoryToBeReady()
+	WaitForContentDirectoryToBeReady()
 
 	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
@@ -131,7 +132,7 @@ func GetRuleWithErrorKeyContent(
 // Caching is done under the hood, don't worry about it.
 func GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, error) {
 	// to be sure the data is there
-	waitForContentDirectoryToBeReady()
+	WaitForContentDirectoryToBeReady()
 
 	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
@@ -172,7 +173,7 @@ func updateContent(servicesConf services.Configuration) {
 		return
 	}
 
-	loadRuleContent(ruleContentDirectory)
+	LoadRuleContent(ruleContentDirectory)
 
 	ruleContentDirectoryReady.L.Lock()
 	ruleContentDirectoryReady.Broadcast()
