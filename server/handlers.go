@@ -59,6 +59,15 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 		return
 	}
 
+	// check for internal rule permissions
+	if internal := content.IsRuleInternal(ruleID); internal == true {
+		ok := server.checkInternalRulePermissions(writer, request)
+		if ok != true {
+			// handled in function
+			return
+		}
+	}
+
 	err = responses.SendOK(writer, responses.BuildOkResponseWithData("content", ruleContent))
 	if err != nil {
 		handleServerError(writer, err)
