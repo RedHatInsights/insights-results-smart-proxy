@@ -570,7 +570,7 @@ func (server HTTPServer) checkInternalRulePermissions(writer http.ResponseWriter
 	return orgAllowed
 }
 
-func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) func(*http.Request) (*http.Request, error) {
+func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
 	return func(request *http.Request) (*http.Request, error) {
 		identity, err := server.GetAuthToken(request)
 		if err != nil {
