@@ -81,3 +81,17 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 }
 
 // TODO: test that proxying is done correctly including request / response modifiers for all endpoints
+
+func TestHTTPServer_ProxyTo_VoteEndpointBadCharacter(t *testing.T) {
+	badClusterName := "00000000000000000000000000000000000%1F"
+	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfig, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
+		Method:       http.MethodPut,
+		Endpoint:     server.LikeRuleEndpoint,
+		EndpointArgs: []interface{}{badClusterName, testdata.Rule1ID},
+		UserID:       testdata.UserID,
+		OrgID:        testdata.OrgID,
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusBadRequest,
+		Body:       `{"status":"the parameters contains invalid characters and cannot be used"}`,
+	})
+}

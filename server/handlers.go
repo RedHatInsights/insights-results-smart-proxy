@@ -65,3 +65,16 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 		return
 	}
 }
+
+// getClustersForOrg retrieves the list of clusters belonging to this organization
+func (server HTTPServer) getClustersForOrg(writer http.ResponseWriter, request *http.Request) {
+	// readOrganizationID is done only for checking the authentication
+	_, err := readOrganizationID(writer, request, server.Config.Auth)
+	if err != nil {
+		// already handled in readOrganizationID ?
+		return
+	}
+
+	server.proxyTo(server.ServicesConfig.AggregatorBaseEndpoint, nil)(writer, request)
+	return
+}

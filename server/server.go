@@ -525,7 +525,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	}
 }
 
-func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) func(*http.Request) (*http.Request, error) {
+func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
 	return func(request *http.Request) (*http.Request, error) {
 		identity, err := server.GetAuthToken(request)
 		if err != nil {
@@ -538,7 +538,7 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIPrefix, newEndpoint, vars)
 		request.URL, err = url.Parse(newURL)
 		if err != nil {
-			return nil, err
+			return nil, &ParamsParsingError{}
 		}
 
 		request.RequestURI = request.URL.RequestURI()
