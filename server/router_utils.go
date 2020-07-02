@@ -131,6 +131,8 @@ func readOrganizationID(writer http.ResponseWriter, request *http.Request, auth 
 	return types.OrgID(organizationID), err
 }
 
+// checkPermissions checks if the provided organization ID matches with the one of the authenticated user
+// when the authentication is enabled
 func checkPermissions(writer http.ResponseWriter, request *http.Request, orgID types.OrgID, auth bool) error {
 	identityContext := request.Context().Value(types.ContextKeyUser)
 	if identityContext != nil && auth {
@@ -138,7 +140,7 @@ func checkPermissions(writer http.ResponseWriter, request *http.Request, orgID t
 		if identity.Internal.OrgID != orgID {
 			const message = "You have no permissions to get or change info about this organization"
 			log.Error().Msg(message)
-			handleServerError(writer, &AuthenticationError{errString: message})
+			handleServerError(writer, &types.ItemNotFoundError{ItemID: orgID})
 			return errors.New(message)
 		}
 	}
