@@ -110,7 +110,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.ResetVoteOnRuleEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.proxyTo(aggregatorEndpoint, nil)).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.getClustersForOrg).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(
 		aggregatorEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
