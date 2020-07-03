@@ -68,7 +68,7 @@ license:
 	GO111MODULE=off go get -u github.com/google/addlicense && \
 		addlicense -c "Red Hat, Inc" -l "apache" -v ./
 
-before_commit: clean build style test integration_tests license
+before_commit: style test integration_tests license
 	./check_coverage.sh
 
 help: ## Show this help screen
