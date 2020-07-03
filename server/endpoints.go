@@ -26,6 +26,8 @@ import (
 const (
 	// MainEndpoint returns status ok
 	MainEndpoint = ""
+	// OldReportEndpoint is made for backwards compatibility// TODO: remove when UI fixes are merged
+	OldReportEndpoint = "report/{org_id}/{cluster}"
 	// ReportEndpoint returns report for provided {cluster}
 	ReportEndpoint = "clusters/{cluster}/report"
 	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configuration
@@ -91,6 +93,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	// common REST API endpoints
 	router.HandleFunc(apiPrefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+SingleRuleEndpoint, server.singleRuleEndpoint).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(
 		aggregatorEndpoint,
