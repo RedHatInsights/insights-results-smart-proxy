@@ -48,6 +48,13 @@ type RulesWithContentStorage struct {
 	rules            map[types.RuleID]*ics_content.RuleContent
 }
 
+// SetRuleContentDirectory is made for easy testing fake rules etc. from other directories
+func SetRuleContentDirectory(contentDir *ics_content.RuleContentDirectory) {
+	if ruleContentDirectory == nil {
+		ruleContentDirectory = contentDir
+	}
+}
+
 // GetRuleWithErrorKeyContent returns content for rule with error key
 func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
@@ -167,15 +174,13 @@ func StopUpdateContentLoop() {
 func updateContent(servicesConf services.Configuration) {
 	var err error
 
-	ruleContentDirectory, err = services.GetContent(servicesConf)
+	contentServiceDirectory, err := services.GetContent(servicesConf)
 	if err != nil {
 		log.Error().Err(err).Msg("Error retrieving static content")
 		return
 	}
 
+	SetRuleContentDirectory(contentServiceDirectory)
+	WaitForContentDirectoryToBeReady()
 	LoadRuleContent(ruleContentDirectory)
-
-	ruleContentDirectoryReady.L.Lock()
-	ruleContentDirectoryReady.Broadcast()
-	ruleContentDirectoryReady.L.Unlock()
 }
