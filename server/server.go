@@ -121,7 +121,7 @@ func (server *HTTPServer) Initialize() http.Handler {
 	log.Info().Msgf("Initializing HTTP server at '%s'", server.Config.Address)
 
 	router := mux.NewRouter().StrictSlash(true)
-	router.Use(server.LogRequest)
+	router.Use(httputils.LogRequest)
 
 	apiPrefix := server.Config.APIPrefix
 
