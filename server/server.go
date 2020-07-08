@@ -520,7 +520,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		return
 	}
 
-	if rule.Internal == true {
+	if rule.Internal {
 		ok := server.checkInternalRulePermissions(writer, request)
 		if ok != true {
 			// handled in function
@@ -561,7 +561,7 @@ func (server HTTPServer) checkInternalRulePermissions(writer http.ResponseWriter
 		}
 	}
 
-	if orgAllowed != true {
+	if !orgAllowed {
 		const message = "This organization is not allowed to access this recommendation"
 		log.Error().Msg(message)
 		handleServerError(writer, &AuthenticationError{errString: message})

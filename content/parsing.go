@@ -144,15 +144,11 @@ func getActiveStatus(status string) (bool, bool) {
 // because it's currently not specified anywhere on it's own
 // TODO: add field indicating restricted/internal status to one of Rule structs in content-service
 func IsRuleInternal(ruleID types.RuleID) bool {
-	isInternal := false
 	splitRuleID := strings.Split(string(ruleID), ".")
-
 	for _, ruleIDPart := range splitRuleID {
 		if ruleIDPart == internalRuleStr {
-			isInternal = true
-			break
+			return true
 		}
 	}
-
-	return isInternal
+	return false
 }

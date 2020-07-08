@@ -254,62 +254,30 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
-// TestDisabledInternalOrganizationsBadOrgID tests accessing internal rule when EnableInternalRulesOrganizations = true and request id is not allowed
-func TestDisabledInternalOrganizationsBadOrgID(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+func TestInternalOrganizations(t *testing.T) {
+	loadMockRuleContentDir(RuleContentInternal1)
 
-		loadMockRuleContentDir(RuleContentInternal1)
-
-		_, err := content.GetRuleContent(internalTestRuleModule)
-		helpers.FailOnError(t, err)
-
-		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RuleContent,
-			EndpointArgs:       []interface{}{internalTestRuleModule},
-			AuthorizationToken: "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ",
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusForbidden,
+	for _, testCase := range []struct {
+		TestName           string
+		ServerConfig       *server.Configuration
+		ExpectedStatusCode int
+		MockAuthToken      string
+	}{
+		{"Internal organizations enabled, Request denied", &serverConfigInternalOrganizations, http.StatusForbidden, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"},
+		{"Internal organizations enabled, Request allowed", &serverConfigInternalOrganizations, http.StatusOK, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"},
+		{"Internal organizations disabled, Request allowed", &serverConfigJWT, http.StatusOK, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"},
+	} {
+		t.Run(testCase.TestName, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t *testing.T) {
+				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
+					Method:             http.MethodGet,
+					Endpoint:           server.RuleContent,
+					EndpointArgs:       []interface{}{internalTestRuleModule},
+					AuthorizationToken: testCase.MockAuthToken,
+				}, &helpers.APIResponse{
+					StatusCode: testCase.ExpectedStatusCode,
+				})
+			}, testTimeout)
 		})
-	}, testTimeout)
-}
-
-// TestDisabledInternalOrganizationsAllowedOrgID tests accessing internal rule when EnableInternalRulesOrganizations = true and org id is allowed
-func TestDisabledInternalOrganizationsAllowedOrgID(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-
-		loadMockRuleContentDir(RuleContentInternal1)
-
-		_, err := content.GetRuleContent(internalTestRuleModule)
-		helpers.FailOnError(t, err)
-
-		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RuleContent,
-			EndpointArgs:       []interface{}{internalTestRuleModule},
-			AuthorizationToken: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c",
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-		})
-	}, testTimeout)
-}
-
-// TestDisabledInternalOrganizations tests accessing internal rule when EnableInternalRulesOrganizations = false
-func TestDisabledInternalOrganizations(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-
-		loadMockRuleContentDir(RuleContentInternal1)
-
-		_, err := content.GetRuleContent(internalTestRuleModule)
-		helpers.FailOnError(t, err)
-
-		helpers.AssertAPIRequest(t, &serverConfigJWT, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RuleContent,
-			EndpointArgs:       []interface{}{internalTestRuleModule},
-			AuthorizationToken: "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ",
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-		})
-	}, testTimeout)
+	}
 }
