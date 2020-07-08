@@ -5,8 +5,8 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20200624083233-f39245e725f9
-	github.com/RedHatInsights/insights-operator-utils v1.2.3
-	github.com/RedHatInsights/insights-results-aggregator v0.0.0-20200629094804-3c27dab7158a
+	github.com/RedHatInsights/insights-operator-utils v1.3.2
+	github.com/RedHatInsights/insights-results-aggregator v1.0.0
 	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20200624135606-84f78db90ac2
 	github.com/Shopify/sarama v1.26.4 // indirect
 	github.com/aws/aws-sdk-go v1.32.11 // indirect
