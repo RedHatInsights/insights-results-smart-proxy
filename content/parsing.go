@@ -23,6 +23,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const internalRuleStr = "internal"
+
 var (
 	timeParseFormats = []string{
 		"2006-01-02 15:04:05",
@@ -32,8 +34,8 @@ var (
 
 // TODO: consider moving parsing to content service
 
-// loadRuleContent loads the parsed rule content into the storage
-func loadRuleContent(contentDir *content.RuleContentDirectory) {
+// LoadRuleContent loads the parsed rule content into the storage
+func LoadRuleContent(contentDir *content.RuleContentDirectory) {
 	for _, rule := range contentDir.Rules {
 		ruleID := types.RuleID(rule.Plugin.PythonModule)
 
@@ -45,14 +47,9 @@ func loadRuleContent(contentDir *content.RuleContentDirectory) {
 				log.Error().Msgf(`impact "%v" doesn't have integer representation'`, impact)
 				continue
 			}
-			var isActive bool
-			switch strings.ToLower(strings.TrimSpace(errorProperties.Metadata.Status)) {
-			case "active":
-				isActive = true
-			case "inactive":
-				isActive = false
-			default:
-				log.Error().Msgf("invalid rule error key status: '%s'", errorProperties.Metadata.Status)
+
+			isActive, success := getActiveStatus(errorProperties.Metadata.Status)
+			if success != true {
 				return
 			}
 
@@ -75,6 +72,7 @@ func loadRuleContent(contentDir *content.RuleContentDirectory) {
 				RiskOfChange: calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
 				PublishDate:  publishDate,
 				Active:       isActive,
+				Internal:     IsRuleInternal(ruleID),
 				Generic:      errorProperties.Generic,
 				Tags:         errorProperties.Metadata.Tags,
 			})
@@ -121,4 +119,36 @@ func timeParse(value string) (time.Time, error) {
 	log.Error().Err(err)
 
 	return time.Time{}, err
+}
+
+// Reads Status string, first returned bool is active status, second bool is a success check
+func getActiveStatus(status string) (bool, bool) {
+	var isActive, success bool
+
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "active":
+		isActive = true
+		success = true
+	case "inactive":
+		isActive = false
+		success = true
+	default:
+		log.Error().Msgf("invalid rule error key status: '%s'", status)
+		success = false
+	}
+
+	return isActive, success
+}
+
+// IsRuleInternal tries to look for the word "internal" in the ruleID / rule module,
+// because it's currently not specified anywhere on it's own
+// TODO: add field indicating restricted/internal status to one of Rule structs in content-service
+func IsRuleInternal(ruleID types.RuleID) bool {
+	splitRuleID := strings.Split(string(ruleID), ".")
+	for _, ruleIDPart := range splitRuleID {
+		if ruleIDPart == internalRuleStr {
+			return true
+		}
+	}
+	return false
 }

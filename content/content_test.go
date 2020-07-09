@@ -120,9 +120,6 @@ func TestUpdateContentBadTime(t *testing.T) {
 	}
 
 	content.LoadRuleContent(&ruleContentDirectory)
-	content.RuleContentDirectoryReady.L.Lock()
-	content.RuleContentDirectoryReady.Broadcast()
-	content.RuleContentDirectoryReady.L.Unlock()
 
 	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
 	helpers.FailOnError(t, err)

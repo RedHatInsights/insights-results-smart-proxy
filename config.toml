@@ -7,6 +7,8 @@ auth = false
 auth_type = "xrh"
 use_https = false
 enable_cors = false
+enable_internal_rules_organizations = false
+internal_rules_organizations = []
 
 [services]
 aggregator = "http://localhost:8080/api/v1/"

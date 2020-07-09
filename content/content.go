@@ -48,6 +48,13 @@ type RulesWithContentStorage struct {
 	rules            map[types.RuleID]*ics_content.RuleContent
 }
 
+// SetRuleContentDirectory is made for easy testing fake rules etc. from other directories
+func SetRuleContentDirectory(contentDir *ics_content.RuleContentDirectory) {
+	if ruleContentDirectory == nil {
+		ruleContentDirectory = contentDir
+	}
+}
+
 // GetRuleWithErrorKeyContent returns content for rule with error key
 func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
@@ -99,7 +106,8 @@ var rulesWithContentStorage = RulesWithContentStorage{
 	rules:            map[types.RuleID]*ics_content.RuleContent{},
 }
 
-func waitForContentDirectoryToBeReady() {
+// WaitForContentDirectoryToBeReady ensures the rule content directory is safe to read/write
+func WaitForContentDirectoryToBeReady() {
 	// according to the example in the official dock,
 	// lock is required here
 	if ruleContentDirectory == nil {
@@ -115,7 +123,7 @@ func GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
 ) (*types.RuleWithContent, error) {
 	// to be sure the data is there
-	waitForContentDirectoryToBeReady()
+	WaitForContentDirectoryToBeReady()
 
 	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
@@ -131,7 +139,7 @@ func GetRuleWithErrorKeyContent(
 // Caching is done under the hood, don't worry about it.
 func GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, error) {
 	// to be sure the data is there
-	waitForContentDirectoryToBeReady()
+	WaitForContentDirectoryToBeReady()
 
 	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
@@ -166,15 +174,13 @@ func StopUpdateContentLoop() {
 func updateContent(servicesConf services.Configuration) {
 	var err error
 
-	ruleContentDirectory, err = services.GetContent(servicesConf)
+	contentServiceDirectory, err := services.GetContent(servicesConf)
 	if err != nil {
 		log.Error().Err(err).Msg("Error retrieving static content")
 		return
 	}
 
-	loadRuleContent(ruleContentDirectory)
-
-	ruleContentDirectoryReady.L.Lock()
-	ruleContentDirectoryReady.Broadcast()
-	ruleContentDirectoryReady.L.Unlock()
+	SetRuleContentDirectory(contentServiceDirectory)
+	WaitForContentDirectoryToBeReady()
+	LoadRuleContent(ruleContentDirectory)
 }
