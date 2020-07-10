@@ -37,6 +37,7 @@ type RuleWithContentResponse struct {
 	TotalRisk    int            `json:"total_risk"`
 	RiskOfChange int            `json:"risk_of_change"`
 	Disabled     bool           `json:"disabled"`
+	Internal     bool           `json:"internal"`
 	UserVote     types.UserVote `json:"user_vote"`
 	TemplateData interface{}    `json:"extra_data"`
 	Tags         []string       `json:"tags"`

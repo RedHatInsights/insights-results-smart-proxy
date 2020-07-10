@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
@@ -35,11 +36,38 @@ import (
 )
 
 const (
-	testTimeout = 10 * time.Second
+	testTimeout            = 10 * time.Second
+	internalTestRuleModule = "foo.rules.internal.bar"
 )
 
 // TODO: consider moving to data repo
 var (
+	serverConfigJWT = server.Configuration{
+		Address:                          ":8081",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		Debug:                            true,
+		Auth:                             true,
+		AuthType:                         "jwt",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: false,
+		InternalRulesOrganizations:       []int{1},
+	}
+
+	serverConfigInternalOrganizations = server.Configuration{
+		Address:                          ":8081",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		Debug:                            true,
+		Auth:                             true,
+		AuthType:                         "jwt",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: true,
+		InternalRulesOrganizations:       []int{1},
+	}
+
 	SmartProxyReportResponse3Rules = struct {
 		Status string                  `json:"status"`
 		Report *types.SmartProxyReport `json:"report"`
@@ -101,11 +129,52 @@ var (
 			},
 		},
 	}
+
+	RuleContentInternal1 = ics_content.RuleContent{
+		Summary:    testdata.Rule1.Summary,
+		Reason:     testdata.Rule1.Reason,
+		Resolution: testdata.Rule1.Resolution,
+		MoreInfo:   testdata.Rule1.MoreInfo,
+		Plugin: ics_content.RulePluginInfo{
+			Name:         testdata.Rule1.Name,
+			NodeID:       "",
+			ProductCode:  "",
+			PythonModule: internalTestRuleModule,
+		},
+		ErrorKeys: map[string]ics_content.RuleErrorKeyContent{
+			"ek1": {
+				Generic: testdata.RuleErrorKey1.Generic,
+				Metadata: ics_content.ErrorKeyMetadata{
+					Condition:   testdata.RuleErrorKey1.Condition,
+					Description: testdata.RuleErrorKey1.Description,
+					Impact:      testdata.ImpactIntToStr[testdata.RuleErrorKey1.Impact],
+					Likelihood:  testdata.RuleErrorKey1.Likelihood,
+					PublishDate: testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+					Tags:        testdata.RuleErrorKey1.Tags,
+					Status:      "active",
+				},
+			},
+		},
+	}
 )
 
 // TODO: move to utils
 func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
+}
+
+func loadMockRuleContentDir(rule ics_content.RuleContent) {
+	ruleContentDirectory := ics_content.RuleContentDirectory{
+		Config: ics_content.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ics_content.RuleContent{
+			"rc1": rule,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+	content.WaitForContentDirectoryToBeReady()
 }
 
 func init() {
@@ -147,6 +216,7 @@ func TestAddCORSHeaders(t *testing.T) {
 	})
 }
 
+// TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t *testing.T) {
 		defer helpers.CleanAfterGock(t)
@@ -184,4 +254,30 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
-// TODO: test more cases for report endpoint
+func TestInternalOrganizations(t *testing.T) {
+	loadMockRuleContentDir(RuleContentInternal1)
+
+	for _, testCase := range []struct {
+		TestName           string
+		ServerConfig       *server.Configuration
+		ExpectedStatusCode int
+		MockAuthToken      string
+	}{
+		{"Internal organizations enabled, Request denied", &serverConfigInternalOrganizations, http.StatusForbidden, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"},
+		{"Internal organizations enabled, Request allowed", &serverConfigInternalOrganizations, http.StatusOK, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"},
+		{"Internal organizations disabled, Request allowed", &serverConfigJWT, http.StatusOK, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"},
+	} {
+		t.Run(testCase.TestName, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t *testing.T) {
+				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
+					Method:             http.MethodGet,
+					Endpoint:           server.RuleContent,
+					EndpointArgs:       []interface{}{internalTestRuleModule},
+					AuthorizationToken: testCase.MockAuthToken,
+				}, &helpers.APIResponse{
+					StatusCode: testCase.ExpectedStatusCode,
+				})
+			}, testTimeout)
+		})
+	}
+}
