@@ -23,16 +23,16 @@ import (
 
 	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
+	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
-	"github.com/rs/zerolog"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -52,7 +52,7 @@ var (
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: false,
-		InternalRulesOrganizations:       []int{1},
+		InternalRulesOrganizations:       []iou_types.OrgID{1},
 	}
 
 	serverConfigInternalOrganizations = server.Configuration{
@@ -65,7 +65,7 @@ var (
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: true,
-		InternalRulesOrganizations:       []int{1},
+		InternalRulesOrganizations:       []iou_types.OrgID{1},
 	}
 
 	SmartProxyReportResponse3Rules = struct {
