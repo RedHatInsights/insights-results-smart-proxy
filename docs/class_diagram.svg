@@ -1,0 +1,727 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="928px" preserveAspectRatio="none" style="width:4618px;height:928px;" version="1.1" viewBox="0 0 4618 928" width="4618px" zoomAndPan="magnify">
+  <defs>
+    <filter height="300%" id="fhm7u5m2lkr99" width="300%" x="-1" y="-1">
+      <feGaussianBlur result="blurOut" stdDeviation="2.0"/>
+      <feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/>
+      <feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/>
+      <feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/>
+    </filter>
+  </defs>
+  <g>
+    <!--MD5=[3a99a4dbfc0dec0b14f698d556913447]
+cluster content-->
+    <polygon fill="#FFFFFF" filter="url(#fhm7u5m2lkr99)" points="1950,443.5,2018,443.5,2025,465.7969,2806,465.7969,2806,603.5,1950,603.5,1950,443.5" style="stroke: #000000; stroke-width: 1.5;"/>
+    <line style="stroke: #000000; stroke-width: 1.5;" x1="1950" x2="2025" y1="465.7969" y2="465.7969"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="62" x="1954" y="458.4951">content</text>
+    <!--MD5=[f9f5e47277aa1cf362235c24d633d021]
+cluster sync-->
+    <polygon fill="#FFFFFF" filter="url(#fhm7u5m2lkr99)" points="2425,99,2466,99,2473,121.2969,2531,121.2969,2531,182,2425,182,2425,99" style="stroke: #000000; stroke-width: 1.5;"/>
+    <line style="stroke: #000000; stroke-width: 1.5;" x1="2425" x2="2473" y1="121.2969" y2="121.2969"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="35" x="2429" y="113.9951">sync</text>
+    <!--MD5=[9b2039c9cbc9b36eebe6e360cb295121]
+cluster helpers-->
+    <polygon fill="#FFFFFF" filter="url(#fhm7u5m2lkr99)" points="2814,99,2880,99,2887,121.2969,3169,121.2969,3169,565,2814,565,2814,99" style="stroke: #000000; stroke-width: 1.5;"/>
+    <line style="stroke: #000000; stroke-width: 1.5;" x1="2814" x2="2887" y1="121.2969" y2="121.2969"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="60" x="2818" y="113.9951">helpers</text>
+    <!--MD5=[4ef80439e1ef409f8f3a0ec422262701]
+cluster server-->
+    <polygon fill="#FFFFFF" filter="url(#fhm7u5m2lkr99)" points="14,48,71,48,78,70.2969,1931,70.2969,1931,916,14,916,14,48" style="stroke: #000000; stroke-width: 1.5;"/>
+    <line style="stroke: #000000; stroke-width: 1.5;" x1="14" x2="78" y1="70.2969" y2="70.2969"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="51" x="18" y="62.9951">server</text>
+    <!--MD5=[03c2ecdfa11f70b38eb496afaf3adc6b]
+cluster services-->
+    <polygon fill="#FFFFFF" filter="url(#fhm7u5m2lkr99)" points="3188,80,3259,80,3266,102.2969,3418,102.2969,3418,201,3188,201,3188,80" style="stroke: #000000; stroke-width: 1.5;"/>
+    <line style="stroke: #000000; stroke-width: 1.5;" x1="3188" x2="3266" y1="102.2969" y2="102.2969"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="65" x="3192" y="94.9951">services</text>
+    <!--MD5=[67cd15ce44b6dd54f77054b62c31bf42]
+cluster types-->
+    <polygon fill="#FFFFFF" filter="url(#fhm7u5m2lkr99)" points="3436,16,3486,16,3493,38.2969,4596,38.2969,4596,565,3436,565,3436,16" style="stroke: #000000; stroke-width: 1.5;"/>
+    <line style="stroke: #000000; stroke-width: 1.5;" x1="3436" x2="3493" y1="38.2969" y2="38.2969"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="44" x="3440" y="30.9951">types</text>
+    <!--MD5=[6cbc7ead237f7eec7aa2aaf43f0269a8]
+class content.RulesWithContentStorage-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="124.8281" id="content.RulesWithContentStorage" style="stroke: #A80036; stroke-width: 1.5;" width="639" x="2158.5" y="470.5"/>
+    <ellipse cx="2396.25" cy="486.5" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M2395.4844,487.0625 Q2393.625,486.3594 2392.9766,485.5859 Q2392.3281,484.8125 2392.3281,483.5 Q2392.3281,481.8125 2393.4063,480.8438 Q2394.4844,479.875 2396.3594,479.875 Q2397.2188,479.875 2398.0703,480.0703 Q2398.9219,480.2656 2399.7656,480.6563 L2399.7656,483.0469 Q2398.9844,482.4844 2398.1641,482.1953 Q2397.3438,481.9063 2396.5469,481.9063 Q2395.6719,481.9063 2395.1953,482.2656 Q2394.7188,482.625 2394.7188,483.2813 Q2394.7188,483.7969 2395.0625,484.1328 Q2395.4063,484.4688 2396.5,484.875 L2397.5625,485.2813 Q2399.0469,485.8281 2399.7578,486.7344 Q2400.4688,487.6406 2400.4688,489.0156 Q2400.4688,490.8906 2399.3594,491.8125 Q2398.25,492.7344 2396,492.7344 Q2395.0781,492.7344 2394.1563,492.5156 Q2393.2344,492.2969 2392.375,491.875 L2392.375,489.3438 Q2393.3438,490.0313 2394.2656,490.375 Q2395.1875,490.7188 2396.0781,490.7188 Q2396.9844,490.7188 2397.4844,490.3047 Q2397.9844,489.8906 2397.9844,489.1563 Q2397.9844,488.5938 2397.6484,488.1797 Q2397.3125,487.7656 2396.6875,487.5156 L2395.4844,487.0625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="155" x="2416.75" y="490.6543">RulesWithContentStorage</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2159.5" x2="2796.5" y1="502.5" y2="502.5"/>
+    <rect fill="none" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="2166.5" y="510.5"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="2178.5" y="516.7104">rulesWithContent</text>
+    <text fill="#0000FF" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="2279.5" y="516.7104">map</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="248" x="2304.5" y="516.7104">[ruleIDAndErrorKey]*types.RuleWithContent</text>
+    <rect fill="none" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="2166.5" y="523.3047"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="28" x="2178.5" y="529.5151">rules</text>
+    <text fill="#0000FF" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="2210.5" y="529.5151">map</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="200" x="2235.5" y="529.5151">[types.RuleID]*content.RuleContent</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2159.5" x2="2796.5" y1="536.1094" y2="536.1094"/>
+    <ellipse cx="2169.5" cy="547.1094" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="606" x="2178.5" y="550.3198">GetRuleWithErrorKeyContent(ruleID types.RuleID, errorKey types.ErrorKey) (*types.RuleWithContent, bool)</text>
+    <ellipse cx="2169.5" cy="559.9141" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="370" x="2178.5" y="563.1245">GetRuleContent(ruleID types.RuleID) (*content.RuleContent, bool)</text>
+    <ellipse cx="2169.5" cy="572.7188" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="613" x="2178.5" y="575.9292">SetRuleWithContent(ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent)</text>
+    <ellipse cx="2169.5" cy="585.5234" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="352" x="2178.5" y="588.7339">SetRule(ruleID types.RuleID, ruleContent content.RuleContent)</text>
+    <!--MD5=[c36f9f509522a92b8efa11bc7a50b90e]
+class content.ruleIDAndErrorKey-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="73.6094" id="content.ruleIDAndErrorKey" style="stroke: #A80036; stroke-width: 1.5;" width="165" x="1958.5" y="496"/>
+    <ellipse cx="1982.95" cy="512" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M1982.1844,512.5625 Q1980.325,511.8594 1979.6766,511.0859 Q1979.0281,510.3125 1979.0281,509 Q1979.0281,507.3125 1980.1063,506.3438 Q1981.1844,505.375 1983.0594,505.375 Q1983.9188,505.375 1984.7703,505.5703 Q1985.6219,505.7656 1986.4656,506.1563 L1986.4656,508.5469 Q1985.6844,507.9844 1984.8641,507.6953 Q1984.0438,507.4063 1983.2469,507.4063 Q1982.3719,507.4063 1981.8953,507.7656 Q1981.4188,508.125 1981.4188,508.7813 Q1981.4188,509.2969 1981.7625,509.6328 Q1982.1063,509.9688 1983.2,510.375 L1984.2625,510.7813 Q1985.7469,511.3281 1986.4578,512.2344 Q1987.1688,513.1406 1987.1688,514.5156 Q1987.1688,516.3906 1986.0594,517.3125 Q1984.95,518.2344 1982.7,518.2344 Q1981.7781,518.2344 1980.8563,518.0156 Q1979.9344,517.7969 1979.075,517.375 L1979.075,514.8438 Q1980.0438,515.5313 1980.9656,515.875 Q1981.8875,516.2188 1982.7781,516.2188 Q1983.6844,516.2188 1984.1844,515.8047 Q1984.6844,515.3906 1984.6844,514.6563 Q1984.6844,514.0938 1984.3484,513.6797 Q1984.0125,513.2656 1983.3875,513.0156 L1982.1844,512.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="112" x="1999.05" y="516.1543">ruleIDAndErrorKey</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1959.5" x2="2122.5" y1="528" y2="528"/>
+    <ellipse cx="1969.5" cy="539" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="111" x="1978.5" y="542.2104">RuleID types.RuleID</text>
+    <ellipse cx="1969.5" cy="551.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="139" x="1978.5" y="555.0151">ErrorKey types.ErrorKey</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1959.5" x2="2122.5" y1="561.6094" y2="561.6094"/>
+    <!--MD5=[34382681a0b56c09507f378284b1a66b]
+class sync.RWMutex-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="sync.RWMutex" style="stroke: #A80036; stroke-width: 1.5;" width="89" x="2433.5" y="126"/>
+    <ellipse cx="2448.5" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M2451.4688,147.6406 Q2450.8906,147.9375 2450.25,148.0859 Q2449.6094,148.2344 2448.9063,148.2344 Q2446.4063,148.2344 2445.0859,146.5859 Q2443.7656,144.9375 2443.7656,141.8125 Q2443.7656,138.6875 2445.0859,137.0313 Q2446.4063,135.375 2448.9063,135.375 Q2449.6094,135.375 2450.2578,135.5313 Q2450.9063,135.6875 2451.4688,135.9844 L2451.4688,138.7031 Q2450.8438,138.125 2450.25,137.8516 Q2449.6563,137.5781 2449.0313,137.5781 Q2447.6875,137.5781 2447,138.6484 Q2446.3125,139.7188 2446.3125,141.8125 Q2446.3125,143.9063 2447,144.9766 Q2447.6875,146.0469 2449.0313,146.0469 Q2449.6563,146.0469 2450.25,145.7734 Q2450.8438,145.5 2451.4688,144.9219 L2451.4688,147.6406 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="57" x="2462.5" y="146.1543">RWMutex</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2434.5" x2="2521.5" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2434.5" x2="2521.5" y1="166" y2="166"/>
+    <!--MD5=[feac6c7250a0eca9a6b62391c7f57ec1]
+class helpers.APIRequest-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="helpers.APIRequest" style="stroke: #A80036; stroke-width: 1.5;" width="100" x="3037" y="509"/>
+    <ellipse cx="3052" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3053.3438,531.5 L3050.8906,531.5 L3050.8906,521.25 L3047.75,521.25 L3047.75,519.1094 L3056.4844,519.1094 L3056.4844,521.25 L3053.3438,521.25 L3053.3438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="68" x="3066" y="529.1543">APIRequest</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3038" x2="3136" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3038" x2="3136" y1="549" y2="549"/>
+    <!--MD5=[991eda6443dd0e7bb557e4bb57fc0fbb]
+class helpers.APIResponse-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="helpers.APIResponse" style="stroke: #A80036; stroke-width: 1.5;" width="108" x="2846" y="509"/>
+    <ellipse cx="2861" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M2862.3438,531.5 L2859.8906,531.5 L2859.8906,521.25 L2856.75,521.25 L2856.75,519.1094 L2865.4844,519.1094 L2865.4844,521.25 L2862.3438,521.25 L2862.3438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="76" x="2875" y="529.1543">APIResponse</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2847" x2="2953" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2847" x2="2953" y1="549" y2="549"/>
+    <!--MD5=[e2694a62e8010cf056a2ed32f1dc83ba]
+class helpers.helpersAPIRequest-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="helpers.helpersAPIRequest" style="stroke: #A80036; stroke-width: 1.5;" width="148" x="3013" y="126"/>
+    <ellipse cx="3028" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3030.9688,147.6406 Q3030.3906,147.9375 3029.75,148.0859 Q3029.1094,148.2344 3028.4063,148.2344 Q3025.9063,148.2344 3024.5859,146.5859 Q3023.2656,144.9375 3023.2656,141.8125 Q3023.2656,138.6875 3024.5859,137.0313 Q3025.9063,135.375 3028.4063,135.375 Q3029.1094,135.375 3029.7578,135.5313 Q3030.4063,135.6875 3030.9688,135.9844 L3030.9688,138.7031 Q3030.3438,138.125 3029.75,137.8516 Q3029.1563,137.5781 3028.5313,137.5781 Q3027.1875,137.5781 3026.5,138.6484 Q3025.8125,139.7188 3025.8125,141.8125 Q3025.8125,143.9063 3026.5,144.9766 Q3027.1875,146.0469 3028.5313,146.0469 Q3029.1563,146.0469 3029.75,145.7734 Q3030.3438,145.5 3030.9688,144.9219 L3030.9688,147.6406 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="116" x="3042" y="146.1543">helpers.APIRequest</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3014" x2="3160" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3014" x2="3160" y1="166" y2="166"/>
+    <!--MD5=[9201c7abde4783de65e84580d30d85a4]
+class helpers.helpersAPIResponse-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="helpers.helpersAPIResponse" style="stroke: #A80036; stroke-width: 1.5;" width="156" x="2822" y="126"/>
+    <ellipse cx="2837" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M2839.9688,147.6406 Q2839.3906,147.9375 2838.75,148.0859 Q2838.1094,148.2344 2837.4063,148.2344 Q2834.9063,148.2344 2833.5859,146.5859 Q2832.2656,144.9375 2832.2656,141.8125 Q2832.2656,138.6875 2833.5859,137.0313 Q2834.9063,135.375 2837.4063,135.375 Q2838.1094,135.375 2838.7578,135.5313 Q2839.4063,135.6875 2839.9688,135.9844 L2839.9688,138.7031 Q2839.3438,138.125 2838.75,137.8516 Q2838.1563,137.5781 2837.5313,137.5781 Q2836.1875,137.5781 2835.5,138.6484 Q2834.8125,139.7188 2834.8125,141.8125 Q2834.8125,143.9063 2835.5,144.9766 Q2836.1875,146.0469 2837.5313,146.0469 Q2838.1563,146.0469 2838.75,145.7734 Q2839.3438,145.5 2839.9688,144.9219 L2839.9688,147.6406 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="124" x="2851" y="146.1543">helpers.APIResponse</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2823" x2="2977" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="2823" x2="2977" y1="166" y2="166"/>
+    <!--MD5=[bcd2a97832e82ba059aa2e8f4fddba74]
+class server.AggregatorServiceUnavailableError-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="60.8047" id="server.AggregatorServiceUnavailableError" style="stroke: #A80036; stroke-width: 1.5;" width="243" x="714.5" y="119.5"/>
+    <ellipse cx="729.5" cy="135.5" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M728.7344,136.0625 Q726.875,135.3594 726.2266,134.5859 Q725.5781,133.8125 725.5781,132.5 Q725.5781,130.8125 726.6563,129.8438 Q727.7344,128.875 729.6094,128.875 Q730.4688,128.875 731.3203,129.0703 Q732.1719,129.2656 733.0156,129.6563 L733.0156,132.0469 Q732.2344,131.4844 731.4141,131.1953 Q730.5938,130.9063 729.7969,130.9063 Q728.9219,130.9063 728.4453,131.2656 Q727.9688,131.625 727.9688,132.2813 Q727.9688,132.7969 728.3125,133.1328 Q728.6563,133.4688 729.75,133.875 L730.8125,134.2813 Q732.2969,134.8281 733.0078,135.7344 Q733.7188,136.6406 733.7188,138.0156 Q733.7188,139.8906 732.6094,140.8125 Q731.5,141.7344 729.25,141.7344 Q728.3281,141.7344 727.4063,141.5156 Q726.4844,141.2969 725.625,140.875 L725.625,138.3438 Q726.5938,139.0313 727.5156,139.375 Q728.4375,139.7188 729.3281,139.7188 Q730.2344,139.7188 730.7344,139.3047 Q731.2344,138.8906 731.2344,138.1563 Q731.2344,137.5938 730.8984,137.1797 Q730.5625,136.7656 729.9375,136.5156 L728.7344,136.0625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="211" x="743.5" y="139.6543">AggregatorServiceUnavailableError</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="715.5" x2="956.5" y1="151.5" y2="151.5"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="715.5" x2="956.5" y1="159.5" y2="159.5"/>
+    <ellipse cx="725.5" cy="170.5" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="73" x="734.5" y="173.7104">Error() string</text>
+    <!--MD5=[b03157b2842d89d1a54daa49eec9917a]
+class server.AuthenticationError-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="73.6094" id="server.AuthenticationError" style="stroke: #A80036; stroke-width: 1.5;" width="151" x="992.5" y="113"/>
+    <ellipse cx="1007.5" cy="129" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M1006.7344,129.5625 Q1004.875,128.8594 1004.2266,128.0859 Q1003.5781,127.3125 1003.5781,126 Q1003.5781,124.3125 1004.6563,123.3438 Q1005.7344,122.375 1007.6094,122.375 Q1008.4688,122.375 1009.3203,122.5703 Q1010.1719,122.7656 1011.0156,123.1563 L1011.0156,125.5469 Q1010.2344,124.9844 1009.4141,124.6953 Q1008.5938,124.4063 1007.7969,124.4063 Q1006.9219,124.4063 1006.4453,124.7656 Q1005.9688,125.125 1005.9688,125.7813 Q1005.9688,126.2969 1006.3125,126.6328 Q1006.6563,126.9688 1007.75,127.375 L1008.8125,127.7813 Q1010.2969,128.3281 1011.0078,129.2344 Q1011.7188,130.1406 1011.7188,131.5156 Q1011.7188,133.3906 1010.6094,134.3125 Q1009.5,135.2344 1007.25,135.2344 Q1006.3281,135.2344 1005.4063,135.0156 Q1004.4844,134.7969 1003.625,134.375 L1003.625,131.8438 Q1004.5938,132.5313 1005.5156,132.875 Q1006.4375,133.2188 1007.3281,133.2188 Q1008.2344,133.2188 1008.7344,132.8047 Q1009.2344,132.3906 1009.2344,131.6563 Q1009.2344,131.0938 1008.8984,130.6797 Q1008.5625,130.2656 1007.9375,130.0156 L1006.7344,129.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="119" x="1021.5" y="133.1543">AuthenticationError</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="993.5" x2="1142.5" y1="145" y2="145"/>
+    <rect fill="none" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="1000.5" y="153"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="86" x="1012.5" y="159.2104">errString string</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="993.5" x2="1142.5" y1="165.8047" y2="165.8047"/>
+    <ellipse cx="1003.5" cy="176.8047" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="73" x="1012.5" y="180.0151">Error() string</text>
+    <!--MD5=[a98da712e15d3ca50b196e018dc2d440]
+class server.Configuration-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="150.4375" id="server.Configuration" style="stroke: #A80036; stroke-width: 1.5;" width="126" x="1179" y="75"/>
+    <ellipse cx="1199.85" cy="91" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M1199.0844,91.5625 Q1197.225,90.8594 1196.5766,90.0859 Q1195.9281,89.3125 1195.9281,88 Q1195.9281,86.3125 1197.0063,85.3438 Q1198.0844,84.375 1199.9594,84.375 Q1200.8188,84.375 1201.6703,84.5703 Q1202.5219,84.7656 1203.3656,85.1563 L1203.3656,87.5469 Q1202.5844,86.9844 1201.7641,86.6953 Q1200.9438,86.4063 1200.1469,86.4063 Q1199.2719,86.4063 1198.7953,86.7656 Q1198.3188,87.125 1198.3188,87.7813 Q1198.3188,88.2969 1198.6625,88.6328 Q1199.0063,88.9688 1200.1,89.375 L1201.1625,89.7813 Q1202.6469,90.3281 1203.3578,91.2344 Q1204.0688,92.1406 1204.0688,93.5156 Q1204.0688,95.3906 1202.9594,96.3125 Q1201.85,97.2344 1199.6,97.2344 Q1198.6781,97.2344 1197.7563,97.0156 Q1196.8344,96.7969 1195.975,96.375 L1195.975,93.8438 Q1196.9438,94.5313 1197.8656,94.875 Q1198.7875,95.2188 1199.6781,95.2188 Q1200.5844,95.2188 1201.0844,94.8047 Q1201.5844,94.3906 1201.5844,93.6563 Q1201.5844,93.0938 1201.2484,92.6797 Q1200.9125,92.2656 1200.2875,92.0156 L1199.0844,91.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="81" x="1215.15" y="95.1543">Configuration</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1180" x2="1304" y1="107" y2="107"/>
+    <ellipse cx="1190" cy="118" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="82" x="1199" y="121.2104">Address string</text>
+    <ellipse cx="1190" cy="130.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="87" x="1199" y="134.0151">APIPrefix string</text>
+    <ellipse cx="1190" cy="143.6094" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="100" x="1199" y="146.8198">APISpecFile string</text>
+    <ellipse cx="1190" cy="156.4141" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="64" x="1199" y="159.6245">Debug bool</text>
+    <ellipse cx="1190" cy="169.2188" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="54" x="1199" y="172.4292">Auth bool</text>
+    <ellipse cx="1190" cy="182.0234" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="90" x="1199" y="185.2339">AuthType string</text>
+    <ellipse cx="1190" cy="194.8281" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="85" x="1199" y="198.0386">UseHTTPS bool</text>
+    <ellipse cx="1190" cy="207.6328" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="98" x="1199" y="210.8433">EnableCORS bool</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1180" x2="1304" y1="217.4375" y2="217.4375"/>
+    <!--MD5=[635e76657bde9d599410bc619ed8be64]
+class server.ContentServiceUnavailableError-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="60.8047" id="server.ContentServiceUnavailableError" style="stroke: #A80036; stroke-width: 1.5;" width="223" x="1340.5" y="119.5"/>
+    <ellipse cx="1355.5" cy="135.5" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M1354.7344,136.0625 Q1352.875,135.3594 1352.2266,134.5859 Q1351.5781,133.8125 1351.5781,132.5 Q1351.5781,130.8125 1352.6563,129.8438 Q1353.7344,128.875 1355.6094,128.875 Q1356.4688,128.875 1357.3203,129.0703 Q1358.1719,129.2656 1359.0156,129.6563 L1359.0156,132.0469 Q1358.2344,131.4844 1357.4141,131.1953 Q1356.5938,130.9063 1355.7969,130.9063 Q1354.9219,130.9063 1354.4453,131.2656 Q1353.9688,131.625 1353.9688,132.2813 Q1353.9688,132.7969 1354.3125,133.1328 Q1354.6563,133.4688 1355.75,133.875 L1356.8125,134.2813 Q1358.2969,134.8281 1359.0078,135.7344 Q1359.7188,136.6406 1359.7188,138.0156 Q1359.7188,139.8906 1358.6094,140.8125 Q1357.5,141.7344 1355.25,141.7344 Q1354.3281,141.7344 1353.4063,141.5156 Q1352.4844,141.2969 1351.625,140.875 L1351.625,138.3438 Q1352.5938,139.0313 1353.5156,139.375 Q1354.4375,139.7188 1355.3281,139.7188 Q1356.2344,139.7188 1356.7344,139.3047 Q1357.2344,138.8906 1357.2344,138.1563 Q1357.2344,137.5938 1356.8984,137.1797 Q1356.5625,136.7656 1355.9375,136.5156 L1354.7344,136.0625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="191" x="1369.5" y="139.6543">ContentServiceUnavailableError</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1341.5" x2="1562.5" y1="151.5" y2="151.5"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1341.5" x2="1562.5" y1="159.5" y2="159.5"/>
+    <ellipse cx="1351.5" cy="170.5" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="73" x="1360.5" y="173.7104">Error() string</text>
+    <!--MD5=[2156ddef2cf852b6f26baae7777359cd]
+class server.HTTPServer-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="432.1406" id="server.HTTPServer" style="stroke: #A80036; stroke-width: 1.5;" width="960" x="356" y="317"/>
+    <ellipse cx="797.25" cy="333" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M796.4844,333.5625 Q794.625,332.8594 793.9766,332.0859 Q793.3281,331.3125 793.3281,330 Q793.3281,328.3125 794.4063,327.3438 Q795.4844,326.375 797.3594,326.375 Q798.2188,326.375 799.0703,326.5703 Q799.9219,326.7656 800.7656,327.1563 L800.7656,329.5469 Q799.9844,328.9844 799.1641,328.6953 Q798.3438,328.4063 797.5469,328.4063 Q796.6719,328.4063 796.1953,328.7656 Q795.7188,329.125 795.7188,329.7813 Q795.7188,330.2969 796.0625,330.6328 Q796.4063,330.9688 797.5,331.375 L798.5625,331.7813 Q800.0469,332.3281 800.7578,333.2344 Q801.4688,334.1406 801.4688,335.5156 Q801.4688,337.3906 800.3594,338.3125 Q799.25,339.2344 797,339.2344 Q796.0781,339.2344 795.1563,339.0156 Q794.2344,338.7969 793.375,338.375 L793.375,335.8438 Q794.3438,336.5313 795.2656,336.875 Q796.1875,337.2188 797.0781,337.2188 Q797.9844,337.2188 798.4844,336.8047 Q798.9844,336.3906 798.9844,335.6563 Q798.9844,335.0938 798.6484,334.6797 Q798.3125,334.2656 797.6875,334.0156 L796.4844,333.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="69" x="817.75" y="337.1543">HTTPServer</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="357" x2="1315" y1="349" y2="349"/>
+    <ellipse cx="367" cy="360" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="116" x="376" y="363.2104">Config Configuration</text>
+    <ellipse cx="367" cy="372.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="215" x="376" y="376.0151">ServicesConfig services.Configuration</text>
+    <ellipse cx="367" cy="385.6094" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="87" x="376" y="388.8198">GroupsChannel</text>
+    <text fill="#0000FF" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="27" x="467" y="388.8198">chan</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="86" x="498" y="388.8198">[]groups.Group</text>
+    <ellipse cx="367" cy="398.4141" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="100" x="376" y="401.6245">Serv *http.Server</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="357" x2="1315" y1="408.2188" y2="408.2188"/>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="416.2188"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="284" x="376" y="422.4292">addDebugEndpointsToRouter(router *mux.Router)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="429.0234"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="248" x="376" y="435.2339">addEndpointsToRouter(router *mux.Router)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="441.8281"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="334" x="376" y="448.0386">mainEndpoint(writer http.ResponseWriter, _ *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="454.6328"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="478" x="376" y="460.8433">readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="467.4375"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="390" x="376" y="473.6479">serveAPISpecFile(writer http.ResponseWriter, request *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="480.2422"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="151" x="376" y="486.4526">redirectTo(baseURL string)</text>
+    <text fill="#0000FF" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="24" x="531" y="486.4526">func</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="210" x="555" y="486.4526">(http.ResponseWriter, *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="493.0469"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="275" x="376" y="499.2573">proxyTo(baseURL string, options *ProxyOptions)</text>
+    <text fill="#0000FF" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="24" x="655" y="499.2573">func</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="210" x="679" y="499.2573">(http.ResponseWriter, *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="505.8516"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="750" x="376" y="512.062">sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, bool)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="518.6563"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="450" x="376" y="524.8667">composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="531.4609"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="934" x="376" y="537.6714">readAggregatorReportForClusterID(orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter) (*types.ReportResponse, bool)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="544.2656"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="602" x="376" y="550.4761">fetchAggregatorReport(writer http.ResponseWriter, request *http.Request) (*types.ReportResponse, bool)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="557.0703"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="378" x="376" y="563.2808">reportEndpoint(writer http.ResponseWriter, request *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="569.875"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="766" x="376" y="576.0854">findRule(writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID) (types.RuleWithContentResponse, bool)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="582.6797"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="401" x="376" y="588.8901">singleRuleEndpoint(writer http.ResponseWriter, request *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="595.4844"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="501" x="376" y="601.6948">newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="608.2891"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="316" x="376" y="614.4995">getGroups(writer http.ResponseWriter, _ *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="621.0938"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="399" x="376" y="627.3042">getContentForRule(writer http.ResponseWriter, request *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="633.8984"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="397" x="376" y="640.1089">getClustersForOrg(writer http.ResponseWriter, request *http.Request)</text>
+    <rect fill="#F24D5C" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="364" y="646.7031"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="427" x="376" y="652.9136">getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="0" x="380" y="665.7183"/>
+    <ellipse cx="367" cy="675.3125" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="128" x="376" y="678.5229">Initialize() http.Handler</text>
+    <ellipse cx="367" cy="688.1172" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="68" x="376" y="691.3276">Start() error</text>
+    <ellipse cx="367" cy="700.9219" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="177" x="376" y="704.1323">Stop(ctx context.Context) error</text>
+    <ellipse cx="367" cy="713.7266" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="382" x="376" y="716.937">Authentication(next http.Handler, noAuthURLs []string) http.Handler</text>
+    <ellipse cx="367" cy="726.5313" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="354" x="376" y="729.7417">GetCurrentUserID(request *http.Request) (types.UserID, error)</text>
+    <ellipse cx="367" cy="739.3359" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="345" x="376" y="742.5464">GetAuthToken(request *http.Request) (*types.Identity, error)</text>
+    <!--MD5=[fc7a883f442378d09e8980c96c44779d]
+class server.NoBodyError-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="60.8047" id="server.NoBodyError" style="stroke: #A80036; stroke-width: 1.5;" width="108" x="1351" y="502.5"/>
+    <ellipse cx="1366" cy="518.5" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M1365.2344,519.0625 Q1363.375,518.3594 1362.7266,517.5859 Q1362.0781,516.8125 1362.0781,515.5 Q1362.0781,513.8125 1363.1563,512.8438 Q1364.2344,511.875 1366.1094,511.875 Q1366.9688,511.875 1367.8203,512.0703 Q1368.6719,512.2656 1369.5156,512.6563 L1369.5156,515.0469 Q1368.7344,514.4844 1367.9141,514.1953 Q1367.0938,513.9063 1366.2969,513.9063 Q1365.4219,513.9063 1364.9453,514.2656 Q1364.4688,514.625 1364.4688,515.2813 Q1364.4688,515.7969 1364.8125,516.1328 Q1365.1563,516.4688 1366.25,516.875 L1367.3125,517.2813 Q1368.7969,517.8281 1369.5078,518.7344 Q1370.2188,519.6406 1370.2188,521.0156 Q1370.2188,522.8906 1369.1094,523.8125 Q1368,524.7344 1365.75,524.7344 Q1364.8281,524.7344 1363.9063,524.5156 Q1362.9844,524.2969 1362.125,523.875 L1362.125,521.3438 Q1363.0938,522.0313 1364.0156,522.375 Q1364.9375,522.7188 1365.8281,522.7188 Q1366.7344,522.7188 1367.2344,522.3047 Q1367.7344,521.8906 1367.7344,521.1563 Q1367.7344,520.5938 1367.3984,520.1797 Q1367.0625,519.7656 1366.4375,519.5156 L1365.2344,519.0625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="76" x="1380" y="522.6543">NoBodyError</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1352" x2="1458" y1="534.5" y2="534.5"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1352" x2="1458" y1="542.5" y2="542.5"/>
+    <ellipse cx="1362" cy="553.5" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="73" x="1371" y="556.7104">Error() string</text>
+    <!--MD5=[f469e3d4bd4b0f2aa0a4a7db41bbc257]
+class server.ParamsParsingError-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="60.8047" id="server.ParamsParsingError" style="stroke: #A80036; stroke-width: 1.5;" width="150" x="1494" y="502.5"/>
+    <ellipse cx="1509" cy="518.5" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M1508.2344,519.0625 Q1506.375,518.3594 1505.7266,517.5859 Q1505.0781,516.8125 1505.0781,515.5 Q1505.0781,513.8125 1506.1563,512.8438 Q1507.2344,511.875 1509.1094,511.875 Q1509.9688,511.875 1510.8203,512.0703 Q1511.6719,512.2656 1512.5156,512.6563 L1512.5156,515.0469 Q1511.7344,514.4844 1510.9141,514.1953 Q1510.0938,513.9063 1509.2969,513.9063 Q1508.4219,513.9063 1507.9453,514.2656 Q1507.4688,514.625 1507.4688,515.2813 Q1507.4688,515.7969 1507.8125,516.1328 Q1508.1563,516.4688 1509.25,516.875 L1510.3125,517.2813 Q1511.7969,517.8281 1512.5078,518.7344 Q1513.2188,519.6406 1513.2188,521.0156 Q1513.2188,522.8906 1512.1094,523.8125 Q1511,524.7344 1508.75,524.7344 Q1507.8281,524.7344 1506.9063,524.5156 Q1505.9844,524.2969 1505.125,523.875 L1505.125,521.3438 Q1506.0938,522.0313 1507.0156,522.375 Q1507.9375,522.7188 1508.8281,522.7188 Q1509.7344,522.7188 1510.2344,522.3047 Q1510.7344,521.8906 1510.7344,521.1563 Q1510.7344,520.5938 1510.3984,520.1797 Q1510.0625,519.7656 1509.4375,519.5156 L1508.2344,519.0625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="118" x="1523" y="522.6543">ParamsParsingError</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1495" x2="1643" y1="534.5" y2="534.5"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1495" x2="1643" y1="542.5" y2="542.5"/>
+    <ellipse cx="1505" cy="553.5" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="73" x="1514" y="556.7104">Error() string</text>
+    <!--MD5=[96e38aee9c464f4910b2c51e3868fc33]
+class server.ProxyOptions-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="73.6094" id="server.ProxyOptions" style="stroke: #A80036; stroke-width: 1.5;" width="244" x="1679" y="496"/>
+    <ellipse cx="1757.25" cy="512" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M1756.4844,512.5625 Q1754.625,511.8594 1753.9766,511.0859 Q1753.3281,510.3125 1753.3281,509 Q1753.3281,507.3125 1754.4063,506.3438 Q1755.4844,505.375 1757.3594,505.375 Q1758.2188,505.375 1759.0703,505.5703 Q1759.9219,505.7656 1760.7656,506.1563 L1760.7656,508.5469 Q1759.9844,507.9844 1759.1641,507.6953 Q1758.3438,507.4063 1757.5469,507.4063 Q1756.6719,507.4063 1756.1953,507.7656 Q1755.7188,508.125 1755.7188,508.7813 Q1755.7188,509.2969 1756.0625,509.6328 Q1756.4063,509.9688 1757.5,510.375 L1758.5625,510.7813 Q1760.0469,511.3281 1760.7578,512.2344 Q1761.4688,513.1406 1761.4688,514.5156 Q1761.4688,516.3906 1760.3594,517.3125 Q1759.25,518.2344 1757,518.2344 Q1756.0781,518.2344 1755.1563,518.0156 Q1754.2344,517.7969 1753.375,517.375 L1753.375,514.8438 Q1754.3438,515.5313 1755.2656,515.875 Q1756.1875,516.2188 1757.0781,516.2188 Q1757.9844,516.2188 1758.4844,515.8047 Q1758.9844,515.3906 1758.9844,514.6563 Q1758.9844,514.0938 1758.6484,513.6797 Q1758.3125,513.2656 1757.6875,513.0156 L1756.4844,512.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="79" x="1777.75" y="516.1543">ProxyOptions</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1680" x2="1922" y1="528" y2="528"/>
+    <ellipse cx="1690" cy="539" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="200" x="1699" y="542.2104">RequestModifiers []RequestModifier</text>
+    <ellipse cx="1690" cy="551.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="218" x="1699" y="555.0151">ResponseModifiers []ResponseModifier</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="1680" x2="1922" y1="561.6094" y2="561.6094"/>
+    <!--MD5=[10487810fe613e2bc42939040fa6ecd9]
+class server.RouterMissingParamError-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="73.6094" id="server.RouterMissingParamError" style="stroke: #A80036; stroke-width: 1.5;" width="184" x="744" y="821.5"/>
+    <ellipse cx="759" cy="837.5" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M758.2344,838.0625 Q756.375,837.3594 755.7266,836.5859 Q755.0781,835.8125 755.0781,834.5 Q755.0781,832.8125 756.1563,831.8438 Q757.2344,830.875 759.1094,830.875 Q759.9688,830.875 760.8203,831.0703 Q761.6719,831.2656 762.5156,831.6563 L762.5156,834.0469 Q761.7344,833.4844 760.9141,833.1953 Q760.0938,832.9063 759.2969,832.9063 Q758.4219,832.9063 757.9453,833.2656 Q757.4688,833.625 757.4688,834.2813 Q757.4688,834.7969 757.8125,835.1328 Q758.1563,835.4688 759.25,835.875 L760.3125,836.2813 Q761.7969,836.8281 762.5078,837.7344 Q763.2188,838.6406 763.2188,840.0156 Q763.2188,841.8906 762.1094,842.8125 Q761,843.7344 758.75,843.7344 Q757.8281,843.7344 756.9063,843.5156 Q755.9844,843.2969 755.125,842.875 L755.125,840.3438 Q756.0938,841.0313 757.0156,841.375 Q757.9375,841.7188 758.8281,841.7188 Q759.7344,841.7188 760.2344,841.3047 Q760.7344,840.8906 760.7344,840.1563 Q760.7344,839.5938 760.3984,839.1797 Q760.0625,838.7656 759.4375,838.5156 L758.2344,838.0625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="152" x="773" y="841.6543">RouterMissingParamError</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="745" x2="927" y1="853.5" y2="853.5"/>
+    <rect fill="none" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="752" y="861.5"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="106" x="764" y="867.7104">paramName string</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="745" x2="927" y1="874.3047" y2="874.3047"/>
+    <ellipse cx="755" cy="885.3047" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="73" x="764" y="888.5151">Error() string</text>
+    <!--MD5=[e6d142c912a12b92cfbc25b1aa76719d]
+class server.RouterParsingError-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="99.2188" id="server.RouterParsingError" style="stroke: #A80036; stroke-width: 1.5;" width="163" x="963.5" y="809"/>
+    <ellipse cx="986.15" cy="825" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M985.3844,825.5625 Q983.525,824.8594 982.8766,824.0859 Q982.2281,823.3125 982.2281,822 Q982.2281,820.3125 983.3063,819.3438 Q984.3844,818.375 986.2594,818.375 Q987.1188,818.375 987.9703,818.5703 Q988.8219,818.7656 989.6656,819.1563 L989.6656,821.5469 Q988.8844,820.9844 988.0641,820.6953 Q987.2438,820.4063 986.4469,820.4063 Q985.5719,820.4063 985.0953,820.7656 Q984.6188,821.125 984.6188,821.7813 Q984.6188,822.2969 984.9625,822.6328 Q985.3063,822.9688 986.4,823.375 L987.4625,823.7813 Q988.9469,824.3281 989.6578,825.2344 Q990.3688,826.1406 990.3688,827.5156 Q990.3688,829.3906 989.2594,830.3125 Q988.15,831.2344 985.9,831.2344 Q984.9781,831.2344 984.0563,831.0156 Q983.1344,830.7969 982.275,830.375 L982.275,827.8438 Q983.2438,828.5313 984.1656,828.875 Q985.0875,829.2188 985.9781,829.2188 Q986.8844,829.2188 987.3844,828.8047 Q987.8844,828.3906 987.8844,827.6563 Q987.8844,827.0938 987.5484,826.6797 Q987.2125,826.2656 986.5875,826.0156 L985.3844,825.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="114" x="1001.85" y="829.1543">RouterParsingError</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="964.5" x2="1125.5" y1="841" y2="841"/>
+    <rect fill="none" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="971.5" y="849"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="106" x="983.5" y="855.2104">paramName string</text>
+    <rect fill="none" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="971.5" y="861.8047"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="69" x="983.5" y="868.0151">paramValue</text>
+    <text fill="#0000FF" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="50" x="1056.5" y="868.0151">interface</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="14" x="1106.5" y="868.0151">{}</text>
+    <rect fill="none" height="6" style="stroke: #C82930; stroke-width: 1.0;" width="6" x="971.5" y="874.6094"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="86" x="983.5" y="880.8198">errString string</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="964.5" x2="1125.5" y1="887.4141" y2="887.4141"/>
+    <ellipse cx="974.5" cy="898.4141" fill="#84BE84" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="73" x="983.5" y="901.6245">Error() string</text>
+    <!--MD5=[aa7ea66f7b30fd6edbd0f31147dd3613]
+class server.RequestModifier-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="server.RequestModifier" style="stroke: #A80036; stroke-width: 1.5;" width="128" x="22" y="509"/>
+    <ellipse cx="37" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M38.3438,531.5 L35.8906,531.5 L35.8906,521.25 L32.75,521.25 L32.75,519.1094 L41.4844,519.1094 L41.4844,521.25 L38.3438,521.25 L38.3438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="96" x="51" y="529.1543">RequestModifier</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="23" x2="149" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="23" x2="149" y1="549" y2="549"/>
+    <!--MD5=[269eb303828ecdd20c07ba42ccc65519]
+class server.ResponseModifier-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="server.ResponseModifier" style="stroke: #A80036; stroke-width: 1.5;" width="136" x="185" y="509"/>
+    <ellipse cx="200" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M201.3438,531.5 L198.8906,531.5 L198.8906,521.25 L195.75,521.25 L195.75,519.1094 L204.4844,519.1094 L204.4844,521.25 L201.3438,521.25 L201.3438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="104" x="214" y="529.1543">ResponseModifier</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="186" x2="320" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="186" x2="320" y1="549" y2="549"/>
+    <!--MD5=[17bac993098e8ac5de7ac16d0a1b08d7]
+class server.fontcolorbluefuncfonthttpResponsehttpResponseerror-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="server.fontcolorbluefuncfonthttpResponsehttpResponseerror" style="stroke: #A80036; stroke-width: 1.5;" width="306" x="347" y="126"/>
+    <ellipse cx="362" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M364.9688,147.6406 Q364.3906,147.9375 363.75,148.0859 Q363.1094,148.2344 362.4063,148.2344 Q359.9063,148.2344 358.5859,146.5859 Q357.2656,144.9375 357.2656,141.8125 Q357.2656,138.6875 358.5859,137.0313 Q359.9063,135.375 362.4063,135.375 Q363.1094,135.375 363.7578,135.5313 Q364.4063,135.6875 364.9688,135.9844 L364.9688,138.7031 Q364.3438,138.125 363.75,137.8516 Q363.1563,137.5781 362.5313,137.5781 Q361.1875,137.5781 360.5,138.6484 Q359.8125,139.7188 359.8125,141.8125 Q359.8125,143.9063 360.5,144.9766 Q361.1875,146.0469 362.5313,146.0469 Q363.1563,146.0469 363.75,145.7734 Q364.3438,145.5 364.9688,144.9219 L364.9688,147.6406 Z "/>
+    <text fill="#0000FF" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="27" x="376" y="146.1543">func</text>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="247" x="403" y="146.1543">(*http.Response) (*http.Response, error)</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="348" x2="652" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="348" x2="652" y1="166" y2="166"/>
+    <!--MD5=[c0ed75a0d4a8e874425c37490c8fef25]
+class server.fontcolorbluefuncfonthttpRequesthttpRequesterror-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="server.fontcolorbluefuncfonthttpRequesthttpRequesterror" style="stroke: #A80036; stroke-width: 1.5;" width="290" x="22" y="126"/>
+    <ellipse cx="37" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M39.9688,147.6406 Q39.3906,147.9375 38.75,148.0859 Q38.1094,148.2344 37.4063,148.2344 Q34.9063,148.2344 33.5859,146.5859 Q32.2656,144.9375 32.2656,141.8125 Q32.2656,138.6875 33.5859,137.0313 Q34.9063,135.375 37.4063,135.375 Q38.1094,135.375 38.7578,135.5313 Q39.4063,135.6875 39.9688,135.9844 L39.9688,138.7031 Q39.3438,138.125 38.75,137.8516 Q38.1563,137.5781 37.5313,137.5781 Q36.1875,137.5781 35.5,138.6484 Q34.8125,139.7188 34.8125,141.8125 Q34.8125,143.9063 35.5,144.9766 Q36.1875,146.0469 37.5313,146.0469 Q38.1563,146.0469 38.75,145.7734 Q39.3438,145.5 39.9688,144.9219 L39.9688,147.6406 Z "/>
+    <text fill="#0000FF" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="27" x="51" y="146.1543">func</text>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="231" x="78" y="146.1543">(*http.Request) (*http.Request, error)</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="23" x2="311" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="23" x2="311" y1="166" y2="166"/>
+    <!--MD5=[9e4e25e7f48abff81bc54c2fa009faa8]
+class services.Configuration-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="86.4141" id="services.Configuration" style="stroke: #A80036; stroke-width: 1.5;" width="213" x="3196.5" y="107"/>
+    <ellipse cx="3258.25" cy="123" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3257.4844,123.5625 Q3255.625,122.8594 3254.9766,122.0859 Q3254.3281,121.3125 3254.3281,120 Q3254.3281,118.3125 3255.4063,117.3438 Q3256.4844,116.375 3258.3594,116.375 Q3259.2188,116.375 3260.0703,116.5703 Q3260.9219,116.7656 3261.7656,117.1563 L3261.7656,119.5469 Q3260.9844,118.9844 3260.1641,118.6953 Q3259.3438,118.4063 3258.5469,118.4063 Q3257.6719,118.4063 3257.1953,118.7656 Q3256.7188,119.125 3256.7188,119.7813 Q3256.7188,120.2969 3257.0625,120.6328 Q3257.4063,120.9688 3258.5,121.375 L3259.5625,121.7813 Q3261.0469,122.3281 3261.7578,123.2344 Q3262.4688,124.1406 3262.4688,125.5156 Q3262.4688,127.3906 3261.3594,128.3125 Q3260.25,129.2344 3258,129.2344 Q3257.0781,129.2344 3256.1563,129.0156 Q3255.2344,128.7969 3254.375,128.375 L3254.375,125.8438 Q3255.3438,126.5313 3256.2656,126.875 Q3257.1875,127.2188 3258.0781,127.2188 Q3258.9844,127.2188 3259.4844,126.8047 Q3259.9844,126.3906 3259.9844,125.6563 Q3259.9844,125.0938 3259.6484,124.6797 Q3259.3125,124.2656 3258.6875,124.0156 L3257.4844,123.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="81" x="3278.75" y="127.1543">Configuration</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3197.5" x2="3408.5" y1="139" y2="139"/>
+    <ellipse cx="3207.5" cy="150" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="177" x="3216.5" y="153.2104">AggregatorBaseEndpoint string</text>
+    <ellipse cx="3207.5" cy="162.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="157" x="3216.5" y="166.0151">ContentBaseEndpoint string</text>
+    <ellipse cx="3207.5" cy="175.6094" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="187" x="3216.5" y="178.8198">GroupsPollingTime time.Duration</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3197.5" x2="3408.5" y1="185.4141" y2="185.4141"/>
+    <!--MD5=[e7ee48562d792edecfbc9fabc9281883]
+class types.RuleWithContentResponse-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="214.4609" id="types.RuleWithContentResponse" style="stroke: #A80036; stroke-width: 1.5;" width="191" x="4396.5" y="43"/>
+    <ellipse cx="4411.5" cy="59" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M4410.7344,59.5625 Q4408.875,58.8594 4408.2266,58.0859 Q4407.5781,57.3125 4407.5781,56 Q4407.5781,54.3125 4408.6563,53.3438 Q4409.7344,52.375 4411.6094,52.375 Q4412.4688,52.375 4413.3203,52.5703 Q4414.1719,52.7656 4415.0156,53.1563 L4415.0156,55.5469 Q4414.2344,54.9844 4413.4141,54.6953 Q4412.5938,54.4063 4411.7969,54.4063 Q4410.9219,54.4063 4410.4453,54.7656 Q4409.9688,55.125 4409.9688,55.7813 Q4409.9688,56.2969 4410.3125,56.6328 Q4410.6563,56.9688 4411.75,57.375 L4412.8125,57.7813 Q4414.2969,58.3281 4415.0078,59.2344 Q4415.7188,60.1406 4415.7188,61.5156 Q4415.7188,63.3906 4414.6094,64.3125 Q4413.5,65.2344 4411.25,65.2344 Q4410.3281,65.2344 4409.4063,65.0156 Q4408.4844,64.7969 4407.625,64.375 L4407.625,61.8438 Q4408.5938,62.5313 4409.5156,62.875 Q4410.4375,63.2188 4411.3281,63.2188 Q4412.2344,63.2188 4412.7344,62.8047 Q4413.2344,62.3906 4413.2344,61.6563 Q4413.2344,61.0938 4412.8984,60.6797 Q4412.5625,60.2656 4411.9375,60.0156 L4410.7344,59.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="159" x="4425.5" y="63.1543">RuleWithContentResponse</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4397.5" x2="4586.5" y1="75" y2="75"/>
+    <ellipse cx="4407.5" cy="86" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="111" x="4416.5" y="89.2104">RuleID types.RuleID</text>
+    <ellipse cx="4407.5" cy="98.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="139" x="4416.5" y="102.0151">ErrorKey types.ErrorKey</text>
+    <ellipse cx="4407.5" cy="111.6094" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="93" x="4416.5" y="114.8198">CreatedAt string</text>
+    <ellipse cx="4407.5" cy="124.4141" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="99" x="4416.5" y="127.6245">Description string</text>
+    <ellipse cx="4407.5" cy="137.2188" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="80" x="4416.5" y="140.4292">Generic string</text>
+    <ellipse cx="4407.5" cy="150.0234" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="78" x="4416.5" y="153.2339">Reason string</text>
+    <ellipse cx="4407.5" cy="162.8281" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="95" x="4416.5" y="166.0386">Resolution string</text>
+    <ellipse cx="4407.5" cy="175.6328" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="69" x="4416.5" y="178.8433">TotalRisk int</text>
+    <ellipse cx="4407.5" cy="188.4375" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="4416.5" y="191.6479">RiskOfChange int</text>
+    <ellipse cx="4407.5" cy="201.2422" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="76" x="4416.5" y="204.4526">Disabled bool</text>
+    <ellipse cx="4407.5" cy="214.0469" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="143" x="4416.5" y="217.2573">UserVote types.UserVote</text>
+    <ellipse cx="4407.5" cy="226.8516" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="79" x="4416.5" y="230.062">TemplateData</text>
+    <text fill="#0000FF" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="50" x="4499.5" y="230.062">interface</text>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="14" x="4549.5" y="230.062">{}</text>
+    <ellipse cx="4407.5" cy="239.6563" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="71" x="4416.5" y="242.8667">Tags []string</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4397.5" x2="4586.5" y1="249.4609" y2="249.4609"/>
+    <!--MD5=[14798620d2813c576ce3824146df656a]
+class types.SmartProxyReport-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="73.6094" id="types.SmartProxyReport" style="stroke: #A80036; stroke-width: 1.5;" width="213" x="4148.5" y="113"/>
+    <ellipse cx="4195.75" cy="129" fill="#7FFFD4" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M4194.9844,129.5625 Q4193.125,128.8594 4192.4766,128.0859 Q4191.8281,127.3125 4191.8281,126 Q4191.8281,124.3125 4192.9063,123.3438 Q4193.9844,122.375 4195.8594,122.375 Q4196.7188,122.375 4197.5703,122.5703 Q4198.4219,122.7656 4199.2656,123.1563 L4199.2656,125.5469 Q4198.4844,124.9844 4197.6641,124.6953 Q4196.8438,124.4063 4196.0469,124.4063 Q4195.1719,124.4063 4194.6953,124.7656 Q4194.2188,125.125 4194.2188,125.7813 Q4194.2188,126.2969 4194.5625,126.6328 Q4194.9063,126.9688 4196,127.375 L4197.0625,127.7813 Q4198.5469,128.3281 4199.2578,129.2344 Q4199.9688,130.1406 4199.9688,131.5156 Q4199.9688,133.3906 4198.8594,134.3125 Q4197.75,135.2344 4195.5,135.2344 Q4194.5781,135.2344 4193.6563,135.0156 Q4192.7344,134.7969 4191.875,134.375 L4191.875,131.8438 Q4192.8438,132.5313 4193.7656,132.875 Q4194.6875,133.2188 4195.5781,133.2188 Q4196.4844,133.2188 4196.9844,132.8047 Q4197.4844,132.3906 4197.4844,131.6563 Q4197.4844,131.0938 4197.1484,130.6797 Q4196.8125,130.2656 4196.1875,130.0156 L4194.9844,129.5625 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="110" x="4216.25" y="133.1543">SmartProxyReport</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4149.5" x2="4360.5" y1="145" y2="145"/>
+    <ellipse cx="4159.5" cy="156" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="186" x="4168.5" y="159.2104">Meta types.ReportResponseMeta</text>
+    <ellipse cx="4159.5" cy="168.8047" fill="none" rx="3" ry="3" style="stroke: #038048; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="187" x="4168.5" y="172.0151">Data []RuleWithContentResponse</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4149.5" x2="4360.5" y1="178.6094" y2="178.6094"/>
+    <!--MD5=[38da9dc8068c6d5d4fca1a71cdb9c352]
+class types.ReportResponseMeta-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.ReportResponseMeta" style="stroke: #A80036; stroke-width: 1.5;" width="158" x="3793" y="509"/>
+    <ellipse cx="3808" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3809.3438,531.5 L3806.8906,531.5 L3806.8906,521.25 L3803.75,521.25 L3803.75,519.1094 L3812.4844,519.1094 L3812.4844,521.25 L3809.3438,521.25 L3809.3438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="126" x="3822" y="529.1543">ReportResponseMeta</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3794" x2="3950" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3794" x2="3950" y1="549" y2="549"/>
+    <!--MD5=[710acf4fbfb4df95e6512cccd93e5c3d]
+class types.Timestamp-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.Timestamp" style="stroke: #A80036; stroke-width: 1.5;" width="99" x="3621.5" y="509"/>
+    <ellipse cx="3636.5" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3637.8438,531.5 L3635.3906,531.5 L3635.3906,521.25 L3632.25,521.25 L3632.25,519.1094 L3640.9844,519.1094 L3640.9844,521.25 L3637.8438,521.25 L3637.8438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="67" x="3650.5" y="529.1543">Timestamp</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3622.5" x2="3719.5" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3622.5" x2="3719.5" y1="549" y2="549"/>
+    <!--MD5=[a192e9acf6cc656795e2084db4fdea94]
+class types.UserID-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.UserID" style="stroke: #A80036; stroke-width: 1.5;" width="72" x="4023" y="509"/>
+    <ellipse cx="4038" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M4039.3438,531.5 L4036.8906,531.5 L4036.8906,521.25 L4033.75,521.25 L4033.75,519.1094 L4042.4844,519.1094 L4042.4844,521.25 L4039.3438,521.25 L4039.3438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="40" x="4052" y="529.1543">UserID</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4024" x2="4094" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4024" x2="4094" y1="549" y2="549"/>
+    <!--MD5=[63d4010492b44f815c64b662970fac5a]
+class types.UserVote-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.UserVote" style="stroke: #A80036; stroke-width: 1.5;" width="86" x="3463" y="509"/>
+    <ellipse cx="3478" cy="525" fill="#FF7700" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3479.3438,531.5 L3476.8906,531.5 L3476.8906,521.25 L3473.75,521.25 L3473.75,519.1094 L3482.4844,519.1094 L3482.4844,521.25 L3479.3438,521.25 L3479.3438,531.5 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="54" x="3492" y="529.1543">UserVote</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3464" x2="3548" y1="541" y2="541"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3464" x2="3548" y1="549" y2="549"/>
+    <!--MD5=[106f426d5d175682fab09705ac66cfdb]
+class types.typesUserID-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.typesUserID" style="stroke: #A80036; stroke-width: 1.5;" width="109" x="4004.5" y="126"/>
+    <ellipse cx="4019.5" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M4022.4688,147.6406 Q4021.8906,147.9375 4021.25,148.0859 Q4020.6094,148.2344 4019.9063,148.2344 Q4017.4063,148.2344 4016.0859,146.5859 Q4014.7656,144.9375 4014.7656,141.8125 Q4014.7656,138.6875 4016.0859,137.0313 Q4017.4063,135.375 4019.9063,135.375 Q4020.6094,135.375 4021.2578,135.5313 Q4021.9063,135.6875 4022.4688,135.9844 L4022.4688,138.7031 Q4021.8438,138.125 4021.25,137.8516 Q4020.6563,137.5781 4020.0313,137.5781 Q4018.6875,137.5781 4018,138.6484 Q4017.3125,139.7188 4017.3125,141.8125 Q4017.3125,143.9063 4018,144.9766 Q4018.6875,146.0469 4020.0313,146.0469 Q4020.6563,146.0469 4021.25,145.7734 Q4021.8438,145.5 4022.4688,144.9219 L4022.4688,147.6406 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="77" x="4033.5" y="146.1543">types.UserID</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4005.5" x2="4112.5" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="4005.5" x2="4112.5" y1="166" y2="166"/>
+    <!--MD5=[02c49d52c6939bd3052ad9325079b0a3]
+class types.typesReportResponseMeta-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.typesReportResponseMeta" style="stroke: #A80036; stroke-width: 1.5;" width="195" x="3774.5" y="126"/>
+    <ellipse cx="3789.5" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3792.4688,147.6406 Q3791.8906,147.9375 3791.25,148.0859 Q3790.6094,148.2344 3789.9063,148.2344 Q3787.4063,148.2344 3786.0859,146.5859 Q3784.7656,144.9375 3784.7656,141.8125 Q3784.7656,138.6875 3786.0859,137.0313 Q3787.4063,135.375 3789.9063,135.375 Q3790.6094,135.375 3791.2578,135.5313 Q3791.9063,135.6875 3792.4688,135.9844 L3792.4688,138.7031 Q3791.8438,138.125 3791.25,137.8516 Q3790.6563,137.5781 3790.0313,137.5781 Q3788.6875,137.5781 3788,138.6484 Q3787.3125,139.7188 3787.3125,141.8125 Q3787.3125,143.9063 3788,144.9766 Q3788.6875,146.0469 3790.0313,146.0469 Q3790.6563,146.0469 3791.25,145.7734 Q3791.8438,145.5 3792.4688,144.9219 L3792.4688,147.6406 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="163" x="3803.5" y="146.1543">types.ReportResponseMeta</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3775.5" x2="3968.5" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3775.5" x2="3968.5" y1="166" y2="166"/>
+    <!--MD5=[bf55f6c6fda9b122bd8a5b520c4635f1]
+class types.typesTimestamp-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.typesTimestamp" style="stroke: #A80036; stroke-width: 1.5;" width="136" x="3603" y="126"/>
+    <ellipse cx="3618" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3620.9688,147.6406 Q3620.3906,147.9375 3619.75,148.0859 Q3619.1094,148.2344 3618.4063,148.2344 Q3615.9063,148.2344 3614.5859,146.5859 Q3613.2656,144.9375 3613.2656,141.8125 Q3613.2656,138.6875 3614.5859,137.0313 Q3615.9063,135.375 3618.4063,135.375 Q3619.1094,135.375 3619.7578,135.5313 Q3620.4063,135.6875 3620.9688,135.9844 L3620.9688,138.7031 Q3620.3438,138.125 3619.75,137.8516 Q3619.1563,137.5781 3618.5313,137.5781 Q3617.1875,137.5781 3616.5,138.6484 Q3615.8125,139.7188 3615.8125,141.8125 Q3615.8125,143.9063 3616.5,144.9766 Q3617.1875,146.0469 3618.5313,146.0469 Q3619.1563,146.0469 3619.75,145.7734 Q3620.3438,145.5 3620.9688,144.9219 L3620.9688,147.6406 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="104" x="3632" y="146.1543">types.Timestamp</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3604" x2="3738" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3604" x2="3738" y1="166" y2="166"/>
+    <!--MD5=[f974eec382719c070435877fba10c128]
+class types.typesUserVote-->
+    <rect fill="#FEFECE" filter="url(#fhm7u5m2lkr99)" height="48" id="types.typesUserVote" style="stroke: #A80036; stroke-width: 1.5;" width="123" x="3444.5" y="126"/>
+    <ellipse cx="3459.5" cy="142" fill="#ADD1B2" rx="11" ry="11" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <path d="M3462.4688,147.6406 Q3461.8906,147.9375 3461.25,148.0859 Q3460.6094,148.2344 3459.9063,148.2344 Q3457.4063,148.2344 3456.0859,146.5859 Q3454.7656,144.9375 3454.7656,141.8125 Q3454.7656,138.6875 3456.0859,137.0313 Q3457.4063,135.375 3459.9063,135.375 Q3460.6094,135.375 3461.2578,135.5313 Q3461.9063,135.6875 3462.4688,135.9844 L3462.4688,138.7031 Q3461.8438,138.125 3461.25,137.8516 Q3460.6563,137.5781 3460.0313,137.5781 Q3458.6875,137.5781 3458,138.6484 Q3457.3125,139.7188 3457.3125,141.8125 Q3457.3125,143.9063 3458,144.9766 Q3458.6875,146.0469 3460.0313,146.0469 Q3460.6563,146.0469 3461.25,145.7734 Q3461.8438,145.5 3462.4688,144.9219 L3462.4688,147.6406 Z "/>
+    <text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="91" x="3473.5" y="146.1543">types.UserVote</text>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3445.5" x2="3566.5" y1="158" y2="158"/>
+    <line style="stroke: #A80036; stroke-width: 1.5;" x1="3445.5" x2="3566.5" y1="166" y2="166"/>
+    <!--MD5=[207dd402800b3f7d7d4f7f156532abe2]
+reverse link sync.RWMutex to content.RulesWithContentStorage-->
+    <path d="M2478,187.5349 C2478,253.3282 2478,390.1022 2478,470.4108 " fill="none" id="sync.RWMutex&lt;-content.RulesWithContentStorage" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <polygon fill="#A80036" points="2478,174.2489,2474,180.2489,2478,186.2489,2482,180.2489,2478,174.2489" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <!--MD5=[1a62b0b720e2575fc9bfde96bbc4e008]
+reverse link helpers.helpersAPIRequest to helpers.APIRequest-->
+    <path d="M3087,179.3002 C3087,252.2835 3087,441.1573 3087,508.6104 " fill="none" id="helpers.helpersAPIRequest&lt;-helpers.APIRequest" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="3082" y="169.2489"/>
+    <!--MD5=[6f4f7dde5daa77a67e70f4438f4c44c8]
+reverse link helpers.helpersAPIResponse to helpers.APIResponse-->
+    <path d="M2900,179.3002 C2900,252.2835 2900,441.1573 2900,508.6104 " fill="none" id="helpers.helpersAPIResponse&lt;-helpers.APIResponse" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="2895" y="169.2489"/>
+    <!--MD5=[6acf92a7f6208f5e04abd4e8297404ac]
+reverse link server.fontcolorbluefuncfonthttpRequesthttpRequesterror to server.RequestModifier-->
+    <path d="M160.8034,179.3002 C145.3682,252.2835 105.4236,441.1573 91.1581,508.6104 " fill="none" id="server.fontcolorbluefuncfonthttpRequesthttpRequesterror&lt;-server.RequestModifier" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="156.8716" y="169.2489"/>
+    <!--MD5=[1fa4b3f5812669738748f2bb6fc0152b]
+reverse link server.fontcolorbluefuncfonthttpResponsehttpResponseerror to server.ResponseModifier-->
+    <path d="M466.5081,177.3444 C430.629,208.1169 374.0009,261.1481 338,317 C296.9535,380.6797 270.353,467.3201 259.1176,508.8548 " fill="none" id="server.fontcolorbluefuncfonthttpResponsehttpResponseerror&lt;-server.ResponseModifier" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="465.3455" y="169.0702"/>
+    <!--MD5=[edc59b5d04406ee9f56dbf4ab172669e]
+reverse link types.typesReportResponseMeta to types.ReportResponseMeta-->
+    <path d="M3872,179.3002 C3872,252.2835 3872,441.1573 3872,508.6104 " fill="none" id="types.typesReportResponseMeta&lt;-types.ReportResponseMeta" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="3867" y="169.2489"/>
+    <!--MD5=[39f39c6fa4acf8ba8279dff78fea9ebf]
+reverse link types.typesTimestamp to types.Timestamp-->
+    <path d="M3671,179.3002 C3671,252.2835 3671,441.1573 3671,508.6104 " fill="none" id="types.typesTimestamp&lt;-types.Timestamp" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="3666" y="169.2489"/>
+    <!--MD5=[c2e5a8d16aaaf34b09d1dbdb7a0f9423]
+reverse link types.typesUserID to types.UserID-->
+    <path d="M4059,179.3002 C4059,252.2835 4059,441.1573 4059,508.6104 " fill="none" id="types.typesUserID&lt;-types.UserID" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="4054" y="169.2489"/>
+    <!--MD5=[78049cbadc14e2d0561eb02f4236d064]
+reverse link types.typesUserVote to types.UserVote-->
+    <path d="M3506,179.3002 C3506,252.2835 3506,441.1573 3506,508.6104 " fill="none" id="types.typesUserVote&lt;-types.UserVote" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/>
+    <rect fill="#FFFFFF" height="10" style="stroke: #A80036; stroke-width: 1.5;" width="10" x="3501" y="169.2489"/>
+    <!--MD5=[627e16c076778f3d764380db9c8ab784]
+link server.AggregatorServiceUnavailableError to server.AuthenticationError-->
+    <!--MD5=[2a83ae878b908049850d5b93bae75a8e]
+link server.AuthenticationError to server.Configuration-->
+    <!--MD5=[c6905b86e70e7e02ea21ebfe736e567e]
+link server.Configuration to server.ContentServiceUnavailableError-->
+    <!--MD5=[fb47a0ca8fdaffaeb72d1a17da2ad518]
+link server.AggregatorServiceUnavailableError to server.HTTPServer-->
+    <!--MD5=[2d7ab0bc065fe3c0986321230550a434]
+link server.HTTPServer to server.NoBodyError-->
+    <!--MD5=[6f30c0e7560cb05c69ba1b18a1c3309b]
+link server.NoBodyError to server.ParamsParsingError-->
+    <!--MD5=[876418a5205c88ffa26a81931825d6c2]
+link server.ParamsParsingError to server.ProxyOptions-->
+    <!--MD5=[9d599ee8eac8985d7f23068d6467ba95]
+link server.HTTPServer to server.RouterMissingParamError-->
+    <!--MD5=[062b85ba9b7007f32ff59f8deecd548b]
+link server.RouterMissingParamError to server.RouterParsingError-->
+    <!--MD5=[a80b760c84b21172c81c200aaf8a34ae]
+@startuml
+namespace content {
+    class RulesWithContentStorage << (S,Aquamarine) >> {
+        - rulesWithContent <font color=blue>map</font>[ruleIDAndErrorKey]*types.RuleWithContent
+        - rules <font color=blue>map</font>[types.RuleID]*content.RuleContent
+
+        + GetRuleWithErrorKeyContent(ruleID types.RuleID, errorKey types.ErrorKey) (*types.RuleWithContent, bool)
+        + GetRuleContent(ruleID types.RuleID) (*content.RuleContent, bool)
+        + SetRuleWithContent(ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent) 
+        + SetRule(ruleID types.RuleID, ruleContent content.RuleContent) 
+
+    }
+    class ruleIDAndErrorKey << (S,Aquamarine) >> {
+        + RuleID types.RuleID
+        + ErrorKey types.ErrorKey
+
+    }
+}
+"sync.RWMutex" *- - "content.RulesWithContentStorage"
+
+
+namespace helpers {
+    class helpers.APIRequest << (T, #FF7700) >>  {
+    }
+    class helpers.APIResponse << (T, #FF7700) >>  {
+    }
+    class "helpers.APIRequest" as helpersAPIRequest {
+    }
+    class "helpers.APIResponse" as helpersAPIResponse {
+    }
+}
+
+
+namespace server {
+    class AggregatorServiceUnavailableError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class AuthenticationError << (S,Aquamarine) >> {
+        - errString string
+
+        + Error() string
+
+    }
+    class Configuration << (S,Aquamarine) >> {
+        + Address string
+        + APIPrefix string
+        + APISpecFile string
+        + Debug bool
+        + Auth bool
+        + AuthType string
+        + UseHTTPS bool
+        + EnableCORS bool
+
+    }
+    class ContentServiceUnavailableError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class HTTPServer << (S,Aquamarine) >> {
+        + Config Configuration
+        + ServicesConfig services.Configuration
+        + GroupsChannel <font color=blue>chan</font> []groups.Group
+        + Serv *http.Server
+
+        - addDebugEndpointsToRouter(router *mux.Router) 
+        - addEndpointsToRouter(router *mux.Router) 
+        - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
+        - readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error)
+        - serveAPISpecFile(writer http.ResponseWriter, request *http.Request) 
+        - redirectTo(baseURL string) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
+        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
+        - sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, bool)
+        - composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)
+        - readAggregatorReportForClusterID(orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter) (*types.ReportResponse, bool)
+        - fetchAggregatorReport(writer http.ResponseWriter, request *http.Request) (*types.ReportResponse, bool)
+        - reportEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - findRule(writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID) (types.RuleWithContentResponse, bool)
+        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
+        - getGroups(writer http.ResponseWriter, _ *http.Request) 
+        - getContentForRule(writer http.ResponseWriter, request *http.Request) 
+        - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
+        - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
+
+        + Initialize() http.Handler
+        + Start() error
+        + Stop(ctx context.Context) error
+        + Authentication(next http.Handler, noAuthURLs []string) http.Handler
+        + GetCurrentUserID(request *http.Request) (types.UserID, error)
+        + GetAuthToken(request *http.Request) (*types.Identity, error)
+
+    }
+    class NoBodyError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class ParamsParsingError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class ProxyOptions << (S,Aquamarine) >> {
+        + RequestModifiers []RequestModifier
+        + ResponseModifiers []ResponseModifier
+
+    }
+    class RouterMissingParamError << (S,Aquamarine) >> {
+        - paramName string
+
+        + Error() string
+
+    }
+    class RouterParsingError << (S,Aquamarine) >> {
+        - paramName string
+        - paramValue <font color=blue>interface</font>{}
+        - errString string
+
+        + Error() string
+
+    }
+    class server.RequestModifier << (T, #FF7700) >>  {
+    }
+    class server.ResponseModifier << (T, #FF7700) >>  {
+    }
+    class "<font color=blue>func</font>(*http.Response) (*http.Response, error)" as fontcolorbluefuncfonthttpResponsehttpResponseerror {
+    }
+    class "<font color=blue>func</font>(*http.Request) (*http.Request, error)" as fontcolorbluefuncfonthttpRequesthttpRequesterror {
+    }
+}
+
+
+namespace services {
+    class Configuration << (S,Aquamarine) >> {
+        + AggregatorBaseEndpoint string
+        + ContentBaseEndpoint string
+        + GroupsPollingTime time.Duration
+
+    }
+}
+
+
+namespace types {
+    class RuleWithContentResponse << (S,Aquamarine) >> {
+        + RuleID types.RuleID
+        + ErrorKey types.ErrorKey
+        + CreatedAt string
+        + Description string
+        + Generic string
+        + Reason string
+        + Resolution string
+        + TotalRisk int
+        + RiskOfChange int
+        + Disabled bool
+        + UserVote types.UserVote
+        + TemplateData <font color=blue>interface</font>{}
+        + Tags []string
+
+    }
+    class SmartProxyReport << (S,Aquamarine) >> {
+        + Meta types.ReportResponseMeta
+        + Data []RuleWithContentResponse
+
+    }
+    class types.ReportResponseMeta << (T, #FF7700) >>  {
+    }
+    class types.Timestamp << (T, #FF7700) >>  {
+    }
+    class types.UserID << (T, #FF7700) >>  {
+    }
+    class types.UserVote << (T, #FF7700) >>  {
+    }
+    class "types.UserID" as typesUserID {
+    }
+    class "types.ReportResponseMeta" as typesReportResponseMeta {
+    }
+    class "types.Timestamp" as typesTimestamp {
+    }
+    class "types.UserVote" as typesUserVote {
+    }
+}
+
+
+"helpers.helpersAPIRequest" #.. "helpers.APIRequest"
+"helpers.helpersAPIResponse" #.. "helpers.APIResponse"
+"server.fontcolorbluefuncfonthttpRequesthttpRequesterror" #.. "server.RequestModifier"
+"server.fontcolorbluefuncfonthttpResponsehttpResponseerror" #.. "server.ResponseModifier"
+"types.typesReportResponseMeta" #.. "types.ReportResponseMeta"
+"types.typesTimestamp" #.. "types.Timestamp"
+"types.typesUserID" #.. "types.UserID"
+"types.typesUserVote" #.. "types.UserVote"
+@enduml
+
+PlantUML version 1.2019.12(Sun Nov 03 11:24:54 CET 2019)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 1.8.0_191-b12
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+-->
+  </g>
+</svg>

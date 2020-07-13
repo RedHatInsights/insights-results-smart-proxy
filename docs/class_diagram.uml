@@ -1,0 +1,199 @@
+@startuml
+namespace content {
+    class RulesWithContentStorage << (S,Aquamarine) >> {
+        - rulesWithContent <font color=blue>map</font>[ruleIDAndErrorKey]*types.RuleWithContent
+        - rules <font color=blue>map</font>[types.RuleID]*content.RuleContent
+
+        + GetRuleWithErrorKeyContent(ruleID types.RuleID, errorKey types.ErrorKey) (*types.RuleWithContent, bool)
+        + GetRuleContent(ruleID types.RuleID) (*content.RuleContent, bool)
+        + SetRuleWithContent(ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent) 
+        + SetRule(ruleID types.RuleID, ruleContent content.RuleContent) 
+
+    }
+    class ruleIDAndErrorKey << (S,Aquamarine) >> {
+        + RuleID types.RuleID
+        + ErrorKey types.ErrorKey
+
+    }
+}
+"sync.RWMutex" *-- "content.RulesWithContentStorage"
+
+
+namespace helpers {
+    class helpers.APIRequest << (T, #FF7700) >>  {
+    }
+    class helpers.APIResponse << (T, #FF7700) >>  {
+    }
+    class "helpers.APIRequest" as helpersAPIRequest {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "helpers.APIResponse" as helpersAPIResponse {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace server {
+    class AggregatorServiceUnavailableError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class AuthenticationError << (S,Aquamarine) >> {
+        - errString string
+
+        + Error() string
+
+    }
+    class Configuration << (S,Aquamarine) >> {
+        + Address string
+        + APIPrefix string
+        + APISpecFile string
+        + Debug bool
+        + Auth bool
+        + AuthType string
+        + UseHTTPS bool
+        + EnableCORS bool
+
+    }
+    class ContentServiceUnavailableError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class HTTPServer << (S,Aquamarine) >> {
+        + Config Configuration
+        + ServicesConfig services.Configuration
+        + GroupsChannel <font color=blue>chan</font> []groups.Group
+        + Serv *http.Server
+
+        - addDebugEndpointsToRouter(router *mux.Router) 
+        - addEndpointsToRouter(router *mux.Router) 
+        - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
+        - readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error)
+        - serveAPISpecFile(writer http.ResponseWriter, request *http.Request) 
+        - redirectTo(baseURL string) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
+        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
+        - sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, bool)
+        - composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)
+        - readAggregatorReportForClusterID(orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter) (*types.ReportResponse, bool)
+        - fetchAggregatorReport(writer http.ResponseWriter, request *http.Request) (*types.ReportResponse, bool)
+        - reportEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - findRule(writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID) (types.RuleWithContentResponse, bool)
+        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
+        - getGroups(writer http.ResponseWriter, _ *http.Request) 
+        - getContentForRule(writer http.ResponseWriter, request *http.Request) 
+        - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
+        - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
+
+        + Initialize() http.Handler
+        + Start() error
+        + Stop(ctx context.Context) error
+        + Authentication(next http.Handler, noAuthURLs []string) http.Handler
+        + GetCurrentUserID(request *http.Request) (types.UserID, error)
+        + GetAuthToken(request *http.Request) (*types.Identity, error)
+
+    }
+    class NoBodyError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class ParamsParsingError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class ProxyOptions << (S,Aquamarine) >> {
+        + RequestModifiers []RequestModifier
+        + ResponseModifiers []ResponseModifier
+
+    }
+    class RouterMissingParamError << (S,Aquamarine) >> {
+        - paramName string
+
+        + Error() string
+
+    }
+    class RouterParsingError << (S,Aquamarine) >> {
+        - paramName string
+        - paramValue <font color=blue>interface</font>{}
+        - errString string
+
+        + Error() string
+
+    }
+    class server.RequestModifier << (T, #FF7700) >>  {
+    }
+    class server.ResponseModifier << (T, #FF7700) >>  {
+    }
+    class "<font color=blue>func</font>(*http.Response) (*http.Response, error)" as fontcolorbluefuncfonthttpResponsehttpResponseerror {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "<font color=blue>func</font>(*http.Request) (*http.Request, error)" as fontcolorbluefuncfonthttpRequesthttpRequesterror {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace services {
+    class Configuration << (S,Aquamarine) >> {
+        + AggregatorBaseEndpoint string
+        + ContentBaseEndpoint string
+        + GroupsPollingTime time.Duration
+
+    }
+}
+
+
+namespace types {
+    class RuleWithContentResponse << (S,Aquamarine) >> {
+        + RuleID types.RuleID
+        + ErrorKey types.ErrorKey
+        + CreatedAt string
+        + Description string
+        + Generic string
+        + Reason string
+        + Resolution string
+        + TotalRisk int
+        + RiskOfChange int
+        + Disabled bool
+        + UserVote types.UserVote
+        + TemplateData <font color=blue>interface</font>{}
+        + Tags []string
+
+    }
+    class SmartProxyReport << (S,Aquamarine) >> {
+        + Meta types.ReportResponseMeta
+        + Data []RuleWithContentResponse
+
+    }
+    class types.ReportResponseMeta << (T, #FF7700) >>  {
+    }
+    class types.Timestamp << (T, #FF7700) >>  {
+    }
+    class types.UserID << (T, #FF7700) >>  {
+    }
+    class types.UserVote << (T, #FF7700) >>  {
+    }
+    class "types.UserID" as typesUserID {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "types.ReportResponseMeta" as typesReportResponseMeta {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "types.Timestamp" as typesTimestamp {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "types.UserVote" as typesUserVote {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+"helpers.helpersAPIRequest" #.. "helpers.APIRequest"
+"helpers.helpersAPIResponse" #.. "helpers.APIResponse"
+"server.fontcolorbluefuncfonthttpRequesthttpRequesterror" #.. "server.RequestModifier"
+"server.fontcolorbluefuncfonthttpResponsehttpResponseerror" #.. "server.ResponseModifier"
+"types.typesReportResponseMeta" #.. "types.ReportResponseMeta"
+"types.typesTimestamp" #.. "types.Timestamp"
+"types.typesUserID" #.. "types.UserID"
+"types.typesUserVote" #.. "types.UserVote"
+@enduml
