@@ -550,7 +550,7 @@ func (server HTTPServer) checkInternalRulePermissions(writer http.ResponseWriter
 		return false
 	}
 
-	requestOrgID := int(authToken.Internal.OrgID)
+	requestOrgID := types.OrgID(authToken.Internal.OrgID)
 
 	log.Info().Msgf("Checking internal rule permissions for Organization ID: %v", requestOrgID)
 	for _, allowedID := range server.Config.InternalRulesOrganizations {

@@ -14,3 +14,6 @@ internal_rules_organizations = []
 aggregator = "http://localhost:8080/api/v1/"
 content = "http://localhost:8082/api/v1/"
 groups_poll_time = "60s"
+
+[setup]
+internal_rules_organizations_csv_file = ""

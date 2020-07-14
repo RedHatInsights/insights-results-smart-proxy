@@ -18,27 +18,37 @@ package conf
 
 import (
 	"bytes"
+	"encoding/csv"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
-
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 )
 
 const (
 	configFileEnvVariableName = "INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE"
 )
 
+// SetupConfiguration should only be used at startup
+type SetupConfiguration struct {
+	InternalRulesOrganizationsCSVFile string `mapstructure:"internal_rules_organizations_csv_file" toml:"internal_rules_organizations_csv_file"`
+}
+
 // Config has exactly the same structure as *.toml file
 var Config struct {
 	ServerConf   server.Configuration   `mapstructure:"server" toml:"server"`
 	ServicesConf services.Configuration `mapstructure:"services" toml:"services"`
+	SetupConf    SetupConfiguration     `mapstructure:"setup" toml:"setup"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in configFileEnvVariableName or from env
@@ -97,12 +107,19 @@ func GetServerConfiguration() server.Configuration {
 		log.Fatal().Err(err).Msg("All customer facing APIs MUST serve the current OpenAPI specification")
 	}
 
+	Config.ServerConf.InternalRulesOrganizations = getInternalRulesOrganizations()
+
 	return Config.ServerConf
 }
 
 // GetServicesConfiguration returns the services endpoints configuration
 func GetServicesConfiguration() services.Configuration {
 	return Config.ServicesConf
+}
+
+// GetSetupConfiguration returns the setup configuration only to be used at startup
+func GetSetupConfiguration() SetupConfiguration {
+	return Config.SetupConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file, otherwise it returns corresponding error
@@ -119,4 +136,58 @@ func checkIfFileExists(path string) error {
 	}
 
 	return nil
+}
+
+func getInternalRulesOrganizations() []types.OrgID {
+	if !Config.ServerConf.EnableInternalRulesOrganizations {
+		log.Info().Msg("Internal rules request filtering disabled")
+		return nil
+	}
+
+	if len(Config.SetupConf.InternalRulesOrganizationsCSVFile) == 0 {
+		log.Fatal().Msgf("Internal organizations enabled, but none supplied")
+	}
+
+	internalRulesCSVData, err := ioutil.ReadFile(Config.SetupConf.InternalRulesOrganizationsCSVFile)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Internal organizations file could not be opened")
+	}
+
+	internalOrganizations, err := loadOrgIDsFromCSV(bytes.NewBuffer(internalRulesCSVData))
+	if err != nil {
+		log.Fatal().Err(err).Msg("Internal organizations CSV could not be processed")
+	}
+
+	log.Info().Msgf("Internal rules request filtering enabled. Organizations allowed: %v", internalOrganizations)
+	return internalOrganizations
+}
+
+// loadOrgIDsFromCSV creates a new CSV reader and returns a list of organization IDs
+func loadOrgIDsFromCSV(r io.Reader) ([]types.OrgID, error) {
+	orgIDs := make([]types.OrgID, 0)
+
+	reader := csv.NewReader(r)
+
+	lines, err := reader.ReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("error reading CSV file: %v", err)
+	}
+
+	for index, line := range lines {
+		if index == 0 {
+			continue // skip header
+		}
+
+		orgID, err := strconv.ParseUint(line[0], 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"organization ID on line %v in CSV is not numerical. Found value: %v",
+				index+1, line[0],
+			)
+		}
+
+		orgIDs = append(orgIDs, types.OrgID(orgID))
+	}
+
+	return orgIDs, nil
 }
