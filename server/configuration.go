@@ -16,16 +16,20 @@ limitations under the License.
 
 package server
 
+import (
+	"github.com/RedHatInsights/insights-operator-utils/types"
+)
+
 // Configuration represents configuration of REST API HTTP server
 type Configuration struct {
-	Address                          string `mapstructure:"address" toml:"address"`
-	APIPrefix                        string `mapstructure:"api_prefix" toml:"api_prefix"`
-	APISpecFile                      string `mapstructure:"api_spec_file" toml:"api_spec_file"`
-	Debug                            bool   `mapstructure:"debug" toml:"debug"`
-	Auth                             bool   `mapstructure:"auth" toml:"auth"`
-	AuthType                         string `mapstructure:"auth_type" toml:"auth_type"`
-	UseHTTPS                         bool   `mapstructure:"use_https" toml:"use_https"`
-	EnableCORS                       bool   `mapstructure:"enable_cors" toml:"enable_cors"`
-	EnableInternalRulesOrganizations bool   `mapstructure:"enable_internal_rules_organizations" toml:"enable_internal_rules_organizations"`
-	InternalRulesOrganizations       []int  `mapstructure:"internal_rules_organizations" toml:"internal_rules_organizations"`
+	Address                          string        `mapstructure:"address" toml:"address"`
+	APIPrefix                        string        `mapstructure:"api_prefix" toml:"api_prefix"`
+	APISpecFile                      string        `mapstructure:"api_spec_file" toml:"api_spec_file"`
+	Debug                            bool          `mapstructure:"debug" toml:"debug"`
+	Auth                             bool          `mapstructure:"auth" toml:"auth"`
+	AuthType                         string        `mapstructure:"auth_type" toml:"auth_type"`
+	UseHTTPS                         bool          `mapstructure:"use_https" toml:"use_https"`
+	EnableCORS                       bool          `mapstructure:"enable_cors" toml:"enable_cors"`
+	EnableInternalRulesOrganizations bool          `mapstructure:"enable_internal_rules_organizations" toml:"enable_internal_rules_organizations"`
+	InternalRulesOrganizations       []types.OrgID `mapstructure:"internal_rules_organizations" toml:"internal_rules_organizations"`
 }

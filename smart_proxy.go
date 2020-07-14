@@ -92,6 +92,7 @@ func printEnv() int {
 
 // startService starts service and returns error code
 func startServer() int {
+	_ = conf.GetSetupConfiguration()
 	serverCfg := conf.GetServerConfiguration()
 	servicesCfg := conf.GetServicesConfiguration()
 	groupsChannel := make(chan []groups.Group)

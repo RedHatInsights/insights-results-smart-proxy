@@ -6,6 +6,11 @@ auth = false
 auth_type = "xrh"
 use_https = false
 enable_cors = true
+enable_internal_rules_organizations = false
+internal_rules_organizations = []
 
 [services]
-groups_poll_time = 5
+groups_poll_time = "5s"
+
+[setup]
+internal_rules_organizations_csv_file = "tests/internal_organizations_test.csv"

@@ -19,16 +19,17 @@ package conf_test
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
-	"github.com/rs/zerolog"
-	"github.com/stretchr/testify/assert"
-
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -91,6 +92,8 @@ func TestLoadConfigurationFromFile(t *testing.T) {
 		debug = true
 		use_https = false
 		enable_cors = true
+		enable_internal_rules_organizations = false
+		internal_rules_organizations = []
 	`
 
 	tmpFilename, err := GetTmpConfigFile(config)
@@ -103,14 +106,52 @@ func TestLoadConfigurationFromFile(t *testing.T) {
 	mustLoadConfiguration("../tests/config1")
 
 	assert.Equal(t, server.Configuration{
-		Address:     ":8080",
-		APIPrefix:   "/api/v1/",
-		APISpecFile: "openapi.json",
-		AuthType:    "xrh",
-		Debug:       true,
-		UseHTTPS:    false,
-		EnableCORS:  true,
+		Address:                          ":8080",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		AuthType:                         "xrh",
+		Debug:                            true,
+		UseHTTPS:                         false,
+		EnableCORS:                       true,
+		EnableInternalRulesOrganizations: false,
+		InternalRulesOrganizations:       []types.OrgID(nil),
 	}, conf.GetServerConfiguration())
+}
+
+// TestGetInternalRulesOrganizations tests if the internal organizations CSV file gets loaded properly
+func TestGetInternalRulesOrganizations(t *testing.T) {
+	os.Clearenv()
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS", "true")
+
+	mustLoadConfiguration("tests/config1")
+
+	assert.Equal(t, []types.OrgID{
+		types.OrgID(1),
+		types.OrgID(2),
+		types.OrgID(3),
+	}, conf.GetInternalRulesOrganizations())
+}
+
+// TestLoadOrgIDsFromCSVExtraParam tests incorrect CSV format
+func TestLoadOrgIDsFromCSVExtraParam(t *testing.T) {
+	extraParamCSV := `OrgID
+1,2
+3
+`
+	r := strings.NewReader(extraParamCSV)
+	_, err := conf.LoadOrgIDsFromCSV(r)
+	assert.EqualError(t, err, "error reading CSV file: record on line 2: wrong number of fields")
+}
+
+// TestLoadOrgIDsFromCSVNonInt tests non-integer ID in CSV
+func TestLoadOrgIDsFromCSVNonInt(t *testing.T) {
+	nonIntIDCSV := `OrgID
+str
+3
+`
+	r := strings.NewReader(nonIntIDCSV)
+	_, err := conf.LoadOrgIDsFromCSV(r)
+	assert.EqualError(t, err, "organization ID on line 2 in CSV is not numerical. Found value: str")
 }
 
 func GetTmpConfigFile(configData string) (string, error) {
@@ -141,13 +182,15 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 	mustLoadConfiguration("/non_existing_path")
 
 	assert.Equal(t, server.Configuration{
-		Address:     ":8080",
-		APIPrefix:   "/api/v1/",
-		APISpecFile: "openapi.json",
-		AuthType:    "xrh",
-		Debug:       true,
-		UseHTTPS:    false,
-		EnableCORS:  true,
+		Address:                          ":8080",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		AuthType:                         "xrh",
+		Debug:                            true,
+		UseHTTPS:                         false,
+		EnableCORS:                       true,
+		EnableInternalRulesOrganizations: false,
+		InternalRulesOrganizations:       []types.OrgID(nil),
 	}, conf.GetServerConfiguration())
 
 	expectedGroupsPollTime, _ := time.ParseDuration("60s")
@@ -165,6 +208,7 @@ func setEnvVariables(t *testing.T) {
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_PREFIX", "/api/v1/")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE", "openapi.json")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__DEBUG", "true")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS", "false")
 
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR", "http://localhost:8080/api/v1")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT", "http://localhost:8081/api/v1")
