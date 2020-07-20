@@ -1,4 +1,12 @@
 @startuml
+namespace conf {
+    class SetupConfiguration << (S,Aquamarine) >> {
+        + InternalRulesOrganizationsCSVFile string
+
+    }
+}
+
+
 namespace content {
     class RulesWithContentStorage << (S,Aquamarine) >> {
         - rulesWithContent <font color=blue>map</font>[ruleIDAndErrorKey]*types.RuleWithContent
@@ -53,6 +61,8 @@ namespace server {
         + AuthType string
         + UseHTTPS bool
         + EnableCORS bool
+        + EnableInternalRulesOrganizations bool
+        + InternalRulesOrganizations []types.OrgID
 
     }
     class ContentServiceUnavailableError << (S,Aquamarine) >> {
@@ -65,8 +75,6 @@ namespace server {
         + GroupsChannel <font color=blue>chan</font> []groups.Group
         + Serv *http.Server
 
-        - addDebugEndpointsToRouter(router *mux.Router) 
-        - addEndpointsToRouter(router *mux.Router) 
         - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
         - readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error)
         - serveAPISpecFile(writer http.ResponseWriter, request *http.Request) 
@@ -79,11 +87,14 @@ namespace server {
         - reportEndpoint(writer http.ResponseWriter, request *http.Request) 
         - findRule(writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID) (types.RuleWithContentResponse, bool)
         - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - checkInternalRulePermissions(writer http.ResponseWriter, request *http.Request) bool
         - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - getGroups(writer http.ResponseWriter, _ *http.Request) 
         - getContentForRule(writer http.ResponseWriter, request *http.Request) 
         - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
         - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
+        - addDebugEndpointsToRouter(router *mux.Router) 
+        - addEndpointsToRouter(router *mux.Router) 
 
         + Initialize() http.Handler
         + Start() error
@@ -124,10 +135,10 @@ namespace server {
     }
     class server.ResponseModifier << (T, #FF7700) >>  {
     }
-    class "<font color=blue>func</font>(*http.Response) (*http.Response, error)" as fontcolorbluefuncfonthttpResponsehttpResponseerror {
+    class "<font color=blue>func</font>(*http.Request) (*http.Request, error)" as fontcolorbluefuncfonthttpRequesthttpRequesterror {
         'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
     }
-    class "<font color=blue>func</font>(*http.Request) (*http.Request, error)" as fontcolorbluefuncfonthttpRequesthttpRequesterror {
+    class "<font color=blue>func</font>(*http.Response) (*http.Response, error)" as fontcolorbluefuncfonthttpResponsehttpResponseerror {
         'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
     }
 }
@@ -155,6 +166,7 @@ namespace types {
         + TotalRisk int
         + RiskOfChange int
         + Disabled bool
+        + Internal bool
         + UserVote types.UserVote
         + TemplateData <font color=blue>interface</font>{}
         + Tags []string
