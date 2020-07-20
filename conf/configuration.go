@@ -141,6 +141,9 @@ func GetSetupConfiguration() SetupConfiguration {
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
 // otherwise it returns corresponding error
 func checkIfFileExists(path string) error {
+	if len(path) == 0 {
+		return fmt.Errorf("Empty path provided")
+	}
 	fileInfo, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("OpenAPI spec file path does not exist. Path: '%v'", path)
