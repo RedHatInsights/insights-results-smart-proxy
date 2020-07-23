@@ -17,3 +17,6 @@ groups_poll_time = "60s"
 
 [setup]
 internal_rules_organizations_csv_file = ""
+
+[metrics]
+namespace = "smart_proxy"
