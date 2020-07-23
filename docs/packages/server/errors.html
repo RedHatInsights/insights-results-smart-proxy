@@ -138,10 +138,9 @@ limitations under the License.</p>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;net/http&#34;</div><div class="operator"></div>
 
-	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
-
 	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/responses&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator/types&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -239,6 +238,18 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>ParamsParsingError error meaning that the cluster name cannot be handled</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ParamsParsingError</div> <div class="keyword">struct</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">ParamsParsingError</div><div class="operator">)</div> <div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">string</div> <div class="operator">{</div>
+	<div class="keyword">return</div> <div class="literal">&#34;the parameters contains invalid characters and cannot be used&#34;</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>handleServerError handles separate server errors and sends appropriate responses</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
@@ -247,7 +258,7 @@ limitations under the License.</p>
 	<div class="keyword">var</div> <div class="ident">respErr</div> <div class="ident">error</div><div class="operator"></div>
 
 	<div class="keyword">switch</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">err</div><div class="operator">.</div><div class="operator">(</div><div class="keyword">type</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">case</div> <div class="operator">*</div><div class="ident">RouterMissingParamError</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">RouterParsingError</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">json</div><div class="operator">.</div><div class="ident">SyntaxError</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">NoBodyError</div><div class="operator">:</div>
+	<div class="keyword">case</div> <div class="operator">*</div><div class="ident">RouterMissingParamError</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">RouterParsingError</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">json</div><div class="operator">.</div><div class="ident">SyntaxError</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">NoBodyError</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">ParamsParsingError</div><div class="operator">:</div>
 		<div class="ident">respErr</div> <div class="operator">=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendBadRequest</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">case</div> <div class="operator">*</div><div class="ident">json</div><div class="operator">.</div><div class="ident">UnmarshalTypeError</div><div class="operator">:</div>
 		<div class="ident">respErr</div> <div class="operator">=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendBadRequest</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="literal">&#34;bad type in json data&#34;</div><div class="operator">)</div><div class="operator"></div>

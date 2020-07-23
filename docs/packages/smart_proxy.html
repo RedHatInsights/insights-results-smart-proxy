@@ -149,13 +149,14 @@ limitations under the License.
 	<div class="literal">&#34;strings&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
-	<div class="literal">&#34;github.com/RedHatInsights/insights-content-service/content&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-content-service/groups&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/conf&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/server&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/services&#34;</div><div class="operator"></div>
+
+	<div class="ident">proxy_content</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/content&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
@@ -230,13 +231,14 @@ The commands are:
 	<td class="doc"><p>startService starts service and returns error code</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startServer</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">int</div> <div class="operator">{</div>
+	<div class="ident">_</div> <div class="operator">=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetSetupConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">serverCfg</div> <div class="operator">:=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetServerConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">servicesCfg</div> <div class="operator">:=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetServicesConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">groupsChannel</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">groups</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">contentChannel</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">serverInstance</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">serverCfg</div><div class="operator">,</div> <div class="ident">servicesCfg</div><div class="operator">,</div> <div class="ident">groupsChannel</div><div class="operator">,</div> <div class="ident">contentChannel</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">serverInstance</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">serverCfg</div><div class="operator">,</div> <div class="ident">servicesCfg</div><div class="operator">,</div> <div class="ident">groupsChannel</div><div class="operator">)</div><div class="operator"></div>
 
-	<div class="keyword">go</div> <div class="ident">updateGroupInfo</div><div class="operator">(</div><div class="ident">servicesCfg</div><div class="operator">,</div> <div class="ident">groupsChannel</div><div class="operator">,</div> <div class="ident">contentChannel</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">go</div> <div class="ident">updateGroupInfo</div><div class="operator">(</div><div class="ident">servicesCfg</div><div class="operator">,</div> <div class="ident">groupsChannel</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">go</div> <div class="ident">proxy_content</div><div class="operator">.</div><div class="ident">RunUpdateContentLoop</div><div class="operator">(</div><div class="ident">servicesCfg</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">serverInstance</div><div class="operator">.</div><div class="ident">Start</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
@@ -255,22 +257,14 @@ The commands are:
 * If ticker comes first, the groups configuration is updated, doing a request to the content-service
 * If the channel comes first, the latest valid groups configuration is send through the channel</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">updateGroupInfo</div><div class="operator">(</div><div class="ident">servicesConf</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">,</div> <div class="ident">groupsChannel</div> <div class="keyword">chan</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">groups</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">,</div> <div class="ident">contentChannel</div> <div class="keyword">chan</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">updateGroupInfo</div><div class="operator">(</div><div class="ident">servicesConf</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">,</div> <div class="ident">groupsChannel</div> <div class="keyword">chan</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">groups</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">var</div> <div class="ident">currentGroups</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">groups</div><div class="operator">.</div><div class="ident">Group</div><div class="operator"></div>
-	<div class="ident">currentContent</div> <div class="operator">:=</div> <div class="operator">&amp;</div><div class="ident">content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">groups</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">GetGroups</div><div class="operator">(</div><div class="ident">servicesConf</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Error retrieving groups&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
 		<div class="ident">currentGroups</div> <div class="operator">=</div> <div class="ident">groups</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
-
-	<div class="ident">content</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">GetContent</div><div class="operator">(</div><div class="ident">servicesConf</div><div class="operator">)</div><div class="operator"></div>
-	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Error retrieving static content&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
-		<div class="ident">currentContent</div> <div class="operator">=</div> <div class="ident">content</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">uptimeTicker</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">NewTicker</div><div class="operator">(</div><div class="ident">servicesConf</div><div class="operator">.</div><div class="ident">GroupsPollingTime</div><div class="operator">)</div><div class="operator"></div>
@@ -285,16 +279,7 @@ The commands are:
 			<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
 				<div class="ident">currentGroups</div> <div class="operator">=</div> <div class="ident">groups</div><div class="operator"></div>
 			<div class="operator">}</div><div class="operator"></div>
-
-			<div class="ident">content</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">GetContent</div><div class="operator">(</div><div class="ident">servicesConf</div><div class="operator">)</div><div class="operator"></div>
-			<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-				<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Error retrieving static content&#34;</div><div class="operator">)</div><div class="operator"></div>
-			<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
-				<div class="ident">currentContent</div> <div class="operator">=</div> <div class="ident">content</div><div class="operator"></div>
-			<div class="operator">}</div><div class="operator"></div>
-
 		<div class="keyword">case</div> <div class="ident">groupsChannel</div> <div class="operator">&lt;-</div> <div class="ident">currentGroups</div><div class="operator">:</div>
-		<div class="keyword">case</div> <div class="ident">contentChannel</div> <div class="operator">&lt;-</div> <div class="operator">*</div><div class="ident">currentContent</div><div class="operator">:</div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
@@ -342,12 +327,11 @@ The commands are:
 		<div class="ident">showVersion</div> <div class="ident">bool</div><div class="operator"></div>
 	<div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">showHelp</div><div class="operator">,</div> <div class="literal">&#34;help&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;Show the help&#34;</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">showVersion</div><div class="operator">,</div> <div class="literal">&#34;version&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;Show the version an exit&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">flag</div><div class="operator">.</div><div class="ident">BoolVar</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">showVersion</div><div class="operator">,</div> <div class="literal">&#34;version&#34;</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="literal">&#34;Show the version and exit&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">flag</div><div class="operator">.</div><div class="ident">Parse</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">if</div> <div class="ident">showHelp</div> <div class="operator">{</div>
-		<div class="ident">printHelp</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">os</div><div class="operator">.</div><div class="ident">Exit</div><div class="operator">(</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">os</div><div class="operator">.</div><div class="ident">Exit</div><div class="operator">(</div><div class="ident">printHelp</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">if</div> <div class="ident">showVersion</div> <div class="operator">{</div>
@@ -355,8 +339,7 @@ The commands are:
 		<div class="ident">os</div><div class="operator">.</div><div class="ident">Exit</div><div class="operator">(</div><div class="ident">ExitStatusOK</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="keyword">var</div> <div class="ident">args</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator"></div>
-	<div class="ident">args</div> <div class="operator">=</div> <div class="ident">flag</div><div class="operator">.</div><div class="ident">Args</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">args</div> <div class="operator">:=</div> <div class="ident">flag</div><div class="operator">.</div><div class="ident">Args</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">command</div> <div class="operator">:=</div> <div class="literal">&#34;start-service&#34;</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">args</div><div class="operator">)</div> <div class="operator">&gt;=</div> <div class="literal">1</div> <div class="operator">{</div>
