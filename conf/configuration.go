@@ -56,11 +56,17 @@ type SetupConfiguration struct {
 	InternalRulesOrganizationsCSVFile string `mapstructure:"internal_rules_organizations_csv_file" toml:"internal_rules_organizations_csv_file"`
 }
 
+// MetricsConfiguration defines configuration for metrics
+type MetricsConfiguration struct {
+	Namespace string `mapstructure:"namespace" toml:"namespace"`
+}
+
 // Config has exactly the same structure as *.toml file
 var Config struct {
 	ServerConf   server.Configuration   `mapstructure:"server" toml:"server"`
 	ServicesConf services.Configuration `mapstructure:"services" toml:"services"`
 	SetupConf    SetupConfiguration     `mapstructure:"setup" toml:"setup"`
+	MetricsConf  MetricsConfiguration   `mapstructure:"metrics" toml:"metrics"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
@@ -136,6 +142,11 @@ func GetServicesConfiguration() services.Configuration {
 // startup
 func GetSetupConfiguration() SetupConfiguration {
 	return Config.SetupConf
+}
+
+// GetMetricsConfiguration returns the metrics configuration
+func GetMetricsConfiguration() MetricsConfiguration {
+	return Config.MetricsConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
