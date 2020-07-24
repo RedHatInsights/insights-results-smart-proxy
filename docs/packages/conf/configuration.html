@@ -189,12 +189,23 @@ https://redhatinsights.github.io/insights-results-smart-proxy/packages/conf/conf
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>MetricsConfiguration defines configuration for metrics</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">MetricsConfiguration</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">Namespace</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;namespace&#34; toml:&#34;namespace&#34;`</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>Config has exactly the same structure as *.toml file</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">Config</div> <div class="keyword">struct</div> <div class="operator">{</div>
 	<div class="ident">ServerConf</div>   <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div>   <div class="literal">`mapstructure:&#34;server&#34; toml:&#34;server&#34;`</div><div class="operator"></div>
 	<div class="ident">ServicesConf</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">Configuration</div> <div class="literal">`mapstructure:&#34;services&#34; toml:&#34;services&#34;`</div><div class="operator"></div>
 	<div class="ident">SetupConf</div>    <div class="ident">SetupConfiguration</div>     <div class="literal">`mapstructure:&#34;setup&#34; toml:&#34;setup&#34;`</div><div class="operator"></div>
+	<div class="ident">MetricsConf</div>  <div class="ident">MetricsConfiguration</div>   <div class="literal">`mapstructure:&#34;metrics&#34; toml:&#34;metrics&#34;`</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -315,6 +326,16 @@ startup</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetSetupConfiguration</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">SetupConfiguration</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="ident">Config</div><div class="operator">.</div><div class="ident">SetupConf</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GetMetricsConfiguration returns the metrics configuration</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetMetricsConfiguration</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">MetricsConfiguration</div> <div class="operator">{</div>
+	<div class="keyword">return</div> <div class="ident">Config</div><div class="operator">.</div><div class="ident">MetricsConf</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

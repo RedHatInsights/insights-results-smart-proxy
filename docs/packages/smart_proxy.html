@@ -150,6 +150,7 @@ limitations under the License.
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/RedHatInsights/insights-content-service/groups&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/metrics&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/conf&#34;</div><div class="operator"></div>
@@ -233,8 +234,13 @@ The commands are:
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">startServer</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">int</div> <div class="operator">{</div>
 	<div class="ident">_</div> <div class="operator">=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetSetupConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">serverCfg</div> <div class="operator">:=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetServerConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">metricsCfg</div> <div class="operator">:=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetMetricsConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">servicesCfg</div> <div class="operator">:=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetServicesConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">groupsChannel</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">chan</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">groups</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">metricsCfg</div><div class="operator">.</div><div class="ident">Namespace</div> <div class="operator">!=</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
+		<div class="ident">metrics</div><div class="operator">.</div><div class="ident">AddAPIMetricsWithNamespace</div><div class="operator">(</div><div class="ident">metricsCfg</div><div class="operator">.</div><div class="ident">Namespace</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
 	<div class="ident">serverInstance</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div><div class="ident">serverCfg</div><div class="operator">,</div> <div class="ident">servicesCfg</div><div class="operator">,</div> <div class="ident">groupsChannel</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">go</div> <div class="ident">updateGroupInfo</div><div class="operator">(</div><div class="ident">servicesCfg</div><div class="operator">,</div> <div class="ident">groupsChannel</div><div class="operator">)</div><div class="operator"></div>

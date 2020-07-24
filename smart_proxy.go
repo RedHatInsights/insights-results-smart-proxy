@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/metrics"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
@@ -94,8 +95,13 @@ func printEnv() int {
 func startServer() int {
 	_ = conf.GetSetupConfiguration()
 	serverCfg := conf.GetServerConfiguration()
+	metricsCfg := conf.GetMetricsConfiguration()
 	servicesCfg := conf.GetServicesConfiguration()
 	groupsChannel := make(chan []groups.Group)
+
+	if metricsCfg.Namespace != "" {
+		metrics.AddAPIMetricsWithNamespace(metricsCfg.Namespace)
+	}
 	serverInstance = server.New(serverCfg, servicesCfg, groupsChannel)
 
 	go updateGroupInfo(servicesCfg, groupsChannel)
