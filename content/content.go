@@ -101,6 +101,17 @@ func (s *RulesWithContentStorage) SetRule(
 	s.rules[ruleID] = &ruleContent
 }
 
+// GetRuleIDs gets rule IDs for rules
+func GetRuleIDs() []string {
+	ruleIDs := make([]string, 0, len(rulesWithContentStorage.rules))
+
+	for _, ruleContent := range rulesWithContentStorage.rules {
+		ruleIDs = append(ruleIDs, ruleContent.Plugin.PythonModule)
+	}
+
+	return ruleIDs
+}
+
 var rulesWithContentStorage = RulesWithContentStorage{
 	rulesWithContent: map[ruleIDAndErrorKey]*types.RuleWithContent{},
 	rules:            map[types.RuleID]*ics_content.RuleContent{},

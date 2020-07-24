@@ -34,6 +34,8 @@ const (
 	RuleGroupsEndpoint = "groups"
 	// RuleContent returns static content for {rule_id}
 	RuleContent = "rules/{rule_id}/content"
+	// RuleIDs returns a list of rule IDs
+	RuleIDs = "rules"
 	// SingleRuleEndpoint returns single rule with static content for {cluster} and {rule_id}
 	SingleRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/report"
 	// MetricsEndpoint returns prometheus metrics
@@ -128,6 +130,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	)).Methods(http.MethodPut, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+RuleIDs, server.getRuleIDs).Methods(http.MethodGet)
 
 	// Prometheus metrics
 	router.Handle(apiPrefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
