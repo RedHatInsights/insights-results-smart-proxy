@@ -22,9 +22,7 @@ package main
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
 // to see why this trick is needed.
 var (
-	StartServer = startServer
-	// StopService           = stopService
-	// WaitForServiceToStart = waitForServiceToStart
+	StartServer      = startServer
 	PrintVersionInfo = printVersionInfo
 	PrintHelp        = printHelp
 	PrintConfig      = printConfig
