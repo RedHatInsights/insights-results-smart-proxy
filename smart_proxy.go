@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Entry point to the insights results smart proxy
+// Entry point to the insights results smart proxy REST API service.
+// This file contains functions needed to start the service from command line.
 package main
 
 import (
@@ -37,7 +38,7 @@ import (
 )
 
 const (
-	// ExitStatusOK means that the tool finished with success
+	// ExitStatusOK means that the service have finished with success
 	ExitStatusOK = iota
 	// ExitStatusServerError means that the HTTP server cannot be initialized
 	ExitStatusServerError
@@ -63,13 +64,16 @@ The commands are:
 
 `
 
+// serverInstance represents instance of REST API server
 var serverInstance *server.HTTPServer
 
+// printHelp function displays help on the standard output.
 func printHelp() int {
 	fmt.Printf(helpMessageTemplate, os.Args[0])
 	return ExitStatusOK
 }
 
+// printConfig function displays loaded configuration on the standard output.
 func printConfig() int {
 	configBytes, err := json.MarshalIndent(conf.Config, "", "    ")
 
@@ -78,11 +82,13 @@ func printConfig() int {
 		return 1
 	}
 
+	// convert configuration to string and displays it to standard output
 	fmt.Println(string(configBytes))
 
 	return ExitStatusOK
 }
 
+// printEnv function prints all environment variables to standard output.
 func printEnv() int {
 	for _, keyVal := range os.Environ() {
 		fmt.Println(keyVal)
@@ -91,7 +97,7 @@ func printEnv() int {
 	return ExitStatusOK
 }
 
-// startService starts service and returns error code
+// startService function starts service and returns error code.
 func startServer() int {
 	_ = conf.GetSetupConfiguration()
 	serverCfg := conf.GetServerConfiguration()
@@ -172,6 +178,7 @@ func handleCommand(command string) int {
 	return ExitStatusOK
 }
 
+// main represents entry point to CLI client.
 func main() {
 	err := conf.LoadConfiguration(defaultConfigFileName)
 
