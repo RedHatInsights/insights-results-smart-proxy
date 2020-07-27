@@ -62,8 +62,8 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 
 	// check for internal rule permissions
 	if internal := content.IsRuleInternal(ruleID); internal == true {
-		ok, err := server.checkInternalRulePermissions(request)
-		if ok != true {
+		err := server.checkInternalRulePermissions(request)
+		if err != nil {
 			handleServerError(writer, err)
 			return
 		}
@@ -94,7 +94,7 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 	allRuleIDs := content.GetRuleIDs()
 	var ruleIDs []string
 
-	if hasPermissions, _ := server.checkInternalRulePermissions(request); !hasPermissions {
+	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRuleIDs {
 			if !content.IsRuleInternal(types.RuleID(rule)) {
 				ruleIDs = append(ruleIDs, rule)

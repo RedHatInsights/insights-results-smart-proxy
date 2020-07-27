@@ -750,7 +750,7 @@
         ]
       }
     },
-    "/rules": {
+    "/rule_ids": {
       "get": {
         "summary": "Returns the rule IDs of all the rules.",
         "operationId": "getRuleIDs",

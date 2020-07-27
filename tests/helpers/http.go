@@ -51,14 +51,15 @@ var (
 var (
 	// DefaultServerConfig is a default server config
 	DefaultServerConfig = server.Configuration{
-		Address:     ":8081",
-		APIPrefix:   "/api/v1/",
-		APISpecFile: "openapi.json",
-		Debug:       true,
-		Auth:        false,
-		AuthType:    "",
-		UseHTTPS:    false,
-		EnableCORS:  false,
+		Address:                          ":8081",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		Debug:                            true,
+		Auth:                             false,
+		AuthType:                         "",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: false,
 	}
 
 	// DefaultServerConfigCORS is a default server config with CORS enabled

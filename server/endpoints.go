@@ -35,7 +35,7 @@ const (
 	// RuleContent returns static content for {rule_id}
 	RuleContent = "rules/{rule_id}/content"
 	// RuleIDs returns a list of rule IDs
-	RuleIDs = "rules"
+	RuleIDs = "rule_ids"
 	// SingleRuleEndpoint returns single rule with static content for {cluster} and {rule_id}
 	SingleRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/report"
 	// MetricsEndpoint returns prometheus metrics
