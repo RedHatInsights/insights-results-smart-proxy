@@ -206,7 +206,7 @@ limitations under the License.
 	<td class="doc"><p>TestPrintHelp checks that printing help returns OK exit code.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPrintHelp</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PrintHelp</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">PrintHelp</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -216,7 +216,7 @@ limitations under the License.
 	<td class="doc"><p>TestPrintConfig checks that printing configuration info returns OK exit code.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPrintConfig</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PrintConfig</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">PrintConfig</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
@@ -226,7 +226,7 @@ limitations under the License.
 	<td class="doc"><p>TestPrintEnv checks that printing environment variables returns OK exit code.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestPrintEnv</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">PrintEnv</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">main</div><div class="operator">.</div><div class="ident">ExitStatusOK</div><div class="operator">,</div> <div class="ident">int</div><div class="operator">(</div><div class="ident">main</div><div class="operator">.</div><div class="ident">PrintEnv</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
