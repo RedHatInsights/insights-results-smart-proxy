@@ -37,6 +37,10 @@ import (
 	proxy_content "github.com/RedHatInsights/insights-results-smart-proxy/content"
 )
 
+// ExitCode represents numeric value returned to parent process when the
+// current process finishes
+type ExitCode int
+
 const (
 	// ExitStatusOK means that the service have finished with success
 	ExitStatusOK = iota
@@ -68,13 +72,13 @@ The commands are:
 var serverInstance *server.HTTPServer
 
 // printHelp function displays help on the standard output.
-func printHelp() int {
+func printHelp() ExitCode {
 	fmt.Printf(helpMessageTemplate, os.Args[0])
 	return ExitStatusOK
 }
 
 // printConfig function displays loaded configuration on the standard output.
-func printConfig() int {
+func printConfig() ExitCode {
 	configBytes, err := json.MarshalIndent(conf.Config, "", "    ")
 
 	if err != nil {
@@ -89,7 +93,7 @@ func printConfig() int {
 }
 
 // printEnv function prints all environment variables to standard output.
-func printEnv() int {
+func printEnv() ExitCode {
 	for _, keyVal := range os.Environ() {
 		fmt.Println(keyVal)
 	}
@@ -98,7 +102,7 @@ func printEnv() int {
 }
 
 // startService function starts service and returns error code.
-func startServer() int {
+func startServer() ExitCode {
 	_ = conf.GetSetupConfiguration()
 	serverCfg := conf.GetServerConfiguration()
 	metricsCfg := conf.GetMetricsConfiguration()
@@ -153,7 +157,7 @@ func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []g
 }
 
 // handleCommand select the function to be called depending on command argument
-func handleCommand(command string) int {
+func handleCommand(command string) ExitCode {
 	switch command {
 	case "start-service":
 		return startServer()
@@ -195,7 +199,7 @@ func main() {
 	flag.Parse()
 
 	if showHelp {
-		os.Exit(printHelp())
+		os.Exit(int(printHelp()))
 	}
 
 	if showVersion {
@@ -210,5 +214,5 @@ func main() {
 		command = strings.ToLower(strings.TrimSpace(args[0]))
 	}
 
-	os.Exit(handleCommand(command))
+	os.Exit(int(handleCommand(command)))
 }
