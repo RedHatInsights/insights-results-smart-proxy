@@ -72,15 +72,15 @@ func TestPrintVersionInfo(t *testing.T) {
 
 // TestPrintHelp checks that printing help returns OK exit code.
 func TestPrintHelp(t *testing.T) {
-	assert.Equal(t, main.ExitStatusOK, main.PrintHelp())
+	assert.Equal(t, main.ExitStatusOK, int(main.PrintHelp()))
 }
 
 // TestPrintConfig checks that printing configuration info returns OK exit code.
 func TestPrintConfig(t *testing.T) {
-	assert.Equal(t, main.ExitStatusOK, main.PrintConfig())
+	assert.Equal(t, main.ExitStatusOK, int(main.PrintConfig()))
 }
 
 // TestPrintEnv checks that printing environment variables returns OK exit code.
 func TestPrintEnv(t *testing.T) {
-	assert.Equal(t, main.ExitStatusOK, main.PrintEnv())
+	assert.Equal(t, main.ExitStatusOK, int(main.PrintEnv()))
 }
