@@ -48,7 +48,13 @@ import (
 )
 
 const (
+	// configFileEnvVariableName is name of environment variable that
+	// contains name of configuration file
 	configFileEnvVariableName = "INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE"
+
+	// envPrefix is prefix for all environment variables that contains
+	// various configuration options
+	envPrefix = "INSIGHTS_RESULTS_SMART_PROXY_"
 )
 
 // SetupConfiguration should only be used at startup
@@ -111,9 +117,6 @@ func LoadConfiguration(defaultConfigFile string) error {
 	}
 
 	// override config from env if there's variable in env
-
-	const envPrefix = "INSIGHTS_RESULTS_SMART_PROXY_"
-
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))

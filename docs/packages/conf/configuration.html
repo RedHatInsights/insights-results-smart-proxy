@@ -172,7 +172,23 @@ https://redhatinsights.github.io/insights-results-smart-proxy/packages/conf/conf
 <div class="operator">)</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">configFileEnvVariableName</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE&#34;</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>configFileEnvVariableName is name of environment variable that
+contains name of configuration file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configFileEnvVariableName</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>envPrefix is prefix for all environment variables that contains
+various configuration options</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">envPrefix</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -280,10 +296,7 @@ config by itself</p>
       <tr class="section">
 	<td class="doc"><p>override config from env if there's variable in env</p>
 </td>
-	<td class="code"><pre><code>
-	<div class="keyword">const</div> <div class="ident">envPrefix</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_&#34;</div><div class="operator"></div>
-
-	<div class="ident">viper</div><div class="operator">.</div><div class="ident">AutomaticEnv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">viper</div><div class="operator">.</div><div class="ident">AutomaticEnv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">viper</div><div class="operator">.</div><div class="ident">SetEnvPrefix</div><div class="operator">(</div><div class="ident">envPrefix</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">viper</div><div class="operator">.</div><div class="ident">SetEnvKeyReplacer</div><div class="operator">(</div><div class="ident">strings</div><div class="operator">.</div><div class="ident">NewReplacer</div><div class="operator">(</div><div class="literal">&#34;-&#34;</div><div class="operator">,</div> <div class="literal">&#34;_&#34;</div><div class="operator">,</div> <div class="literal">&#34;.&#34;</div><div class="operator">,</div> <div class="literal">&#34;__&#34;</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
