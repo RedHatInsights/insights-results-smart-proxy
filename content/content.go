@@ -101,11 +101,23 @@ func (s *RulesWithContentStorage) SetRule(
 	s.rules[ruleID] = &ruleContent
 }
 
-// GetRuleIDs gets rule IDs for rules
-func GetRuleIDs() []string {
-	ruleIDs := make([]string, 0, len(rulesWithContentStorage.rules))
+// ResetContent clear all the contents
+func (s *RulesWithContentStorage) ResetContent() {
+	s.Lock()
+	defer s.Unlock()
 
-	for _, ruleContent := range rulesWithContentStorage.rules {
+	s.rulesWithContent = make(map[ruleIDAndErrorKey]*types.RuleWithContent)
+	s.rules = make(map[types.RuleID]*ics_content.RuleContent)
+}
+
+// GetRuleIDs gets rule IDs for rules
+func (s *RulesWithContentStorage) GetRuleIDs() []string {
+	s.Lock()
+	defer s.Unlock()
+
+	ruleIDs := make([]string, 0, len(s.rules))
+
+	for _, ruleContent := range s.rules {
 		ruleIDs = append(ruleIDs, ruleContent.Plugin.PythonModule)
 	}
 
@@ -160,6 +172,19 @@ func GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, error) {
 	}
 
 	return res, nil
+}
+
+// ResetContent clear all the content cached
+func ResetContent() {
+	WaitForContentDirectoryToBeReady()
+	rulesWithContentStorage.ResetContent()
+}
+
+// GetRuleIDs returns a list of rule IDs
+func GetRuleIDs() []string {
+	WaitForContentDirectoryToBeReady()
+
+	return rulesWithContentStorage.GetRuleIDs()
 }
 
 // RunUpdateContentLoop runs loop which updates rules content by ticker

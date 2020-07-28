@@ -60,7 +60,7 @@ var (
 		InternalRulesOrganizations:       []iou_types.OrgID{1},
 	}
 
-	serverConfigInternalOrganizations = server.Configuration{
+	serverConfigInternalOrganizations1 = server.Configuration{
 		Address:                          ":8081",
 		APIPrefix:                        "/api/v1/",
 		APISpecFile:                      "openapi.json",
@@ -71,6 +71,21 @@ var (
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: true,
 		InternalRulesOrganizations:       []iou_types.OrgID{1},
+	}
+
+	// Same as previous one, but different InternalRulesOrganizations
+	// This one won't match with the authentication token used
+	serverConfigInternalOrganizations2 = server.Configuration{
+		Address:                          ":8081",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		Debug:                            true,
+		Auth:                             true,
+		AuthType:                         "jwt",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: true,
+		InternalRulesOrganizations:       []iou_types.OrgID{2},
 	}
 
 	SmartProxyReportResponse3Rules = struct {
@@ -274,13 +289,13 @@ func TestInternalOrganizations(t *testing.T) {
 	}{
 		{
 			"Internal organizations enabled, Request denied",
-			&serverConfigInternalOrganizations,
+			&serverConfigInternalOrganizations1,
 			http.StatusForbidden,
 			badJWTAuthBearer,
 		},
 		{
 			"Internal organizations enabled, Request allowed",
-			&serverConfigInternalOrganizations,
+			&serverConfigInternalOrganizations1,
 			http.StatusOK,
 			goodJWTAuthBearer,
 		},
@@ -316,13 +331,13 @@ func TestRuleNames(t *testing.T) {
 	}{
 		{
 			"Internal orgs enabled, no authentication",
-			&serverConfigInternalOrganizations,
+			&serverConfigInternalOrganizations1,
 			http.StatusForbidden,
 			"",
 		},
 		{
 			"Internal orgs enabled, authentication provided",
-			&serverConfigInternalOrganizations,
+			&serverConfigInternalOrganizations1,
 			http.StatusOK,
 			goodJWTAuthBearer,
 		},
@@ -343,15 +358,18 @@ func TestRuleNames(t *testing.T) {
 
 // TestRuleNamesResponse checks the REST API status and response
 func TestRuleNamesResponse(t *testing.T) {
-	//loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1, testdata.RuleContent1})
+	content.ResetContent()
+	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1, testdata.RuleContent1})
+	ruleIDs := content.GetRuleIDs()
+	fmt.Println(ruleIDs)
 	expectedBody := `
-	{
-		"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "test.rule2", "test.rule3", "foo.rules.internal.bar"],
-		"status": "ok"
-	}
-`
+		{
+			"rules": ["foo.rules.internal.bar", "ccx_rules_ocp.external.rules.node_installer_degraded"],
+			"status": "ok"
+		}
+	`
 	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations1, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RuleIDs,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -361,24 +379,11 @@ func TestRuleNamesResponse(t *testing.T) {
 		})
 	}, testTimeout)
 
-	serverConfigInternalOrganizations2 := server.Configuration{
-		Address:                          ":8081",
-		APIPrefix:                        "/api/v1/",
-		APISpecFile:                      "openapi.json",
-		Debug:                            true,
-		Auth:                             true,
-		AuthType:                         "jwt",
-		UseHTTPS:                         false,
-		EnableCORS:                       false,
-		EnableInternalRulesOrganizations: true,
-		InternalRulesOrganizations:       []iou_types.OrgID{2},
-	}
-
 	expectedBody = `
-	{
-		"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "test.rule2", "test.rule3"],
-		"status": "ok"
-	}`
+		{
+			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded"],
+			"status": "ok"
+		}`
 	helpers.RunTestWithTimeout(t, func(t *testing.T) {
 		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations2, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
@@ -389,5 +394,4 @@ func TestRuleNamesResponse(t *testing.T) {
 			Body:       expectedBody,
 		})
 	}, testTimeout)
-
 }

@@ -136,6 +136,7 @@ limitations under the License.
 <div class="keyword">package</div> <div class="ident">server_test</div><div class="operator"></div>
 
 <div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;net/http&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
@@ -145,13 +146,14 @@ limitations under the License.
 	<div class="ident">iou_types</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-data/testdata&#34;</div><div class="operator"></div>
 	<div class="ident">ira_server</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator/server&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
+
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/content&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/server&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/services&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/types&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
@@ -166,6 +168,9 @@ limitations under the License.
 	<td class="doc"><p>TODO: consider moving to data repo</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="operator">(</div>
+	<div class="ident">badJWTAuthBearer</div>  <div class="operator">=</div> <div class="literal">&#34;Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ&#34;</div><div class="operator"></div>
+	<div class="ident">goodJWTAuthBearer</div> <div class="operator">=</div> <div class="literal">&#34;Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c&#34;</div><div class="operator"></div>
+
 	<div class="ident">serverConfigJWT</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
 		<div class="ident">Address</div><div class="operator">:</div>                          <div class="literal">&#34;:8081&#34;</div><div class="operator">,</div>
 		<div class="ident">APIPrefix</div><div class="operator">:</div>                        <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">,</div>
@@ -179,7 +184,7 @@ limitations under the License.
 		<div class="ident">InternalRulesOrganizations</div><div class="operator">:</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">iou_types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">{</div><div class="literal">1</div><div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">serverConfigInternalOrganizations</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
+	<div class="ident">serverConfigInternalOrganizations1</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
 		<div class="ident">Address</div><div class="operator">:</div>                          <div class="literal">&#34;:8081&#34;</div><div class="operator">,</div>
 		<div class="ident">APIPrefix</div><div class="operator">:</div>                        <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">,</div>
 		<div class="ident">APISpecFile</div><div class="operator">:</div>                      <div class="literal">&#34;openapi.json&#34;</div><div class="operator">,</div>
@@ -190,6 +195,26 @@ limitations under the License.
 		<div class="ident">EnableCORS</div><div class="operator">:</div>                       <div class="ident">false</div><div class="operator">,</div>
 		<div class="ident">EnableInternalRulesOrganizations</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
 		<div class="ident">InternalRulesOrganizations</div><div class="operator">:</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">iou_types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">{</div><div class="literal">1</div><div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Same as previous one, but different InternalRulesOrganizations
+This one won't match with the authentication token used</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">serverConfigInternalOrganizations2</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
+		<div class="ident">Address</div><div class="operator">:</div>                          <div class="literal">&#34;:8081&#34;</div><div class="operator">,</div>
+		<div class="ident">APIPrefix</div><div class="operator">:</div>                        <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">,</div>
+		<div class="ident">APISpecFile</div><div class="operator">:</div>                      <div class="literal">&#34;openapi.json&#34;</div><div class="operator">,</div>
+		<div class="ident">Debug</div><div class="operator">:</div>                            <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">Auth</div><div class="operator">:</div>                             <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">AuthType</div><div class="operator">:</div>                         <div class="literal">&#34;jwt&#34;</div><div class="operator">,</div>
+		<div class="ident">UseHTTPS</div><div class="operator">:</div>                         <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">EnableCORS</div><div class="operator">:</div>                       <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">EnableInternalRulesOrganizations</div><div class="operator">:</div> <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">InternalRulesOrganizations</div><div class="operator">:</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">iou_types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">{</div><div class="literal">2</div><div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">SmartProxyReportResponse3Rules</div> <div class="operator">=</div> <div class="keyword">struct</div> <div class="operator">{</div>
@@ -292,14 +317,18 @@ limitations under the License.
 	<div class="keyword">return</div> <div class="operator">(</div><div class="ident">impact</div> <div class="operator">&#43;</div> <div class="ident">likelihood</div><div class="operator">)</div> <div class="operator">/</div> <div class="literal">2</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="ident">rule</div> <div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">)</div> <div class="operator">{</div>
+<div class="keyword">func</div> <div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="ident">rulesContent</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">rules</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">for</div> <div class="ident">index</div><div class="operator">,</div> <div class="ident">rule</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">rulesContent</div> <div class="operator">{</div>
+		<div class="ident">key</div> <div class="operator">:=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Sprintf</div><div class="operator">(</div><div class="literal">&#34;rc%d&#34;</div><div class="operator">,</div> <div class="ident">index</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">rules</div><div class="operator">[</div><div class="ident">key</div><div class="operator">]</div> <div class="operator">=</div> <div class="ident">rule</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
 	<div class="ident">ruleContentDirectory</div> <div class="operator">:=</div> <div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">{</div>
 		<div class="ident">Config</div><div class="operator">:</div> <div class="ident">ics_content</div><div class="operator">.</div><div class="ident">GlobalRuleConfig</div><div class="operator">{</div>
 			<div class="ident">Impact</div><div class="operator">:</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">ImpactStrToInt</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">Rules</div><div class="operator">:</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div>
-			<div class="literal">&#34;rc1&#34;</div><div class="operator">:</div> <div class="ident">rule</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">Rules</div><div class="operator">:</div> <div class="ident">rules</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">content</div><div class="operator">.</div><div class="ident">LoadRuleContent</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">ruleContentDirectory</div><div class="operator">)</div><div class="operator"></div>
@@ -389,7 +418,7 @@ limitations under the License.
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="ident">TestInternalOrganizations</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="ident">RuleContentInternal1</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div><div class="ident">RuleContentInternal1</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">testCase</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">struct</div> <div class="operator">{</div>
 		<div class="ident">TestName</div>           <div class="ident">string</div><div class="operator"></div>
@@ -397,9 +426,24 @@ limitations under the License.
 		<div class="ident">ExpectedStatusCode</div> <div class="ident">int</div><div class="operator"></div>
 		<div class="ident">MockAuthToken</div>      <div class="ident">string</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator">{</div>
-		<div class="operator">{</div><div class="literal">&#34;Internal organizations enabled, Request denied&#34;</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations</div><div class="operator">,</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusForbidden</div><div class="operator">,</div> <div class="literal">&#34;Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ&#34;</div><div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">{</div><div class="literal">&#34;Internal organizations enabled, Request allowed&#34;</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations</div><div class="operator">,</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div> <div class="literal">&#34;Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c&#34;</div><div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">{</div><div class="literal">&#34;Internal organizations disabled, Request allowed&#34;</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">serverConfigJWT</div><div class="operator">,</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div> <div class="literal">&#34;Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ&#34;</div><div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="literal">&#34;Internal organizations enabled, Request denied&#34;</div><div class="operator">,</div>
+			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
+			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusForbidden</div><div class="operator">,</div>
+			<div class="ident">badJWTAuthBearer</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="literal">&#34;Internal organizations enabled, Request allowed&#34;</div><div class="operator">,</div>
+			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
+			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="literal">&#34;Internal organizations disabled, Request allowed&#34;</div><div class="operator">,</div>
+			<div class="operator">&amp;</div><div class="ident">serverConfigJWT</div><div class="operator">,</div>
+			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">badJWTAuthBearer</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div> <div class="operator">{</div>
 		<div class="ident">t</div><div class="operator">.</div><div class="ident">Run</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">TestName</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 			<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
@@ -414,6 +458,91 @@ limitations under the License.
 			<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestRuleNames checks the REST API server behaviour for rules endpoint</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestRuleNames</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">testCase</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">struct</div> <div class="operator">{</div>
+		<div class="ident">TestName</div>           <div class="ident">string</div><div class="operator"></div>
+		<div class="ident">ServerConfig</div>       <div class="operator">*</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator"></div>
+		<div class="ident">ExpectedStatusCode</div> <div class="ident">int</div><div class="operator"></div>
+		<div class="ident">MockAuthToken</div>      <div class="ident">string</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">{</div>
+		<div class="operator">{</div>
+			<div class="literal">&#34;Internal orgs enabled, no authentication&#34;</div><div class="operator">,</div>
+			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
+			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusForbidden</div><div class="operator">,</div>
+			<div class="literal">&#34;&#34;</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">{</div>
+			<div class="literal">&#34;Internal orgs enabled, authentication provided&#34;</div><div class="operator">,</div>
+			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
+			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div> <div class="operator">{</div>
+		<div class="ident">t</div><div class="operator">.</div><div class="ident">Run</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">TestName</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+			<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+				<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">ServerConfig</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
+					<div class="ident">Method</div><div class="operator">:</div>             <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
+					<div class="ident">Endpoint</div><div class="operator">:</div>           <div class="ident">server</div><div class="operator">.</div><div class="ident">RuleIDs</div><div class="operator">,</div>
+					<div class="ident">AuthorizationToken</div><div class="operator">:</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">MockAuthToken</div><div class="operator">,</div>
+				<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
+					<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">ExpectedStatusCode</div><div class="operator">,</div>
+				<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestRuleNamesResponse checks the REST API status and response</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestRuleNamesResponse</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">content</div><div class="operator">.</div><div class="ident">ResetContent</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div><div class="ident">RuleContentInternal1</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContent1</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">ruleIDs</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="ident">ruleIDs</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">expectedBody</div> <div class="operator">:=</div> <div class="literal">`
+		{
+			&#34;rules&#34;: [&#34;foo.rules.internal.bar&#34;, &#34;ccx_rules_ocp.external.rules.node_installer_degraded&#34;],
+			&#34;status&#34;: &#34;ok&#34;
+		}
+	`</div><div class="operator"></div>
+	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
+			<div class="ident">Method</div><div class="operator">:</div>             <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
+			<div class="ident">Endpoint</div><div class="operator">:</div>           <div class="ident">server</div><div class="operator">.</div><div class="ident">RuleIDs</div><div class="operator">,</div>
+			<div class="ident">AuthorizationToken</div><div class="operator">:</div> <div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
+			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">expectedBody</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">expectedBody</div> <div class="operator">=</div> <div class="literal">`
+		{
+			&#34;rules&#34;: [&#34;ccx_rules_ocp.external.rules.node_installer_degraded&#34;],
+			&#34;status&#34;: &#34;ok&#34;
+		}`</div><div class="operator"></div>
+	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations2</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
+			<div class="ident">Method</div><div class="operator">:</div>             <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
+			<div class="ident">Endpoint</div><div class="operator">:</div>           <div class="ident">server</div><div class="operator">.</div><div class="ident">RuleIDs</div><div class="operator">,</div>
+			<div class="ident">AuthorizationToken</div><div class="operator">:</div> <div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
+			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">expectedBody</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

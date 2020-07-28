@@ -124,3 +124,12 @@ func TestUpdateContentBadTime(t *testing.T) {
 	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
 	helpers.FailOnError(t, err)
 }
+
+func TestResetContent(t *testing.T) {
+	ruleIDs := content.GetRuleIDs()
+	assert.NotEqual(t, 0, len(ruleIDs))
+	content.ResetContent()
+
+	ruleIDs = content.GetRuleIDs()
+	assert.Equal(t, 0, len(ruleIDs))
+}
