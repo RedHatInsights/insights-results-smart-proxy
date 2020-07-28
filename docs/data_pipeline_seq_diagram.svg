@@ -1,0 +1,2527 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1460px" preserveAspectRatio="none" style="width:1816px;height:1460px;" version="1.1" viewBox="0 0 1816 1460" width="1816px" zoomAndPan="magnify">
+  <defs>
+    <filter height="300%" id="fua2xpah2lmhk" width="300%" x="-1" y="-1">
+      <feGaussianBlur result="blurOut" stdDeviation="2.0"/>
+      <feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/>
+      <feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/>
+      <feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/>
+    </filter>
+  </defs>
+  <g>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="77" x2="77" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="204" x2="204" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="297.5" x2="297.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="403.5" x2="403.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="565.5" x2="565.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="704.5" x2="704.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="808.5" x2="808.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="937.5" x2="937.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="1085.5" x2="1085.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="1208.5" x2="1208.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="1344.5" x2="1344.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="1496.5" x2="1496.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="1602.5" x2="1602.5" y1="115.9375" y2="1336.3125"/>
+    <line style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 5.0,5.0;" x1="1749" x2="1749" y1="115.9375" y2="1336.3125"/>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="93.2969" style="stroke: #A80036; stroke-width: 1.5;" width="134" x="8" y="17.6406"/>
+    <image height="63" width="64" x="43" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA/CAIAAADff1mdAAADBklEQVR42u1aMW4CMRC8P+YFaSjT0uQBKC8ID0hDmzJVepQf8AWegDLSSBvLPvu86zVnAsiKyJ2BmfXM7p7vpsn7tdk8FcY08qsMfWga9dCHo2GDPgSNduir0fCFflUa/aB3p3Ed6F1oXB+6G411oTfRGAe6jsaYuBVMHgT+xnb7vN+/Ho8fX1/vu93LLREQ6Ofztwz8i4M41ZFAJ+idaDgTAKbD4e10+sxBd6fhRoBRr4TuSMOBwKJgutJoQu8CvZ2GkQB+RgUdaZQCu1x+8LcgNsxUcTASQKjq0cPZ5AxwGAwz3uTmqyqGkUDh59MBxCI5AVcIAed3JKDVD1YgzFEUSSEEOGUhUP8ZRLE+Y2Im5oMw1S8xBsrwSORmiw16GABQgB5oIsJYk0IUcLwvAfy81r7pCvjboP4DEZpQu5E3EEsaN/VAmQCZKwioKoBAwRtBTOelagk1I2SYTwtGwtfqypnKwVHCJiYGlQSi9QEa8SUbvsUkpraBzcGiVLxhrkwbUq4MSMoiYE5NItaVM0MJQ5jTjM4jGEwymCNiIEnCyinNbgObg6np2chJ5gnFEL5JldZUzlQOJqxcKmTip1PDacxR7IXkCMKcS8oqG0wqB4fCCGMp8Q49LXUDZzkieRTkVG+DyeBgxi+8FpN409Bp1ppVWqEs1pezyVyDmR/pWllxOphhzuGjxMtdbb2PJ3MbJ0plx8b9H4LmqRxE5qtcUde2dE2dHHNRmlXKK8CzpJ3rYbuk0dl1T10o8k0zJr0u+GaLmqqZUxNYrKOiK1FXyFC8juMcabOt3p7QfmDxmob9D+ZIkxe2GyItTIi+R3s1YyRQeVlD5YRqKffk2h6uiUDllY1gYrmQi4FZI5l3sCfz5t7i9gRhhWmK5S/9oNa49msa7Q5FKvTUP6rWzWFjwrxJ4bIN4bY9atuo85S+4z0OaTnroXOyWfrOt5joS8q9fhhqVtX91pabNKpxp3eL//ud+pE53PzjEnf2tMpQHO74gafVOdz8U2ePh/7W43BHz43+AuruTVxldGkuAAAAAElFTkSuQmCC" y="24.6406"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="120" x="15" y="100.6357">Insights operator</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="93.2969" style="stroke: #A80036; stroke-width: 1.5;" width="134" x="8" y="1335.3125"/>
+    <image height="63" width="64" x="43" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAA/CAIAAADff1mdAAADBklEQVR42u1aMW4CMRC8P+YFaSjT0uQBKC8ID0hDmzJVepQf8AWegDLSSBvLPvu86zVnAsiKyJ2BmfXM7p7vpsn7tdk8FcY08qsMfWga9dCHo2GDPgSNduir0fCFflUa/aB3p3Ed6F1oXB+6G411oTfRGAe6jsaYuBVMHgT+xnb7vN+/Ho8fX1/vu93LLREQ6Ofztwz8i4M41ZFAJ+idaDgTAKbD4e10+sxBd6fhRoBRr4TuSMOBwKJgutJoQu8CvZ2GkQB+RgUdaZQCu1x+8LcgNsxUcTASQKjq0cPZ5AxwGAwz3uTmqyqGkUDh59MBxCI5AVcIAed3JKDVD1YgzFEUSSEEOGUhUP8ZRLE+Y2Im5oMw1S8xBsrwSORmiw16GABQgB5oIsJYk0IUcLwvAfy81r7pCvjboP4DEZpQu5E3EEsaN/VAmQCZKwioKoBAwRtBTOelagk1I2SYTwtGwtfqypnKwVHCJiYGlQSi9QEa8SUbvsUkpraBzcGiVLxhrkwbUq4MSMoiYE5NItaVM0MJQ5jTjM4jGEwymCNiIEnCyinNbgObg6np2chJ5gnFEL5JldZUzlQOJqxcKmTip1PDacxR7IXkCMKcS8oqG0wqB4fCCGMp8Q49LXUDZzkieRTkVG+DyeBgxi+8FpN409Bp1ppVWqEs1pezyVyDmR/pWllxOphhzuGjxMtdbb2PJ3MbJ0plx8b9H4LmqRxE5qtcUde2dE2dHHNRmlXKK8CzpJ3rYbuk0dl1T10o8k0zJr0u+GaLmqqZUxNYrKOiK1FXyFC8juMcabOt3p7QfmDxmob9D+ZIkxe2GyItTIi+R3s1YyRQeVlD5YRqKffk2h6uiUDllY1gYrmQi4FZI5l3sCfz5t7i9gRhhWmK5S/9oNa49msa7Q5FKvTUP6rWzWFjwrxJ4bIN4bY9atuo85S+4z0OaTnroXOyWfrOt5joS8q9fhhqVtX91pabNKpxp3eL//ud+pE53PzjEnf2tMpQHO74gafVOdz8U2ePh/7W43BHz43+AuruTVxldGkuAAAAAElFTkSuQmCC" y="1342.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="120" x="15" y="1418.3076">Insights operator</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="30.2969" style="stroke: #A80036; stroke-width: 1.5;" width="62" x="171" y="80.6406"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="48" x="178" y="100.6357">3Scale</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="30.2969" style="stroke: #A80036; stroke-width: 1.5;" width="62" x="171" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="48" x="178" y="1355.3076">3Scale</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="65" x="263.5" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="51" x="270.5" y="84.3389">Ingress</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="51" x="270.5" y="100.6357">service</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="65" x="263.5" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="51" x="270.5" y="1355.3076">Ingress</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="51" x="270.5" y="1371.6045">service</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="119" x="342.5" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="54" x="375" y="84.3389">Insights</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="105" x="349.5" y="100.6357">storage broker</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="119" x="342.5" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="54" x="375" y="1355.3076">Insights</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="105" x="349.5" y="1371.6045">storage broker</text>
+    <path d="M480.5,41.6406 L651.5,41.6406 C656.5,41.6406 656.5,78.7891 656.5,78.7891 C656.5,78.7891 656.5,115.9375 651.5,115.9375 L480.5,115.9375 C475.5,115.9375 475.5,78.7891 475.5,78.7891 C475.5,78.7891 475.5,41.6406 480.5,41.6406 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <path d="M651.5,41.6406 C646.5,41.6406 646.5,78.7891 646.5,78.7891 C646.5,115.9375 651.5,115.9375 651.5,115.9375 " fill="none" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <image height="48" width="48" x="537" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAACUElEQVR42u2ZMW4CMRBFfYJI9Kko01LkAuQEEQdIQ5mWJgdAOUE4QBralFTpUW7AFTgC4imWvkZe7zJGZhclWKsVLM76e+bPnxknHA4/V3WFG6CqgNbr98nkIfyO8fh+sXgZEtB8/hwaA3z7/fcAgJbLV4HANrITYzp9HACQll+t3uKT7fZzNLqLDzebj14BsV7WGICLzyuSyQWobWEBhV7/20JcooufQzxkMveiMAx+BRKvwSEojNnsqSMkS01YoEO8NKtDHrny86xMqXET9pAaYYkOQ0I49sBdT/i1fi7b7b46eCPBtFjF/aY5Lw5IxmiLiWEAsXwfgIAiAskFCS2yQgDzRLtqgMSD5ohqCVybcaNiRSkSSk/wh1IRyo4EStucOmGPzib2YNNAzMoSwcV8G+r6K6deh6JKSHlDrJI7+MBXyxsQI4bci4qT04C03azNLbeqlI6nAREaHdqvCKpVptUExOc+ANnk1c2wnlxmWZIISSIH1kL8xE6gHfckFCrokK1+WAOrcCWqLcTAkpdto2JjsFoJ2zay4JLBrjw+9aYOMFk7JWIY9dPCYjJewyrcZbBqqUOSzRuVJViSr4kjBNrySQVCzeTafHuWqr2WHx5AWjihS1vhdnFAyjOWLkrDnlOA84t8jNHEZOMRtiHutjLx5JYCQM1uK3sck53mb83OaRSjeToaRSbbCVlbVmul1d9Y72TTKmxjjlOgz1TqpCSSd/o+bJC/bscxjjpfjZgtqD1Ne2VS2x4DJll1cfY3f/1Y+BoPzm//67iO6wjQ1Fk1U32LVQAAAABJRU5ErkJggg==" y="46.6406"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="161" x="480.5" y="107.6357">platform.upload.buckit</text>
+    <path d="M480.5,1335.3125 L651.5,1335.3125 C656.5,1335.3125 656.5,1372.4609 656.5,1372.4609 C656.5,1372.4609 656.5,1409.6094 651.5,1409.6094 L480.5,1409.6094 C475.5,1409.6094 475.5,1372.4609 475.5,1372.4609 C475.5,1372.4609 475.5,1335.3125 480.5,1335.3125 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <path d="M651.5,1335.3125 C646.5,1335.3125 646.5,1372.4609 646.5,1372.4609 C646.5,1409.6094 651.5,1409.6094 651.5,1409.6094 " fill="none" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <image height="48" width="48" x="537" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAACUElEQVR42u2ZMW4CMRBFfYJI9Kko01LkAuQEEQdIQ5mWJgdAOUE4QBralFTpUW7AFTgC4imWvkZe7zJGZhclWKsVLM76e+bPnxknHA4/V3WFG6CqgNbr98nkIfyO8fh+sXgZEtB8/hwaA3z7/fcAgJbLV4HANrITYzp9HACQll+t3uKT7fZzNLqLDzebj14BsV7WGICLzyuSyQWobWEBhV7/20JcooufQzxkMveiMAx+BRKvwSEojNnsqSMkS01YoEO8NKtDHrny86xMqXET9pAaYYkOQ0I49sBdT/i1fi7b7b46eCPBtFjF/aY5Lw5IxmiLiWEAsXwfgIAiAskFCS2yQgDzRLtqgMSD5ohqCVybcaNiRSkSSk/wh1IRyo4EStucOmGPzib2YNNAzMoSwcV8G+r6K6deh6JKSHlDrJI7+MBXyxsQI4bci4qT04C03azNLbeqlI6nAREaHdqvCKpVptUExOc+ANnk1c2wnlxmWZIISSIH1kL8xE6gHfckFCrokK1+WAOrcCWqLcTAkpdto2JjsFoJ2zay4JLBrjw+9aYOMFk7JWIY9dPCYjJewyrcZbBqqUOSzRuVJViSr4kjBNrySQVCzeTafHuWqr2WHx5AWjihS1vhdnFAyjOWLkrDnlOA84t8jNHEZOMRtiHutjLx5JYCQM1uK3sck53mb83OaRSjeToaRSbbCVlbVmul1d9Y72TTKmxjjlOgz1TqpCSSd/o+bJC/bscxjjpfjZgtqD1Ne2VS2x4DJll1cfY3f/1Y+BoPzm//67iO6wjQ1Fk1U32LVQAAAABJRU5ErkJggg==" y="1340.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="161" x="480.5" y="1401.3076">platform.upload.buckit</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="70" x="666.5" y="112.6357">S3 bucket</text>
+    <path d="M686.5,63.6406 C686.5,53.6406 704.5,53.6406 704.5,53.6406 C704.5,53.6406 722.5,53.6406 722.5,63.6406 L722.5,89.6406 C722.5,99.6406 704.5,99.6406 704.5,99.6406 C704.5,99.6406 686.5,99.6406 686.5,89.6406 L686.5,63.6406 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #000000; stroke-width: 1.5;"/>
+    <path d="M686.5,63.6406 C686.5,73.6406 704.5,73.6406 704.5,73.6406 C704.5,73.6406 722.5,73.6406 722.5,63.6406 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="70" x="666.5" y="1348.3076">S3 bucket</text>
+    <path d="M686.5,1361.6094 C686.5,1351.6094 704.5,1351.6094 704.5,1351.6094 C704.5,1351.6094 722.5,1351.6094 722.5,1361.6094 L722.5,1387.6094 C722.5,1397.6094 704.5,1397.6094 704.5,1397.6094 C704.5,1397.6094 686.5,1397.6094 686.5,1387.6094 L686.5,1361.6094 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #000000; stroke-width: 1.5;"/>
+    <path d="M686.5,1361.6094 C686.5,1371.6094 704.5,1371.6094 704.5,1371.6094 C704.5,1371.6094 722.5,1371.6094 722.5,1361.6094 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/>
+    <rect fill="#FF8080" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="109" x="752.5" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="30" x="792" y="84.3389">CCX</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="95" x="759.5" y="100.6357">Data pipeline</text>
+    <rect fill="#FF8080" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="109" x="752.5" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="30" x="792" y="1355.3076">CCX</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="95" x="759.5" y="1371.6045">Data pipeline</text>
+    <path d="M880.5,41.6406 L995.5,41.6406 C1000.5,41.6406 1000.5,78.7891 1000.5,78.7891 C1000.5,78.7891 1000.5,115.9375 995.5,115.9375 L880.5,115.9375 C875.5,115.9375 875.5,78.7891 875.5,78.7891 C875.5,78.7891 875.5,41.6406 880.5,41.6406 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <path d="M995.5,41.6406 C990.5,41.6406 990.5,78.7891 990.5,78.7891 C990.5,115.9375 995.5,115.9375 995.5,115.9375 " fill="none" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <image height="48" width="48" x="909" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAACUElEQVR42u2ZMW4CMRBFfYJI9Kko01LkAuQEEQdIQ5mWJgdAOUE4QBralFTpUW7AFTgC4imWvkZe7zJGZhclWKsVLM76e+bPnxknHA4/V3WFG6CqgNbr98nkIfyO8fh+sXgZEtB8/hwaA3z7/fcAgJbLV4HANrITYzp9HACQll+t3uKT7fZzNLqLDzebj14BsV7WGICLzyuSyQWobWEBhV7/20JcooufQzxkMveiMAx+BRKvwSEojNnsqSMkS01YoEO8NKtDHrny86xMqXET9pAaYYkOQ0I49sBdT/i1fi7b7b46eCPBtFjF/aY5Lw5IxmiLiWEAsXwfgIAiAskFCS2yQgDzRLtqgMSD5ohqCVybcaNiRSkSSk/wh1IRyo4EStucOmGPzib2YNNAzMoSwcV8G+r6K6deh6JKSHlDrJI7+MBXyxsQI4bci4qT04C03azNLbeqlI6nAREaHdqvCKpVptUExOc+ANnk1c2wnlxmWZIISSIH1kL8xE6gHfckFCrokK1+WAOrcCWqLcTAkpdto2JjsFoJ2zay4JLBrjw+9aYOMFk7JWIY9dPCYjJewyrcZbBqqUOSzRuVJViSr4kjBNrySQVCzeTafHuWqr2WHx5AWjihS1vhdnFAyjOWLkrDnlOA84t8jNHEZOMRtiHutjLx5JYCQM1uK3sck53mb83OaRSjeToaRSbbCVlbVmul1d9Y72TTKmxjjlOgz1TqpCSSd/o+bJC/bscxjjpfjZgtqD1Ne2VS2x4DJll1cfY3f/1Y+BoPzm//67iO6wjQ1Fk1U32LVQAAAABJRU5ErkJggg==" y="46.6406"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="105" x="880.5" y="107.6357">ccx.ocp.results</text>
+    <path d="M880.5,1335.3125 L995.5,1335.3125 C1000.5,1335.3125 1000.5,1372.4609 1000.5,1372.4609 C1000.5,1372.4609 1000.5,1409.6094 995.5,1409.6094 L880.5,1409.6094 C875.5,1409.6094 875.5,1372.4609 875.5,1372.4609 C875.5,1372.4609 875.5,1335.3125 880.5,1335.3125 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <path d="M995.5,1335.3125 C990.5,1335.3125 990.5,1372.4609 990.5,1372.4609 C990.5,1409.6094 995.5,1409.6094 995.5,1409.6094 " fill="none" style="stroke: #A80036; stroke-width: 2.0;"/>
+    <image height="48" width="48" x="909" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAACUElEQVR42u2ZMW4CMRBFfYJI9Kko01LkAuQEEQdIQ5mWJgdAOUE4QBralFTpUW7AFTgC4imWvkZe7zJGZhclWKsVLM76e+bPnxknHA4/V3WFG6CqgNbr98nkIfyO8fh+sXgZEtB8/hwaA3z7/fcAgJbLV4HANrITYzp9HACQll+t3uKT7fZzNLqLDzebj14BsV7WGICLzyuSyQWobWEBhV7/20JcooufQzxkMveiMAx+BRKvwSEojNnsqSMkS01YoEO8NKtDHrny86xMqXET9pAaYYkOQ0I49sBdT/i1fi7b7b46eCPBtFjF/aY5Lw5IxmiLiWEAsXwfgIAiAskFCS2yQgDzRLtqgMSD5ohqCVybcaNiRSkSSk/wh1IRyo4EStucOmGPzib2YNNAzMoSwcV8G+r6K6deh6JKSHlDrJI7+MBXyxsQI4bci4qT04C03azNLbeqlI6nAREaHdqvCKpVptUExOc+ANnk1c2wnlxmWZIISSIH1kL8xE6gHfckFCrokK1+WAOrcCWqLcTAkpdto2JjsFoJ2zay4JLBrjw+9aYOMFk7JWIY9dPCYjJewyrcZbBqqUOSzRuVJViSr4kjBNrySQVCzeTafHuWqr2WHx5AWjihS1vhdnFAyjOWLkrDnlOA84t8jNHEZOMRtiHutjLx5JYCQM1uK3sck53mb83OaRSjeToaRSbbCVlbVmul1d9Y72TTKmxjjlOgz1TqpCSSd/o+bJC/bscxjjpfjZgtqD1Ne2VS2x4DJll1cfY3f/1Y+BoPzm//67iO6wjQ1Fk1U32LVQAAAABJRU5ErkJggg==" y="1340.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="105" x="880.5" y="1401.3076">ccx.ocp.results</text>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="123" x="1022.5" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="109" x="1029.5" y="84.3389">Insights Results</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="65" x="1051.5" y="100.6357">RB writer</text>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="123" x="1022.5" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="109" x="1029.5" y="1355.3076">Insights Results</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="65" x="1051.5" y="1371.6045">RB writer</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="92" x="1159.5" y="112.6357">AWS RDS DB</text>
+    <path d="M1190.5,63.6406 C1190.5,53.6406 1208.5,53.6406 1208.5,53.6406 C1208.5,53.6406 1226.5,53.6406 1226.5,63.6406 L1226.5,89.6406 C1226.5,99.6406 1208.5,99.6406 1208.5,99.6406 C1208.5,99.6406 1190.5,99.6406 1190.5,89.6406 L1190.5,63.6406 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #000000; stroke-width: 1.5;"/>
+    <path d="M1190.5,63.6406 C1190.5,73.6406 1208.5,73.6406 1208.5,73.6406 C1208.5,73.6406 1226.5,73.6406 1226.5,63.6406 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="92" x="1159.5" y="1348.3076">AWS RDS DB</text>
+    <path d="M1190.5,1361.6094 C1190.5,1351.6094 1208.5,1351.6094 1208.5,1351.6094 C1208.5,1351.6094 1226.5,1351.6094 1226.5,1361.6094 L1226.5,1387.6094 C1226.5,1397.6094 1208.5,1397.6094 1208.5,1397.6094 C1208.5,1397.6094 1190.5,1397.6094 1190.5,1387.6094 L1190.5,1361.6094 " fill="#FEFECE" filter="url(#fua2xpah2lmhk)" style="stroke: #000000; stroke-width: 1.5;"/>
+    <path d="M1190.5,1361.6094 C1190.5,1371.6094 1208.5,1371.6094 1208.5,1371.6094 C1208.5,1371.6094 1226.5,1371.6094 1226.5,1361.6094 " fill="none" style="stroke: #000000; stroke-width: 1.5;"/>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="150" x="1267.5" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="54" x="1315.5" y="84.3389">Insights</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="136" x="1274.5" y="100.6357">Results Aggregator</text>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="150" x="1267.5" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="54" x="1315.5" y="1355.3076">Insights</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="136" x="1274.5" y="1371.6045">Results Aggregator</text>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="127" x="1431.5" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="54" x="1468" y="84.3389">Insights</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="113" x="1438.5" y="100.6357">Content Service</text>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="127" x="1431.5" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="54" x="1468" y="1355.3076">Insights</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="113" x="1438.5" y="1371.6045">Content Service</text>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="57" x="1572.5" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="43" x="1579.5" y="84.3389">Smart</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="39" x="1581.5" y="100.6357">Proxy</text>
+    <rect fill="#A0A0FF" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="57" x="1572.5" y="1335.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="43" x="1579.5" y="1355.3076">Smart</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="39" x="1581.5" y="1371.6045">Proxy</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="92" x="1703" y="60.3438"/>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="92" x="1699" y="64.3438"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="63" x="1713.5" y="84.3389">REST API</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="78" x="1706" y="100.6357">consumers</text>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="92" x="1703" y="1335.3125"/>
+    <rect fill="#FEFECE" filter="url(#fua2xpah2lmhk)" height="46.5938" style="stroke: #A80036; stroke-width: 1.5;" width="92" x="1699" y="1339.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="63" x="1713.5" y="1359.3076">REST API</text>
+    <text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="78" x="1706" y="1375.6045">consumers</text>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="3" style="stroke: #EEEEEE; stroke-width: 1.0;" width="1801" x="3" y="146.5039"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="146.5039" y2="146.5039"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="149.5039" y2="149.5039"/>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="23.1328" style="stroke: #000000; stroke-width: 2.0;" width="333" x="737" y="135.9375"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="314" x="743" y="152.0044">Storing raw data sent by Insights Operator</text>
+    <polygon fill="#A80036" points="192,186.2031,202,190.2031,192,194.2031,196,190.2031" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="77" x2="198" y1="190.2031" y2="190.2031"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="103" x="84" y="185.1372">Insights archive</text>
+    <polygon fill="#A80036" points="286,260.7344,296,264.7344,286,268.7344,290,264.7344" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="204" x2="292" y1="264.7344" y2="264.7344"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="51" x="211" y="214.27">Insights</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="48" x="211" y="229.4028">archive</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="28" x="211" y="244.5356">with</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="70" x="211" y="259.6685">auth.token</text>
+    <polygon fill="#A80036" points="392,305,402,309,392,313,396,309" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="298" x2="398" y1="309" y2="309"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="45" x="305" y="288.8013">Tarball</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="49" x="305" y="303.9341">from IO</text>
+    <polygon fill="#A80036" points="692.5,334.1328,702.5,338.1328,692.5,342.1328,696.5,338.1328" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="404" x2="698.5" y1="338.1328" y2="338.1328"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="80" x="411" y="333.0669">Store tarball</text>
+    <polygon fill="#A80036" points="415,363.2656,405,367.2656,415,371.2656,411,367.2656" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="409" x2="703.5" y1="367.2656" y2="367.2656"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="162" x="421" y="362.1997">Here's link to new object</text>
+    <polygon fill="#A80036" points="554,392.3984,564,396.3984,554,400.3984,558,396.3984" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="404" x2="560" y1="396.3984" y2="396.3984"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="64" x="411" y="391.3325">Link to S3</text>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="3" style="stroke: #EEEEEE; stroke-width: 1.0;" width="1801" x="3" y="424.9648"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="424.9648" y2="424.9648"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="427.9648" y2="427.9648"/>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="23.1328" style="stroke: #000000; stroke-width: 2.0;" width="248" x="779.5" y="414.3984"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="229" x="785.5" y="430.4653">Applying OCP rules to raw data</text>
+    <polygon fill="#A80036" points="577,464.6641,567,468.6641,577,472.6641,573,468.6641" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="571" x2="808" y1="468.6641" y2="468.6641"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="124" x="583" y="463.5981">Consume message</text>
+    <polygon fill="#A80036" points="797,493.7969,807,497.7969,797,501.7969,801,497.7969" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="566" x2="803" y1="497.7969" y2="497.7969"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="64" x="573" y="492.731">Link to S3</text>
+    <polygon fill="#A80036" points="715.5,522.9297,705.5,526.9297,715.5,530.9297,711.5,526.9297" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="709.5" x2="808" y1="526.9297" y2="526.9297"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="77" x="721.5" y="521.8638">Read object</text>
+    <polygon fill="#A80036" points="797,567.1953,807,571.1953,797,575.1953,801,571.1953" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="704.5" x2="803" y1="571.1953" y2="571.1953"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="45" x="711.5" y="550.9966">Tarball</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="49" x="711.5" y="566.1294">from IO</text>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="809" x2="851" y1="615.4609" y2="615.4609"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="851" x2="851" y1="615.4609" y2="628.4609"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="810" x2="851" y1="628.4609" y2="628.4609"/>
+    <polygon fill="#A80036" points="820,624.4609,810,628.4609,820,632.4609,816,628.4609" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="37" x="816" y="595.2622">Apply</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="63" x="816" y="610.395">OCP rules</text>
+    <polygon fill="#A80036" points="926,653.5938,936,657.5938,926,661.5938,930,657.5938" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="809" x2="932" y1="657.5938" y2="657.5938"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="75" x="816" y="652.5278">OCP results</text>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="3" style="stroke: #EEEEEE; stroke-width: 1.0;" width="1801" x="3" y="686.1602"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="686.1602" y2="686.1602"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="689.1602" y2="689.1602"/>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="23.1328" style="stroke: #000000; stroke-width: 2.0;" width="182" x="812.5" y="675.5938"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="163" x="818.5" y="691.6606">Collecting OCP results</text>
+    <polygon fill="#A80036" points="949,725.8594,939,729.8594,949,733.8594,945,729.8594" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="943" x2="1085" y1="729.8594" y2="729.8594"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="124" x="955" y="724.7935">Consume message</text>
+    <polygon fill="#A80036" points="1074,754.9922,1084,758.9922,1074,762.9922,1078,758.9922" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="938" x2="1080" y1="758.9922" y2="758.9922"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="75" x="945" y="753.9263">OCP results</text>
+    <polygon fill="#A80036" points="1196.5,814.3906,1206.5,818.3906,1196.5,822.3906,1200.5,818.3906" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1086" x2="1202.5" y1="818.3906" y2="818.3906"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="75" x="1093" y="783.0591">OCP results</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="39" x="1093" y="798.1919">org ID</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="62" x="1093" y="813.3247">cluster ID</text>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="3" style="stroke: #EEEEEE; stroke-width: 1.0;" width="1801" x="3" y="846.957"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="846.957" y2="846.957"/>
+    <line style="stroke: #000000; stroke-width: 1.0;" x1="3" x2="1804" y1="849.957" y2="849.957"/>
+    <rect fill="#EEEEEE" filter="url(#fua2xpah2lmhk)" height="23.1328" style="stroke: #000000; stroke-width: 2.0;" width="329" x="739" y="836.3906"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="310" x="745" y="852.4575">Providing recommendations to consumers</text>
+    <polygon fill="#A80036" points="1614,932.0547,1604,936.0547,1614,940.0547,1610,936.0547" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1608" x2="1748" y1="936.0547" y2="936.0547"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="23" x="1620" y="885.5903">Get</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="118" x="1620" y="900.7231">recommendations</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="39" x="1620" y="915.856">org ID</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="62" x="1620" y="930.9888">cluster ID</text>
+    <polygon fill="#A80036" points="1355.5,991.4531,1345.5,995.4531,1355.5,999.4531,1351.5,995.4531" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1349.5" x2="1602" y1="995.4531" y2="995.4531"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="102" x="1361.5" y="960.1216">Get OCP results</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="39" x="1361.5" y="975.2544">org ID</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="62" x="1361.5" y="990.3872">cluster ID</text>
+    <polygon fill="#A80036" points="1219.5,1050.8516,1209.5,1054.8516,1219.5,1058.8516,1215.5,1054.8516" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1213.5" x2="1343.5" y1="1054.8516" y2="1054.8516"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="112" x="1225.5" y="1019.52">Read OCP results</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="39" x="1225.5" y="1034.6528">org ID</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="62" x="1225.5" y="1049.7856">cluster ID</text>
+    <polygon fill="#A80036" points="1332.5,1079.9844,1342.5,1083.9844,1332.5,1087.9844,1336.5,1083.9844" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1208.5" x2="1338.5" y1="1083.9844" y2="1083.9844"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="104" x="1215.5" y="1078.9185">Here are results</text>
+    <polygon fill="#A80036" points="1591,1109.1172,1601,1113.1172,1591,1117.1172,1595,1113.1172" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1344.5" x2="1597" y1="1113.1172" y2="1113.1172"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="104" x="1351.5" y="1108.0513">Here are results</text>
+    <polygon fill="#A80036" points="1508,1153.3828,1498,1157.3828,1508,1161.3828,1504,1157.3828" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1502" x2="1602" y1="1157.3828" y2="1157.3828"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="76" x="1514" y="1137.1841">Get content</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="65" x="1514" y="1152.3169">for rule ID</text>
+    <polygon fill="#A80036" points="1591,1212.7813,1601,1216.7813,1591,1220.7813,1595,1216.7813" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1497" x2="1597" y1="1216.7813" y2="1216.7813"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="42" x="1504" y="1181.4497">Here's</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="54" x="1504" y="1196.5825">required</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="49" x="1504" y="1211.7153">content</text>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1603" x2="1645" y1="1261.0469" y2="1261.0469"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1645" x2="1645" y1="1261.0469" y2="1274.0469"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1604" x2="1645" y1="1274.0469" y2="1274.0469"/>
+    <polygon fill="#A80036" points="1614,1270.0469,1604,1274.0469,1614,1278.0469,1610,1274.0469" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="88" x="1610" y="1240.8481">Merge results</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="81" x="1610" y="1255.981">with content</text>
+    <polygon fill="#A80036" points="1737,1314.3125,1747,1318.3125,1737,1322.3125,1741,1318.3125" style="stroke: #A80036; stroke-width: 1.0;"/>
+    <line style="stroke: #A80036; stroke-width: 1.0;" x1="1603" x2="1743" y1="1318.3125" y2="1318.3125"/>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="122" x="1610" y="1298.1138">Recommendations</text>
+    <text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="66" x="1610" y="1313.2466">for cluster</text>
+    <text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacingAndGlyphs" textLength="303" x="1501" y="12.2822">Sequence diagram for the whole CCX (external) data pipeline</text>
+    <text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacingAndGlyphs" textLength="276" x="765.5" y="1446.8916">Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky</text>
+    <!--MD5=[e1840e8ccf042467c2dba3181e343e67]
+@startuml
+
+sprite $kafka [48x48/16] {
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+0000000000000005CFFD8000000000000000000000000000
+000000000000009FFFFFFC10000000000000000000000000
+00000000000007FFFDCFFFB0000000000000000000000000
+0000000000000FFF6003EFF4000000000000000000000000
+0000000000004FFB00006FF8000000000000000000000000
+0000000000006FF800004FF9000000000000000000000000
+0000000000004FFB00006FF8000000000000000000000000
+0000000000000EFF6003EFF4000000464100000000000000
+00000000000005FFFEEFFFA000007FFFFF80000000000000
+000000000000008FFFFFFC000009FFFFFFF9000000000000
+0000000000000003AFFD7000005FFFB8BFFF500000000000
+00000000000000002FF4000000CFF70006FFC00000000000
+00000000000000002FF4000000FFF00000EFF00000000000
+00000000000000002FF4000000FFE00000EFF00000000000
+000000000000002AFFFFC50000EFF40003FFD00000000000
+00000000000006FFFFFFFFB02CFFFF646EFF800000000000
+0000000000005FFFFFFFFFFCFFFFFFFFFFFC000000000000
+000000000001FFFFB658FFFFFF71BFFFFFB1000000000000
+000000000007FFF600002EFFE20003898400000000000000
+00000000000BFFC0000006FFF10000000000000000000000
+00000000000DFF90000003FFF40000000000000000000000
+00000000000DFF90000003FFF30000000000000000000000
+00000000000AFFD0000007FFF10000000000000000000000
+000000000006FFF800005FFFF30005ACA600000000000000
+000000000000EFFFC77AFFFFFF83DFFFFFD2000000000000
+0000000000004FFFFFFFFFFAFFFFFFFFFFFE100000000000
+00000000000004EFFFFFFF701AFFFE525DFF800000000000
+0000000000000018CFFE820000EFF30002FFD00000000000
+00000000000000002FF6000000FFE00000EFF00000000000
+00000000000000002FF6000000EFF10000FFF00000000000
+00000000000000002FF6000000BFF80008FFB00000000000
+0000000000000003AFFE6000004FFFC9CFFF400000000000
+000000000000007FFFFFFC100007FFFFFFF8000000000000
+00000000000005FFFFEFFFA000005EFFFE60000000000000
+0000000000000EFF7004FFF3000000242000000000000000
+0000000000004FFC00007FF8000000000000000000000000
+0000000000005FF800004FF9000000000000000000000000
+0000000000004FFB00006FF8000000000000000000000000
+0000000000001FFF5002EFF5000000000000000000000000
+00000000000008FFFCCFFFC0000000000000000000000000
+000000000000009FFFFFFC10000000000000000000000000
+0000000000000005CFFD8000000000000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000
+}
+sprite $master [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999998634799999999999999999999999999FFFF
+FFFF99999999999999999999999863111136899999999999999999999999FFFF
+FFF9999999999999999999999863111111113689999999999999999999999FFF
+FFF9999999999999999999985211111111111136899999999999999999999FFF
+FFF9999999999999999998621111111111111111368999999999999999999FFF
+FFF9999999999999999863111111111111111111113689999999999999999FFF
+FF999999999999999863111111111111111111111111368999999999999999FF
+FF999999999999998311111111111111421012111111114899999999999999FF
+FF999999999999996111111111111115984468411111111799999999999999FF
+FF999999999999994111111111111116986799611111111699999999999999FF
+FF999999999999983111111111111115621148411111111499999999999999FF
+F99999999999999721111111111111273011164011111113899999999999999F
+F99999999999999611111111111113782111157211111112899999999999999F
+F99999999999999511111111111115983011169611111111699999999999999F
+F99999999999999301111114311112676211489611111111599999999999999F
+9999999999999982112311498211111157676442111111113999999999999999
+9999999999999971117976898201111338985311111111112899999999999999
+9999999999999961116996568521114975768831111111111799999999999999
+9999999999999941104841114887203996579821111111111599999999999999
+9999999999999930116711111798302899899820111111111499999999999999
+9999999999999820269611111786426964346964551111111289999999999999
+9999999999999710399820102868989510001599982111111179999999999999
+9999999999999611145862126956997111111179851111111169999999999999
+9999999999999511111388789972595111111149411111111159999999999999
+9999999999999721111289734751284111111148301111111389999999999999
+9999999999999961111167201111595111111159731111112799999999999999
+9999999999999994111112111116998201110279983111116999999999999999
+9999999999999998311111111128989721112697772111159999999999999999
+9999999999999999721111111113324986568951221111389999999999999999
+9999999999999999961111111111101799899930111112899999999999999999
+9999999999999999995111111111112896248941111127999999999999999999
+8999999999999999999411111111112772015841111169999999999999999999
+F99999999999999999983111111111122111121111149999999999999999999F
+FF999999999999999999721111111111111111111138999999999999999999FF
+FFF9999999999999999996111111111111111111127999999999999999999FFF
+FFFF99999999999999999951011111111111111016999999999999999999FFFF
+FFFF99999999999999999984222222222222222259999999999999999999FFFF
+FFFFF999999999999999999988888888888888889999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $etcd [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999743689999999999999999999999999FFFF
+FFFF99999999999999999999999963111136899999999999999999999999FFFF
+FFF9999999999999999999999863111111113689999999999999999999999FFF
+FFF9999999999999999999986311111111111125899999999999999999999FFF
+FFF9999999999999999998631111111111111111258999999999999999999FFF
+FFF9999999999999999863111111111111111111112589999999999999999FFF
+FF999999999999999963111111111111111111111111258999999999999999FF
+FF999999999999998411111111111111111111111111113899999999999999FF
+FF999999999999997111111111111111111111111111111699999999999999FF
+FF999999999999995111111111111111111111111111111599999999999999FF
+FF999999999999994111111111111122222111111111110399999999999999FF
+F99999999999999821111111124577888887642111111112899999999999999F
+F99999999999999711111111589999888899998621111111799999999999999F
+F99999999999999611111126998643322234579983111111599999999999999F
+F99999999999999411111159842110111100113797111111499999999999999F
+9999999999999993011111695101111111111103882111112899999999999999
+9999999999999982111111698411111111111136982111111799999999999999
+9999999999999971111111699975432222235789982111111699999999999999
+9999999999999961111111697899998888899987982111111499999999999999
+9999999999999941111111694246788888876532882111111389999999999999
+9999999999999831111111694011122222211102882111111289999999999999
+9999999999999821111111694111111111111112882111111169999999999999
+9999999999999711111111694111111111111112882111111159999999999999
+9999999999999611111111694111111111111112882111111149999999999999
+9999999999999831111111794011111111111112882111111279999999999999
+9999999999999972111111696101111111111014882111111699999999999999
+9999999999999996111111499642111111111358961111115999999999999999
+9999999999999999411111148998655444567899621111138999999999999999
+9999999999999999831111113689999999999864111111289999999999999999
+9999999999999999972111111123456666654211111112799999999999999999
+9999999999999999996111111111111111111111111116999999999999999999
+8999999999999999999511111111111111111111111149999999999999999999
+F99999999999999999994111111111111111111111138999999999999999999F
+FF999999999999999999831111111111111111111127999999999999999999FF
+FFF9999999999999999997211111111111111111127999999999999999999FFF
+FFFF99999999999999999961011111111111111015999999999999999999FFFF
+FFFF99999999999999999995222222222222222259999999999999999999FFFF
+FFFFF999999999999999999988888888888888889999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $node [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999998644799999999999999999999999999FFFF
+FFFF99999999999999999999999863111136899999999999999999999999FFFF
+FFF9999999999999999999999863111110013689999999999999999999999FFF
+FFF9999999999999999999985211111232111136899999999999999999999FFF
+FFF9999999999999999998621111125798631111368999999999999999999FFF
+FFF9999999999999999862111111157666762111113689999999999999999FFF
+FF999999999999999863111111111699689821111111368999999999999999FF
+FF999999999999998311111111111699689821111111114899999999999999FF
+FF999999999999996111111111111599689721111111111799999999999999FF
+FF999999999999994111111111111147675211111111111699999999999999FF
+FF999999999999983111111111111101221111111111111499999999999999FF
+F99999999999999721111111135775211257753111111113899999999999999F
+F99999999999999611111111367887622678876311111112899999999999999F
+F99999999999999511111111598668833886689411111111699999999999999F
+F99999999999999301111111599789933997799411111111599999999999999F
+9999999999999982111111114997799339977994111111113999999999999999
+9999999999999971111111112587785115877852111111112899999999999999
+9999999999999961111111111134421111244311111111111799999999999999
+9999999999999941111111110373001111111111111111111599999999999999
+9999999999999930111111111596342111341111111111111499999999999999
+9999999999999821111111277756894111693011111111111289999999999999
+9999999999999711111111278201576733795246211111111179999999999999
+9999999999999611111111036110476985334698211111111169999999999999
+9999999999999511111111158311696741001375111111111159999999999999
+9999999999999721111111168767767511111144111111111389999999999999
+9999999999999961111111122388588301111127641111112799999999999999
+9999999999999994111111111144488301111128961111116999999999999999
+9999999999999998311111111111124411111036421111159999999999999999
+9999999999999999721111111111103720110163011111389999999999999999
+9999999999999999961111111111116973213695111112899999999999999999
+9999999999999999995111111111117745775587211127999999999999999999
+8999999999999999999411111111112202882123111169999999999999999999
+F99999999999999999983111111111111166111111149999999999999999999F
+FF999999999999999999721111111111111111111138999999999999999999FF
+FFF9999999999999999996111111111111111111127999999999999999999FFF
+FFFF99999999999999999951011111111111111016999999999999999999FFFF
+FFFF99999999999999999984222222222222222269999999999999999999FFFF
+FFFFF999999999999999999988888888888888889999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $group [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999976666666666666666666666666666667999999999999FFFF
+FFF9999999999995211111111111111111111111111111125999999999999FFF
+FFF9999999999972011111111111111111111111111111102799999999999FFF
+FFF9999999999961111111111111111111111111111111111699999999999FFF
+FFF9999999999951111111111111111111111111111111111599999999999FFF
+FF999999999999511111111111111111111111111111111115999999999999FF
+FF999999999999511111111111111111111111111111111115999999999999FF
+FF999999999999511111111111111111111111111111111115999999999999FF
+FF999999999999511111111111111111111111111111111115999999999999FF
+FF999999999999511111111113665211112566311111111115999999999999FF
+F99999999999995111111111389997211279998311111111159999999999999F
+F99999999999995111111111799999511599999711111111159999999999999F
+F99999999999995111111112899999711799999821111111159999999999999F
+F99999999999995111111112899999611699999821111111159999999999999F
+9999999999999951111111116999994114999996111111111599999999999999
+9999999999999951111111112689851111589862111111111599999999999999
+9999999999999951111111111133211111123211111111111599999999999999
+9999999999999951111111111000001111110001111111111599999999999999
+9999999999999951111111112344332111114432111111111599999999999999
+9999999999999951111112468999988641115998642111111599999999999999
+9999999999999951111148999999999997311799998411111599999999999999
+9999999999999951111489999999999999820499999841111599999999999999
+9999999999999951111699999999999999940399999961111599999999999999
+9999999999999951111799999999999999950399999971111599999999999999
+9999999999999951111799999999999999950399999971111599999999999999
+9999999999999951111466666666666666630266666641111599999999999999
+9999999999999951111111111111111111111111111111111599999999999999
+9999999999999951111111111111111111111111111111111599999999999999
+9999999999999951111111111111111111111111111111111599999999999999
+9999999999999951111111111111111111111111111111111599999999999999
+8999999999999951111111111111111111111111111111111599999999999999
+F99999999999996111111111111111111111111111111111169999999999999F
+FF999999999999720111111111111111111111111111111027999999999999FF
+FFF9999999999996211111111111111111111111111111126999999999999FFF
+FFFF99999999999986666666666666666666666666666668999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $sa [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999998633689999999999999999999999999FFFF
+FFFF99999999999999999999999853111135899999999999999999999999FFFF
+FFF9999999999999999999999752111111112579999999999999999999999FFF
+FFF9999999999999999999974211111111111124799999999999999999999FFF
+FFF9999999999999999986311111111111111111136899999999999999999FFF
+FFF9999999999999998631111111111111111111111368999999999999999FFF
+FF999999999999999521111111111111111111111111125999999999999999FF
+FF999999999999998201111111111357753111111111102899999999999999FF
+FF999999999999998211111111114899998411111111112899999999999999FF
+FF999999999999998211111111128999999821111111112899999999999999FF
+FF999999999999998211111111159999999951111111112899999999999999FF
+F99999999999999982111111111699999999611111111128999999999999999F
+F99999999999999982111111111699999999611111111128999999999999999F
+F99999999999999982111111111599999999511111111128999999999999999F
+F99999999999999982111111111289999998211111111128999999999999999F
+9999999999999999821111111111389999831111111111289999999999999999
+9999999999999999821111111111125775211111111111289999999999999999
+9999999999999999821111111111101111011111111111289999999999999999
+9999999999999999821111111111112222111111111111289999999999999999
+9999999999999999930111111113578888753111111110399999999999999999
+9999999999999999941111111368999999998631111111499999999999999999
+9999999999999999951111114899999999999984111111599999999999999999
+9999999999999999971111149999999999999999411111799999999999999999
+9999999999999999983111179999999999999999711113899999999999999999
+9999999999999999995111289999999999999999821115999999999999999999
+9999999999999999997211289999999999999999821127999999999999999999
+9999999999999999999411289999999999999999821149999999999999999999
+9999999999999999999720179999999999999999710279999999999999999999
+9999999999999999999951138999999999999998311599999999999999999999
+9999999999999999999983114899999999999984113899999999999999999999
+9999999999999999999997211489999999999841027999999999999999999999
+8999999999999999999999720137999999997310279999999999999999999999
+F99999999999999999999997211258999985211279999999999999999999999F
+FF999999999999999999999973101358853101379999999999999999999999FF
+FFF9999999999999999999999851101221011589999999999999999999999FFF
+FFFF99999999999999999999999741100114799999999999999999999999FFFF
+FFFF99999999999999999999999997533579999999999999999999999999FFFF
+FFFFF999999999999999999999999998899999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $user [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999986666666666666666666666666666668999999999999FFFF
+FFF9999999999996211111111111111111111111111111126999999999999FFF
+FFF9999999999972011111111111111111111111111111102799999999999FFF
+FFF9999999999961111111111111111111111111111111111699999999999FFF
+FFF9999999999951111111111111111111111111111111111599999999999FFF
+FF999999999999511111111111111112211111111111111115999999999999FF
+FF999999999999511111111111111468864111111111111115999999999999FF
+FF999999999999511111111111115999999511111111111115999999999999FF
+FF999999999999511111111111138999999831111111111115999999999999FF
+FF999999999999511111111111169999999961111111111115999999999999FF
+F99999999999995111111111111799999999711111111111159999999999999F
+F99999999999995111111111111799999999711111111111159999999999999F
+F99999999999995111111111111699999999511111111111159999999999999F
+F99999999999995111111111111389999998311111111111159999999999999F
+9999999999999951111111111111489999841111111111111599999999999999
+9999999999999951111111111111135775311111111111111599999999999999
+9999999999999951111111111111111111111111111111111599999999999999
+9999999999999951111111111111111111111111111111111599999999999999
+9999999999999951111111111111111111110111111111111599999999999999
+9999999999999951111111111123567777653211111111111599999999999999
+9999999999999951111111113689999999999863111111111599999999999999
+9999999999999951111111369999999999999999631111111599999999999999
+9999999999999951111113899999999999999999983111111599999999999999
+9999999999999951111128999999999999999999998211111599999999999999
+9999999999999951111149999999999999999999999411111599999999999999
+9999999999999951111149999999999999999999999411111599999999999999
+9999999999999951111149999999999999999999999411111599999999999999
+9999999999999951111149999999999999999999999411111599999999999999
+9999999999999951111148888888888888888888888411111599999999999999
+9999999999999951111112222222222222222222222111111599999999999999
+8999999999999951111111111111111111111111111111111599999999999999
+F99999999999996111111111111111111111111111111111169999999999999F
+FF999999999999720111111111111111111111111111111027999999999999FF
+FFF9999999999996211111111111111111111111111111126999999999999FFF
+FFFF99999999999986666666666666666666666666666668999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $pv [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999998877655555555566788999999999999999999999FF
+F99999999999999999865322110000000000011123467899999999999999999F
+F99999999999999974210000000000000000000000001358999999999999999F
+F99999999999999510000000000000000000000000000003899999999999999F
+F99999999999999300000000000000000000000000000001799999999999999F
+9999999999999997420000000000000000000000000001368999999999999999
+9999999999999984676421100000000000000000012356646999999999999999
+9999999999999982124667655433222222233445667653115999999999999999
+9999999999999982111112345666667676666654432111116999999999999999
+9999999999999982111111011111111111111111011111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982011111111111111111111111111111116999999999999999
+9999999999999996210111111111111111111111111111148999999999999999
+9999999999999999863211101111111111111110011124799999999999999999
+9999999999999999999865432211111111111223456789999999999999999999
+9999999999999999999999998877766666777888999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+8999999999999999999999999999999999999999999999999999999999999999
+F99999999999999999999999999999999999999999999999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $job [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999987777777899999999999FFFF
+FFFF99999999999999999999999999999999999931111112699999999999FFFF
+FFFF99999999999999999999999999999999999930111111699999999999FFFF
+FFFF99999999999999999999999999999999999930111111699999999999FFFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FF999999999999999999999999999999999999994222222269999999999999FF
+FF999999999999999999999999999999999999998888888899999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999998655555568997555555569996444444479999999999999FF
+F99999999999999971111111279951111110399930111111699999999999999F
+F99999999999999971111111279951111110399930111111699999999999999F
+F99999999999999971111111279951111110399930111111699999999999999F
+F99999999999999971111111279951111110399930111111699999999999999F
+9999999999999999711111112799511111103999301111116999999999999999
+9999999999999999711111112799511111103999301111116999999999999999
+9999999999999999710111101799511111103999301111116999999999999999
+9999999999999999854444445899744444446999655555557999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999833333334899633333335999533333337999999999999999
+9999999999999999710111102899500111104999301111016999999999999999
+9999999999999999711111112899511111114999301111116999999999999999
+9999999999999999711111112899511111114999301111116999999999999999
+9999999999999999711111112899511111114999301111116999999999999999
+9999999999999999711111112899511111114999301111116999999999999999
+9999999999999999711111112899511111104999301111116999999999999999
+9999999999999999711111112899511111114999311111116999999999999999
+9999999999999999876666667999866666667999766666678999999999999999
+8999999999999999999999999999999999999999999999999999999999999999
+F99999999999999999999999999999999999999999999999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $pod [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FF999999999999999999999999999764467999999999999999999999999999FF
+FF999999999999999999999998753211112357899999999999999999999999FF
+FF999999999999999999998642110111111011246899999999999999999999FF
+FF999999999999999997532111111111111111111235799999999999999999FF
+FF999999999999999996421111111111111111111124699999999999999999FF
+F99999999999999999878864311111111111111346887899999999999999999F
+F99999999999999999523578875321111112357887532599999999999999999F
+F99999999999999999510112468886422468886421101599999999999999999F
+F99999999999999999511111112467888876421111111599999999999999999F
+9999999999999999995111111111113883111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999995111111111111771111111111115999999999999999999
+9999999999999999996111111111111771111111111116999999999999999999
+9999999999999999998421111111111771111111111248999999999999999999
+9999999999999999999974111111111771111111114799999999999999999999
+9999999999999999999999631111111771111111369999999999999999999999
+9999999999999999999999986211111771111126899999999999999999999999
+9999999999999999999999999852101771012589999999999999999999999999
+8999999999999999999999999998411771147999999999999999999999999999
+F99999999999999999999999999997488479999999999999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $crb [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+F99999999999999999999975444444699644444457999999999999999999999F
+F99999999999999999997311000000499400000011379999999999999999999F
+F99999999999999999962101111111599511111110127999999999999999999F
+F99999999999999999820136777777899877777763102899999999999999999F
+9999999999999999994114899999999999999999984114999999999999999999
+9999999999999999982028999999999999999999998202899999999999999999
+9999999999999999971149999953333333333599999411799999999999999999
+9999999999999999961159999930000000000399999511699999999999999999
+9999999999999999961159999941222222221499999511699999999999999999
+9999999999999999982038999987777777777899998302899999999999999999
+9999999999999999993015999999999999999999995103999999999999999999
+9999999999999999997101478888889999888888741017999999999999999999
+9999999999999999999510112222225995222222110159999999999999999999
+9999999999999999999962100000004994000000012699999999999999999999
+9999999999999999999998533222225995222223358999999999999999999999
+9999999999999999999999998888889999888888999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+8999999999999999999999999999999999999999999999999999999999999999
+F99999999999999999999999999999999999999999999999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $sts [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999865555799975555555899965557999999999FFF
+FFF9999999999999999999999611110499950111111699930114999999999FFF
+FF999999999999999999999995135547999745555557999653149999999999FF
+FF999999999999999999999995159999999999999999999996149999999999FF
+FF999999999999999999999998679999999999999999999996149999999999FF
+FF999999999999999999877779999777777779998777789997249999999999FF
+FF999999999999999998211128998211111138997111138999889999999999FF
+F99999999999999999971133389984333333499973321289999999999999999F
+F99999999999999999971389999999999999999999982289999999999999999F
+F99999999999999999971399999999999999999999982289998899999999999F
+F99999999999998888875688888888888888888999996699972499999999999F
+9999999999999842222222222222222222222223899999999614999999999999
+9999999999999820110001111222211110001101699999999614999999999999
+9999999999999821111245678888887664311111699999999614999999999999
+9999999999999820136899998888888999974111699855899614999999999999
+9999999999999821489865322211122346799611699822899614999999999999
+9999999999999821796200000000000000148931699822899613999999999999
+9999999999999821797311000000000001258931699821579735999999999999
+9999999999999821799986543333334567899931699821149989999999999999
+9999999999999821785789999999999998757931699821369999999999999999
+9999999999999821782123456667666543116931699822899999999999999999
+9999999999999821782011111111111111116931699822899999999999999999
+9999999999999821782111111111111111116931588966999999999999999999
+9999999999999821782111111111111111116941114999999999999999999999
+9999999999999821783011111111111111016931124999999999999999999999
+9999999999999821697421111100111112369821688999999999999999999999
+9999999999999820269987655444445678998411699999999999999999999999
+8999999999999821113678999999999998752111699999999999999999999999
+F99999999999982011111234556655543211111169999999999999999999999F
+FF999999999999311111111111111111111111127999999999999999999999FF
+FFF9999999999987777777777777777777777767999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $ing [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999998579999999999999999FFFF
+FFFF99999999999999999999999999999999999998326999999999999999FFFF
+FFFF99999999999999999999999999999999999998301599999999999999FFFF
+FFFF99999999999999999999999999999999999998301148999999999999FFFF
+FFF9999999999999999999999999999999999999993011148999999999999FFF
+FFF9999999766666666899999999999998777777762111113799999999999FFF
+FFF9999999311111111599999999999983111111111111111269999999999FFF
+FFF9999999301111111169999999999941111111111111111126999999999FFF
+FF999999993011111111279999999995111111111111111111115899999999FF
+FF9A9999993011111111138999999972111111111111111111111699999999FF
+FF999999993011111111114999999821111111111111111111114899999999FF
+FF999999993011111111111599998311111111111111111111159999999999FF
+FF999999993111111111111169996111111111111111111112699999999999FF
+F99999999977777511111111279983111111266666211111279999999999999F
+F99999999999999951111111138997211112799999301113899999999999999F
+F99999999999999994111111114999611116999998301148999999999999999F
+F99999999999999998311111111599951159999998301599999999999999999F
+9999999999999999997211111111699833899999983269999999999999999999
+9999999999999999999611111111279988999999984799999999999999999999
+9999999999999999999951111111138999999999998999999999999999999999
+9999999999999999999984111111114999999999999999999999999999999999
+9999999999999999999998311111111699999999999999999999999999999999
+9999999999999999999999721111111279999999998999999999999999999999
+9999999999999999999899961111111128999999984799999999999999999999
+9999999999999999997259995111111113899999983269999999999999999999
+9999999999999999983016998311111111599999983015999999999999999999
+9999999999999999941112799821111111169999983011489999999999999999
+9999999999999999511111389972111111127999993011138999999999999999
+9999999999777775111111149996111111112666662111112799999999999999
+9999999999311111111111128999411111111111111111111269999999999999
+9999999999301111111111159999831111111111111111111115999999999999
+9999999999301111111111489999982111111111111111111111489999999999
+9999999999301111111113899999997211111111111111111111169999999999
+9999999999301111111127999999999511111111111111111111589999999998
+F99999999930111111116999999999994111111111111111112699999999999F
+FF999999993111111115999999999999831111111111111112699999999999FF
+FFF9999999766666666899999999999998777777762111113799999999999FFF
+FFFF99999999999999999999999999999999999999301114899999999999FFFF
+FFFF99999999999999999999999999999999999998301148999999999999FFFF
+FFFFF999999999999999999999999999999999999830159999999999999FFFFF
+FFFFFF9999999999999999999999999999999999983269999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999998579999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999989999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $role [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999976886689767976688667976688667976688667999999999FFFF
+FFF9999999997228611582128511682138412672148412762138999999999FFF
+FFF9999999998369877897779877897779877887789877887789999999999FFF
+FFF9999999999899999999999999998668999999999999999738999999999FFF
+FFF9999999998479999999999999852112589999999999999617999999999FFF
+FF999999999971699999999999742111111247999999999996279999999999FF
+FF999999999972699999999864111111111111468999999998799999999999FF
+FF999999999986899999986311111111111111113689999998689999999999FF
+FF999999999997899999621111111257752111111126999996279999999999FF
+FF999999999972699999501111113798898311111105999996179999999999FF
+F99999999999716999995111111179522487211111159999974899999999999F
+F99999999999837999995111111396101159411111159999998999999999999F
+F99999999999989999995111110494001049401111159999973899999999999F
+F99999999999847999995111113696333359631111159999961799999999999F
+9999999999997169999951111289999999999821111599999627999999999999
+9999999999997269999951111289999999999821111599999879999999999999
+9999999999998689999951111289998789999821111599999868999999999999
+9999999999999789999951111289994127999821111599999627999999999999
+9999999999997269999961111289982004999821111699999617999999999999
+9999999999997169999971111289983116999821111799999748999999999999
+9999999999998479999982111289998569999821112899999989999999999999
+9999999999999899999994111289999999999821114999999738999999999999
+9999999999998479999997111289999999999821117999999617999999999999
+9999999999997169999998311278888888888721139999999627999999999999
+9999999999997269999999711122222222222211179999999879999999999999
+9999999999998789999999941111111111111111499999999868999999999999
+9999999999998789999999983111111111111113899999999627999999999999
+9999999999997269999999998311111111111138999999999617999999999999
+9999999999997169999999999831111111111389999999999748999999999999
+9999999999998479999999999985111111114899999999999989999999999999
+8999999999999899999999999999741111479999999999999738999999999999
+F99999999999847999999999999999755799999999999999961799999999999F
+FF999999999971698899888988899888998899888988899886279999999999FF
+FFF9999999997266226832385226732484227722484227622479999999999FFF
+FFFF99999999868744785458644785459644884469645874469999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $cm [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999655557999755555555555555555555589999999999999FF
+FF999999999999999301104999511111111111111111111179999999999999FF
+FF999999999999999301104999511111111111111111111179999999999999FF
+FF999999999999999655557999755555555555555555555589999999999999FF
+F99999999999999999999999999999999999999999999999999999999999999F
+F99999999999999999999999999999999999999999999999999999999999999F
+F99999999999999999999999999999999999999999999999999999999999999F
+F99999999999999999999999999999999999999999999999999999999999999F
+9999999999999999999999998544447999644444444444458999999999999999
+9999999999999999999999998201115999401111111111017999999999999999
+9999999999999999999999998211115999411111111111117999999999999999
+9999999999999999999999999655557999755555555555568999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999998544447999644444444444448999999999999999
+9999999999999999999999998200015999400000000000017999999999999999
+9999999999999999999999998211115999411111111111127999999999999999
+9999999999999999999999999666668999766666666666668999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+8999999999999999953333699963333333333333333333348999999999999999
+F99999999999999993000049995000000000000000000001799999999999999F
+FF999999999999999311114999511111111111111111111279999999999999FF
+FFF9999999999999976776899986777777777777777777678999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $netpol [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999888888999999999999999999999999999FFFF
+FFF9999999999999999999998643222224579999999999999999999999999FFF
+FFF9999999999999999999742111111110124799999999999999999999999FFF
+FFF9999999999999999985211111111111111158999999999999999999999FFF
+FFF9999999999999999841111111111111111113799999999999999999999FFF
+FF999999999999999983111111111111111111112799999999999999999999FF
+FF999999999999999831111111111111231111111389999999999999999999FF
+FF999999999999999411111111111112784111111149999999999999999999FF
+FF999999999999997111111111111127998311111116999999999999999999FF
+FF999999999999983111111111111279999831111112899999999999999999FF
+F99999999999999711111111111127999999831111116999999999999999999F
+F99999999999999411111111111157789987762111113999999999999999999F
+F99999999999998211111111111111149972121111112899999999999999999F
+F99999999999997111111111111111049961111111111699999999999999999F
+9999999999999961111111111122111499611111111115999999999999999999
+9999999999999951111111111588411499611111111114999999999999999999
+9999999999999951111111111599511499611111246767999999999999999999
+9999999999999951111111111599511489611113799999999999999999999999
+9999999999999961111111111599511133211138998889999999999999999999
+9999999999999971111111111599511100111179963224799999999999999999
+9999999999999982111111111699511111111389612431289999999999999999
+9999999999999994111112566899866511110398227996149999999999999999
+9999999999999996111111489999998411110397159998338999999999999999
+9999999999999998311111148999983111110397159999328999999999999999
+9999999999999999611111114899841111112797159999328999999999999999
+9999999999999999941111111488411111117984134444215999999999999999
+9999999999999999982111111143111111139941111111111699999999999999
+9999999999999999997211111111111111149930111111111599999999999999
+9999999999999999999721111111111111159930111111111599999999999999
+9999999999999999999984111111111111159930111111111599999999999999
+8999999999999999999999631111111111059930111111111599999999999999
+F99999999999999999999998642211112247993011111111159999999999999F
+FF999999999999999999999999877667789999301111111115999999999999FF
+FFF9999999999999999999999999999999999930111111111599999999999FFF
+FFFF99999999999999999999999999999999996211111111279999999999FFFF
+FFFF99999999999999999999999999999999999877777777899999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $ns [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999996447844595448744685448744685599999999999999FFF
+FF999999999999999742277324842377325842386225822899999999999999FF
+FF999999999999998248899888998899889988899889953899999999999999FF
+FF999999999999998259999999999999999999999999988999999999999999FF
+FF999999999999998469999999999999999999999999975899999999999999FF
+FF999999999999999899999999999999999999999999952899999999999999FF
+F99999999999999984699999999999999999999999999528999999999999999F
+F99999999999999982499999999999999999999999999769999999999999999F
+F99999999999999982599999999999999999999999999889999999999999999F
+F99999999999999997899999999999999999999999999538999999999999999F
+9999999999999999978999999999999999999999999995289999999999999999
+9999999999999999825999999999999999999999999995389999999999999999
+9999999999999999825999999999999999999999999999899999999999999999
+9999999999999999846999999999999999999999999996589999999999999999
+9999999999999999989999999999999999999999999995289999999999999999
+9999999999999999846999999999999999999999999995289999999999999999
+9999999999999999824999999999999999999999999997699999999999999999
+9999999999999999825999999999999999999999999998899999999999999999
+9999999999999999978999999999999999999999999995389999999999999999
+9999999999999999978999999999999999999999999995289999999999999999
+9999999999999999825999999999999999999999999995389999999999999999
+9999999999999999825999999999999999999999999999899999999999999999
+9999999999999999846999999999999999999999999996589999999999999999
+9999999999999999989999999999999999999999999995289999999999999999
+9999999999999999846999999999999999999999999995289999999999999999
+9999999999999999823964488446954487446854587445699999999999999999
+8999999999999999844842277225842386225842386226999999999999999999
+F99999999999999999898889988898889988998889988999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $secret [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999655557999755555555555555555555589999999999999FF
+FF999999999999999301104999511110000111111111111179999999999999FF
+FF999999999999999301104999511122332111111111111179999999999999FF
+FF999999999999999655557999755677667655555555555589999999999999FF
+F99999999999999999999999999985211123699999999999999999999999999F
+F99999999999999999999999999621000000148999999999999999999999999F
+F99999999999999999999999996111123321113899999999999999999999999F
+F99999999999999999999999972113689875111599999999999999999999999F
+9999999999999999999999999411378999665112764444458999999999999999
+9999999999999999999999998201645999426411540111017999999999999999
+9999999999999999999999998656867999757755775311117999999999999999
+9999999999999999999999854555455444555555546865568999999999999999
+9999999999999999999999711111111111111111104999999999999999999999
+9999999999999999999999711111111111111111114999999999999999999999
+9999999999999999999999711111111101111111114999999999999999999999
+9999999999999999999999711111111132111111114999999999999999999999
+9999999999999999999999711111112698311111114744448999999999999999
+9999999999999999999999711111113999611111114510017999999999999999
+9999999999999999999999711111113899611111114611127999999999999999
+9999999999999999999999711111111476211111114866668999999999999999
+9999999999999999999999711111111111111111114999999999999999999999
+9999999999999999999999711111111111111111114999999999999999999999
+9999999999999999999999711111111111111111104999999999999999999999
+9999999999999999999999721111111111111111114999999999999999999999
+8999999999999999953335877776666666666666667633348999999999999999
+F99999999999999993000159996333333333333333320001799999999999999F
+FF999999999999999311114999511111111111111111111279999999999999FF
+FFF9999999999999976776899986777777777777777777678999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $quota [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999975899999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999998631159999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999998311112899999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999830111134899999999999999999999999999999FFFFFFF
+FFFF99999999999999951111114999999999999999999999999999999999FFFF
+FFFF99999999999999961111117999999999999999999999999999999999FFFF
+FFFF99999999999999731111139999999999999999999999999999999999FFFF
+FFFF99999999999999975210169999999999999999999999999999999999FFFF
+FFF9999999999999999998523898876666788999999999999999999999999FFF
+FFF9999999999999999999987643211111123478999999999999999999999FFF
+FFF9999999999999999999863110001111000113689999999999999999999FFF
+FFF9999999999999999997310011343113431100137999999999999999999FFF
+FF999999999999999998511113578951169875311115999999999999999999FF
+FF999999999999999984111268999951169999862111489999999999999999FF
+FF999999999999999841114899999961169999998411148999999999999999FF
+FF999999999999999411138999999986689999999831115999999999999999FF
+FF999999999999996111115999965899999999999411111699999999999999FF
+F99999999999999820131115996115999999999951113102899999999999999F
+F99999999999999411485115997103899999999951158311499999999999999F
+F99999999999997202799558998301799999999985599720279999999999999F
+F99999999999995114999999999511499999999999999941159999999999999F
+9999999999999820179999999997202899999999999999710289999999999999
+9999999999999710399999999999411699999999999999930179999999999999
+9999999999999511599999999999610399999999999999951159999999999999
+9999999999999401799999999999820179999999999999961049999999999999
+9999999999999302899999999999951148999999999999982039999999999999
+9999999999998201566899999999971113899999999986651038999999999999
+9999999999998211111699999999961111699999999961111128999999999999
+9999999999998211111699999999951111699999999951111128999999999999
+9999999999998301455899999999982112899999999985541039999999999999
+9999999999999301799999999999997558999999999999971049999999999999
+9999999999999411699999999999999999999999999999961159999999999999
+9999999999999611499999999999999999999999999999940169999999999999
+9999999999999820289999999999999999999999999999820289999999999999
+9999999999999940169999999999999999999999999999511499999999999999
+9999999999999961038999999999999999999999999998201699999999999999
+9999999999999983015996689999999999999999856995113899999999999999
+8999999999999996102661159999999999999999511661017999999999999999
+F99999999999999941121115999999999999999951111114999999999999999F
+FF999999999999998311114899999999999999998411113899999999999999FF
+FFF9999999999999972014899999999999999999984112799999999999999FFF
+FFFF99999999999999724899999999999999999999842799999999999999FFFF
+FFFF99999999999999988999999999999999999999988999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $rb [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999976886689767976688667976688667976688667999999999FFFF
+FFF9999999997228611582128511682138412672148412762138999999999FFF
+FFF9999999998369877897779877897779877887789877887789999999999FFF
+FFF9999999999899999999999999999999999999999999999738999999999FFF
+FFF9999999998479999999999999999999999999999999999617999999999FFF
+FF999999999971699999999999999999999999999999999996279999999999FF
+FF999999999972699999999999999999999999999999999998799999999999FF
+FF999999999986899999999999999999999999999999999998689999999999FF
+FF999999999997899999999999999999999999999999999996279999999999FF
+FF999999999972699999999999999999999999999999999996179999999999FF
+F99999999999716999999975444444699644444457999999974899999999999F
+F99999999999837999997311000000499400000011379999998999999999999F
+F99999999999989999962101111111599511111110127999973899999999999F
+F99999999999847999820136777777899877777763102899961799999999999F
+9999999999997169994114899999999999999999984114999627999999999999
+9999999999997269982028999999999999999999998202899879999999999999
+9999999999998689971149999953333333333599999411799868999999999999
+9999999999999789961159999930000000000399999511699627999999999999
+9999999999997269961159999941222222221499999511699617999999999999
+9999999999997169982038999987777777777899998302899748999999999999
+9999999999998479993015999999999999999999995103999989999999999999
+9999999999999899997101478888889999888888741017999738999999999999
+9999999999998479999510112222225995222222110159999617999999999999
+9999999999997169999962100000004994000000012699999627999999999999
+9999999999997269999998533222225995222223358999999879999999999999
+9999999999998789999999998888889999888888999999999868999999999999
+9999999999998789999999999999999999999999999999999627999999999999
+9999999999997269999999999999999999999999999999999617999999999999
+9999999999997169999999999999999999999999999999999748999999999999
+9999999999998479999999999999999999999999999999999989999999999999
+8999999999999899999999999999999999999999999999999738999999999999
+F99999999999847999999999999999999999999999999999961799999999999F
+FF999999999971698899888988899888988899888988899886279999999999FF
+FFF9999999997266226832385226732484227722484227622479999999999FFF
+FFFF99999999868744785458644785459644884469645874469999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $ep [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999963333333333333333699999999999999999999FFF
+FFF9999999999999999999940000000000000000499999999999999999999FFF
+FF999999999999999999999511111111111111115999999999999999999999FF
+FF9A9999999999999999999511111111111111115999999999999999999999FF
+FF999999999999999999999511111111111111115999999999999999999999FF
+FF999999999999999999999511111111111111115999999999999999999999FF
+FF999999999999999999999401111111111111104999999999999999999999FF
+F99999999999999999999995222222222222222259999999999999999999999F
+F99999999999999999999999888888888888888899999999999999999999999F
+F99999999999999999999999989999999999889999999999999999999999999F
+F99999999999999999999999625999635997248999999999999999999999999F
+9999999999999999999999961028995028951148999999999999999999999999
+9999999999999999999999610279995028983114899999999999999999999999
+9999999999999999996796202799994028998311489689999999999999999999
+9999999999999999982352026999994028999831144169999999999999999999
+9999999999999999971111269998432113489983111159999999999999999999
+9999999999999999961111599999511110389998211139999999999999999999
+9999999999999999941111379999831111799995111128999999999999999999
+9999999999999999820111369999961114999984211016999999999999999999
+9999999999999999722457899999983028999999864315999999999999999999
+9999999999999999878999999999997159999999999877999999999999999999
+9999999999999999999999999999999689999999999999999999999999999999
+9999999999997777777777899987777777777899987777777777999999999999
+9999999999972111111111499961111111111699941111111112799999999999
+9999999999971111111110499961111111111699940111111111799999999999
+9999999999971111111111499961111111111699941111111111799999999999
+9999999999971111111111499961111111111699941111111111799999999999
+9999999999971111111111499961111111111699941111111111799999999998
+F99999999997111111111149996111111111169994111111111179999999999F
+FF999999999710111111104999611111111116999401111111017999999999FF
+FFF9999999985555555555699975555555555799965555555555899999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $pvc [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999988888889989999999999999999999999999FF
+FF999999999999999999876697322222259633445679999999999999999999FF
+FF999999999999998753211397111222259511111116988999999999999999FF
+F99999999999999831112346987788888898776543279324899999999999999F
+F99999999999999942468899999999999999999999898411279999999999999F
+F99999999999975888999999999999999999999999999973149999999999999F
+F99999999999951389999999999999999999999999999995128999999999999F
+9999999999999511257899999999999999999999999986310289999999999999
+9999999999999511111259878899999999999888995321121289999999999999
+9999999999999514742149612233447964433322783123676699999999999999
+9999999999999515998779622111115940111112796689999999999999999999
+9999999999999867999999988776667976667788999999984599999999999999
+9999999999999999999999999999999999999999999999971289999999999999
+9999999999999746999999999999999999999999999999971289999999999999
+9999999999999514999999999999999999999999999999971289999999999999
+9999999999999514999999999999999999999999999999971289999999999999
+9999999999999515999999999999999999999999999999971289999999999999
+9999999999999614999999999999999999999999999999971289999999999999
+9999999999999711489999999999999999999999999998961499999999999999
+9999999999999962169668899999999999999999987643796899999999999999
+9999999999999997588212234569877777667974321111699999999999999999
+9999999999999999998532111039711111114951122457999999999999999999
+9999999999999999999998766569733333346986788999999999999999999999
+8999999999999999999999999999999999999999999999999999999999999999
+F99999999999999999999999999999999999999999999999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $c_role [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999998668999999999999999999999999999FFF
+FFF9999999999999999999999999852112589999999999999999999999999FFF
+FF999999999999999999999999742111111247999999999999999999999999FF
+FF999999999999999999999864111111111111468999999999999999999999FF
+FF999999999999999999986311111111111111113689999999999999999999FF
+FF999999999999999999621111111257752111111126999999999999999999FF
+FF999999999999999999501111113798898311111105999999999999999999FF
+F99999999999999999995111111179522487211111159999999999999999999F
+F99999999999999999995111111396101159411111159999999999999999999F
+F99999999999999999995111110494001049401111159999999999999999999F
+F99999999999999999995111113696333359631111159999999999999999999F
+9999999999999999999951111289999999999821111599999999999999999999
+9999999999999999999951111289999999999821111599999999999999999999
+9999999999999999999951111289998789999821111599999999999999999999
+9999999999999999999951111289994127999821111599999999999999999999
+9999999999999999999961111289982004999821111699999999999999999999
+9999999999999999999971111289983116999821111799999999999999999999
+9999999999999999999982111289998569999821112899999999999999999999
+9999999999999999999994111289999999999821114999999999999999999999
+9999999999999999999997111289999999999821117999999999999999999999
+9999999999999999999998311278888888888721139999999999999999999999
+9999999999999999999999711122222222222211179999999999999999999999
+9999999999999999999999941111111111111111499999999999999999999999
+9999999999999999999999983111111111111113899999999999999999999999
+9999999999999999999999998311111111111138999999999999999999999999
+9999999999999999999999999831111111111389999999999999999999999999
+9999999999999999999999999985111111114899999999999999999999999999
+8999999999999999999999999999741111479999999999999999999999999999
+F99999999999999999999999999999755799999999999999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $cronjob [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999987777777899999999999FFFF
+FFFF99999999999999999999999999999999999931111112699999999999FFFF
+FFFF99999999999999999999999999999999999930111111699999999999FFFF
+FFFF99999999999999999999999999999999999930111111699999999999FFFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FFF9999999999999999999999999999999999999301111116999999999999FFF
+FF999999999999999999999999999999999999994222222269999999999999FF
+FF999999999999999999999999999999999999998888888899999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999998655555568997555555569996444444579999999999999FF
+F99999999999999971111111279951111110399931111101699999999999999F
+F99999999999999971111111279951111110399966777642699999999999999F
+F99999999999999971111111279951111111499998777888899999999999999F
+F99999999999999971111111279951111114898532111235799999999999999F
+9999999999999999711111112799511111588521011111111489999999999999
+9999999999999999711111112799511115984111111111111127999999999999
+9999999999999999710111101799510148831111111111111112699999999999
+9999999999999999854444445899744488411111111111111111279999999999
+9999999999999999999999999999999995111111112311111111138999999999
+9999999999999999999999999999999982111111115830111111116999999999
+9999999999999999999999999999999961111111115930111111113999999999
+9999999999999999833333334899636931111111115930111111112899999999
+9999999999999999710111102899516821111111115930111111111699999999
+9999999999999999711111112899517711111111115930111111111599999999
+9999999999999999711111112899517711111111115930111111111599999999
+9999999999999999711111112899517711111111115973111111111599999999
+9999999999999999711111112899516821111111112588621111111699999999
+9999999999999999711111112899504821111111111137984111111799999999
+9999999999999999721111112899513841111111111111589311112899999999
+9999999999999999877777767999867971111111111111125211115999999999
+8999999999999999999999999999999993111111111111111111127999999999
+F99999999999999999999999999999999721111111111111111115999999999F
+FF999999999999999999999999999999996111111111111111114899999999FF
+FFF9999999999999999999999999999999951111111111111114899999999FFF
+FFFF99999999999999999999999999999999621111111111115899999999FFFF
+FFFF99999999999999999999999999999999985211000112479999999999FFFF
+FFFFF999999999999999999999999999999999986543446799999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $ds [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999998888889999888888889998888899999999FFFF
+FFF9999999999999999999999832221389972222221499962223899999999FFF
+FFF9999999999999999999999711222489972222222599962212899999999FFF
+FFF9999999999999999999999712888899998888888899998722899999999FFF
+FFF9999999999999999999999835999999999999999999999822899999999FFF
+FF999999999999999999999999999999999999999999999998228999999999FF
+FF9A9999999999999999633337999533333338998433348999669999999999FF
+FF999999999999999998301116999411111127998211116999999999999999FF
+FF999999999999999998315778999877777778999777316999999999999999FF
+FF999999999999999998217999999999999999999999416999999999999999FF
+F99999999999999999994389999999999999999999995279985489999999999F
+F99999999999997555555455555555555555555589999899982289999999999F
+F99999999999994011111111111111111111111159999999982289999999999F
+F99999999999994111111111111111111111111149999999982289999999999F
+9999999999999941111111111111111111111111499987899822899999999999
+9999999999999941111111111111111111111111499941699822899999999999
+9999999999999941111111111111111111111111499941699822899999999999
+9999999999999941111111111111111111111111499941699822899999999999
+9999999999999941111111111111111111111111499941248977999999999999
+9999999999999941111111111111111111111111499941138999999999999999
+9999999999999941111111111111111111111111499941588888999999999999
+9999999999999941111111111111111111111111499941696223899999999999
+9999999999999941111111111111111111111111499953796112899999999999
+9999999999999941111111111111111111111111245899998666999999999999
+9999999999999941111111111111111111111111112899999999999999999999
+9999999999999941111111111111111111111111366999999999999999999999
+9999999999999941111111111111111111111111499655799999999999999999
+9999999999999941111111111111111111111111498201599999999999999999
+9999999999999941111111111111111111111111498433699999999999999999
+9999999999999950000000000000000000000000499999999999999999999999
+9999999999999974444444444444444444444444799999999999999999999998
+F99999999999998777777777777777777777777789999999999999999999999F
+FF999999999999512222222222222222222222215999999999999999999999FF
+FFF9999999999941111111111111111111111111499999999999999999999FFF
+FFFF99999999998666666666666666666666666689999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF9A999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $sc [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999998888898888889999999999999999999999FFFF
+FFF9999999999999988765695322225832222378445678999999999999999FFF
+FFF9999999999999732111385334446854444487221113876899999999999FFF
+FFF9999999999846745677899999999999999999887766941489999999999FFF
+FFF9999999999712678999999999999999999999999998751179999999999FFF
+FF999999999997111237856777898888889988777687422111799999999999FF
+FF9A9999999997156448621111385222225832111277335651799999999999FF
+FF999999999997169999876655696444446955556789899962799999999999FF
+FF999999999997169999999999999999999999999999999998999999999999FF
+FF999999999997269999999999999999999999999999999986899999999999FF
+F99999999999987899999999999999999999999999999999617999999999999F
+F99999999999998457899999999999999999999999999875227999999999999F
+F99999999999995111235976677789888888987665458411149999999999999F
+F99999999999982145434841111158322222761111248654128999999999999F
+9999999999999711356778766655795445558866677776531179999999999999
+9999999999999711111122344555666666665554433211111179999999999999
+9999999999999711111111001111111111111111001111111179999999999999
+9999999999999711111111111111111111111111111111111179999999999999
+9999999999999711111111111111111111111111111111111179999999999999
+9999999999999711111111111111111111111111111111111179999999999999
+9999999999999711111111111111111111111111111111111179999999999999
+9999999999999831111111111111111111111111111111111389999999999999
+9999999999999964311111001111111111111111001111211599999999999999
+9999999999999825877654332222211111122222334567851289999999999999
+9999999999999711356898888888877777788888889876531179999999999999
+9999999999999713322772334469756666796544337721233179999999999999
+9999999999999716987874322238511111583122237866896179999999999999
+9999999999999716999999988889877777898888899999997589999999999999
+9999999999999716999999999999999999999999999999999899999999999999
+9999999999999737999999999999999999999999999999996379999999999999
+9999999999999987899999999999999999999999999999984179999999999998
+F99999999999997224568998999999999999999998889642138999999999999F
+FF999999999999853211385334447965555587433223852368999999999999FF
+FFF9999999999999987669632222583111227722344698899999999999999FFF
+FFFF99999999999999999999888889877888998899999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $svc [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999963333333333333333699999999999999999999FFF
+FFF9999999999999999999940000000000000000499999999999999999999FFF
+FF999999999999999999999511111111111111115999999999999999999999FF
+FF999999999999999999999511111111111111115999999999999999999999FF
+FF999999999999999999999511111111111111115999999999999999999999FF
+FF999999999999999999999511111111111111115999999999999999999999FF
+FF999999999999999999999401111111111111104999999999999999999999FF
+F99999999999999999999995222222211222222259999999999999999999999F
+F99999999999999999999999888888722788888899999999999999999999999F
+F99999999999999999999999999999822899999999999999999999999999999F
+F99999999999999999999999999999822899999999999999999999999999999F
+9999999999999999999999999999998228999999999999999999999999999999
+9999999999999999999999999999998228999999999999999999999999999999
+9999999999999999999999999999998228999999999999999999999999999999
+9999999999999999744444444444444114444444444444479999999999999999
+9999999999999999401111111111111111111111111111049999999999999999
+9999999999999999414666666666665215666666666664149999999999999999
+9999999999999999416999999999998228999999999996149999999999999999
+9999999999999999416999999999998228999999999996149999999999999999
+9999999999999999416999999999998228999999999996149999999999999999
+9999999999999999416999999999998228999999999996149999999999999999
+9999999999999999416999999999998228999999999996149999999999999999
+9999999999998777315777899987777226777899987775137778999999999999
+9999999999982111111111499962111111112699941111111112899999999999
+9999999999971111111110499961111111111699940111111111799999999999
+9999999999971111111111499961111111111699941111111111799999999999
+9999999999971111111111499961111111111699941111111111799999999999
+8999999999971111111111499961111111111699941111111111799999999999
+F99999999997111111111149996111111111169994111111111179999999999F
+FF999999999710111111104999611111111116999401111111017999999999FF
+FFF9999999985444444444699975444444445799964444444445899999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $deploy [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999998877788999999999999999999999999FFFF
+FFF9999999999999999999999975422111234689999999999999999999999FFF
+FFF9999999999999999999997421011111101125899999999999999999999FFF
+FFF9999999999999999999841111111111111111269999999999999999999FFF
+FFF9999999999999999997311111111111111111115899999999999999999FFF
+FF999999999999999999721111111111111111111114899999999999999999FF
+FF999999999999999997211111111111111111111111499999999999999999FF
+FF999999999999999983111111111345543211111111159999999999999999FF
+FF999999999999999941111111147899999852111111127999999999999999FF
+FF999999999999999711111112699999999998411111114999999999999999FF
+F99999999999999994111111279999999999998411111117999999999999999F
+F99999999999999972111111699999999999999831111114999999999999999F
+F99999999999999951111114999999999999999972111112899999999999999F
+F99999999999999930111117999999999999999994111111699999999999999F
+9999999999999998211111399999999999999999961111115999999999999999
+9999999999999997111111599999999999999999982111114999999999999999
+9999999999999997111111699999999999998544441111112444479999999999
+9999999999999997111111699999999999998301111111111110389999999999
+9999999999999997111111699999999999999511111111111113899999999999
+9999999999999997111111599999999999999821111111111127999999999999
+9999999999999998211111389999999999999941111111111279999999999999
+9999999999999999301111179999999999999971111111112799999999999999
+9999999999999999511111149999999999999983111111126999999999999999
+9999999999999999721111116999999999999995111111169999999999999999
+9999999999999999941111112799999999999998211111699999999999999999
+9999999999999999971111111269999999999999411115999999999999999999
+9999999999999999994111111114789999999999711159999999999999999999
+9999999999999999998311111111134569999999831599999999999999999999
+9999999999999999999721111111111039999999964899999999999999999999
+9999999999999999999972111111111038999999999999999999999999999999
+8999999999999999999997311111111128999999999999999999999999999999
+F99999999999999999999984111111112899999999999999999999999999999F
+FF999999999999999999999974210110289999999999999999999999999999FF
+FFF9999999999999999999999975422128999999999999999999999999999FFF
+FFFF99999999999999999999999998877999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $crd [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999755689999999999999999999999999FFFF
+FFFF99999999999999999999999995211138999999999999999999999999FFFF
+FFFF99999999999999999999999961111113899999999999999999999999FFFF
+FFF9999999999999999999999998301111117999999999999999999999999FFF
+FFF9999999999999999999999998211111115999999999999999999999999FFF
+FFF9999999999999999999999997111111115999999999999999999999999FFF
+FFF9999999999999999999999997111111115999999999999999999999999FFF
+FF999999999999999997544444441111111134444445689999999999999999FF
+FF999999999999999961111111111111111111111111148999999999999999FF
+FF999999999999999820111111111111111111111111115999999999999999FF
+FF999999999999999611111111111111111111111111104999999999999999FF
+FF999999999999999611111111111111111111111111103999999999999999FF
+F99999999999999996111111111111111111111111111039999999999999999F
+F99999999999999996111111111111111111111111111039999999999999999F
+F99999999999999996111111111111111111111111111039999999999999999F
+F99999999999999996111111111111111111111111111039999999999999999F
+9999999999999999961111111111111111111111111110399999999999999999
+9999999999999999975554211111111111111111111111377789999999999999
+9999999999999999999999731111111111111111111111111125899999999999
+9999999999999999999999972111111111111111111111111111499999999999
+9999999999999999999999995111111111111111111111111111169999999999
+9999999999999999999999997111111111111111111111111111159999999999
+9999999999999999999999997111111111111111111111111111149999999999
+9999999999999999999999995111111111111111111111111111169999999999
+9999999999999999999999983111111111111111111111111110389999999999
+9999999999999999999999841111111111111111111111111113799999999999
+9999999999999999987775311111111111111111111111255568999999999999
+9999999999999999961111111111111111111111111110399999999999999999
+9999999999999999961111111111111111111111111110399999999999999999
+9999999999999999961111111111112443111111111110399999999999999999
+9999999999999999961111111111158999621111111110399999999999999999
+9999999999999999961111111111599999972111111110399999999999999999
+8999999999999999961111111112899999994111111110399999999999999999
+F99999999999999996111111111499999999611111111039999999999999999F
+FF999999999999999711111111149999999971111111115999999999999999FF
+FFF9999999999999994100000004999999997100000013899999999999999FFF
+FFFF99999999999999863333333699999999733333334899999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $hpa [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999984444444444444444444444444444444444899999999999FFF
+FFF9999999999982000000000000000000000000000000002899999999999FFF
+FFF9999999999982111111111111111111111111111111112899999999999FFF
+FF999999999999821111111111111111111111111111111128999999999999FF
+FF999999999999821111111111111246642111111111111128999999999999FF
+FF999999999999821111111111357899998753111111111128999999999999FF
+FF999999999999821111112357899999999998764211111128999999999999FF
+FF999999999999821112468999999999999999999864211128999999999999FF
+F99999999999998211124689999999999999999998742111289999999999999F
+F99999999985898211132123678999999999997642123111289858999999999F
+F99999999832898211288753223578999987532235788211289823899999999F
+F99999998412898211289998753212466421235789998211289821489999999F
+9999999841127872112899999998642112468999999982112787211489999999
+9999998411112221112899999999998228999999999982111222111148999999
+9999984111111111112899999999998338999999999982111111111114899999
+9999841111111111112899999999998338999999999982111111111111489999
+9998411111111111112899999999998338999999999982111111111111148999
+9998211111111111112899999999998228999999999982111111111111128999
+9999721111111111112899999999998228999999999982111111111111279999
+9999972111111111112899999999998228999999999982111111111112799999
+9999997211111111112899999999998228999999999982111111111127999999
+9999999721115651112899999999998228999999999982111565111279999999
+9999999972028982112899999999998228999999999982112898202799999999
+9999999997228982111689999999998228999999999961112898227999999999
+9999999999638982111137999999998228999999997311112898369999999999
+9999999999978982111111479999998228999999741111112898799999999999
+9999999999999982111111125899998228999985211111112899999999999999
+9999999999999982111111111258998228998621111111112899999999999999
+8999999999999982111111111113698228963111111111112899999999999999
+F99999999999998211111111111114622641111111111111289999999999999F
+FF999999999999821111111111111111111111111111111128999999999999FF
+FFF9999999999982111111111111111111111111111111112899999999999FFF
+FFFF99999999998201111111111111111111111111111110289999999999FFFF
+FFFF99999999998311111111111111111111111111111111389999999999FFFF
+FFFFF999999999987777777777777777777777777777777789999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $psp [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999998889999999999999999999999999999999FFFF
+FFFF99999999999999999998753235689999999999999999999999999999FFFF
+FFFF99999999999999998642110111124679999999999999999999999999FFFF
+FFF9999999999999875321111111111111235789999999999999999999999FFF
+FFF9999999999964211011111111111111001235789999999999999999999FFF
+FFF9999999999964211111111111111111246788789999999999999999999FFF
+FFF9999999999878875321111111111115899999999999999999999999999FFF
+FF999999999995135788864211111112699864334689999999999999999999FF
+FF9A9999999995001124689875323568996211001137999999999999999999FF
+FF999999999995111111123578888999951111111101699999999999999999FF
+FF999999999995111111111113696699611124554111279999999999999999FF
+FF999999999995111111111110495798211379999621138999999999999999FF
+F99999999999951111111111114978961127999999611179999999999999999F
+F99999999999951111111111114989941149998999931159999999999999999F
+F99999999999951111111111114999930169973379951149999999999999999F
+F99999999999951111111111114999930169930059951049999999999999999F
+9999999999999511111111111149999301699301499510499999999999999999
+9999999999999511111111111149999301699655799510499999999999999999
+9999999999999511111111111149999301699999999510499999999999999999
+9999999999999511111111111149997211466666666411379999999999999999
+9999999999999511111111111169841111111111111111114899999999999999
+9999999999999611111111111499511111111111111111111699999999999999
+9999999999999963111111111698301111111111111111110499999999999999
+9999999999999998621111111798211111111111111111110399999999999999
+9999999999999999985211111798211111111111111111110399999999999999
+9999999999999999999841111798211111111111111111110399999999999999
+9999999999999999999997411798211111111111111111110399999999999999
+9999999999999999999999963798211111111111111111110399999999999999
+9999999999999999999999998998211111111111111111110399999999999999
+9999999999999999999999999998211111111111111111110399999999999999
+9999999999999999999999999998211111111111111111110399999999999999
+9999999999999999999999999998211111111111111111110399999999999999
+9999999999999999999999999998211111111111111111110399999999999998
+F99999999999999999999999999821111111111111111111039999999999999F
+FF999999999999999999999999982111111111111111111103999999999999FF
+FFF9999999999999999999999998301111111111111111110499999999999FFF
+FFFF99999999999999999999999941111111111111111111159999999999FFFF
+FFFF99999999999999999999999983111111111111111111489999999999FFFF
+FFFFF999999999999999999999999865555555555555555689999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $vol [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999999999999999999999999999999999999999999999FF
+FF999999999999999999998877655555555566788999999999999999999999FF
+F99999999999999999865322110000000000011123467899999999999999999F
+F99999999999999974210000000000000000000000001358999999999999999F
+F99999999999999510000000000000000000000000000003899999999999999F
+F99999999999999300000000000000000000000000000001799999999999999F
+9999999999999997420000000000000000000000000001368999999999999999
+9999999999999984676421100000000000000000012356646999999999999999
+9999999999999982124667655433222222233445667653115999999999999999
+9999999999999982111112345666667676666654432111116999999999999999
+9999999999999982111111011111111111111111011111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982111111111111111111111111111111116999999999999999
+9999999999999982011111111111111111111111111111116999999999999999
+9999999999999996210111111111111111111111111111148999999999999999
+9999999999999999863211101111111111111110011124799999999999999999
+9999999999999999999865432211111111111223456789999999999999999999
+9999999999999999999999998877766666777888999999999999999999999999
+9999999999999999999999999999999999999999999999999999999999999999
+8999999999999999999999999999999999999999999999999999999999999999
+F99999999999999999999999999999999999999999999999999999999999999F
+FF999999999999999999999999999999999999999999999999999999999999FF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $rs [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999843333489973333333599963335999999999FFF
+FF999999999999999999999997111113899721111114999611128999999999FF
+FF999999999999999999999997127777999877777778999876228999999999FF
+FF999999999999999999999997249999999999999999999998228999999999FF
+FF999999999999999999999999889999999999999999999998228999999999FF
+FF999999999999999999755557999655555558999555558998558999999999FF
+F99999999999999999983011169994011111179982011169999999999999999F
+F99999999999999999983145579996555555589996552169999999999999999F
+F99999999999999999982179999999999999999999994169999999999999999F
+F99999999999999999993289999999999999999999994169996689999999999F
+9999999999999986666655666666666666666667899987899822899999999999
+9999999999999951111111111111111111111111599999999822899999999999
+9999999999999941111111111111111111111110499999999822899999999999
+9999999999999941111111111111111111111111499988999822899999999999
+9999999999999941111111111111111111111111499952799822899999999999
+9999999999999941111111111111111111111111499941699822899999999999
+9999999999999941111111111111111111111111499941699822899999999999
+9999999999999941111111111111111111111111499941358965899999999999
+9999999999999941111111111111111111111111499941128999999999999999
+9999999999999941111111111111111111111111499941479999999999999999
+9999999999999941111111111111111111111111499941699999999999999999
+9999999999999941111111111111111111111111499942799999999999999999
+9999999999999941111111111111111111111111366888999999999999999999
+9999999999999941111111111111111111111111112899999999999999999999
+9999999999999941111111111111111111111111245899999999999999999999
+9999999999999941111111111111111111111111499999999999999999999999
+8999999999999941111111111111111111111111499999999999999999999999
+F99999999999994111111111111111111111111149999999999999999999999F
+FF999999999999400111111111111111111111004999999999999999999999FF
+FFF9999999999963222222222222222222222223699999999999999999999FFF
+FFFF99999999999888888888888888888888888899999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+sprite $limits [64x63/16] {
+FFFFFFFFFFFFFFFFFFFFFFFFFFF9999999999FFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFF99999999999999FFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFF999999999999999999FFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFF9999999999999999999999FFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFF99999999999999999999999999FFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFF999999999999999999999999999999FFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999999999999999999999999999999999999999999999999999999FFF
+FFF9999999998777778999998777778999998777778999999999999999999FFF
+FFF9999999994111115999996111115999996111114999999999999999999FFF
+FF999999999821222259999962222259999962222259999548999999999999FF
+FF999999999831688899999998888889999998888889998317999999999999FF
+FF999999999821799999999999999999999999999999999317999999999999FF
+FF999999999832799999999999999999999999999999999317999999999999FF
+FF999999999987999999999999999999999999999999999317999999999999FF
+F99999999999999999999999999999999999999999999993179999999999999F
+F99999999999999999999999999999999999999999999996589999999999999F
+F99999999999655555555555555555556899999999999999999999999999999F
+F99999999998211111111111111111111799999999999999999999999999999F
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999965899999999999999
+9999999999982111111111111111111117999999999999931799999999999999
+9999999999982111111111111111111117999999999999931799999999999999
+9999999999982111111111111111111117999999999999931799999999999999
+9999999999982111111111111111111117999999999999931799999999999999
+9999999999982111111111111111111117999999999999831799999999999999
+9999999999982111111111111111111117999999999999954899999999999999
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999999999999999999999
+9999999999982111111111111111111117999999999999976899999999999999
+8999999999982111111111111111111117888899999998831799999999999999
+F99999999998201111111111111111111222226999996221179999999999999F
+FF999999999831111111111111111111111111599999611127999999999999FF
+FFF9999999997777777777777777777777777789999987778999999999999FFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFF99999999999999999999999999999999999999999999999999999999FFFF
+FFFFF999999999999999999999999999999999999999999999999999999FFFFF
+FFFFFF9999999999999999999999999999999999999999999999999999FFFFFF
+FFFFFFF99999999999999999999999999999999999999999999999999FFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFF999999999999999999999999999999999999999999999999FFFFFFFF
+FFFFFFFFF9999999999999999999999999999999999999999999999FFFFFFFFF
+FFFFFFFFFF99999999999999999999999999999999999999999999FFFFFFFFFF
+FFFFFFFFFFF999999999999999999999999999999999999999999FFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFF9999999999999999999999999999999999999999FFFFFFFFFFFF
+FFFFFFFFFFFFF99999999999999999999999999999999999999FFFFFFFFFFFFF
+FFFFFFFFFFFFFF999999999999999999999999999999999999FFFFFFFFFFFFFF
+FFFFFFFFFFFFFFF9999999999999999999999999999999999FFFFFFFFFFFFFFF
+}
+
+
+header Sequence diagram for the whole CCX (external) data pipeline
+footer Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky
+
+participant "<$master>\nInsights operator" as operator
+participant "3Scale" as 3scale
+participant "Ingress\nservice" as ingress
+participant "Insights\nstorage broker" as isb
+queue "<$kafka>\nplatform.upload.buckit" as upload_topic
+database "S3 bucket" as s3
+participant "CCX\nData pipeline" as pipeline #ff8080
+queue "<$kafka>\nccx.ocp.results" as results_topic
+participant "Insights Results\nRB writer" as db_writer #a0a0ff
+database "AWS RDS DB" as storage
+participant "Insights\nResults Aggregator" as aggregator #a0a0ff
+participant "Insights\nContent Service" as content_service #a0a0ff
+participant "Smart\nProxy" as smart_proxy #a0a0ff
+collections "REST API\nconsumers" as consumers
+
+== Storing raw data sent by Insights Operator ==
+operator -> 3scale: Insights archive
+3scale -> ingress: Insights\narchive\nwith\nauth.token
+ingress -> isb: Tarball\nfrom IO
+isb -> s3: Store tarball
+s3 -> isb: Here's link to new object
+isb -> upload_topic: Link to S3
+
+== Applying OCP rules to raw data ==
+pipeline -> upload_topic: Consume message
+upload_topic -> pipeline: Link to S3
+pipeline -> s3: Read object
+s3 -> pipeline: Tarball\nfrom IO
+pipeline -> pipeline: Apply\nOCP rules
+pipeline -> results_topic: OCP results
+
+== Collecting OCP results ==
+db_writer -> results_topic: Consume message
+results_topic -> db_writer: OCP results
+db_writer -> storage: OCP results\norg ID\ncluster ID
+
+== Providing recommendations to consumers ==
+consumers -> smart_proxy: Get\nrecommendations\norg ID\ncluster ID
+smart_proxy -> aggregator: Get OCP results\norg ID\ncluster ID
+aggregator -> storage: Read OCP results\norg ID\ncluster ID
+storage -> aggregator: Here are results
+aggregator -> smart_proxy: Here are results
+smart_proxy -> content_service: Get content\nfor rule ID
+content_service -> smart_proxy: Here's\nrequired\ncontent
+smart_proxy -> smart_proxy: Merge results\nwith content
+smart_proxy -> consumers: Recommendations\nfor cluster
+
+@enduml
+
+PlantUML version 1.2019.12(Sun Nov 03 11:24:54 CET 2019)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 1.8.0_191-b12
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+-->
+  </g>
+</svg>
