@@ -18,6 +18,7 @@ import (
 	"errors"
 	"net/http"
 
+	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
@@ -70,6 +71,29 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 	}
 
 	err = responses.SendOK(writer, responses.BuildOkResponseWithData("content", ruleContent))
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getContent retrieves all the static content
+func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Request) {
+	// Generate an array of RuleContent
+	allRules := content.GetAllContent()
+	var rules []ics_content.RuleContent
+
+	if err := server.checkInternalRulePermissions(request); err != nil {
+		for _, rule := range rules {
+			if !content.IsRuleInternal(types.RuleID(rule.Plugin.PythonModule)) {
+				rules = append(rules, rule)
+			}
+		}
+	} else {
+		rules = allRules
+	}
+
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("content", rules))
 	if err != nil {
 		handleServerError(writer, err)
 		return

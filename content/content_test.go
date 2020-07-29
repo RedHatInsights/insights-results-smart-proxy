@@ -133,3 +133,11 @@ func TestResetContent(t *testing.T) {
 	ruleIDs = content.GetRuleIDs()
 	assert.Equal(t, 0, len(ruleIDs))
 }
+
+func TestGetAllContent(t *testing.T) {
+	defer content.ResetContent()
+
+	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
+	rules := content.GetAllContent()
+	assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
+}
