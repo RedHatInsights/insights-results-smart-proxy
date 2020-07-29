@@ -19,6 +19,7 @@ import (
 	"net/http"
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
@@ -61,9 +62,9 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 
 	// check for internal rule permissions
 	if internal := content.IsRuleInternal(ruleID); internal == true {
-		ok := server.checkInternalRulePermissions(writer, request)
-		if ok != true {
-			// handled in function
+		err := server.checkInternalRulePermissions(request)
+		if err != nil {
+			handleServerError(writer, err)
 			return
 		}
 	}
@@ -86,4 +87,26 @@ func (server HTTPServer) getClustersForOrg(writer http.ResponseWriter, request *
 
 	server.proxyTo(server.ServicesConfig.AggregatorBaseEndpoint, nil)(writer, request)
 	return
+}
+
+// getRuleIDs returns a list of the names of the rules
+func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Request) {
+	allRuleIDs := content.GetRuleIDs()
+	var ruleIDs []string
+
+	if err := server.checkInternalRulePermissions(request); err != nil {
+		for _, rule := range allRuleIDs {
+			if !content.IsRuleInternal(types.RuleID(rule)) {
+				ruleIDs = append(ruleIDs, rule)
+			}
+		}
+	} else {
+		ruleIDs = allRuleIDs
+	}
+
+	if err := responses.SendOK(writer, responses.BuildOkResponseWithData("rules", ruleIDs)); err != nil {
+		log.Error().Err(err)
+		handleServerError(writer, err)
+		return
+	}
 }

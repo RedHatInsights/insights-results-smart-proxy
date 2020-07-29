@@ -750,6 +750,33 @@
         ]
       }
     },
+    "/rule_ids": {
+      "get": {
+        "summary": "Returns the rule IDs of all the rules.",
+        "operationId": "getRuleIDs",
+        "responses": {
+          "200": {
+            "description": "A JSON array of all the rule IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/rules/{ruleId}": {
       "post": {
         "summary": "Creates or updates rule with provided ruleId",

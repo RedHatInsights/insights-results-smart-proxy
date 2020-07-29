@@ -521,9 +521,9 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	}
 
 	if rule.Internal {
-		ok := server.checkInternalRulePermissions(writer, request)
-		if ok != true {
-			// handled in function
+		err := server.checkInternalRulePermissions(request)
+		if err != nil {
+			handleServerError(writer, err)
 			return
 		}
 	}
@@ -537,17 +537,14 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 // checkInternalRulePermissions checks if organizations for internal rules are enabled
 // if so, retrieves the org_id from request/token and returns whether that ID is on the list
 // of allowed organizations to access internal rules
-func (server HTTPServer) checkInternalRulePermissions(writer http.ResponseWriter, request *http.Request) bool {
+func (server HTTPServer) checkInternalRulePermissions(request *http.Request) error {
 	if !server.Config.EnableInternalRulesOrganizations || !server.Config.Auth {
-		return true
+		return nil
 	}
-
-	orgAllowed := false
 
 	authToken, err := server.GetAuthToken(request)
 	if err != nil {
-		handleServerError(writer, err)
-		return false
+		return err
 	}
 
 	requestOrgID := types.OrgID(authToken.Internal.OrgID)
@@ -556,18 +553,14 @@ func (server HTTPServer) checkInternalRulePermissions(writer http.ResponseWriter
 	for _, allowedID := range server.Config.InternalRulesOrganizations {
 		if requestOrgID == allowedID {
 			log.Info().Msgf("Organization %v is allowed access to internal rules", requestOrgID)
-			orgAllowed = true
-			break
+			return nil
 		}
 	}
 
-	if !orgAllowed {
-		const message = "This organization is not allowed to access this recommendation"
-		log.Error().Msg(message)
-		handleServerError(writer, &AuthenticationError{errString: message})
-	}
-
-	return orgAllowed
+	// If the loop ends without returning nil, then an authentication error should be raised
+	const message = "This organization is not allowed to access this recommendation"
+	log.Error().Msg(message)
+	return &AuthenticationError{errString: message}
 }
 
 func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {

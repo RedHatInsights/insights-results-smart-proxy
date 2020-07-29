@@ -255,6 +255,39 @@ It's thread safe</p>
 	<div class="ident">s</div><div class="operator">.</div><div class="ident">rules</div><div class="operator">[</div><div class="ident">ruleID</div><div class="operator">]</div> <div class="operator">=</div> <div class="operator">&amp;</div><div class="ident">ruleContent</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ResetContent clear all the contents</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">s</div> <div class="operator">*</div><div class="ident">RulesWithContentStorage</div><div class="operator">)</div> <div class="ident">ResetContent</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">s</div><div class="operator">.</div><div class="ident">Lock</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">s</div><div class="operator">.</div><div class="ident">Unlock</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">s</div><div class="operator">.</div><div class="ident">rulesWithContent</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">ruleIDAndErrorKey</div><div class="operator">]</div><div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleWithContent</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">s</div><div class="operator">.</div><div class="ident">rules</div> <div class="operator">=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div><div class="operator">]</div><div class="operator">*</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GetRuleIDs gets rule IDs for rules</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">s</div> <div class="operator">*</div><div class="ident">RulesWithContentStorage</div><div class="operator">)</div> <div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div> <div class="operator">{</div>
+	<div class="ident">s</div><div class="operator">.</div><div class="ident">Lock</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">s</div><div class="operator">.</div><div class="ident">Unlock</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">ruleIDs</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">s</div><div class="operator">.</div><div class="ident">rules</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">ruleContent</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">s</div><div class="operator">.</div><div class="ident">rules</div> <div class="operator">{</div>
+		<div class="ident">ruleIDs</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">ruleIDs</div><div class="operator">,</div> <div class="ident">ruleContent</div><div class="operator">.</div><div class="ident">Plugin</div><div class="operator">.</div><div class="ident">PythonModule</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">ruleIDs</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
 <div class="keyword">var</div> <div class="ident">rulesWithContentStorage</div> <div class="operator">=</div> <div class="ident">RulesWithContentStorage</div><div class="operator">{</div>
 	<div class="ident">rulesWithContent</div><div class="operator">:</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">ruleIDAndErrorKey</div><div class="operator">]</div><div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleWithContent</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
 	<div class="ident">rules</div><div class="operator">:</div>            <div class="keyword">map</div><div class="operator">[</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div><div class="operator">]</div><div class="operator">*</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div>
@@ -333,6 +366,29 @@ Caching is done under the hood, don't worry about it.</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="ident">res</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ResetContent clear all the content cached</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">ResetContent</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">WaitForContentDirectoryToBeReady</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">rulesWithContentStorage</div><div class="operator">.</div><div class="ident">ResetContent</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GetRuleIDs returns a list of rule IDs</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div> <div class="operator">{</div>
+	<div class="ident">WaitForContentDirectoryToBeReady</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">rulesWithContentStorage</div><div class="operator">.</div><div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

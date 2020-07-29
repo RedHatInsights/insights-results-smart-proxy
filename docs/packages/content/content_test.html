@@ -249,6 +249,15 @@ limitations under the License.</p>
 	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">FailOnError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
+<div class="keyword">func</div> <div class="ident">TestResetContent</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">ruleIDs</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotEqual</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">ruleIDs</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">content</div><div class="operator">.</div><div class="ident">ResetContent</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">ruleIDs</div> <div class="operator">=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">ruleIDs</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       

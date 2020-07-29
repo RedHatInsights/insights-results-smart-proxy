@@ -750,15 +750,10 @@ Returns report and bool value set to true if there was no errors</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">if</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">Internal</div> <div class="operator">{</div>
-		<div class="ident">ok</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">checkInternalRulePermissions</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
-		<div class="keyword">if</div> <div class="ident">ok</div> <div class="operator">!=</div> <div class="ident">true</div> <div class="operator">{</div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>handled in function</p>
-</td>
-	<td class="code"><pre><code>			<div class="keyword">return</div><div class="operator"></div>
+		<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">checkInternalRulePermissions</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">return</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
@@ -776,17 +771,14 @@ Returns report and bool value set to true if there was no errors</p>
 if so, retrieves the org_id from request/token and returns whether that ID is on the list
 of allowed organizations to access internal rules</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">checkInternalRulePermissions</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="ident">bool</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">checkInternalRulePermissions</div><div class="operator">(</div><div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">EnableInternalRulesOrganizations</div> <div class="operator">||</div> <div class="operator">!</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">Auth</div> <div class="operator">{</div>
-		<div class="keyword">return</div> <div class="ident">true</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
-
-	<div class="ident">orgAllowed</div> <div class="operator">:=</div> <div class="ident">false</div><div class="operator"></div>
 
 	<div class="ident">authToken</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">GetAuthToken</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
-		<div class="keyword">return</div> <div class="ident">false</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">requestOrgID</div> <div class="operator">:=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">(</div><div class="ident">authToken</div><div class="operator">.</div><div class="ident">Internal</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">)</div><div class="operator"></div>
@@ -795,18 +787,19 @@ of allowed organizations to access internal rules</p>
 	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">allowedID</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">InternalRulesOrganizations</div> <div class="operator">{</div>
 		<div class="keyword">if</div> <div class="ident">requestOrgID</div> <div class="operator">==</div> <div class="ident">allowedID</div> <div class="operator">{</div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Organization %v is allowed access to internal rules&#34;</div><div class="operator">,</div> <div class="ident">requestOrgID</div><div class="operator">)</div><div class="operator"></div>
-			<div class="ident">orgAllowed</div> <div class="operator">=</div> <div class="ident">true</div><div class="operator"></div>
-			<div class="keyword">break</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">orgAllowed</div> <div class="operator">{</div>
-		<div class="keyword">const</div> <div class="ident">message</div> <div class="operator">=</div> <div class="literal">&#34;This organization is not allowed to access this recommendation&#34;</div><div class="operator"></div>
-		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">message</div><div class="operator">)</div><div class="operator"></div>
-		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">AuthenticationError</div><div class="operator">{</div><div class="ident">errString</div><div class="operator">:</div> <div class="ident">message</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
-
-	<div class="keyword">return</div> <div class="ident">orgAllowed</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>If the loop ends without returning nil, then an authentication error should be raised</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">const</div> <div class="ident">message</div> <div class="operator">=</div> <div class="literal">&#34;This organization is not allowed to access this recommendation&#34;</div><div class="operator"></div>
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">message</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="operator">&amp;</div><div class="ident">AuthenticationError</div><div class="operator">{</div><div class="ident">errString</div><div class="operator">:</div> <div class="ident">message</div><div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">newExtractUserIDFromTokenToURLRequestModifier</div><div class="operator">(</div><div class="ident">newEndpoint</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">RequestModifier</div> <div class="operator">{</div>

@@ -182,6 +182,13 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>RuleIDs returns a list of rule IDs</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">RuleIDs</div> <div class="operator">=</div> <div class="literal">&#34;rule_ids&#34;</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>SingleRuleEndpoint returns single rule with static content for {cluster} and {rule_id}</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">SingleRuleEndpoint</div> <div class="operator">=</div> <div class="literal">&#34;clusters/{cluster}/rules/{rule_id}/report&#34;</div><div class="operator"></div>
@@ -347,6 +354,7 @@ limitations under the License.</p>
 	<div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Methods</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">MethodPut</div><div class="operator">,</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodOptions</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">router</div><div class="operator">.</div><div class="ident">HandleFunc</div><div class="operator">(</div><div class="ident">apiPrefix</div><div class="operator">&#43;</div><div class="ident">RuleGroupsEndpoint</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getGroups</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Methods</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodOptions</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">router</div><div class="operator">.</div><div class="ident">HandleFunc</div><div class="operator">(</div><div class="ident">apiPrefix</div><div class="operator">&#43;</div><div class="ident">RuleContent</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getContentForRule</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Methods</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">router</div><div class="operator">.</div><div class="ident">HandleFunc</div><div class="operator">(</div><div class="ident">apiPrefix</div><div class="operator">&#43;</div><div class="ident">RuleIDs</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getRuleIDs</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Methods</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
