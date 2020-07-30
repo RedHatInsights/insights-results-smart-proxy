@@ -1,4 +1,4 @@
-.PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo json-check style run test cover integration_tests rest_api_tests rules_content sqlite_db license before_commit openapi-check help
+.PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo style run test cover integration_tests rest_api_tests rules_content sqlite_db license before_commit openapi-check help godoc install_docgo install_addlicense
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -53,6 +53,9 @@ abcgo: ## Run ABC metrics checker
 	@echo "Run ABC metrics checker"
 	./abcgo.sh
 
+openapi-check:
+	./check_openapi.sh
+
 style: fmt vet lint cyclo shellcheck errcheck goconst gosec ineffassign abcgo ## Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 
 run: clean build ## Build the project and executes the binary
@@ -64,9 +67,8 @@ test: clean build ## Run the unit tests
 cover: test
 	@go tool cover -html=coverage.out
 
-license:
-	GO111MODULE=off go get -u github.com/google/addlicense && \
-		addlicense -c "Red Hat, Inc" -l "apache" -v ./
+license: install_addlicense
+	addlicense -c "Red Hat, Inc" -l "apache" -v ./
 
 before_commit: style test integration_tests license
 	./check_coverage.sh
@@ -83,8 +85,15 @@ help: ## Show this help screen
 docs/packages/%.html: %.go
 	mkdir -p $(dir $@)
 	docgo -outdir $(dir $@) $^
+	addlicense -c "Red Hat, Inc" -l "apache" -v $@
 
-godoc: ${DOCFILES}
+godoc: export GO111MODULE=off
+godoc: install_docgo install_addlicense ${DOCFILES}
 
-openapi-check:
-	./check_openapi.sh
+install_docgo: export GO111MODULE=off
+install_docgo:
+	[[ `command -v docgo` ]] || GO111MODULE=off go get -u github.com/dhconnelly/docgo
+
+install_addlicense: export GO111MODULE=off
+install_addlicense:
+	[[ `command -v addlicense` ]] || GO111MODULE=off go get -u github.com/google/addlicense
