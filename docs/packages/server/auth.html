@@ -190,6 +190,10 @@ limitations under the License.
 	<td class="code"><pre><code>			<div class="keyword">return</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 
+		<div class="keyword">if</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">LogAuthToken</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Authentication token: %s&#34;</div><div class="operator">,</div> <div class="ident">token</div><div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+
 		<div class="ident">decoded</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">jwt</div><div class="operator">.</div><div class="ident">DecodeSegment</div><div class="operator">(</div><div class="ident">token</div><div class="operator">)</div> <div class="operator"></div><div class="comment">// Decode token to JSON string</div>
 		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>                          <div class="comment">// Malformed token, returns with http code 403 as usual</div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">malformedTokenMessage</div><div class="operator">)</div><div class="operator"></div>

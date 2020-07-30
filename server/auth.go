@@ -52,6 +52,10 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			return
 		}
 
+		if server.Config.LogAuthToken {
+			log.Info().Msgf("Authentication token: %s", token)
+		}
+
 		decoded, err := jwt.DecodeSegment(token) // Decode token to JSON string
 		if err != nil {                          // Malformed token, returns with http code 403 as usual
 			log.Error().Err(err).Msg(malformedTokenMessage)
