@@ -216,6 +216,7 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format.",
             "schema": {
               "type": "string",
               "minLength": 36,
