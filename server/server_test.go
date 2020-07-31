@@ -17,8 +17,10 @@ limitations under the License.
 package server_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"testing"
 	"time"
 
@@ -373,8 +375,9 @@ func TestRuleNamesResponse(t *testing.T) {
 			Endpoint:           server.RuleIDs,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       expectedBody,
+			StatusCode:  http.StatusOK,
+			Body:        expectedBody,
+			BodyChecker: ruleIDsChecker,
 		})
 	}, testTimeout)
 
@@ -389,8 +392,32 @@ func TestRuleNamesResponse(t *testing.T) {
 			Endpoint:           server.RuleIDs,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       expectedBody,
+			StatusCode:  http.StatusOK,
+			Body:        expectedBody,
+			BodyChecker: ruleIDsChecker,
 		})
 	}, testTimeout)
+}
+
+func ruleIDsChecker(t testing.TB, expected, got []byte) {
+	type Response struct {
+		Status string   `json:"status"`
+		Rules  []string `json:"rules"`
+	}
+
+	var expectedResp, gotResp Response
+
+	if err := json.Unmarshal(expected, &expectedResp); err != nil {
+		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
+		helpers.FailOnError(t, err)
+	}
+
+	if err := json.Unmarshal(got, &gotResp); err != nil {
+		err = fmt.Errorf(`"got" is not JSON. value = "%v", err = "%v"`, got, err)
+		helpers.FailOnError(t, err)
+	}
+
+	sort.Strings(expectedResp.Rules)
+	sort.Strings(gotResp.Rules)
+	assert.Equal(t, expectedResp, gotResp)
 }

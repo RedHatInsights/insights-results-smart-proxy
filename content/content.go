@@ -18,7 +18,6 @@ package content
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -122,7 +121,6 @@ func (s *RulesWithContentStorage) GetRuleIDs() []string {
 		ruleIDs = append(ruleIDs, ruleContent.Plugin.PythonModule)
 	}
 
-	sort.Strings(ruleIDs)
 	return ruleIDs
 }
 
