@@ -130,14 +130,22 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.EnableRuleForClusterEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+RuleIDs, server.getRuleIDs).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+Content, server.getContent).Methods(http.MethodGet)
+
+	// Content related endpoints
+	server.addContentEndpointsToRouter(router)
 
 	// Prometheus metrics
 	router.Handle(apiPrefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
 
 	// OpenAPI specs
 	router.HandleFunc(openAPIURL, server.serveAPISpecFile).Methods(http.MethodGet)
+}
+
+func (server HTTPServer) addContentEndpointsToRouter(router *mux.Router) {
+	apiPrefix := server.Config.APIPrefix
+
+	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+RuleIDs, server.getRuleIDs).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+Content, server.getContent).Methods(http.MethodGet)
 }
