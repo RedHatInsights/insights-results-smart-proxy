@@ -509,11 +509,10 @@ This one won't match with the authentication token used</p>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestRuleNamesResponse</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">content</div><div class="operator">.</div><div class="ident">ResetContent</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div><div class="ident">RuleContentInternal1</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContent1</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">ruleIDs</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">fmt</div><div class="operator">.</div><div class="ident">Println</div><div class="operator">(</div><div class="ident">ruleIDs</div><div class="operator">)</div><div class="operator"></div>
+
 	<div class="ident">expectedBody</div> <div class="operator">:=</div> <div class="literal">`
 		{
-			&#34;rules&#34;: [&#34;foo.rules.internal.bar&#34;, &#34;ccx_rules_ocp.external.rules.node_installer_degraded&#34;],
+			&#34;rules&#34;: [&#34;ccx_rules_ocp.external.rules.node_installer_degraded&#34;, &#34;foo.rules.internal.bar&#34;],
 			&#34;status&#34;: &#34;ok&#34;
 		}
 	`</div><div class="operator"></div>

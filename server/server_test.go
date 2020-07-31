@@ -360,11 +360,10 @@ func TestRuleNames(t *testing.T) {
 func TestRuleNamesResponse(t *testing.T) {
 	content.ResetContent()
 	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1, testdata.RuleContent1})
-	ruleIDs := content.GetRuleIDs()
-	fmt.Println(ruleIDs)
+
 	expectedBody := `
 		{
-			"rules": ["foo.rules.internal.bar", "ccx_rules_ocp.external.rules.node_installer_degraded"],
+			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "foo.rules.internal.bar"],
 			"status": "ok"
 		}
 	`
