@@ -121,7 +121,7 @@ Currently, the following metrics are exposed:
 
 ### API related metrics
 
-There are a set of metrics provieded by `insights-operator-utils` library, all
+There are a set of metrics provided by `insights-operator-utils` library, all
 of them related with the API usage. These are the API metrics exposed:
 
 1. `api_endpoints_requests` the total number of requests per endpoint
@@ -129,7 +129,7 @@ of them related with the API usage. These are the API metrics exposed:
 1. `api_endpoints_status_codes` a counter of the HTTP status code responses
    returned back by the service
 
-Additionally it is possible to consume all metrics provided by Go runtime. There metrics start with
+Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with
 `go_` and `process_` prefixes.
 
 ### Metrics namespace
