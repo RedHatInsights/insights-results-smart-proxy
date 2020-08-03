@@ -139,7 +139,6 @@ limitations under the License.
 	<div class="literal">&#34;encoding/json&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;net/http&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;sort&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
@@ -566,9 +565,7 @@ This one won't match with the authentication token used</p>
 		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">FailOnError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">sort</div><div class="operator">.</div><div class="ident">Strings</div><div class="operator">(</div><div class="ident">expectedResp</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">sort</div><div class="operator">.</div><div class="ident">Strings</div><div class="operator">(</div><div class="ident">gotResp</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">expectedResp</div><div class="operator">,</div> <div class="ident">gotResp</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">ElementsMatch</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">expectedResp</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">,</div> <div class="ident">gotResp</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
