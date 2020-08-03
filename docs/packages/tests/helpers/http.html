@@ -148,7 +148,7 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>APIRequest represents APIRequest</p>
+	<td class="doc"><p>APIRequest data type represents APIRequest</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">APIRequest</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator"></div>
 
@@ -156,7 +156,7 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>APIResponse represents APIResponse</p>
+	<td class="doc"><p>APIResponse data type represents APIResponse</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">APIResponse</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator"></div>
 
@@ -165,49 +165,61 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>ExecuteRequest executes request</p>
+	<td class="doc"><p>ExecuteRequest function executes specified HTTP request</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">ExecuteRequest</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">ExecuteRequest</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>CheckResponseBodyJSON checks response body</p>
+	<td class="doc"><p>CheckResponseBodyJSON function checks response body. It is supposed
+that the body is represented in JSON format</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">CheckResponseBodyJSON</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CheckResponseBodyJSON</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>AssertReportResponsesEqual fails if report responses aren't equal</p>
+	<td class="doc"><p>AssertReportResponsesEqual function fails if report responses aren't
+equal to each other</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">AssertReportResponsesEqual</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertReportResponsesEqual</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>NewGockAPIEndpointMatcher creates a matcher for a given endpoint for gock</p>
+	<td class="doc"><p>NewGockAPIEndpointMatcher function creates a matcher for a given
+endpoint for gock</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">NewGockAPIEndpointMatcher</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">NewGockAPIEndpointMatcher</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>GockExpectAPIRequest makes gock expect the request with the baseURL and sends back the response</p>
+	<td class="doc"><p>GockExpectAPIRequest function makes gock expect the request with the
+baseURL and sends back the response</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">GockExpectAPIRequest</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>CleanAfterGock cleans after gock library and prints all unmatched requests</p>
+	<td class="doc"><p>CleanAfterGock function cleans after gock library and prints all
+unmatched requests</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">CleanAfterGock</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CleanAfterGock</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>MustGobSerialize serializes an object using gob or panics</p>
+	<td class="doc"><p>MustGobSerialize function serializes an object using gob or panics
+if serialize oparation fails for any reason</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">MustGobSerialize</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">MustGobSerialize</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
@@ -217,7 +229,8 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>DefaultServerConfig is a default server config</p>
+	<td class="doc"><p>DefaultServerConfig is data structure that represents default HTTP
+server configuration (with CORS disabled)</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">DefaultServerConfig</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
 		<div class="ident">Address</div><div class="operator">:</div>                          <div class="literal">&#34;:8081&#34;</div><div class="operator">,</div>
@@ -235,7 +248,8 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>DefaultServerConfigCORS is a default server config with CORS enabled</p>
+	<td class="doc"><p>DefaultServerConfigCORS is data structure that represents default
+server configuration with CORS enabled</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">DefaultServerConfigCORS</div> <div class="operator">=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
 		<div class="ident">Address</div><div class="operator">:</div>     <div class="literal">&#34;:8081&#34;</div><div class="operator">,</div>
@@ -252,7 +266,8 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>DefaultServicesConfig is a default services config</p>
+	<td class="doc"><p>DefaultServicesConfig is data structure that represents default
+services configuration</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">DefaultServicesConfig</div> <div class="operator">=</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
 		<div class="ident">AggregatorBaseEndpoint</div><div class="operator">:</div> <div class="literal">&#34;http://localhost:8080/&#34;</div><div class="operator">,</div>
@@ -265,9 +280,9 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>AssertAPIRequest creates new server with provided
+	<td class="doc"><p>AssertAPIRequest function creates new server with provided
 serverConfig, servicesConfig (you can leave them nil to use the default ones),
-groupsChannel and contentChannel(can be nil)
+groupsChannel and contentChannel (can be set to nil as well)
 sends api request and checks api response (see docs for APIRequest and APIResponse)</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">AssertAPIRequest</div><div class="operator">(</div>
@@ -278,20 +293,47 @@ sends api request and checks api response (see docs for APIRequest and APIRespon
 	<div class="ident">request</div> <div class="operator">*</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">,</div>
 	<div class="ident">expectedResponse</div> <div class="operator">*</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">,</div>
 <div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">if</div> <div class="ident">serverConfig</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>if custom server configuration is not provided, use default one</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">serverConfig</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">serverConfig</div> <div class="operator">=</div> <div class="operator">&amp;</div><div class="ident">DefaultServerConfig</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
-	<div class="keyword">if</div> <div class="ident">servicesConfig</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>if custom services configuration is not provided, use default one</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">servicesConfig</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">servicesConfig</div> <div class="operator">=</div> <div class="operator">&amp;</div><div class="ident">DefaultServicesConfig</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">testServer</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>create an instance of new REST API server with provided or default
+configuration</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">testServer</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">New</div><div class="operator">(</div>
 		<div class="operator">*</div><div class="ident">serverConfig</div><div class="operator">,</div>
 		<div class="operator">*</div><div class="ident">servicesConfig</div><div class="operator">,</div>
 		<div class="ident">groupsChannel</div><div class="operator">,</div>
 	<div class="operator">)</div><div class="operator"></div>
 
-	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testServer</div><div class="operator">,</div> <div class="ident">serverConfig</div><div class="operator">.</div><div class="ident">APIPrefix</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">,</div> <div class="ident">expectedResponse</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>send the request to newly created REST API server and check its
+response (if it matches the provided one)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testServer</div><div class="operator">,</div> <div class="ident">serverConfig</div><div class="operator">.</div><div class="ident">APIPrefix</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">,</div> <div class="ident">expectedResponse</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

@@ -12,15 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// package helpers contains constants, variables, functions, and structures
+// used in unit tests. At this moment, just basic HTTP/REST API-based unit
+// tests needs such helpers.
 package helpers
 
 import "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 
-// FailOnError fails on error
+// FailOnError function fails on any error detected in tests
 var FailOnError = helpers.FailOnError
 
-// ToJSONString converts anything to json string
+// ToJSONString function converts any value or data structure to JSON string
 var ToJSONString = helpers.ToJSONString
 
-// RunTestWithTimeout runs test with timeToRun timeout and fails if it wasn't in time
+// RunTestWithTimeout function runs test with specified timeToRun timeout and
+// fails if it wasn't finished in time
 var RunTestWithTimeout = helpers.RunTestWithTimeout
