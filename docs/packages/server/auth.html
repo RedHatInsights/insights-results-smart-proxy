@@ -172,14 +172,21 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>for specific URLs it is ok to not use auth. mechanisms at all</p>
+	<td class="doc"><p>for specific URLs it is ok to not use auth. mechanisms at all
+this is specific to OpenAPI JSON response and for all OPTION HTTP methods</p>
 </td>
 	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">collections</div><div class="operator">.</div><div class="ident">StringInSlice</div><div class="operator">(</div><div class="ident">r</div><div class="operator">.</div><div class="ident">RequestURI</div><div class="operator">,</div> <div class="ident">noAuthURLs</div><div class="operator">)</div> <div class="operator">||</div> <div class="ident">r</div><div class="operator">.</div><div class="ident">Method</div> <div class="operator">==</div> <div class="literal">&#34;OPTIONS&#34;</div> <div class="operator">{</div>
 			<div class="ident">next</div><div class="operator">.</div><div class="ident">ServeHTTP</div><div class="operator">(</div><div class="ident">w</div><div class="operator">,</div> <div class="ident">r</div><div class="operator">)</div><div class="operator"></div>
 			<div class="keyword">return</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 
-		<div class="ident">token</div><div class="operator">,</div> <div class="ident">isTokenValid</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getAuthTokenHeader</div><div class="operator">(</div><div class="ident">w</div><div class="operator">,</div> <div class="ident">r</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to read auth. header from HTTP request (if provided by client)</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">token</div><div class="operator">,</div> <div class="ident">isTokenValid</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getAuthTokenHeader</div><div class="operator">(</div><div class="ident">w</div><div class="operator">,</div> <div class="ident">r</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">if</div> <div class="operator">!</div><div class="ident">isTokenValid</div> <div class="operator">{</div>
 </code></pre></td>
       </tr>
@@ -194,8 +201,20 @@ limitations under the License.
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Authentication token: %s&#34;</div><div class="operator">,</div> <div class="ident">token</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 
-		<div class="ident">decoded</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">jwt</div><div class="operator">.</div><div class="ident">DecodeSegment</div><div class="operator">(</div><div class="ident">token</div><div class="operator">)</div> <div class="operator"></div><div class="comment">// Decode token to JSON string</div>
-		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>                          <div class="comment">// Malformed token, returns with http code 403 as usual</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>decode auth. token to JSON string</p>
+</td>
+	<td class="code"><pre><code>		<div class="ident">decoded</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">jwt</div><div class="operator">.</div><div class="ident">DecodeSegment</div><div class="operator">(</div><div class="ident">token</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>if token is malformed return HTTP code 403 to client</p>
+</td>
+	<td class="code"><pre><code>		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">malformedTokenMessage</div><div class="operator">)</div><div class="operator"></div>
 			<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">w</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">AuthenticationError</div><div class="operator">{</div><div class="ident">errString</div><div class="operator">:</div> <div class="ident">malformedTokenMessage</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 			<div class="keyword">return</div><div class="operator"></div>
