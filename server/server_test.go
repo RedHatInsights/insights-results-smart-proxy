@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 	"testing"
 	"time"
 
@@ -417,7 +416,5 @@ func ruleIDsChecker(t testing.TB, expected, got []byte) {
 		helpers.FailOnError(t, err)
 	}
 
-	sort.Strings(expectedResp.Rules)
-	sort.Strings(gotResp.Rules)
-	assert.Equal(t, expectedResp, gotResp)
+	assert.ElementsMatch(t, expectedResp.Rules, gotResp.Rules)
 }
