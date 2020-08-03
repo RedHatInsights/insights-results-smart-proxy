@@ -131,6 +131,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.</p>
 </td>
+	<td class="code"><pre><code></code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>package helpers contains constants, variables, functions, and structures
+used in unit tests. At this moment, just basic HTTP/REST API-based unit
+tests needs such helpers.</p>
+</td>
 	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">helpers</div><div class="operator"></div>
 
 <div class="keyword">import</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/tests/helpers&#34;</div><div class="operator"></div>
@@ -139,7 +147,7 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>FailOnError fails on error</p>
+	<td class="doc"><p>FailOnError function fails on any error detected in tests</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">FailOnError</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">FailOnError</div><div class="operator"></div>
 
@@ -147,7 +155,7 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>ToJSONString converts anything to json string</p>
+	<td class="doc"><p>ToJSONString function converts any value or data structure to JSON string</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">ToJSONString</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">ToJSONString</div><div class="operator"></div>
 
@@ -155,7 +163,8 @@ limitations under the License.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>RunTestWithTimeout runs test with timeToRun timeout and fails if it wasn't in time</p>
+	<td class="doc"><p>RunTestWithTimeout function runs test with specified timeToRun timeout and
+fails if it wasn't finished in time</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">RunTestWithTimeout</div> <div class="operator">=</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator"></div>
 
