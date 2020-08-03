@@ -226,6 +226,24 @@ It's thread safe</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>GetAllContent returns content for rule</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">s</div> <div class="operator">*</div><div class="ident">RulesWithContentStorage</div><div class="operator">)</div> <div class="ident">GetAllContent</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div> <div class="operator">{</div>
+	<div class="ident">s</div><div class="operator">.</div><div class="ident">RLock</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">defer</div> <div class="ident">s</div><div class="operator">.</div><div class="ident">RUnlock</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">res</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">s</div><div class="operator">.</div><div class="ident">rules</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">rule</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">s</div><div class="operator">.</div><div class="ident">rules</div> <div class="operator">{</div>
+		<div class="ident">res</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">res</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">rule</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">res</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>SetRuleWithContent sets content for rule with error key</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">s</div> <div class="operator">*</div><div class="ident">RulesWithContentStorage</div><div class="operator">)</div> <div class="ident">SetRuleWithContent</div><div class="operator">(</div>
@@ -389,6 +407,24 @@ Caching is done under the hood, don't worry about it.</p>
 	<div class="ident">WaitForContentDirectoryToBeReady</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="ident">rulesWithContentStorage</div><div class="operator">.</div><div class="ident">GetRuleIDs</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GetAllContent returns content for all the loaded rules.
+Caching is done under the hood, don't worry about it.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetAllContent</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>to be sure the data is there</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">WaitForContentDirectoryToBeReady</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">rulesWithContentStorage</div><div class="operator">.</div><div class="ident">GetAllContent</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
