@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// package helpers contains constants, variables, functions, and structures
+// Package helpers contains constants, variables, functions, and structures
 // used in unit tests. At this moment, just basic HTTP/REST API-based unit
 // tests needs such helpers.
 package helpers
