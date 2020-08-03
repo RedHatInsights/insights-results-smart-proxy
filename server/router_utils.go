@@ -30,11 +30,14 @@ import (
 
 // getRouterParam retrieves parameter from URL like `/organization/{org_id}`
 func getRouterParam(request *http.Request, paramName string) (string, error) {
+	// try to read value for parameter with given name
 	value, found := mux.Vars(request)[paramName]
+	// check if parameter with given name has been found
 	if !found {
 		return "", &RouterMissingParamError{paramName: paramName}
 	}
 
+	// everything's ok, we have found the parameter and its value
 	return value, nil
 }
 
@@ -42,10 +45,12 @@ func getRouterParam(request *http.Request, paramName string) (string, error) {
 // and check it for being valid and positive integer, otherwise returns error
 func getRouterPositiveIntParam(request *http.Request, paramName string) (uint64, error) {
 	value, err := getRouterParam(request, paramName)
+	// check if parameter with given name has been found
 	if err != nil {
 		return 0, err
 	}
 
+	// try to parse parameter value as positive integer
 	uintValue, err := strconv.ParseUint(value, 10, 64)
 	if err != nil {
 		return 0, &RouterParsingError{
@@ -55,6 +60,8 @@ func getRouterPositiveIntParam(request *http.Request, paramName string) (uint64,
 		}
 	}
 
+	// zero is in range of type uint, but we really need positive/natural
+	// numbers
 	if uintValue == 0 {
 		return 0, &RouterParsingError{
 			paramName:  paramName,
@@ -69,6 +76,7 @@ func getRouterPositiveIntParam(request *http.Request, paramName string) (uint64,
 // validateClusterName checks that the cluster name is a valid UUID.
 // Converted cluster name is returned if everything is okay, otherwise an error is returned.
 func validateClusterName(clusterName string) (types.ClusterName, error) {
+	// cluster name is in UUID format
 	if _, err := uuid.Parse(clusterName); err != nil {
 		message := fmt.Sprintf("invalid cluster name: '%s'. Error: %s", clusterName, err.Error())
 
@@ -88,23 +96,30 @@ func splitRequestParamArray(arrayParam string) []string {
 	return strings.Split(arrayParam, ",")
 }
 
+// handleOrgIDError is handler for situation when organization ID is not
+// provided by HTTP request or it has improper format
 func handleOrgIDError(writer http.ResponseWriter, err error) {
 	log.Error().Err(err).Msg("Error getting organization ID from request")
 	handleServerError(writer, err)
 }
 
+// handleClusterNameError is handler for situation when cluster name is not
+// provided by HTTP request or it has improper format
 func handleClusterNameError(writer http.ResponseWriter, err error) {
 	log.Error().Msg(err.Error())
 
-	// query parameter 'cluster' can't be found in request, which might be caused by issue in Gorilla mux
+	// query parameter 'cluster' can't be found in request, which might be
+	// caused by issue in Gorilla mux
 	// (not on client side), but let's assume it won't :)
 	handleServerError(writer, err)
 }
 
-// readClusterName retrieves cluster name from request
+// readClusterName function retrieves cluster name from request
 // if it's not possible, it writes http error to the writer and returns error
 func readClusterName(writer http.ResponseWriter, request *http.Request) (types.ClusterName, error) {
 	clusterName, err := getRouterParam(request, "cluster")
+	// check if parameter with cluster name has been found
+	// and has correct format
 	if err != nil {
 		handleClusterNameError(writer, err)
 		return "", err
@@ -122,6 +137,8 @@ func readClusterName(writer http.ResponseWriter, request *http.Request) (types.C
 // if it's not possible, it writes http error to the writer and returns error
 func readOrganizationID(writer http.ResponseWriter, request *http.Request, auth bool) (types.OrgID, error) {
 	organizationID, err := getRouterPositiveIntParam(request, "organization")
+	// check if parameter with organization ID has been found
+	// and has correct format
 	if err != nil {
 		handleOrgIDError(writer, err)
 		return 0, err
@@ -131,8 +148,8 @@ func readOrganizationID(writer http.ResponseWriter, request *http.Request, auth 
 	return types.OrgID(organizationID), err
 }
 
-// checkPermissions checks if the provided organization ID matches with the one of the authenticated user
-// when the authentication is enabled
+// checkPermissions function checks if the provided organization ID matches
+// with the one of the authenticated user when the authentication is enabled
 func checkPermissions(writer http.ResponseWriter, request *http.Request, orgID types.OrgID, auth bool) error {
 	identityContext := request.Context().Value(types.ContextKeyUser)
 	if identityContext != nil && auth {

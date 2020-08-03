@@ -137,7 +137,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	// Prometheus metrics
 	router.Handle(apiPrefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
 
-	// OpenAPI specs
+	// OpenAPI specification
 	router.HandleFunc(openAPIURL, server.serveAPISpecFile).Methods(http.MethodGet)
 }
 

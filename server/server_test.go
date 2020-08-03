@@ -17,6 +17,7 @@ limitations under the License.
 package server_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -360,9 +361,10 @@ func TestRuleNames(t *testing.T) {
 func TestRuleNamesResponse(t *testing.T) {
 	content.ResetContent()
 	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1, testdata.RuleContent1})
+
 	expectedBody := `
 		{
-			"rules": ["foo.rules.internal.bar", "ccx_rules_ocp.external.rules.node_installer_degraded"],
+			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "foo.rules.internal.bar"],
 			"status": "ok"
 		}
 	`
@@ -372,8 +374,9 @@ func TestRuleNamesResponse(t *testing.T) {
 			Endpoint:           server.RuleIDs,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       expectedBody,
+			StatusCode:  http.StatusOK,
+			Body:        expectedBody,
+			BodyChecker: ruleIDsChecker,
 		})
 	}, testTimeout)
 
@@ -388,8 +391,30 @@ func TestRuleNamesResponse(t *testing.T) {
 			Endpoint:           server.RuleIDs,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       expectedBody,
+			StatusCode:  http.StatusOK,
+			Body:        expectedBody,
+			BodyChecker: ruleIDsChecker,
 		})
 	}, testTimeout)
+}
+
+func ruleIDsChecker(t testing.TB, expected, got []byte) {
+	type Response struct {
+		Status string   `json:"status"`
+		Rules  []string `json:"rules"`
+	}
+
+	var expectedResp, gotResp Response
+
+	if err := json.Unmarshal(expected, &expectedResp); err != nil {
+		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
+		helpers.FailOnError(t, err)
+	}
+
+	if err := json.Unmarshal(got, &gotResp); err != nil {
+		err = fmt.Errorf(`"got" is not JSON. value = "%v", err = "%v"`, got, err)
+		helpers.FailOnError(t, err)
+	}
+
+	assert.ElementsMatch(t, expectedResp.Rules, gotResp.Rules)
 }
