@@ -1,5 +1,9 @@
 @startuml
 namespace conf {
+    class MetricsConfiguration << (S,Aquamarine) >> {
+        + Namespace string
+
+    }
     class SetupConfiguration << (S,Aquamarine) >> {
         + InternalRulesOrganizationsCSVFile string
 
@@ -14,8 +18,11 @@ namespace content {
 
         + GetRuleWithErrorKeyContent(ruleID types.RuleID, errorKey types.ErrorKey) (*types.RuleWithContent, bool)
         + GetRuleContent(ruleID types.RuleID) (*content.RuleContent, bool)
+        + GetAllContent() []content.RuleContent
         + SetRuleWithContent(ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent) 
         + SetRule(ruleID types.RuleID, ruleContent content.RuleContent) 
+        + ResetContent() 
+        + GetRuleIDs() []string
 
     }
     class ruleIDAndErrorKey << (S,Aquamarine) >> {
@@ -37,6 +44,12 @@ namespace helpers {
     }
     class "helpers.APIResponse" as helpersAPIResponse {
         'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace main {
+    class main.ExitCode << (T, #FF7700) >>  {
     }
 }
 
@@ -63,6 +76,7 @@ namespace server {
         + EnableCORS bool
         + EnableInternalRulesOrganizations bool
         + InternalRulesOrganizations []types.OrgID
+        + LogAuthToken bool
 
     }
     class ContentServiceUnavailableError << (S,Aquamarine) >> {
@@ -87,14 +101,17 @@ namespace server {
         - reportEndpoint(writer http.ResponseWriter, request *http.Request) 
         - findRule(writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID) (types.RuleWithContentResponse, bool)
         - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
-        - checkInternalRulePermissions(writer http.ResponseWriter, request *http.Request) bool
+        - checkInternalRulePermissions(request *http.Request) error
         - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
+        - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
         - getGroups(writer http.ResponseWriter, _ *http.Request) 
         - getContentForRule(writer http.ResponseWriter, request *http.Request) 
+        - getContent(writer http.ResponseWriter, request *http.Request) 
         - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
-        - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
+        - getRuleIDs(writer http.ResponseWriter, request *http.Request) 
         - addDebugEndpointsToRouter(router *mux.Router) 
         - addEndpointsToRouter(router *mux.Router) 
+        - addContentEndpointsToRouter(router *mux.Router) 
 
         + Initialize() http.Handler
         + Start() error
@@ -200,6 +217,7 @@ namespace types {
 }
 
 
+"__builtin__.int" #.. "main.ExitCode"
 "helpers.helpersAPIRequest" #.. "helpers.APIRequest"
 "helpers.helpersAPIResponse" #.. "helpers.APIResponse"
 "server.fontcolorbluefuncfonthttpRequesthttpRequesterror" #.. "server.RequestModifier"
