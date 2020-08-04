@@ -657,7 +657,7 @@
             "name": "ruleId",
             "in": "path",
             "required": true,
-            "description": "Enables a rule (ruleId) for cluster (clusterId) for current organization/user",
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
@@ -1277,7 +1277,7 @@
             "name": "ruleId",
             "in": "path",
             "required": true,
-            "description": "Enables a rule (ruleId) for cluster (clusterId) for current organization/user",
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
