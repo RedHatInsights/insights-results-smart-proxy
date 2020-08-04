@@ -1321,9 +1321,11 @@
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "some.python.module"
           }
         ],
         "responses": {
