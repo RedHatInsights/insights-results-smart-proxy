@@ -26,8 +26,10 @@ TODO
 
 ## Configuration
 
-The configuration of the service is done by toml config, default one is `config.toml` in working directory,
-but it can be overwritten by `INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE` env var.
+The configuration of the service is done by config written in
+[TOML language](https://toml.io/en/). Default one is `config.toml` in working
+directory, but it can be overwritten by
+`INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE` env var.
 
 Also each key in config can be overwritten by corresponding env var. For example if you have config
 
