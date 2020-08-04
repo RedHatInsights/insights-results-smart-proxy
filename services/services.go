@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package services contains interface implementations to other REST API
+// services that are called from Smart Proxy. Currently the interface is
+// implemented for Content Service.
 package services
 
 import (
