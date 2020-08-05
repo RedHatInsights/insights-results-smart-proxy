@@ -52,7 +52,7 @@
     "/metrics": {
       "get": {
         "summary": "Read all metrics exposed by this service",
-        "description": "",
+        "description": "Set of metrics provided by insights-operator-utils library providing total number of requests counter, API endpoints response times, and counter of HTTP status code responses. Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with go_ and process_ prefixes.",
         "parameters": [],
         "operationId": "getMetrics",
         "responses": {
@@ -216,6 +216,7 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format.",
             "schema": {
               "type": "string",
               "minLength": 36,
@@ -643,20 +644,24 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format",
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            }
+            },
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "some.python.module"
           }
         ],
         "responses": {
@@ -750,6 +755,33 @@
         ]
       }
     },
+    "/rule_ids": {
+      "get": {
+        "summary": "Returns the rule IDs of all the rules.",
+        "operationId": "getRuleIDs",
+        "responses": {
+          "200": {
+            "description": "A JSON array of all the rule IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/rules/{ruleId}": {
       "post": {
         "summary": "Creates or updates rule with provided ruleId",
@@ -837,6 +869,142 @@
           "rule",
           "debug"
         ]
+      }
+    },
+    "/rules/{ruleId}/content": {
+      "get": {
+        "summary": "Get all static content for the given ruleId",
+        "description": "The static content is taken from the cache periodically updated from the content service",
+        "parameters": [
+          {
+            "name": "ruleId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the rule which content is required",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module"
+            }
+          }
+        ],
+        "tags": [
+          "prod"
+        ],
+        "operationId": "getContentForRule",
+        "responses": {
+          "200": {
+            "description": "A JSON object with the content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "resolution": {
+                          "type": "string"
+                        },
+                        "more_info": {
+                          "type": "string"
+                        },
+                        "plugin": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "node_id": {
+                              "type": "string"
+                            },
+                            "product_code": {
+                              "type": "string"
+                            },
+                            "python_module": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "error_keys": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                              "generic": {
+                                "type": "string"
+                              },
+                              "metadata": {
+                                "type": "object",
+                                "properties": {
+                                  "condition": {
+                                    "type": "string"
+                                  },
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "impact": {
+                                    "type": "string"
+                                  },
+                                  "likelihood": {
+                                    "type": "number"
+                                  },
+                                  "publish_date": {
+                                    "type": "string"
+                                  },
+                                  "status": {
+                                    "type": "string"
+                                  },
+                                  "tags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Rule ID is not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Item not found in the storage"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Content service is unavailable",
+            "content": {
+              "text/plain": {}
+            }
+          }
+        }
       }
     },
     "/rules/{ruleId}/error_keys/{errorKey}": {
@@ -981,6 +1149,111 @@
         ]
       }
     },
+    "/content": {
+      "get": {
+        "summary": "Get all static content",
+        "description": "The static content is taken from the cache periodically updated from the content service",
+        "parameters": [],
+        "tags": [
+          "prod"
+        ],
+        "operationId": "getContent",
+        "responses": {
+          "200": {
+            "description": "A JSON object with the content.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "content": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "summary": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "resolution": {
+                            "type": "string"
+                          },
+                          "more_info": {
+                            "type": "string"
+                          },
+                          "plugin": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "node_id": {
+                                "type": "string"
+                              },
+                              "product_code": {
+                                "type": "string"
+                              },
+                              "python_module": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "error_keys": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "object",
+                              "properties": {
+                                "generic": {
+                                  "type": "string"
+                                },
+                                "metadata": {
+                                  "type": "object",
+                                  "properties": {
+                                    "condition": {
+                                      "type": "string"
+                                    },
+                                    "description": {
+                                      "type": "string"
+                                    },
+                                    "impact": {
+                                      "type": "string"
+                                    },
+                                    "likelihood": {
+                                      "type": "number"
+                                    },
+                                    "publish_date": {
+                                      "type": "string"
+                                    },
+                                    "status": {
+                                      "type": "string"
+                                    },
+                                    "tags": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/clusters/{clusterId}/rules/{ruleId}/disable": {
       "put": {
         "summary": "Disables a rule/health check recommendation for specified cluster",
@@ -991,20 +1264,24 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format",
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            }
+            },
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "some.python.module"
           }
         ],
         "responses": {
@@ -1040,21 +1317,25 @@
           {
             "name": "clusterId",
             "in": "path",
+            "description": "ID of the cluster which must conform to UUID format",
             "required": true,
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            }
+            },
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "some.python.module"
           }
         ],
         "responses": {

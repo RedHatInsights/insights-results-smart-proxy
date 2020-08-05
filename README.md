@@ -26,8 +26,10 @@ TODO
 
 ## Configuration
 
-The configuration of the service is done by toml config, default one is `config.toml` in working directory,
-but it can be overwritten by `INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE` env var.
+The configuration of the service is done by config written in
+[TOML language](https://toml.io/en/). Default one is `config.toml` in working
+directory, but it can be overwritten by
+`INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE` env var.
 
 Also each key in config can be overwritten by corresponding env var. For example if you have config
 
@@ -46,7 +48,7 @@ INSIGHTS_RESULTS_SMART_PROXY__SERVER__AUTH="true"
 
 the actual server will listen in port 443 instead of 8080 and it will be TLS enabled
 
-## Server configuration
+### Server configuration
 
 Server configuration is in section `[server]` in config file
 
@@ -79,7 +81,7 @@ only in devel environment. In production, `true` is used every time.
 Please note that if `auth` configuration option is turned off, not all REST API endpoints will be
 usable. Whole REST API schema is satisfied only for `auth = true`.
 
-## Services configuration
+### Services configuration
 
 Services configuration is in section `[services]` in config file
 
@@ -97,9 +99,48 @@ remmediations static content and the configured groups from its endpoints.
 * `group_poll_time` is the time between groups configuration updates. It will be interpreted as the Golang
 [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration) function.
 
+### Metrics configuration
+
+Metrics configuration is in section `[metrics]` in config file
+
+```toml
+[metrics]
+namespace = "mynamespace"
+```
+
+* `namespace` if defined, it is used as `Namespace` argument when creating all
+  the Prometheus metrics exposed by this service.
+
 ## REST API schema based on OpenAPI 3.0
 
 TODO
+
+## Prometheus API
+
+It is possible to use `/api/v1/metrics` REST API endpoint to read all metrics exposed to Prometheus
+or to any tool that is compatible with it.
+Currently, the following metrics are exposed:
+
+### API related metrics
+
+There are a set of metrics provided by `insights-operator-utils` library, all
+of them related with the API usage. These are the API metrics exposed:
+
+1. `api_endpoints_requests` the total number of requests per endpoint
+1. `api_endpoints_response_time` API endpoints response time
+1. `api_endpoints_status_codes` a counter of the HTTP status code responses
+   returned back by the service
+
+Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with
+`go_` and `process_` prefixes.
+
+### Metrics namespace
+
+As explained in the [configuration](./configuration) section of this
+documentation, a namespace can be provided in order to act as a prefix to the
+metric name. If no namespace is provided in the configuration, the metrics will
+be exposed as described in this documentation.
+
 
 ## Contribution
 

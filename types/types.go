@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package types contains all user-defined data types used in Smart Proxy REST
+// API service. Some types are the same as in other services (especially in
+// Insights Results Aggregator, Content Service) and thus they are imported
+// (based on) the common package insights-operator-utils/types.
 package types
 
 import "github.com/RedHatInsights/insights-operator-utils/types"
@@ -55,8 +59,10 @@ type UserVote = types.UserVote
 const (
 	// UserVoteDislike shows user's dislike
 	UserVoteDislike = types.UserVoteDislike
+
 	// UserVoteNone shows no vote from user
 	UserVoteNone = types.UserVoteNone
+
 	// UserVoteLike shows user's like
 	UserVoteLike = types.UserVoteLike
 )

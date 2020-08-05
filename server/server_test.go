@@ -17,6 +17,8 @@ limitations under the License.
 package server_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -26,13 +28,14 @@ import (
 	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
-	"github.com/rs/zerolog"
-	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -42,6 +45,9 @@ const (
 
 // TODO: consider moving to data repo
 var (
+	badJWTAuthBearer  = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"
+	goodJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"
+
 	serverConfigJWT = server.Configuration{
 		Address:                          ":8081",
 		APIPrefix:                        "/api/v1/",
@@ -55,7 +61,7 @@ var (
 		InternalRulesOrganizations:       []iou_types.OrgID{1},
 	}
 
-	serverConfigInternalOrganizations = server.Configuration{
+	serverConfigInternalOrganizations1 = server.Configuration{
 		Address:                          ":8081",
 		APIPrefix:                        "/api/v1/",
 		APISpecFile:                      "openapi.json",
@@ -66,6 +72,21 @@ var (
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: true,
 		InternalRulesOrganizations:       []iou_types.OrgID{1},
+	}
+
+	// Same as previous one, but different InternalRulesOrganizations
+	// This one won't match with the authentication token used
+	serverConfigInternalOrganizations2 = server.Configuration{
+		Address:                          ":8081",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		Debug:                            true,
+		Auth:                             true,
+		AuthType:                         "jwt",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: true,
+		InternalRulesOrganizations:       []iou_types.OrgID{2},
 	}
 
 	SmartProxyReportResponse3Rules = struct {
@@ -163,14 +184,18 @@ func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
 }
 
-func loadMockRuleContentDir(rule ics_content.RuleContent) {
+func loadMockRuleContentDir(rulesContent []ics_content.RuleContent) {
+	rules := make(map[string]ics_content.RuleContent)
+
+	for index, rule := range rulesContent {
+		key := fmt.Sprintf("rc%d", index)
+		rules[key] = rule
+	}
 	ruleContentDirectory := ics_content.RuleContentDirectory{
 		Config: ics_content.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]ics_content.RuleContent{
-			"rc1": rule,
-		},
+		Rules: rules,
 	}
 
 	content.LoadRuleContent(&ruleContentDirectory)
@@ -255,7 +280,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 }
 
 func TestInternalOrganizations(t *testing.T) {
-	loadMockRuleContentDir(RuleContentInternal1)
+	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1})
 
 	for _, testCase := range []struct {
 		TestName           string
@@ -263,9 +288,24 @@ func TestInternalOrganizations(t *testing.T) {
 		ExpectedStatusCode int
 		MockAuthToken      string
 	}{
-		{"Internal organizations enabled, Request denied", &serverConfigInternalOrganizations, http.StatusForbidden, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"},
-		{"Internal organizations enabled, Request allowed", &serverConfigInternalOrganizations, http.StatusOK, "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"},
-		{"Internal organizations disabled, Request allowed", &serverConfigJWT, http.StatusOK, "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"},
+		{
+			"Internal organizations enabled, Request denied",
+			&serverConfigInternalOrganizations1,
+			http.StatusForbidden,
+			badJWTAuthBearer,
+		},
+		{
+			"Internal organizations enabled, Request allowed",
+			&serverConfigInternalOrganizations1,
+			http.StatusOK,
+			goodJWTAuthBearer,
+		},
+		{
+			"Internal organizations disabled, Request allowed",
+			&serverConfigJWT,
+			http.StatusOK,
+			badJWTAuthBearer,
+		},
 	} {
 		t.Run(testCase.TestName, func(t *testing.T) {
 			helpers.RunTestWithTimeout(t, func(t *testing.T) {
@@ -280,4 +320,101 @@ func TestInternalOrganizations(t *testing.T) {
 			}, testTimeout)
 		})
 	}
+}
+
+// TestRuleNames checks the REST API server behaviour for rules endpoint
+func TestRuleNames(t *testing.T) {
+	for _, testCase := range []struct {
+		TestName           string
+		ServerConfig       *server.Configuration
+		ExpectedStatusCode int
+		MockAuthToken      string
+	}{
+		{
+			"Internal orgs enabled, no authentication",
+			&serverConfigInternalOrganizations1,
+			http.StatusForbidden,
+			"",
+		},
+		{
+			"Internal orgs enabled, authentication provided",
+			&serverConfigInternalOrganizations1,
+			http.StatusOK,
+			goodJWTAuthBearer,
+		},
+	} {
+		t.Run(testCase.TestName, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t *testing.T) {
+				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
+					Method:             http.MethodGet,
+					Endpoint:           server.RuleIDs,
+					AuthorizationToken: testCase.MockAuthToken,
+				}, &helpers.APIResponse{
+					StatusCode: testCase.ExpectedStatusCode,
+				})
+			}, testTimeout)
+		})
+	}
+}
+
+// TestRuleNamesResponse checks the REST API status and response
+func TestRuleNamesResponse(t *testing.T) {
+	content.ResetContent()
+	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1, testdata.RuleContent1})
+
+	expectedBody := `
+		{
+			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "foo.rules.internal.bar"],
+			"status": "ok"
+		}
+	`
+	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations1, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RuleIDs,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        expectedBody,
+			BodyChecker: ruleIDsChecker,
+		})
+	}, testTimeout)
+
+	expectedBody = `
+		{
+			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded"],
+			"status": "ok"
+		}`
+	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations2, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RuleIDs,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        expectedBody,
+			BodyChecker: ruleIDsChecker,
+		})
+	}, testTimeout)
+}
+
+func ruleIDsChecker(t testing.TB, expected, got []byte) {
+	type Response struct {
+		Status string   `json:"status"`
+		Rules  []string `json:"rules"`
+	}
+
+	var expectedResp, gotResp Response
+
+	if err := json.Unmarshal(expected, &expectedResp); err != nil {
+		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
+		helpers.FailOnError(t, err)
+	}
+
+	if err := json.Unmarshal(got, &gotResp); err != nil {
+		err = fmt.Errorf(`"got" is not JSON. value = "%v", err = "%v"`, got, err)
+		helpers.FailOnError(t, err)
+	}
+
+	assert.ElementsMatch(t, expectedResp.Rules, gotResp.Rules)
 }

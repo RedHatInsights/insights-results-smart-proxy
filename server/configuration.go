@@ -32,4 +32,5 @@ type Configuration struct {
 	EnableCORS                       bool          `mapstructure:"enable_cors" toml:"enable_cors"`
 	EnableInternalRulesOrganizations bool          `mapstructure:"enable_internal_rules_organizations" toml:"enable_internal_rules_organizations"`
 	InternalRulesOrganizations       []types.OrgID `mapstructure:"internal_rules_organizations" toml:"internal_rules_organizations"`
+	LogAuthToken                     bool          `mapstructure:"log_auth_token" toml:"log_auth_token"`
 }

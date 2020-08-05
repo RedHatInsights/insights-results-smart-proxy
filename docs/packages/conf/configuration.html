@@ -133,26 +133,83 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */</div>
 
-<div class="keyword">package</div> <div class="ident">conf</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Package conf contains definition of data type named Config that represents
+configuration of Smart Proxy service. This package also contains function
+named LoadConfiguration that can be used to load configuration from provided
+configuration file and/or from environment variables. Additionally two
+specific functions named GetServerConfiguration and GetServicesConfiguration
+are to be used to return specific configuration options.</p>
+
+<p>Generated documentation is available at:
+https://godoc.org/github.com/RedHatInsights/insights-results-smart-proxy/conf</p>
+
+<p>Documentation in literate-programming-style is available at:
+https://redhatinsights.github.io/insights-results-smart-proxy/packages/conf/configuration.html</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">conf</div><div class="operator"></div>
 
 <div class="keyword">import</div> <div class="operator">(</div>
 	<div class="literal">&#34;bytes&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;encoding/csv&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;fmt&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;io&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;io/ioutil&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;path/filepath&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;strconv&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;strings&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/BurntSushi/toml&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/spf13/viper&#34;</div><div class="operator"></div>
-
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/server&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/services&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/spf13/viper&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">configFileEnvVariableName</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE&#34;</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>configFileEnvVariableName is name of environment variable that
+contains name of configuration file</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">configFileEnvVariableName</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE&#34;</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>envPrefix is prefix for all environment variables that contains
+various configuration options</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">envPrefix</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>SetupConfiguration should only be used at startup</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">SetupConfiguration</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">InternalRulesOrganizationsCSVFile</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;internal_rules_organizations_csv_file&#34; toml:&#34;internal_rules_organizations_csv_file&#34;`</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>MetricsConfiguration defines configuration for metrics</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">MetricsConfiguration</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">Namespace</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;namespace&#34; toml:&#34;namespace&#34;`</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -163,13 +220,16 @@ limitations under the License.
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="ident">Config</div> <div class="keyword">struct</div> <div class="operator">{</div>
 	<div class="ident">ServerConf</div>   <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div>   <div class="literal">`mapstructure:&#34;server&#34; toml:&#34;server&#34;`</div><div class="operator"></div>
 	<div class="ident">ServicesConf</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">Configuration</div> <div class="literal">`mapstructure:&#34;services&#34; toml:&#34;services&#34;`</div><div class="operator"></div>
+	<div class="ident">SetupConf</div>    <div class="ident">SetupConfiguration</div>     <div class="literal">`mapstructure:&#34;setup&#34; toml:&#34;setup&#34;`</div><div class="operator"></div>
+	<div class="ident">MetricsConf</div>  <div class="ident">MetricsConfiguration</div>   <div class="literal">`mapstructure:&#34;metrics&#34; toml:&#34;metrics&#34;`</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>LoadConfiguration loads configuration from defaultConfigFile, file set in configFileEnvVariableName or from env</p>
+	<td class="doc"><p>LoadConfiguration loads configuration from defaultConfigFile, file set in
+configFileEnvVariableName or from env</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">LoadConfiguration</div><div class="operator">(</div><div class="ident">defaultConfigFile</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="ident">configFile</div><div class="operator">,</div> <div class="ident">specified</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">LookupEnv</div><div class="operator">(</div><div class="ident">configFileEnvVariableName</div><div class="operator">)</div><div class="operator"></div>
@@ -178,7 +238,8 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>we need to separate the directory name and filename without extension</p>
+	<td class="doc"><p>we need to separate the directory name and filename without
+extension</p>
 </td>
 	<td class="code"><pre><code>		<div class="ident">directory</div><div class="operator">,</div> <div class="ident">basename</div> <div class="operator">:=</div> <div class="ident">filepath</div><div class="operator">.</div><div class="ident">Split</div><div class="operator">(</div><div class="ident">configFile</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">file</div> <div class="operator">:=</div> <div class="ident">strings</div><div class="operator">.</div><div class="ident">TrimSuffix</div><div class="operator">(</div><div class="ident">basename</div><div class="operator">,</div> <div class="ident">filepath</div><div class="operator">.</div><div class="ident">Ext</div><div class="operator">(</div><div class="ident">basename</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
@@ -207,7 +268,8 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>viper is not smart enough to understand the structure of config by itself</p>
+	<td class="doc"><p>viper is not smart enough to understand the structure of
+config by itself</p>
 </td>
 	<td class="code"><pre><code>		<div class="ident">fakeTomlConfigWriter</div> <div class="operator">:=</div> <div class="ident">new</div><div class="operator">(</div><div class="ident">bytes</div><div class="operator">.</div><div class="ident">Buffer</div><div class="operator">)</div><div class="operator"></div>
 
@@ -234,10 +296,7 @@ limitations under the License.
       <tr class="section">
 	<td class="doc"><p>override config from env if there's variable in env</p>
 </td>
-	<td class="code"><pre><code>
-	<div class="keyword">const</div> <div class="ident">envPrefix</div> <div class="operator">=</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY_&#34;</div><div class="operator"></div>
-
-	<div class="ident">viper</div><div class="operator">.</div><div class="ident">AutomaticEnv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<td class="code"><pre><code>	<div class="ident">viper</div><div class="operator">.</div><div class="ident">AutomaticEnv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">viper</div><div class="operator">.</div><div class="ident">SetEnvPrefix</div><div class="operator">(</div><div class="ident">envPrefix</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">viper</div><div class="operator">.</div><div class="ident">SetEnvKeyReplacer</div><div class="operator">(</div><div class="ident">strings</div><div class="operator">.</div><div class="ident">NewReplacer</div><div class="operator">(</div><div class="literal">&#34;-&#34;</div><div class="operator">,</div> <div class="literal">&#34;_&#34;</div><div class="operator">,</div> <div class="literal">&#34;.&#34;</div><div class="operator">,</div> <div class="literal">&#34;__&#34;</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
@@ -256,6 +315,8 @@ limitations under the License.
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;All customer facing APIs MUST serve the current OpenAPI specification&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
+	<div class="ident">Config</div><div class="operator">.</div><div class="ident">ServerConf</div><div class="operator">.</div><div class="ident">InternalRulesOrganizations</div> <div class="operator">=</div> <div class="ident">getInternalRulesOrganizations</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+
 	<div class="keyword">return</div> <div class="ident">Config</div><div class="operator">.</div><div class="ident">ServerConf</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
@@ -273,9 +334,34 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>checkIfFileExists returns nil if path doesn't exist or isn't a file, otherwise it returns corresponding error</p>
+	<td class="doc"><p>GetSetupConfiguration returns the setup configuration only to be used at
+startup</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetSetupConfiguration</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">SetupConfiguration</div> <div class="operator">{</div>
+	<div class="keyword">return</div> <div class="ident">Config</div><div class="operator">.</div><div class="ident">SetupConf</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GetMetricsConfiguration returns the metrics configuration</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetMetricsConfiguration</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">MetricsConfiguration</div> <div class="operator">{</div>
+	<div class="keyword">return</div> <div class="ident">Config</div><div class="operator">.</div><div class="ident">MetricsConf</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>checkIfFileExists returns nil if path doesn't exist or isn't a file,
+otherwise it returns corresponding error</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">checkIfFileExists</div><div class="operator">(</div><div class="ident">path</div> <div class="ident">string</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">path</div><div class="operator">)</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;Empty path provided&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
 	<div class="ident">fileInfo</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">Stat</div><div class="operator">(</div><div class="ident">path</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">os</div><div class="operator">.</div><div class="ident">IsNotExist</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div> <div class="operator">{</div>
 		<div class="keyword">return</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;OpenAPI spec file path does not exist. Path: &#39;%v&#39;&#34;</div><div class="operator">,</div> <div class="ident">path</div><div class="operator">)</div><div class="operator"></div>
@@ -288,6 +374,66 @@ limitations under the License.
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">getInternalRulesOrganizations</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">ServerConf</div><div class="operator">.</div><div class="ident">EnableInternalRulesOrganizations</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Internal rules request filtering disabled&#34;</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">SetupConf</div><div class="operator">.</div><div class="ident">InternalRulesOrganizationsCSVFile</div><div class="operator">)</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Internal organizations enabled, but none supplied&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">internalRulesCSVData</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">ioutil</div><div class="operator">.</div><div class="ident">ReadFile</div><div class="operator">(</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">SetupConf</div><div class="operator">.</div><div class="ident">InternalRulesOrganizationsCSVFile</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Internal organizations file could not be opened&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">internalOrganizations</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">loadOrgIDsFromCSV</div><div class="operator">(</div><div class="ident">bytes</div><div class="operator">.</div><div class="ident">NewBuffer</div><div class="operator">(</div><div class="ident">internalRulesCSVData</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Fatal</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;Internal organizations CSV could not be processed&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Internal rules request filtering enabled. Organizations allowed: %v&#34;</div><div class="operator">,</div> <div class="ident">internalOrganizations</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">internalOrganizations</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>loadOrgIDsFromCSV creates a new CSV reader and returns a list of
+organization IDs</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">loadOrgIDsFromCSV</div><div class="operator">(</div><div class="ident">r</div> <div class="ident">io</div><div class="operator">.</div><div class="ident">Reader</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">orgIDs</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">,</div> <div class="literal">0</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">reader</div> <div class="operator">:=</div> <div class="ident">csv</div><div class="operator">.</div><div class="ident">NewReader</div><div class="operator">(</div><div class="ident">r</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">lines</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">reader</div><div class="operator">.</div><div class="ident">ReadAll</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">&#34;error reading CSV file: %v&#34;</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">for</div> <div class="ident">index</div><div class="operator">,</div> <div class="ident">line</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">lines</div> <div class="operator">{</div>
+		<div class="keyword">if</div> <div class="ident">index</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">{</div>
+			<div class="keyword">continue</div> <div class="operator"></div><div class="comment">// skip header</div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="ident">orgID</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">strconv</div><div class="operator">.</div><div class="ident">ParseUint</div><div class="operator">(</div><div class="ident">line</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator">,</div> <div class="literal">10</div><div class="operator">,</div> <div class="literal">64</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div>
+				<div class="literal">&#34;organization ID on line %v in CSV is not numerical. Found value: %v&#34;</div><div class="operator">,</div>
+				<div class="ident">index</div><div class="operator">&#43;</div><div class="literal">1</div><div class="operator">,</div> <div class="ident">line</div><div class="operator">[</div><div class="literal">0</div><div class="operator">]</div><div class="operator">,</div>
+			<div class="operator">)</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="ident">orgIDs</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">orgIDs</div><div class="operator">,</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">(</div><div class="ident">orgID</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">orgIDs</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

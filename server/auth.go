@@ -41,19 +41,27 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// for specific URLs it is ok to not use auth. mechanisms at all
+		// this is specific to OpenAPI JSON response and for all OPTION HTTP methods
 		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == "OPTIONS" {
 			next.ServeHTTP(w, r)
 			return
 		}
 
+		// try to read auth. header from HTTP request (if provided by client)
 		token, isTokenValid := server.getAuthTokenHeader(w, r)
 		if !isTokenValid {
 			// everything has been handled already
 			return
 		}
 
-		decoded, err := jwt.DecodeSegment(token) // Decode token to JSON string
-		if err != nil {                          // Malformed token, returns with http code 403 as usual
+		if server.Config.LogAuthToken {
+			log.Info().Msgf("Authentication token: %s", token)
+		}
+
+		// decode auth. token to JSON string
+		decoded, err := jwt.DecodeSegment(token)
+		// if token is malformed return HTTP code 403 to client
+		if err != nil {
 			log.Error().Err(err).Msg(malformedTokenMessage)
 			handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
 			return
@@ -61,7 +69,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 
 		tk := &types.Token{}
 
-		// If we took JWT token, it has different structure then x-rh-identity
+		// if we took JWT token, it has different structure than x-rh-identity
 		if server.Config.AuthType == "jwt" {
 			jwtPayload := &types.JWTPayload{}
 			err = json.Unmarshal(decoded, jwtPayload)

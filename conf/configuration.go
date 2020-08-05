@@ -14,6 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package conf contains definition of data type named Config that represents
+// configuration of Smart Proxy service. This package also contains function
+// named LoadConfiguration that can be used to load configuration from provided
+// configuration file and/or from environment variables. Additionally two
+// specific functions named GetServerConfiguration and GetServicesConfiguration
+// are to be used to return specific configuration options.
+//
+// Generated documentation is available at:
+// https://godoc.org/github.com/RedHatInsights/insights-results-smart-proxy/conf
+//
+// Documentation in literate-programming-style is available at:
+// https://redhatinsights.github.io/insights-results-smart-proxy/packages/conf/configuration.html
 package conf
 
 import (
@@ -36,7 +48,13 @@ import (
 )
 
 const (
+	// configFileEnvVariableName is name of environment variable that
+	// contains name of configuration file
 	configFileEnvVariableName = "INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE"
+
+	// envPrefix is prefix for all environment variables that contains
+	// various configuration options
+	envPrefix = "INSIGHTS_RESULTS_SMART_PROXY_"
 )
 
 // SetupConfiguration should only be used at startup
@@ -44,18 +62,26 @@ type SetupConfiguration struct {
 	InternalRulesOrganizationsCSVFile string `mapstructure:"internal_rules_organizations_csv_file" toml:"internal_rules_organizations_csv_file"`
 }
 
+// MetricsConfiguration defines configuration for metrics
+type MetricsConfiguration struct {
+	Namespace string `mapstructure:"namespace" toml:"namespace"`
+}
+
 // Config has exactly the same structure as *.toml file
 var Config struct {
 	ServerConf   server.Configuration   `mapstructure:"server" toml:"server"`
 	ServicesConf services.Configuration `mapstructure:"services" toml:"services"`
 	SetupConf    SetupConfiguration     `mapstructure:"setup" toml:"setup"`
+	MetricsConf  MetricsConfiguration   `mapstructure:"metrics" toml:"metrics"`
 }
 
-// LoadConfiguration loads configuration from defaultConfigFile, file set in configFileEnvVariableName or from env
+// LoadConfiguration loads configuration from defaultConfigFile, file set in
+// configFileEnvVariableName or from env
 func LoadConfiguration(defaultConfigFile string) error {
 	configFile, specified := os.LookupEnv(configFileEnvVariableName)
 	if specified {
-		// we need to separate the directory name and filename without extension
+		// we need to separate the directory name and filename without
+		// extension
 		directory, basename := filepath.Split(configFile)
 		file := strings.TrimSuffix(basename, filepath.Ext(basename))
 		// parse the configuration
@@ -69,7 +95,8 @@ func LoadConfiguration(defaultConfigFile string) error {
 
 	err := viper.ReadInConfig()
 	if _, isNotFoundError := err.(viper.ConfigFileNotFoundError); !specified && isNotFoundError {
-		// viper is not smart enough to understand the structure of config by itself
+		// viper is not smart enough to understand the structure of
+		// config by itself
 		fakeTomlConfigWriter := new(bytes.Buffer)
 
 		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(Config)
@@ -90,9 +117,6 @@ func LoadConfiguration(defaultConfigFile string) error {
 	}
 
 	// override config from env if there's variable in env
-
-	const envPrefix = "INSIGHTS_RESULTS_SMART_PROXY_"
-
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
@@ -117,13 +141,23 @@ func GetServicesConfiguration() services.Configuration {
 	return Config.ServicesConf
 }
 
-// GetSetupConfiguration returns the setup configuration only to be used at startup
+// GetSetupConfiguration returns the setup configuration only to be used at
+// startup
 func GetSetupConfiguration() SetupConfiguration {
 	return Config.SetupConf
 }
 
-// checkIfFileExists returns nil if path doesn't exist or isn't a file, otherwise it returns corresponding error
+// GetMetricsConfiguration returns the metrics configuration
+func GetMetricsConfiguration() MetricsConfiguration {
+	return Config.MetricsConf
+}
+
+// checkIfFileExists returns nil if path doesn't exist or isn't a file,
+// otherwise it returns corresponding error
 func checkIfFileExists(path string) error {
+	if len(path) == 0 {
+		return fmt.Errorf("Empty path provided")
+	}
 	fileInfo, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("OpenAPI spec file path does not exist. Path: '%v'", path)
@@ -162,7 +196,8 @@ func getInternalRulesOrganizations() []types.OrgID {
 	return internalOrganizations
 }
 
-// loadOrgIDsFromCSV creates a new CSV reader and returns a list of organization IDs
+// loadOrgIDsFromCSV creates a new CSV reader and returns a list of
+// organization IDs
 func loadOrgIDsFromCSV(r io.Reader) ([]types.OrgID, error) {
 	orgIDs := make([]types.OrgID, 0)
 

@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package main_test contains declaration of unit tests for the main package of
+// Insights Results Smart Proxy service
 package main_test
 
 import (
@@ -65,22 +67,26 @@ func TestStartServer_BadServerAddress(t *testing.T) {
 	// assert.Equal(t, main.ExitStatusServerError, errCode)
 }
 
-// TestPrintVersionInfo is dummy ATM - we'll check versions etc. in integration tests
+// TestPrintVersionInfo is dummy ATM - we'll check versions etc. in integration tests.
+// TODO: add check for actual messages that are printed to standard output
 func TestPrintVersionInfo(t *testing.T) {
 	main.PrintVersionInfo()
 }
 
 // TestPrintHelp checks that printing help returns OK exit code.
+// TODO: add check for actual messages that are printed to standard output
 func TestPrintHelp(t *testing.T) {
-	assert.Equal(t, main.ExitStatusOK, main.PrintHelp())
+	assert.Equal(t, main.ExitStatusOK, int(main.PrintHelp()))
 }
 
 // TestPrintConfig checks that printing configuration info returns OK exit code.
+// TODO: add check for actual messages that are printed to standard output
 func TestPrintConfig(t *testing.T) {
-	assert.Equal(t, main.ExitStatusOK, main.PrintConfig())
+	assert.Equal(t, main.ExitStatusOK, int(main.PrintConfig()))
 }
 
 // TestPrintEnv checks that printing environment variables returns OK exit code.
+// TODO: add check for actual messages that are printed to standard output
 func TestPrintEnv(t *testing.T) {
-	assert.Equal(t, main.ExitStatusOK, main.PrintEnv())
+	assert.Equal(t, main.ExitStatusOK, int(main.PrintEnv()))
 }

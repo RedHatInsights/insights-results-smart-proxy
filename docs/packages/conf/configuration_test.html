@@ -138,16 +138,17 @@ limitations under the License.
 <div class="keyword">import</div> <div class="operator">(</div>
 	<div class="literal">&#34;io/ioutil&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;os&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;strings&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/tests/helpers&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
-
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/conf&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/server&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/services&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="ident">init</div><div class="operator">(</div><div class="operator">)</div> <div class="operator">{</div>
@@ -230,6 +231,8 @@ limitations under the License.
 		debug = true
 		use_https = false
 		enable_cors = true
+		enable_internal_rules_organizations = false
+		internal_rules_organizations = []
 	`</div><div class="operator"></div>
 
 	<div class="ident">tmpFilename</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">GetTmpConfigFile</div><div class="operator">(</div><div class="ident">config</div><div class="operator">)</div><div class="operator"></div>
@@ -242,14 +245,67 @@ limitations under the License.
 	<div class="ident">mustLoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;../tests/config1&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
-		<div class="ident">Address</div><div class="operator">:</div>     <div class="literal">&#34;:8080&#34;</div><div class="operator">,</div>
-		<div class="ident">APIPrefix</div><div class="operator">:</div>   <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">,</div>
-		<div class="ident">APISpecFile</div><div class="operator">:</div> <div class="literal">&#34;openapi.json&#34;</div><div class="operator">,</div>
-		<div class="ident">AuthType</div><div class="operator">:</div>    <div class="literal">&#34;xrh&#34;</div><div class="operator">,</div>
-		<div class="ident">Debug</div><div class="operator">:</div>       <div class="ident">true</div><div class="operator">,</div>
-		<div class="ident">UseHTTPS</div><div class="operator">:</div>    <div class="ident">false</div><div class="operator">,</div>
-		<div class="ident">EnableCORS</div><div class="operator">:</div>  <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">Address</div><div class="operator">:</div>                          <div class="literal">&#34;:8080&#34;</div><div class="operator">,</div>
+		<div class="ident">APIPrefix</div><div class="operator">:</div>                        <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">,</div>
+		<div class="ident">APISpecFile</div><div class="operator">:</div>                      <div class="literal">&#34;openapi.json&#34;</div><div class="operator">,</div>
+		<div class="ident">AuthType</div><div class="operator">:</div>                         <div class="literal">&#34;xrh&#34;</div><div class="operator">,</div>
+		<div class="ident">Debug</div><div class="operator">:</div>                            <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">UseHTTPS</div><div class="operator">:</div>                         <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">EnableCORS</div><div class="operator">:</div>                       <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">EnableInternalRulesOrganizations</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">InternalRulesOrganizations</div><div class="operator">:</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator">,</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetServerConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestGetInternalRulesOrganizations tests if the internal organizations CSV file gets loaded properly</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestGetInternalRulesOrganizations</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">os</div><div class="operator">.</div><div class="ident">Clearenv</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS&#34;</div><div class="operator">,</div> <div class="literal">&#34;true&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">mustLoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;tests/config1&#34;</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">{</div>
+		<div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">(</div><div class="literal">1</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">(</div><div class="literal">2</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">(</div><div class="literal">3</div><div class="operator">)</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetInternalRulesOrganizations</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestLoadOrgIDsFromCSVExtraParam tests incorrect CSV format</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadOrgIDsFromCSVExtraParam</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">extraParamCSV</div> <div class="operator">:=</div> <div class="literal">`OrgID
+1,2
+3
+`</div><div class="operator"></div>
+	<div class="ident">r</div> <div class="operator">:=</div> <div class="ident">strings</div><div class="operator">.</div><div class="ident">NewReader</div><div class="operator">(</div><div class="ident">extraParamCSV</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">LoadOrgIDsFromCSV</div><div class="operator">(</div><div class="ident">r</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;error reading CSV file: record on line 2: wrong number of fields&#34;</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>TestLoadOrgIDsFromCSVNonInt tests non-integer ID in CSV</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestLoadOrgIDsFromCSVNonInt</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">nonIntIDCSV</div> <div class="operator">:=</div> <div class="literal">`OrgID
+str
+3
+`</div><div class="operator"></div>
+	<div class="ident">r</div> <div class="operator">:=</div> <div class="ident">strings</div><div class="operator">.</div><div class="ident">NewReader</div><div class="operator">(</div><div class="ident">nonIntIDCSV</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">_</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">LoadOrgIDsFromCSV</div><div class="operator">(</div><div class="ident">r</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">EqualError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">,</div> <div class="literal">&#34;organization ID on line 2 in CSV is not numerical. Found value: str&#34;</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="ident">GetTmpConfigFile</div><div class="operator">(</div><div class="ident">configData</div> <div class="ident">string</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">string</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
@@ -280,13 +336,15 @@ limitations under the License.
 	<div class="ident">mustLoadConfiguration</div><div class="operator">(</div><div class="literal">&#34;/non_existing_path&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
-		<div class="ident">Address</div><div class="operator">:</div>     <div class="literal">&#34;:8080&#34;</div><div class="operator">,</div>
-		<div class="ident">APIPrefix</div><div class="operator">:</div>   <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">,</div>
-		<div class="ident">APISpecFile</div><div class="operator">:</div> <div class="literal">&#34;openapi.json&#34;</div><div class="operator">,</div>
-		<div class="ident">AuthType</div><div class="operator">:</div>    <div class="literal">&#34;xrh&#34;</div><div class="operator">,</div>
-		<div class="ident">Debug</div><div class="operator">:</div>       <div class="ident">true</div><div class="operator">,</div>
-		<div class="ident">UseHTTPS</div><div class="operator">:</div>    <div class="ident">false</div><div class="operator">,</div>
-		<div class="ident">EnableCORS</div><div class="operator">:</div>  <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">Address</div><div class="operator">:</div>                          <div class="literal">&#34;:8080&#34;</div><div class="operator">,</div>
+		<div class="ident">APIPrefix</div><div class="operator">:</div>                        <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">,</div>
+		<div class="ident">APISpecFile</div><div class="operator">:</div>                      <div class="literal">&#34;openapi.json&#34;</div><div class="operator">,</div>
+		<div class="ident">AuthType</div><div class="operator">:</div>                         <div class="literal">&#34;xrh&#34;</div><div class="operator">,</div>
+		<div class="ident">Debug</div><div class="operator">:</div>                            <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">UseHTTPS</div><div class="operator">:</div>                         <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">EnableCORS</div><div class="operator">:</div>                       <div class="ident">true</div><div class="operator">,</div>
+		<div class="ident">EnableInternalRulesOrganizations</div><div class="operator">:</div> <div class="ident">false</div><div class="operator">,</div>
+		<div class="ident">InternalRulesOrganizations</div><div class="operator">:</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">(</div><div class="ident">nil</div><div class="operator">)</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator">,</div> <div class="ident">conf</div><div class="operator">.</div><div class="ident">GetServerConfiguration</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">expectedGroupsPollTime</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">:=</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">ParseDuration</div><div class="operator">(</div><div class="literal">&#34;60s&#34;</div><div class="operator">)</div><div class="operator"></div>
@@ -304,6 +362,7 @@ limitations under the License.
 	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_PREFIX&#34;</div><div class="operator">,</div> <div class="literal">&#34;/api/v1/&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE&#34;</div><div class="operator">,</div> <div class="literal">&#34;openapi.json&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY__SERVER__DEBUG&#34;</div><div class="operator">,</div> <div class="literal">&#34;true&#34;</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS&#34;</div><div class="operator">,</div> <div class="literal">&#34;false&#34;</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR&#34;</div><div class="operator">,</div> <div class="literal">&#34;http://localhost:8080/api/v1&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">mustSetEnv</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="literal">&#34;INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT&#34;</div><div class="operator">,</div> <div class="literal">&#34;http://localhost:8081/api/v1&#34;</div><div class="operator">)</div><div class="operator"></div>

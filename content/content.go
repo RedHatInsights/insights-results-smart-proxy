@@ -78,6 +78,19 @@ func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*ics_cont
 	return res, found
 }
 
+// GetAllContent returns content for rule
+func (s *RulesWithContentStorage) GetAllContent() []ics_content.RuleContent {
+	s.RLock()
+	defer s.RUnlock()
+
+	res := make([]ics_content.RuleContent, 0, len(s.rules))
+	for _, rule := range s.rules {
+		res = append(res, *rule)
+	}
+
+	return res
+}
+
 // SetRuleWithContent sets content for rule with error key
 func (s *RulesWithContentStorage) SetRuleWithContent(
 	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent,
@@ -99,6 +112,29 @@ func (s *RulesWithContentStorage) SetRule(
 	defer s.Unlock()
 
 	s.rules[ruleID] = &ruleContent
+}
+
+// ResetContent clear all the contents
+func (s *RulesWithContentStorage) ResetContent() {
+	s.Lock()
+	defer s.Unlock()
+
+	s.rulesWithContent = make(map[ruleIDAndErrorKey]*types.RuleWithContent)
+	s.rules = make(map[types.RuleID]*ics_content.RuleContent)
+}
+
+// GetRuleIDs gets rule IDs for rules
+func (s *RulesWithContentStorage) GetRuleIDs() []string {
+	s.Lock()
+	defer s.Unlock()
+
+	ruleIDs := make([]string, 0, len(s.rules))
+
+	for _, ruleContent := range s.rules {
+		ruleIDs = append(ruleIDs, ruleContent.Plugin.PythonModule)
+	}
+
+	return ruleIDs
 }
 
 var rulesWithContentStorage = RulesWithContentStorage{
@@ -149,6 +185,27 @@ func GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, error) {
 	}
 
 	return res, nil
+}
+
+// ResetContent clear all the content cached
+func ResetContent() {
+	WaitForContentDirectoryToBeReady()
+	rulesWithContentStorage.ResetContent()
+}
+
+// GetRuleIDs returns a list of rule IDs
+func GetRuleIDs() []string {
+	WaitForContentDirectoryToBeReady()
+
+	return rulesWithContentStorage.GetRuleIDs()
+}
+
+// GetAllContent returns content for all the loaded rules.
+// Caching is done under the hood, don't worry about it.
+func GetAllContent() []ics_content.RuleContent {
+	// to be sure the data is there
+	WaitForContentDirectoryToBeReady()
+	return rulesWithContentStorage.GetAllContent()
 }
 
 // RunUpdateContentLoop runs loop which updates rules content by ticker

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package content
+package services
 
 // Export for testing
 //
@@ -24,6 +24,5 @@ package content
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
 // to see why this trick is needed.
 var (
-	UpdateContent             = updateContent
-	RuleContentDirectoryReady = ruleContentDirectoryReady
+	GetFromURL = getFromURL
 )

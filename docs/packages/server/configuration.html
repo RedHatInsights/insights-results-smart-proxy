@@ -135,6 +135,10 @@ limitations under the License.
 
 <div class="keyword">package</div> <div class="ident">server</div><div class="operator"></div>
 
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
@@ -142,14 +146,17 @@ limitations under the License.
 	<td class="doc"><p>Configuration represents configuration of REST API HTTP server</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">Configuration</div> <div class="keyword">struct</div> <div class="operator">{</div>
-	<div class="ident">Address</div>     <div class="ident">string</div> <div class="literal">`mapstructure:&#34;address&#34; toml:&#34;address&#34;`</div><div class="operator"></div>
-	<div class="ident">APIPrefix</div>   <div class="ident">string</div> <div class="literal">`mapstructure:&#34;api_prefix&#34; toml:&#34;api_prefix&#34;`</div><div class="operator"></div>
-	<div class="ident">APISpecFile</div> <div class="ident">string</div> <div class="literal">`mapstructure:&#34;api_spec_file&#34; toml:&#34;api_spec_file&#34;`</div><div class="operator"></div>
-	<div class="ident">Debug</div>       <div class="ident">bool</div>   <div class="literal">`mapstructure:&#34;debug&#34; toml:&#34;debug&#34;`</div><div class="operator"></div>
-	<div class="ident">Auth</div>        <div class="ident">bool</div>   <div class="literal">`mapstructure:&#34;auth&#34; toml:&#34;auth&#34;`</div><div class="operator"></div>
-	<div class="ident">AuthType</div>    <div class="ident">string</div> <div class="literal">`mapstructure:&#34;auth_type&#34; toml:&#34;auth_type&#34;`</div><div class="operator"></div>
-	<div class="ident">UseHTTPS</div>    <div class="ident">bool</div>   <div class="literal">`mapstructure:&#34;use_https&#34; toml:&#34;use_https&#34;`</div><div class="operator"></div>
-	<div class="ident">EnableCORS</div>  <div class="ident">bool</div>   <div class="literal">`mapstructure:&#34;enable_cors&#34; toml:&#34;enable_cors&#34;`</div><div class="operator"></div>
+	<div class="ident">Address</div>                          <div class="ident">string</div>        <div class="literal">`mapstructure:&#34;address&#34; toml:&#34;address&#34;`</div><div class="operator"></div>
+	<div class="ident">APIPrefix</div>                        <div class="ident">string</div>        <div class="literal">`mapstructure:&#34;api_prefix&#34; toml:&#34;api_prefix&#34;`</div><div class="operator"></div>
+	<div class="ident">APISpecFile</div>                      <div class="ident">string</div>        <div class="literal">`mapstructure:&#34;api_spec_file&#34; toml:&#34;api_spec_file&#34;`</div><div class="operator"></div>
+	<div class="ident">Debug</div>                            <div class="ident">bool</div>          <div class="literal">`mapstructure:&#34;debug&#34; toml:&#34;debug&#34;`</div><div class="operator"></div>
+	<div class="ident">Auth</div>                             <div class="ident">bool</div>          <div class="literal">`mapstructure:&#34;auth&#34; toml:&#34;auth&#34;`</div><div class="operator"></div>
+	<div class="ident">AuthType</div>                         <div class="ident">string</div>        <div class="literal">`mapstructure:&#34;auth_type&#34; toml:&#34;auth_type&#34;`</div><div class="operator"></div>
+	<div class="ident">UseHTTPS</div>                         <div class="ident">bool</div>          <div class="literal">`mapstructure:&#34;use_https&#34; toml:&#34;use_https&#34;`</div><div class="operator"></div>
+	<div class="ident">EnableCORS</div>                       <div class="ident">bool</div>          <div class="literal">`mapstructure:&#34;enable_cors&#34; toml:&#34;enable_cors&#34;`</div><div class="operator"></div>
+	<div class="ident">EnableInternalRulesOrganizations</div> <div class="ident">bool</div>          <div class="literal">`mapstructure:&#34;enable_internal_rules_organizations&#34; toml:&#34;enable_internal_rules_organizations&#34;`</div><div class="operator"></div>
+	<div class="ident">InternalRulesOrganizations</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div> <div class="literal">`mapstructure:&#34;internal_rules_organizations&#34; toml:&#34;internal_rules_organizations&#34;`</div><div class="operator"></div>
+	<div class="ident">LogAuthToken</div>                     <div class="ident">bool</div>          <div class="literal">`mapstructure:&#34;log_auth_token&#34; toml:&#34;log_auth_token&#34;`</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

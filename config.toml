@@ -9,6 +9,7 @@ use_https = false
 enable_cors = false
 enable_internal_rules_organizations = false
 internal_rules_organizations = []
+log_auth_token = true
 
 [services]
 aggregator = "http://localhost:8080/api/v1/"
@@ -17,3 +18,6 @@ groups_poll_time = "60s"
 
 [setup]
 internal_rules_organizations_csv_file = ""
+
+[metrics]
+namespace = "smart_proxy"

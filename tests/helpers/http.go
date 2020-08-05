@@ -25,43 +25,58 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
-// APIRequest represents APIRequest
+// APIRequest data type represents APIRequest
 type APIRequest = helpers.APIRequest
 
-// APIResponse represents APIResponse
+// APIResponse data type represents APIResponse
 type APIResponse = helpers.APIResponse
 
 var (
-	// ExecuteRequest executes request
+	// ExecuteRequest function executes specified HTTP request
 	ExecuteRequest = helpers.ExecuteRequest
-	// CheckResponseBodyJSON checks response body
+
+	// CheckResponseBodyJSON function checks response body. It is supposed
+	// that the body is represented in JSON format
 	CheckResponseBodyJSON = helpers.CheckResponseBodyJSON
-	// AssertReportResponsesEqual fails if report responses aren't equal
+
+	// AssertReportResponsesEqual function fails if report responses aren't
+	// equal to each other
 	AssertReportResponsesEqual = helpers.AssertReportResponsesEqual
-	// NewGockAPIEndpointMatcher creates a matcher for a given endpoint for gock
+
+	// NewGockAPIEndpointMatcher function creates a matcher for a given
+	// endpoint for gock
 	NewGockAPIEndpointMatcher = helpers.NewGockAPIEndpointMatcher
-	// GockExpectAPIRequest makes gock expect the request with the baseURL and sends back the response
+
+	// GockExpectAPIRequest function makes gock expect the request with the
+	// baseURL and sends back the response
 	GockExpectAPIRequest = helpers.GockExpectAPIRequest
-	// CleanAfterGock cleans after gock library and prints all unmatched requests
+
+	// CleanAfterGock function cleans after gock library and prints all
+	// unmatched requests
 	CleanAfterGock = helpers.CleanAfterGock
-	// MustGobSerialize serializes an object using gob or panics
+
+	// MustGobSerialize function serializes an object using gob or panics
+	// if serialize oparation fails for any reason
 	MustGobSerialize = helpers.MustGobSerialize
 )
 
 var (
-	// DefaultServerConfig is a default server config
+	// DefaultServerConfig is data structure that represents default HTTP
+	// server configuration (with CORS disabled)
 	DefaultServerConfig = server.Configuration{
-		Address:     ":8081",
-		APIPrefix:   "/api/v1/",
-		APISpecFile: "openapi.json",
-		Debug:       true,
-		Auth:        false,
-		AuthType:    "",
-		UseHTTPS:    false,
-		EnableCORS:  false,
+		Address:                          ":8081",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		Debug:                            true,
+		Auth:                             false,
+		AuthType:                         "",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: false,
 	}
 
-	// DefaultServerConfigCORS is a default server config with CORS enabled
+	// DefaultServerConfigCORS is data structure that represents default
+	// server configuration with CORS enabled
 	DefaultServerConfigCORS = server.Configuration{
 		Address:     ":8081",
 		APIPrefix:   "/api/v1/",
@@ -73,7 +88,8 @@ var (
 		EnableCORS:  true,
 	}
 
-	// DefaultServicesConfig is a default services config
+	// DefaultServicesConfig is data structure that represents default
+	// services configuration
 	DefaultServicesConfig = services.Configuration{
 		AggregatorBaseEndpoint: "http://localhost:8080/",
 		ContentBaseEndpoint:    "http://localhost:8082/",
@@ -81,9 +97,9 @@ var (
 	}
 )
 
-// AssertAPIRequest creates new server with provided
+// AssertAPIRequest function creates new server with provided
 // serverConfig, servicesConfig (you can leave them nil to use the default ones),
-// groupsChannel and contentChannel(can be nil)
+// groupsChannel and contentChannel (can be set to nil as well)
 // sends api request and checks api response (see docs for APIRequest and APIResponse)
 func AssertAPIRequest(
 	t testing.TB,
@@ -93,18 +109,25 @@ func AssertAPIRequest(
 	request *helpers.APIRequest,
 	expectedResponse *helpers.APIResponse,
 ) {
+	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
 		serverConfig = &DefaultServerConfig
 	}
+
+	// if custom services configuration is not provided, use default one
 	if servicesConfig == nil {
 		servicesConfig = &DefaultServicesConfig
 	}
 
+	// create an instance of new REST API server with provided or default
+	// configuration
 	testServer := server.New(
 		*serverConfig,
 		*servicesConfig,
 		groupsChannel,
 	)
 
+	// send the request to newly created REST API server and check its
+	// response (if it matches the provided one)
 	helpers.AssertAPIRequest(t, testServer, serverConfig.APIPrefix, request, expectedResponse)
 }

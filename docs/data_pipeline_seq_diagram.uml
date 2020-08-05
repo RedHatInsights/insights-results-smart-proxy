@@ -1,0 +1,79 @@
+//
+// vim:syntax=plantuml
+//
+// Copyright © 2020 Red Hat, Inc.
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Generate PNG image with sequence diagram by using the following command:
+// java -jar plantuml.jar data_pipeline_seq_diagram.uml
+//
+// Generate SVG drawing with sequence diagram by using the following command:
+// java -jar plantuml.jar -tsvg data_pipeline_seq_diagram.uml
+
+@startuml
+
+!include <cloudinsight/kafka>
+!include <kubernetes/k8s-sprites-unlabeled-25pct>
+
+header Sequence diagram for the whole CCX (external) data pipeline
+footer Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky
+
+participant "<$master>\nInsights operator" as operator
+participant "3Scale" as 3scale
+participant "Ingress\nservice" as ingress
+participant "Insights\nstorage broker" as isb
+queue "<$kafka>\nplatform.upload.buckit" as upload_topic
+database "S3 bucket" as s3
+participant "CCX\nData pipeline" as pipeline #ff8080
+queue "<$kafka>\nccx.ocp.results" as results_topic
+participant "Insights Results\nRB writer" as db_writer #a0a0ff
+database "AWS RDS DB" as storage
+participant "Insights\nResults Aggregator" as aggregator #a0a0ff
+participant "Insights\nContent Service" as content_service #a0a0ff
+participant "Smart\nProxy" as smart_proxy #a0a0ff
+collections "REST API\nconsumers" as consumers
+
+== Storing raw data sent by Insights Operator ==
+operator -> 3scale: Insights archive
+3scale -> ingress: Insights\narchive\nwith\nauth.token
+ingress -> isb: Tarball\nfrom IO
+isb -> s3: Store tarball
+s3 -> isb: Here's link to new object
+isb -> upload_topic: Link to S3
+
+== Applying OCP rules to raw data ==
+pipeline -> upload_topic: Consume message
+upload_topic -> pipeline: Link to S3
+pipeline -> s3: Read object
+s3 -> pipeline: Tarball\nfrom IO
+pipeline -> pipeline: Apply\nOCP rules
+pipeline -> results_topic: OCP results
+
+== Collecting OCP results ==
+db_writer -> results_topic: Consume message
+results_topic -> db_writer: OCP results
+db_writer -> storage: OCP results\norg ID\ncluster ID
+
+== Providing recommendations to consumers ==
+consumers -> smart_proxy: Get\nrecommendations\norg ID\ncluster ID
+smart_proxy -> aggregator: Get OCP results\norg ID\ncluster ID
+aggregator -> storage: Read OCP results\norg ID\ncluster ID
+storage -> aggregator: Here are results
+aggregator -> smart_proxy: Here are results
+smart_proxy -> content_service: Get content\nfor rule ID
+content_service -> smart_proxy: Here's\nrequired\ncontent
+smart_proxy -> smart_proxy: Merge results\nwith content
+smart_proxy -> consumers: Recommendations\nfor cluster
+
+@enduml

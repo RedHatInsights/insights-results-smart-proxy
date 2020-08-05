@@ -14,7 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Entry point to the insights results smart proxy
+// Entry point to the insights results smart proxy REST API service.
+// This file contains functions needed to start the service from command line.
 package main
 
 import (
@@ -26,6 +27,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/metrics"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
@@ -35,8 +37,12 @@ import (
 	proxy_content "github.com/RedHatInsights/insights-results-smart-proxy/content"
 )
 
+// ExitCode represents numeric value returned to parent process when the
+// current process finishes
+type ExitCode int
+
 const (
-	// ExitStatusOK means that the tool finished with success
+	// ExitStatusOK means that the service have finished with success
 	ExitStatusOK = iota
 	// ExitStatusServerError means that the HTTP server cannot be initialized
 	ExitStatusServerError
@@ -62,14 +68,17 @@ The commands are:
 
 `
 
+// serverInstance represents instance of REST API server
 var serverInstance *server.HTTPServer
 
-func printHelp() int {
+// printHelp function displays help on the standard output.
+func printHelp() ExitCode {
 	fmt.Printf(helpMessageTemplate, os.Args[0])
 	return ExitStatusOK
 }
 
-func printConfig() int {
+// printConfig function displays loaded configuration on the standard output.
+func printConfig() ExitCode {
 	configBytes, err := json.MarshalIndent(conf.Config, "", "    ")
 
 	if err != nil {
@@ -77,12 +86,14 @@ func printConfig() int {
 		return 1
 	}
 
+	// convert configuration to string and displays it to standard output
 	fmt.Println(string(configBytes))
 
 	return ExitStatusOK
 }
 
-func printEnv() int {
+// printEnv function prints all environment variables to standard output.
+func printEnv() ExitCode {
 	for _, keyVal := range os.Environ() {
 		fmt.Println(keyVal)
 	}
@@ -90,12 +101,17 @@ func printEnv() int {
 	return ExitStatusOK
 }
 
-// startService starts service and returns error code
-func startServer() int {
+// startService function starts service and returns error code.
+func startServer() ExitCode {
 	_ = conf.GetSetupConfiguration()
 	serverCfg := conf.GetServerConfiguration()
+	metricsCfg := conf.GetMetricsConfiguration()
 	servicesCfg := conf.GetServicesConfiguration()
 	groupsChannel := make(chan []groups.Group)
+
+	if metricsCfg.Namespace != "" {
+		metrics.AddAPIMetricsWithNamespace(metricsCfg.Namespace)
+	}
 	serverInstance = server.New(serverCfg, servicesCfg, groupsChannel)
 
 	go updateGroupInfo(servicesCfg, groupsChannel)
@@ -141,7 +157,7 @@ func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []g
 }
 
 // handleCommand select the function to be called depending on command argument
-func handleCommand(command string) int {
+func handleCommand(command string) ExitCode {
 	switch command {
 	case "start-service":
 		return startServer()
@@ -166,6 +182,7 @@ func handleCommand(command string) int {
 	return ExitStatusOK
 }
 
+// main represents entry point to CLI client.
 func main() {
 	err := conf.LoadConfiguration(defaultConfigFileName)
 
@@ -182,7 +199,7 @@ func main() {
 	flag.Parse()
 
 	if showHelp {
-		os.Exit(printHelp())
+		os.Exit(int(printHelp()))
 	}
 
 	if showVersion {
@@ -197,5 +214,5 @@ func main() {
 		command = strings.ToLower(strings.TrimSpace(args[0]))
 	}
 
-	os.Exit(handleCommand(command))
+	os.Exit(int(handleCommand(command)))
 }
