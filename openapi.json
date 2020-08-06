@@ -161,6 +161,7 @@
       "get": {
         "summary": "Returns a list of clusters associated with the specified organization ID.",
         "operationId": "getClustersForOrganization",
+        "description": "Returns a list of clusters, ie. cluster IDs, that are associated with the specified organization ID. Please note that there is 1:N organization to cluster mapping, ie. one cluster belongs exactly to one organization.",
         "parameters": [
           {
             "name": "orgId",
