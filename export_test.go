@@ -16,7 +16,7 @@ limitations under the License.
 
 package main
 
-// Export for testing
+// Export for testing.
 //
 // This source file contains name aliases of all package-private functions
 // that need to be called from unit tests. Aliases should start with uppercase
@@ -24,7 +24,8 @@ package main
 //
 // Please look into the following blogpost:
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
-// to see why this trick is needed.
+// to see why this trick is needed for using package internal
+// symbols (externally invisible) in unit tests.
 var (
 	StartServer      = startServer
 	PrintVersionInfo = printVersionInfo
