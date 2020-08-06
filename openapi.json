@@ -606,6 +606,7 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "schema": {
               "type": "string",
               "minLength": 36,
@@ -617,6 +618,7 @@
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "example": "some.python.module",
             "schema": {
               "type": "string"
             }
