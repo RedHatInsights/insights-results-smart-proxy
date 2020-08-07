@@ -134,3 +134,81 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 		return
 	}
 }
+
+// overviewEndpoint returns a map with an overview of number of clusters hit by rules
+func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *http.Request) {
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	userID := authToken.AccountNumber
+	orgID := authToken.Internal.OrgID
+
+	clustersHits := 0
+	var hitsByTotalRisk map[int]int
+	var hitsByTags map[string]int
+
+	clusters, err := server.readClusterIDsForOrgId(orgID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	for _, clusterID := range clusters {
+		aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
+		if !successful {
+			log.Info().Msgf("Aggregator doesn't have reports for cluster ID %s", clusterID)
+			continue
+		}
+
+		if aggregatorResponse.Meta.Count == 0 {
+			continue
+		}
+		clustersHits = clustersHits + 1
+
+		var cacheTotalRisk map[int]bool
+		var cacheTags map[string]bool
+		for _, report := range aggregatorResponse.Report {
+			ruleID := report.Module
+			errorKey := report.ErrorKey
+
+			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+			if err != nil {
+				handleServerError(writer, err)
+				return
+			}
+
+			if val, found := cacheTotalRisk[ruleWithContent.TotalRisk]; !found || val {
+				hitsByTotalRisk[ruleWithContent.TotalRisk] += 1
+				cacheTotalRisk[ruleWithContent.TotalRisk] = true
+			}
+
+			for _, tag := range ruleWithContent.Tags {
+				if val, found := cacheTags[tag]; !found || val {
+					hitsByTags[tag] += 1
+					cacheTags[tag] = true
+				}
+			}
+		}
+	}
+
+	type response struct {
+		clustersHit            int            `json:"clusters_hit"`
+		clustersHitByTotalRisk map[int]int    `json:"hit_by_risk"`
+		clustersHitByTag       map[string]int `json:"hit_by_tag"`
+	}
+
+	r := response{
+		clustersHit:            clustersHits,
+		clustersHitByTotalRisk: hitsByTotalRisk,
+		clustersHitByTag:       hitsByTags,
+	}
+
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r))
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}

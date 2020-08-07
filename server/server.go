@@ -332,6 +332,33 @@ func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
 	}
 }
 
+// readClusterIDsForOrgID reads the list of clusters for a given
+// organization from aggregator
+func (server HTTPServer) readClusterIDsForOrgId(orgID types.OrgID) ([]types.ClusterName, error) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ClustersForOrganizationEndpoint,
+		orgID,
+	)
+
+	response, err := http.Get(aggregatorURL)
+	if err != nil {
+		return nil, err
+	}
+
+	type clustersResponse struct {
+		status   string              `json:"status"`
+		clusters []types.ClusterName `json:"clusters"`
+	}
+
+	var recvMsg clustersResponse
+	if err = json.NewDecoder(response.Body).Decode(&recvMsg); err != nil {
+		return nil, err
+	}
+
+	return recvMsg.clusters, nil
+}
+
 // readAggregatorReportForClusterID reads report from aggregator,
 // handles errors by sending corresponding message to the user.
 // Returns report and bool value set to true if there was no errors

@@ -279,6 +279,54 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
+// TestHTTPServer_OverviewEndpoint
+// TODO:
+// - Define organization's clusters response in testdata
+// - Check that returned value by the API is the expected
+// - Add checks with invalid orgs, credentials, etc for forcing errors
+func TestHTTPServer_OverviewEndpoint(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+		defer helpers.CleanAfterGock(t)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       `{"status": "ok","clusters":["` + string(testdata.ClusterName) + `"]}`,
+		})
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: server.OverviewEndpoint,
+			OrgID:    testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+		})
+	}, testTimeout)
+}
+
 func TestInternalOrganizations(t *testing.T) {
 	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1})
 
