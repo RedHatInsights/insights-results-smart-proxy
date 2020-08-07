@@ -1383,7 +1383,7 @@
     },
     "/overview": {
       "get": {
-        "summary": "Get relevant data for an overview of hitting rules in the clusters for this irganziation",
+        "summary": "Get relevant data for an overview of hitting rules in the clusters for this organziation",
         "operationId": "getOverviewForOrganization",
         "description": "Retrieves an overview data about the clusters being hit by rules",
         "parameters": [],
