@@ -39,7 +39,7 @@ const (
 	// Content returns all the static content avaiable for the user
 	Content = "content"
 	// SingleRuleEndpoint returns single rule with static content for {cluster} and {rule_id}
-	SingleRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/report"
+	SingleRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/error_keys/{error_key}/report"
 	// MetricsEndpoint returns prometheus metrics
 	MetricsEndpoint = "metrics"
 	// LikeRuleEndpoint likes rule with {rule_id} for {cluster} using current user(from auth header)

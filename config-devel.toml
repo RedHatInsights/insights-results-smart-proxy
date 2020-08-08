@@ -12,7 +12,7 @@ internal_rules_organizations = []
 log_auth_token = true
 
 [services]
-aggregator = "http://localhost:8080/api/v1/"
+aggregator = "http://localhost:8080/api/insights-results-aggregator/v1/"
 content = "http://localhost:8082/api/v1/"
 groups_poll_time = "60s"
 

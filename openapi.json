@@ -353,7 +353,7 @@
         ]
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/report": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_keys/{errorKey}/report": {
       "get": {
         "summary": "Returns the latest single rule report for a cluster that contains information and content. Information about the org_id and user_id is taken from the token.",
         "operationId": "getSingleReportForCluster",
@@ -372,6 +372,14 @@
           },
           {
             "name": "ruleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "errorKey",
             "in": "path",
             "required": true,
             "schema": {

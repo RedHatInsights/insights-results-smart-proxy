@@ -18,14 +18,19 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
+)
+
+var (
+	readRuleID   = httputils.ReadRuleID
+	readErrorKey = httputils.ReadErrorKey
 )
 
 // getRouterParam retrieves parameter from URL like `/organization/{org_id}`
@@ -213,43 +218,4 @@ func readOrganizationIDs(writer http.ResponseWriter, request *http.Request) ([]t
 	}
 
 	return organizationsConverted, nil
-}
-
-func readRuleID(writer http.ResponseWriter, request *http.Request) (types.RuleID, error) {
-	ruleID, err := getRouterParam(request, "rule_id")
-	if err != nil {
-		const message = "unable to get rule id"
-		log.Error().Err(err).Msg(message)
-		handleServerError(writer, err)
-		return types.RuleID(0), err
-	}
-
-	ruleIDValidator := regexp.MustCompile(`^[a-zA-Z_0-9.]+$`)
-
-	isRuleIDValid := ruleIDValidator.Match([]byte(ruleID))
-
-	if !isRuleIDValid {
-		err = fmt.Errorf("invalid rule ID, it must contain only from latin characters, number, underscores or dots")
-		log.Error().Err(err)
-		handleServerError(writer, &RouterParsingError{
-			paramName:  "rule_id",
-			paramValue: ruleID,
-			errString:  err.Error(),
-		})
-		return types.RuleID(0), err
-	}
-
-	return types.RuleID(ruleID), nil
-}
-
-func readErrorKey(writer http.ResponseWriter, request *http.Request) (types.ErrorKey, error) {
-	errorKey, err := getRouterParam(request, "error_key")
-	if err != nil {
-		const message = "unable to get error_key"
-		log.Error().Err(err).Msg(message)
-		handleServerError(writer, err)
-		return types.ErrorKey(0), err
-	}
-
-	return types.ErrorKey(errorKey), nil
 }

@@ -365,10 +365,13 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	}
 
 	if aggregatorResp.StatusCode != http.StatusOK {
+		log.Warn().Msgf("aggregator returned %v status code", aggregatorResp.StatusCode)
+
 		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 		if err != nil {
 			log.Error().Err(err).Msg(responseDataError)
 		}
+
 		return nil, false
 	}
 
@@ -387,6 +390,13 @@ func (server HTTPServer) fetchAggregatorReport(
 	clusterID, successful := httputils.ReadClusterName(writer, request)
 	// Error message handled by function
 	if !successful {
+		return nil, false
+	}
+
+	if !server.Config.Auth {
+		handleServerError(writer, &types.AuthenticationError{
+			ErrString: "authentication have to be enabled in order to use this endpoint",
+		})
 		return nil, false
 	}
 
@@ -455,23 +465,20 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 }
 
 func (server HTTPServer) findRule(
-	writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID,
-) (proxy_types.RuleWithContentResponse, bool) {
-	var rule proxy_types.RuleWithContentResponse
-	found := false
-
+	writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID, requestErrorKey types.ErrorKey,
+) (*proxy_types.RuleWithContentResponse, bool) {
 	for _, aggregatorRule := range report {
 		ruleID := aggregatorRule.Module
-		if ruleID == requestRuleID {
-			errorKey := aggregatorRule.ErrorKey
+		errorKey := aggregatorRule.ErrorKey
 
+		if ruleID == requestRuleID && errorKey == requestErrorKey {
 			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
 			if err != nil {
 				handleServerError(writer, err)
-				return rule, false
+				return nil, false
 			}
 
-			rule = proxy_types.RuleWithContentResponse{
+			rule := &proxy_types.RuleWithContentResponse{
 				CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
 				Description:  ruleWithContent.Description,
 				ErrorKey:     errorKey,
@@ -487,24 +494,26 @@ func (server HTTPServer) findRule(
 				Disabled:     aggregatorRule.Disabled,
 				Internal:     ruleWithContent.Internal,
 			}
-			found = true
-			break
+
+			return rule, true
 		}
 	}
 
-	if !found {
-		handleServerError(writer, &types.ItemNotFoundError{
-			ItemID: fmt.Sprintf("%v", requestRuleID),
-		})
-		return rule, false
-	}
+	handleServerError(writer, &types.ItemNotFoundError{
+		ItemID: fmt.Sprintf("%v/%v", requestRuleID, requestErrorKey),
+	})
 
-	return rule, true
+	return nil, false
 }
 
 func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
-	ruleID, err := readRuleID(writer, request)
-	if err != nil {
+	ruleID, successful := readRuleID(writer, request)
+	if !successful {
+		return
+	}
+
+	errorKey, successful := readErrorKey(writer, request)
+	if !successful {
 		return
 	}
 
@@ -514,7 +523,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		return
 	}
 
-	rule, successful := server.findRule(writer, aggregatorResponse.Report, ruleID)
+	rule, successful := server.findRule(writer, aggregatorResponse.Report, ruleID, errorKey)
 	// Error message handled by function
 	if !successful {
 		return
@@ -528,7 +537,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		}
 	}
 
-	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", rule))
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("report", rule))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
