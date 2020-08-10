@@ -145,7 +145,8 @@ letter because unit tests belong to different package.</p>
 
 <p>Please look into the following blogpost:
 https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
-to see why this trick is needed.</p>
+to see why this trick is needed for using package internal
+symbols (externally invisible) in unit tests.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">var</div> <div class="operator">(</div>
 	<div class="ident">UpdateContent</div>             <div class="operator">=</div> <div class="ident">updateContent</div><div class="operator"></div>
