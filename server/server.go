@@ -334,7 +334,7 @@ func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
 
 // readClusterIDsForOrgID reads the list of clusters for a given
 // organization from aggregator
-func (server HTTPServer) readClusterIDsForOrgId(orgID types.OrgID) ([]types.ClusterName, error) {
+func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.ClusterName, error) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ClustersForOrganizationEndpoint,
@@ -347,8 +347,8 @@ func (server HTTPServer) readClusterIDsForOrgId(orgID types.OrgID) ([]types.Clus
 	}
 
 	type clustersResponse struct {
-		status   string              `json:"status"`
-		clusters []types.ClusterName `json:"clusters"`
+		Status   string              `json:"status"`
+		Clusters []types.ClusterName `json:"clusters"`
 	}
 
 	var recvMsg clustersResponse
@@ -356,7 +356,7 @@ func (server HTTPServer) readClusterIDsForOrgId(orgID types.OrgID) ([]types.Clus
 		return nil, err
 	}
 
-	return recvMsg.clusters, nil
+	return recvMsg.Clusters, nil
 }
 
 // readAggregatorReportForClusterID reads report from aggregator,

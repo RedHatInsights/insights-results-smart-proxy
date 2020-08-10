@@ -540,6 +540,38 @@ be handled in middleware which is not optimal</p>
       </tr>
       
       <tr class="section">
+	<td class="doc"><p>readClusterIDsForOrgID reads the list of clusters for a given
+organization from aggregator</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">readClusterIDsForOrgID</div><div class="operator">(</div><div class="ident">orgID</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">ClusterName</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">aggregatorURL</div> <div class="operator">:=</div> <div class="ident">httputils</div><div class="operator">.</div><div class="ident">MakeURLToEndpoint</div><div class="operator">(</div>
+		<div class="ident">server</div><div class="operator">.</div><div class="ident">ServicesConfig</div><div class="operator">.</div><div class="ident">AggregatorBaseEndpoint</div><div class="operator">,</div>
+		<div class="ident">ira_server</div><div class="operator">.</div><div class="ident">ClustersForOrganizationEndpoint</div><div class="operator">,</div>
+		<div class="ident">orgID</div><div class="operator">,</div>
+	<div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">response</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">Get</div><div class="operator">(</div><div class="ident">aggregatorURL</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">type</div> <div class="ident">clustersResponse</div> <div class="keyword">struct</div> <div class="operator">{</div>
+		<div class="ident">Status</div>   <div class="ident">string</div>              <div class="literal">`json:&#34;status&#34;`</div><div class="operator"></div>
+		<div class="ident">Clusters</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">ClusterName</div> <div class="literal">`json:&#34;clusters&#34;`</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">var</div> <div class="ident">recvMsg</div> <div class="ident">clustersResponse</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">NewDecoder</div><div class="operator">(</div><div class="ident">response</div><div class="operator">.</div><div class="ident">Body</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Decode</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">recvMsg</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">return</div> <div class="ident">recvMsg</div><div class="operator">.</div><div class="ident">Clusters</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
 	<td class="doc"><p>readAggregatorReportForClusterID reads report from aggregator,
 handles errors by sending corresponding message to the user.
 Returns report and bool value set to true if there was no errors</p>
