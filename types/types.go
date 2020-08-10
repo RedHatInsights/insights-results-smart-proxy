@@ -23,6 +23,9 @@ import "github.com/RedHatInsights/insights-operator-utils/types"
 // UserID represents type for user id
 type UserID = types.UserID
 
+// OrgID represents type for organization id
+type OrgID = types.OrgID
+
 // ReportResponseMeta contains metadata about the report
 type ReportResponseMeta = types.ReportResponseMeta
 

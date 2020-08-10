@@ -266,16 +266,24 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
-		})
+		helpers.AssertAPIRequest(
+			t,
+			&helpers.DefaultServerConfigAuth,
+			nil,
+			nil,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.ReportEndpoint,
+				EndpointArgs: []interface{}{testdata.ClusterName},
+				UserID:       testdata.UserID,
+				OrgID:        testdata.OrgID,
+				XRHIdentity:  helpers.MakeXRHToken(testdata.UserID, testdata.OrgID),
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
+			},
+		)
 	}, testTimeout)
 }
 

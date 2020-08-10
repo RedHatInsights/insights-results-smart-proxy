@@ -15,6 +15,8 @@
 package helpers
 
 import (
+	"encoding/base64"
+	"fmt"
 	"testing"
 	"time"
 
@@ -23,6 +25,7 @@ import (
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 // APIRequest data type represents APIRequest
@@ -70,6 +73,20 @@ var (
 		Debug:                            true,
 		Auth:                             false,
 		AuthType:                         "",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: false,
+	}
+
+	// DefaultServerConfigAuth is data structure that represents default HTTP
+	// server configuration (with CORS disabled and auth enabled)
+	DefaultServerConfigAuth = server.Configuration{
+		Address:                          ":8081",
+		APIPrefix:                        "/api/v1/",
+		APISpecFile:                      "openapi.json",
+		Debug:                            true,
+		Auth:                             true,
+		AuthType:                         "xrh",
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: false,
@@ -130,4 +147,34 @@ func AssertAPIRequest(
 	// send the request to newly created REST API server and check its
 	// response (if it matches the provided one)
 	helpers.AssertAPIRequest(t, testServer, serverConfig.APIPrefix, request, expectedResponse)
+}
+
+// MakeXRHToken creates an xrh token with provided user id and org id
+func MakeXRHToken(userID types.UserID, orgID types.OrgID) string {
+	template := `{
+        "identity": {
+            "account_number": "%v",
+            "type": "User",
+            "user": {
+                "username": "",
+                "email": "",
+                "first_name": "",
+                "last_name": "",
+                "is_active": true,
+                "is_org_admin": false,
+                "is_internal": false,
+                "locale": "en_US"
+            },
+            "internal": {
+                "org_id": "%v",
+                "auth_type": "basic-auth",
+                "auth_time": 6300
+            }
+        }
+    }`
+
+	token := fmt.Sprintf(template, userID, orgID)
+	token = base64.StdEncoding.EncodeToString([]byte(token))
+
+	return token
 }
