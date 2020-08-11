@@ -11,6 +11,7 @@ require (
 	github.com/Shopify/sarama v1.26.4 // indirect
 	github.com/aws/aws-sdk-go v1.32.11 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
+	github.com/deckarep/golang-set v1.7.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/google/uuid v1.1.1

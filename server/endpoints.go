@@ -55,7 +55,7 @@ const (
 	// EnableRuleForClusterEndpoint re-enables a rule for specified cluster
 	EnableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/enable"
 	// OverviewEndpoint returns some overview data for the clusters belonging to the org id
-	OverviewEndpoint = "overview"
+	OverviewEndpoint = "org_overview"
 
 	// ClustersForOrganizationEndpoint returns all clusters for {organization}
 	ClustersForOrganizationEndpoint = ira_server.ClustersForOrganizationEndpoint

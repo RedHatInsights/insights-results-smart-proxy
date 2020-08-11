@@ -143,55 +143,41 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 		return
 	}
 
-	userID := authToken.AccountNumber
-	orgID := authToken.Internal.OrgID
-
 	clustersHits := 0
-	var hitsByTotalRisk map[int]int = make(map[int]int)
-	var hitsByTags map[string]int = make(map[string]int)
+	hitsByTotalRisk := make(map[int]int)
+	hitsByTags := make(map[string]int)
 
-	clusters, err := server.readClusterIDsForOrgID(orgID)
+	clusters, err := server.readClusterIDsForOrgID(authToken.Internal.OrgID)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
 
 	for _, clusterID := range clusters {
-		aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
-		if !successful {
-			log.Info().Msgf("Aggregator doesn't have reports for cluster ID %s", clusterID)
+		overview, err := server.getOverviewPerCluster(clusterID, authToken, writer)
+		if err != nil {
+			log.Info().Msgf("Problem handling report for cluster %s", clusterID)
 			continue
 		}
 
-		if aggregatorResponse.Meta.Count == 0 {
+		if overview == nil {
 			continue
 		}
-		clustersHits = clustersHits + 1
 
-		var cacheTotalRisk map[int]bool = make(map[int]bool)
-		var cacheTags map[string]bool = make(map[string]bool)
-		for _, report := range aggregatorResponse.Report {
-			ruleID := report.Module
-			errorKey := report.ErrorKey
-
-			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
-			if err != nil {
-				handleServerError(writer, err)
-				return
+		clustersHits++
+		overview.TotalRisksHit.Each(func(elem interface{}) bool {
+			if risk, ok := elem.(int); ok {
+				hitsByTotalRisk[risk]++
 			}
+			return false
+		})
 
-			if val, found := cacheTotalRisk[ruleWithContent.TotalRisk]; !found || val {
-				hitsByTotalRisk[ruleWithContent.TotalRisk]++
-				cacheTotalRisk[ruleWithContent.TotalRisk] = true
+		overview.TagsHit.Each(func(elem interface{}) bool {
+			if tag, ok := elem.(string); ok {
+				hitsByTags[tag]++
 			}
-
-			for _, tag := range ruleWithContent.Tags {
-				if val, found := cacheTags[tag]; !found || val {
-					hitsByTags[tag]++
-					cacheTags[tag] = true
-				}
-			}
-		}
+			return false
+		})
 	}
 
 	type response struct {
@@ -206,8 +192,7 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 		ClustersHitByTag:       hitsByTags,
 	}
 
-	err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r))
-	if err != nil {
+	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
 		handleServerError(writer, err)
 		return
 	}

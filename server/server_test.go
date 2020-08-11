@@ -188,7 +188,7 @@ var (
 			"clusters_hit": 1,
 			"hit_by_risk": map[int]int{
 				1: 1,
-				2: 2,
+				2: 1,
 			},
 			"hit_by_tag": map[string]int{
 				"openshift":            1,
