@@ -408,6 +408,56 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	return aggregatorResponse.Report, true
 }
 
+// readAggregatorRuleForClusterID reads report from aggregator,
+// handles errors by sending corresponding message to the user.
+// Returns report and bool value set to true if there was no errors
+func (server HTTPServer) readAggregatorRuleForClusterID(
+	orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, ruleID types.RuleID, errorKey types.ErrorKey, writer http.ResponseWriter,
+) (*types.RuleOnReport, bool) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.RuleEndpoint,
+		orgID,
+		clusterID,
+		userID,
+		fmt.Sprintf("%v|%v", ruleID, errorKey),
+	)
+
+	// #nosec G107
+	aggregatorResp, err := http.Get(aggregatorURL)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	var aggregatorResponse struct {
+		Report *types.RuleOnReport `json:"report"`
+		Status string              `json:"status"`
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, false
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	return aggregatorResponse.Report, true
+}
+
 func (server HTTPServer) fetchAggregatorReport(
 	writer http.ResponseWriter, request *http.Request,
 ) (*types.ReportResponse, bool) {
@@ -538,22 +588,66 @@ func (server HTTPServer) findRule(
 	return rule, true
 }
 
-func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
-	ruleID, err := readRuleID(writer, request)
+func (server HTTPServer) fetchAggregatorReportRule(
+	writer http.ResponseWriter, request *http.Request,
+) (*types.RuleOnReport, bool) {
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	// Error message handled by function
+	if !successful {
+		return nil, false
+	}
+
+	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
 	if err != nil {
-		return
+		return nil, false
 	}
 
-	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	userID := authToken.AccountNumber
+	orgID := authToken.Internal.OrgID
+
+	aggregatorResponse, successful := server.readAggregatorRuleForClusterID(orgID, clusterID, userID, ruleID, errorKey, writer)
+	if !successful {
+		return nil, false
+	}
+	return aggregatorResponse, true
+}
+
+func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
+	var rule proxy_types.RuleWithContentResponse
+
+	aggregatorResponse, successful := server.fetchAggregatorReportRule(writer, request)
 	// Error message handled by function
 	if !successful {
 		return
 	}
 
-	rule, successful := server.findRule(writer, aggregatorResponse.Report, ruleID)
-	// Error message handled by function
-	if !successful {
+	ruleWithContent, err := content.GetRuleWithErrorKeyContent(aggregatorResponse.Module, aggregatorResponse.ErrorKey)
+	if err != nil {
+		handleServerError(writer, err)
 		return
+	}
+
+	rule = proxy_types.RuleWithContentResponse{
+		CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+		Description:  ruleWithContent.Description,
+		ErrorKey:     aggregatorResponse.ErrorKey,
+		Generic:      ruleWithContent.Generic,
+		Reason:       ruleWithContent.Reason,
+		Resolution:   ruleWithContent.Resolution,
+		TotalRisk:    ruleWithContent.TotalRisk,
+		RiskOfChange: ruleWithContent.RiskOfChange,
+		RuleID:       aggregatorResponse.Module,
+		TemplateData: aggregatorResponse.TemplateData,
+		Tags:         ruleWithContent.Tags,
+		UserVote:     aggregatorResponse.UserVote,
+		Disabled:     aggregatorResponse.Disabled,
+		Internal:     ruleWithContent.Internal,
 	}
 
 	if rule.Internal {

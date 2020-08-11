@@ -44,3 +44,5 @@ require (
 	gopkg.in/h2non/gock.v1 v1.0.15
 	gopkg.in/ini.v1 v1.62.0 // indirect
 )
+
+replace github.com/RedHatInsights/insights-results-aggregator => ../insights-results-aggregator
