@@ -248,6 +248,13 @@ limitations under the License.</p>
 	<td class="doc"><p>EnableRuleForClusterEndpoint re-enables a rule for specified cluster</p>
 </td>
 	<td class="code"><pre><code>	<div class="ident">EnableRuleForClusterEndpoint</div> <div class="operator">=</div> <div class="literal">&#34;clusters/{cluster}/rules/{rule_id}/enable&#34;</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>OverviewEndpoint returns some overview data for the clusters belonging to the org id</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">OverviewEndpoint</div> <div class="operator">=</div> <div class="literal">&#34;org_overview&#34;</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -359,6 +366,7 @@ limitations under the License.</p>
 			<div class="ident">server</div><div class="operator">.</div><div class="ident">newExtractUserIDFromTokenToURLRequestModifier</div><div class="operator">(</div><div class="ident">ira_server</div><div class="operator">.</div><div class="ident">EnableRuleForClusterEndpoint</div><div class="operator">)</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Methods</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">MethodPut</div><div class="operator">,</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodOptions</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">router</div><div class="operator">.</div><div class="ident">HandleFunc</div><div class="operator">(</div><div class="ident">apiPrefix</div><div class="operator">&#43;</div><div class="ident">OverviewEndpoint</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">overviewEndpoint</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Methods</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>

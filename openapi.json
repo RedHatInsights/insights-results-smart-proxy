@@ -1380,6 +1380,61 @@
           "prod"
         ]
       }
+    },
+    "/org_overview": {
+      "get": {
+        "summary": "Get relevant data for an overview of hitting rules in the clusters for this organziation",
+        "operationId": "getOverviewForOrganization",
+        "description": "Retrieves an overview data about the clusters being hit by rules",
+        "parameters": [],
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "overview": {
+                      "type": "object",
+                      "properties": {
+                        "clusters_hit": {
+                          "type": "integer",
+                          "description": "Number of clusters with at least 1 Insights hit.",
+                          "example": "1"
+                        },
+                        "hit_by_risk": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "description": "Number of clusters hit by rules for each criticality",
+                            "example": "1"
+                          }
+                        },
+                        "hit_by_tag": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "description": "Number of clusters hit by rules for each category",
+                            "example": "1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "security": [],

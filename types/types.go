@@ -18,7 +18,10 @@
 // (based on) the common package insights-operator-utils/types.
 package types
 
-import "github.com/RedHatInsights/insights-operator-utils/types"
+import (
+	"github.com/RedHatInsights/insights-operator-utils/types"
+	mapset "github.com/deckarep/golang-set"
+)
 
 // UserID represents type for user id
 type UserID = types.UserID
@@ -55,6 +58,12 @@ type SmartProxyReport struct {
 
 // UserVote is a type for user's vote
 type UserVote = types.UserVote
+
+// ClusterOverview type for handling the overview result for each cluster
+type ClusterOverview struct {
+	TotalRisksHit mapset.Set
+	TagsHit       mapset.Set
+}
 
 const (
 	// UserVoteDislike shows user's dislike

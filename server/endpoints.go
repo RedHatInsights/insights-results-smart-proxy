@@ -54,6 +54,8 @@ const (
 	DisableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/disable"
 	// EnableRuleForClusterEndpoint re-enables a rule for specified cluster
 	EnableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/enable"
+	// OverviewEndpoint returns some overview data for the clusters belonging to the org id
+	OverviewEndpoint = "org_overview"
 
 	// ClustersForOrganizationEndpoint returns all clusters for {organization}
 	ClustersForOrganizationEndpoint = ira_server.ClustersForOrganizationEndpoint
@@ -130,6 +132,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.EnableRuleForClusterEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc(apiPrefix+OverviewEndpoint, server.overviewEndpoint).Methods(http.MethodGet)
 
 	// Content related endpoints
 	server.addContentEndpointsToRouter(router)

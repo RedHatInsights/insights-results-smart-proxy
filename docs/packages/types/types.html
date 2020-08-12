@@ -142,7 +142,10 @@ Insights Results Aggregator, Content Service) and thus they are imported
 </td>
 	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">types</div><div class="operator"></div>
 
-<div class="keyword">import</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
+<div class="keyword">import</div> <div class="operator">(</div>
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
+	<div class="ident">mapset</div> <div class="literal">&#34;github.com/deckarep/golang-set&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
       </tr>
@@ -209,6 +212,17 @@ Insights Results Aggregator, Content Service) and thus they are imported
 	<td class="doc"><p>UserVote is a type for user's vote</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">UserVote</div> <div class="operator">=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVote</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>ClusterOverview type for handling the overview result for each cluster</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ClusterOverview</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">TotalRisksHit</div> <div class="ident">mapset</div><div class="operator">.</div><div class="ident">Set</div><div class="operator"></div>
+	<div class="ident">TagsHit</div>       <div class="ident">mapset</div><div class="operator">.</div><div class="ident">Set</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
 </code></pre></td>

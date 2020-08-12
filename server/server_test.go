@@ -25,6 +25,7 @@ import (
 
 	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
+	"github.com/RedHatInsights/insights-operator-utils/responses"
 	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
@@ -177,6 +178,24 @@ var (
 			},
 		},
 	}
+
+	OverviewResponse = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 1,
+			"hit_by_risk": map[int]int{
+				1: 1,
+				2: 1,
+			},
+			"hit_by_tag": map[string]int{
+				"openshift":            1,
+				"service_availability": 1,
+			},
+		},
+	}
 )
 
 // TODO: move to utils
@@ -275,6 +294,55 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_OverviewEndpoint
+func TestHTTPServer_OverviewEndpoint(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare content
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		// prepare list of organizations response
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
+		})
+
+		// prepare report for cluster
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: server.OverviewEndpoint,
+			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(OverviewResponse),
 		})
 	}, testTimeout)
 }
