@@ -143,11 +143,8 @@ limitations under the License.
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
 	<div class="ident">ics_content</div> <div class="literal">&#34;github.com/RedHatInsights/insights-content-service/content&#34;</div><div class="operator"></div>
-	<div class="ident">ics_server</div> <div class="literal">&#34;github.com/RedHatInsights/insights-content-service/server&#34;</div><div class="operator"></div>
-	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/responses&#34;</div><div class="operator"></div>
 	<div class="ident">iou_types</div> <div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-data/testdata&#34;</div><div class="operator"></div>
-	<div class="ident">ira_server</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator/server&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
 
@@ -281,6 +278,18 @@ This one won't match with the authentication token used</p>
 		<div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
+	<div class="ident">GetContentResponse3Rules</div> <div class="operator">=</div> <div class="keyword">struct</div> <div class="operator">{</div>
+		<div class="ident">Status</div> <div class="ident">string</div>                    <div class="literal">`json:&#34;status&#34;`</div><div class="operator"></div>
+		<div class="ident">Rules</div>  <div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div> <div class="literal">`json:&#34;content&#34;`</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">{</div>
+		<div class="ident">Status</div><div class="operator">:</div> <div class="literal">&#34;ok&#34;</div><div class="operator">,</div>
+		<div class="ident">Rules</div><div class="operator">:</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div>
+			<div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContent1</div><div class="operator">,</div>
+			<div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContent2</div><div class="operator">,</div>
+			<div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContent3</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
 	<div class="ident">RuleContentInternal1</div> <div class="operator">=</div> <div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div>
 		<div class="ident">Summary</div><div class="operator">:</div>    <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1</div><div class="operator">.</div><div class="ident">Summary</div><div class="operator">,</div>
 		<div class="ident">Reason</div><div class="operator">:</div>     <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
@@ -394,247 +403,6 @@ This one won't match with the authentication token used</p>
 	<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>TODO: test more cases for report endpoint</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestHTTPServer_ReportEndpoint</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-		<div class="keyword">defer</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CleanAfterGock</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
-
-		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">AggregatorBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>       <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div>     <div class="ident">ira_server</div><div class="operator">.</div><div class="ident">ReportEndpoint</div><div class="operator">,</div>
-			<div class="ident">EndpointArgs</div><div class="operator">:</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator">{</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">ClusterName</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">UserID</div><div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Report3RulesExpectedResponse</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-
-		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">ContentBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>   <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div> <div class="ident">ics_server</div><div class="operator">.</div><div class="ident">AllContentEndpoint</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">MustGobSerialize</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContentDirectory3Rules</div><div class="operator">)</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-
-		<div class="keyword">go</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">RunUpdateContentLoop</div><div class="operator">(</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">)</div><div class="operator"></div>
-		<div class="keyword">defer</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">StopUpdateContentLoop</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-
-		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>       <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div>     <div class="ident">server</div><div class="operator">.</div><div class="ident">ReportEndpoint</div><div class="operator">,</div>
-			<div class="ident">EndpointArgs</div><div class="operator">:</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator">{</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">ClusterName</div><div class="operator">}</div><div class="operator">,</div>
-			<div class="ident">UserID</div><div class="operator">:</div>       <div class="ident">testdata</div><div class="operator">.</div><div class="ident">UserID</div><div class="operator">,</div>
-			<div class="ident">OrgID</div><div class="operator">:</div>        <div class="ident">testdata</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">ToJSONString</div><div class="operator">(</div><div class="ident">SmartProxyReportResponse3Rules</div><div class="operator">)</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>TestHTTPServer_OverviewEndpoint</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestHTTPServer_OverviewEndpoint</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-		<div class="keyword">defer</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CleanAfterGock</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>prepare content</p>
-</td>
-	<td class="code"><pre><code>		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">ContentBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>   <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div> <div class="ident">ics_server</div><div class="operator">.</div><div class="ident">AllContentEndpoint</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">MustGobSerialize</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContentDirectory3Rules</div><div class="operator">)</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>prepare list of organizations response</p>
-</td>
-	<td class="code"><pre><code>		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">AggregatorBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>       <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div>     <div class="ident">ira_server</div><div class="operator">.</div><div class="ident">ClustersForOrganizationEndpoint</div><div class="operator">,</div>
-			<div class="ident">EndpointArgs</div><div class="operator">:</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator">{</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">ToJSONString</div><div class="operator">(</div><div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponseWithData</div><div class="operator">(</div><div class="literal">&#34;clusters&#34;</div><div class="operator">,</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div><div class="ident">string</div><div class="operator">(</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">ClusterName</div><div class="operator">)</div><div class="operator">}</div><div class="operator">)</div><div class="operator">)</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>prepare report for cluster</p>
-</td>
-	<td class="code"><pre><code>		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">AggregatorBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>       <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div>     <div class="ident">ira_server</div><div class="operator">.</div><div class="ident">ReportEndpoint</div><div class="operator">,</div>
-			<div class="ident">EndpointArgs</div><div class="operator">:</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator">{</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">ClusterName</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">UserID</div><div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Report3RulesExpectedResponse</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-
-		<div class="keyword">go</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">RunUpdateContentLoop</div><div class="operator">(</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">)</div><div class="operator"></div>
-		<div class="keyword">defer</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">StopUpdateContentLoop</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-
-		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>   <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">OverviewEndpoint</div><div class="operator">,</div>
-			<div class="ident">OrgID</div><div class="operator">:</div>    <div class="ident">testdata</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">,</div>
-			<div class="ident">UserID</div><div class="operator">:</div>   <div class="ident">testdata</div><div class="operator">.</div><div class="ident">UserID</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">ToJSONString</div><div class="operator">(</div><div class="ident">OverviewResponse</div><div class="operator">)</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-<div class="keyword">func</div> <div class="ident">TestInternalOrganizations</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div><div class="ident">RuleContentInternal1</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-
-	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">testCase</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">struct</div> <div class="operator">{</div>
-		<div class="ident">TestName</div>           <div class="ident">string</div><div class="operator"></div>
-		<div class="ident">ServerConfig</div>       <div class="operator">*</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator"></div>
-		<div class="ident">ExpectedStatusCode</div> <div class="ident">int</div><div class="operator"></div>
-		<div class="ident">MockAuthToken</div>      <div class="ident">string</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator">{</div>
-		<div class="operator">{</div>
-			<div class="literal">&#34;Internal organizations enabled, Request denied&#34;</div><div class="operator">,</div>
-			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
-			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusForbidden</div><div class="operator">,</div>
-			<div class="ident">badJWTAuthBearer</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">{</div>
-			<div class="literal">&#34;Internal organizations enabled, Request allowed&#34;</div><div class="operator">,</div>
-			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
-			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">{</div>
-			<div class="literal">&#34;Internal organizations disabled, Request allowed&#34;</div><div class="operator">,</div>
-			<div class="operator">&amp;</div><div class="ident">serverConfigJWT</div><div class="operator">,</div>
-			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">badJWTAuthBearer</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div>
-	<div class="operator">}</div> <div class="operator">{</div>
-		<div class="ident">t</div><div class="operator">.</div><div class="ident">Run</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">TestName</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-			<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-				<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">ServerConfig</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-					<div class="ident">Method</div><div class="operator">:</div>             <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-					<div class="ident">Endpoint</div><div class="operator">:</div>           <div class="ident">server</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">,</div>
-					<div class="ident">EndpointArgs</div><div class="operator">:</div>       <div class="operator">[</div><div class="operator">]</div><div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator">{</div><div class="ident">internalTestRuleModule</div><div class="operator">}</div><div class="operator">,</div>
-					<div class="ident">AuthorizationToken</div><div class="operator">:</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">MockAuthToken</div><div class="operator">,</div>
-				<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-					<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">ExpectedStatusCode</div><div class="operator">,</div>
-				<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-			<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>TestRuleNames checks the REST API server behaviour for rules endpoint</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestRuleNames</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">testCase</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="operator">[</div><div class="operator">]</div><div class="keyword">struct</div> <div class="operator">{</div>
-		<div class="ident">TestName</div>           <div class="ident">string</div><div class="operator"></div>
-		<div class="ident">ServerConfig</div>       <div class="operator">*</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator"></div>
-		<div class="ident">ExpectedStatusCode</div> <div class="ident">int</div><div class="operator"></div>
-		<div class="ident">MockAuthToken</div>      <div class="ident">string</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator">{</div>
-		<div class="operator">{</div>
-			<div class="literal">&#34;Internal orgs enabled, no authentication&#34;</div><div class="operator">,</div>
-			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
-			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusForbidden</div><div class="operator">,</div>
-			<div class="literal">&#34;&#34;</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div>
-		<div class="operator">{</div>
-			<div class="literal">&#34;Internal orgs enabled, authentication provided&#34;</div><div class="operator">,</div>
-			<div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div>
-			<div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div>
-	<div class="operator">}</div> <div class="operator">{</div>
-		<div class="ident">t</div><div class="operator">.</div><div class="ident">Run</div><div class="operator">(</div><div class="ident">testCase</div><div class="operator">.</div><div class="ident">TestName</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-			<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-				<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">ServerConfig</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-					<div class="ident">Method</div><div class="operator">:</div>             <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-					<div class="ident">Endpoint</div><div class="operator">:</div>           <div class="ident">server</div><div class="operator">.</div><div class="ident">RuleIDs</div><div class="operator">,</div>
-					<div class="ident">AuthorizationToken</div><div class="operator">:</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">MockAuthToken</div><div class="operator">,</div>
-				<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-					<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">testCase</div><div class="operator">.</div><div class="ident">ExpectedStatusCode</div><div class="operator">,</div>
-				<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-			<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>TestRuleNamesResponse checks the REST API status and response</p>
-</td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">TestRuleNamesResponse</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">content</div><div class="operator">.</div><div class="ident">ResetContent</div><div class="operator">(</div><div class="operator">)</div><div class="operator"></div>
-	<div class="ident">loadMockRuleContentDir</div><div class="operator">(</div><div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div><div class="ident">RuleContentInternal1</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContent1</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-
-	<div class="ident">expectedBody</div> <div class="operator">:=</div> <div class="literal">`
-		{
-			&#34;rules&#34;: [&#34;ccx_rules_ocp.external.rules.node_installer_degraded&#34;, &#34;foo.rules.internal.bar&#34;],
-			&#34;status&#34;: &#34;ok&#34;
-		}
-	`</div><div class="operator"></div>
-	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations1</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>             <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div>           <div class="ident">server</div><div class="operator">.</div><div class="ident">RuleIDs</div><div class="operator">,</div>
-			<div class="ident">AuthorizationToken</div><div class="operator">:</div> <div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div>  <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>        <div class="ident">expectedBody</div><div class="operator">,</div>
-			<div class="ident">BodyChecker</div><div class="operator">:</div> <div class="ident">ruleIDsChecker</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
-
-	<div class="ident">expectedBody</div> <div class="operator">=</div> <div class="literal">`
-		{
-			&#34;rules&#34;: [&#34;ccx_rules_ocp.external.rules.node_installer_degraded&#34;],
-			&#34;status&#34;: &#34;ok&#34;
-		}`</div><div class="operator"></div>
-	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
-		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">AssertAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">serverConfigInternalOrganizations2</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
-			<div class="ident">Method</div><div class="operator">:</div>             <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
-			<div class="ident">Endpoint</div><div class="operator">:</div>           <div class="ident">server</div><div class="operator">.</div><div class="ident">RuleIDs</div><div class="operator">,</div>
-			<div class="ident">AuthorizationToken</div><div class="operator">:</div> <div class="ident">goodJWTAuthBearer</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
-			<div class="ident">StatusCode</div><div class="operator">:</div>  <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
-			<div class="ident">Body</div><div class="operator">:</div>        <div class="ident">expectedBody</div><div class="operator">,</div>
-			<div class="ident">BodyChecker</div><div class="operator">:</div> <div class="ident">ruleIDsChecker</div><div class="operator">,</div>
-		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
-<div class="operator">}</div><div class="operator"></div>
-
 <div class="keyword">func</div> <div class="ident">ruleIDsChecker</div><div class="operator">(</div><div class="ident">t</div> <div class="ident">testing</div><div class="operator">.</div><div class="ident">TB</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">,</div> <div class="ident">got</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">type</div> <div class="ident">Response</div> <div class="keyword">struct</div> <div class="operator">{</div>
 		<div class="ident">Status</div> <div class="ident">string</div>   <div class="literal">`json:&#34;status&#34;`</div><div class="operator"></div>
@@ -654,6 +422,27 @@ This one won't match with the authentication token used</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">ElementsMatch</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">expectedResp</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">,</div> <div class="ident">gotResp</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">ruleInContentChecker</div><div class="operator">(</div><div class="ident">t</div> <div class="ident">testing</div><div class="operator">.</div><div class="ident">TB</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">,</div> <div class="ident">got</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">byte</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">type</div> <div class="ident">Response</div> <div class="keyword">struct</div> <div class="operator">{</div>
+		<div class="ident">Status</div>  <div class="ident">string</div> <div class="literal">`json:&#34;string&#34;`</div><div class="operator"></div>
+		<div class="ident">Content</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">var</div> <div class="ident">expectedResp</div><div class="operator">,</div> <div class="ident">gotResp</div> <div class="ident">Response</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">Unmarshal</div><div class="operator">(</div><div class="ident">expected</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">expectedResp</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">`&#34;expected&#34; is not JSON. value = &#34;%v&#34;, err = &#34;%v&#34;`</div><div class="operator">,</div> <div class="ident">expected</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">FailOnError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">json</div><div class="operator">.</div><div class="ident">Unmarshal</div><div class="operator">(</div><div class="ident">got</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">gotResp</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">err</div> <div class="operator">=</div> <div class="ident">fmt</div><div class="operator">.</div><div class="ident">Errorf</div><div class="operator">(</div><div class="literal">`&#34;got&#34; is not JSON. value = &#34;%v&#34;, err = &#34;%v&#34;`</div><div class="operator">,</div> <div class="ident">got</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">FailOnError</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">assert</div><div class="operator">.</div><div class="ident">ElementsMatch</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">expectedResp</div><div class="operator">.</div><div class="ident">Content</div><div class="operator">,</div> <div class="ident">gotResp</div><div class="operator">.</div><div class="ident">Content</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
