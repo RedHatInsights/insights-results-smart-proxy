@@ -24,11 +24,8 @@ import (
 	"time"
 
 	ics_content "github.com/RedHatInsights/insights-content-service/content"
-	ics_server "github.com/RedHatInsights/insights-content-service/server"
-	"github.com/RedHatInsights/insights-operator-utils/responses"
 	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
-	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 
@@ -152,6 +149,18 @@ var (
 		},
 	}
 
+	GetContentResponse3Rules = struct {
+		Status string                    `json:"status"`
+		Rules  []ics_content.RuleContent `json:"content"`
+	}{
+		Status: "ok",
+		Rules: []ics_content.RuleContent{
+			testdata.RuleContent1,
+			testdata.RuleContent2,
+			testdata.RuleContent3,
+		},
+	}
+
 	RuleContentInternal1 = ics_content.RuleContent{
 		Summary:    testdata.Rule1.Summary,
 		Reason:     testdata.Rule1.Reason,
@@ -260,212 +269,6 @@ func TestAddCORSHeaders(t *testing.T) {
 	})
 }
 
-// TODO: test more cases for report endpoint
-func TestHTTPServer_ReportEndpoint(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		defer helpers.CleanAfterGock(t)
-
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3RulesExpectedResponse,
-		})
-
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
-
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
-		})
-	}, testTimeout)
-}
-
-// TestHTTPServer_OverviewEndpoint
-func TestHTTPServer_OverviewEndpoint(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		defer helpers.CleanAfterGock(t)
-
-		// prepare content
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		// prepare list of organizations response
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
-		})
-
-		// prepare report for cluster
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3RulesExpectedResponse,
-		})
-
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
-
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: server.OverviewEndpoint,
-			OrgID:    testdata.OrgID,
-			UserID:   testdata.UserID,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(OverviewResponse),
-		})
-	}, testTimeout)
-}
-
-func TestInternalOrganizations(t *testing.T) {
-	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1})
-
-	for _, testCase := range []struct {
-		TestName           string
-		ServerConfig       *server.Configuration
-		ExpectedStatusCode int
-		MockAuthToken      string
-	}{
-		{
-			"Internal organizations enabled, Request denied",
-			&serverConfigInternalOrganizations1,
-			http.StatusForbidden,
-			badJWTAuthBearer,
-		},
-		{
-			"Internal organizations enabled, Request allowed",
-			&serverConfigInternalOrganizations1,
-			http.StatusOK,
-			goodJWTAuthBearer,
-		},
-		{
-			"Internal organizations disabled, Request allowed",
-			&serverConfigJWT,
-			http.StatusOK,
-			badJWTAuthBearer,
-		},
-	} {
-		t.Run(testCase.TestName, func(t *testing.T) {
-			helpers.RunTestWithTimeout(t, func(t *testing.T) {
-				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
-					Method:             http.MethodGet,
-					Endpoint:           server.RuleContent,
-					EndpointArgs:       []interface{}{internalTestRuleModule},
-					AuthorizationToken: testCase.MockAuthToken,
-				}, &helpers.APIResponse{
-					StatusCode: testCase.ExpectedStatusCode,
-				})
-			}, testTimeout)
-		})
-	}
-}
-
-// TestRuleNames checks the REST API server behaviour for rules endpoint
-func TestRuleNames(t *testing.T) {
-	for _, testCase := range []struct {
-		TestName           string
-		ServerConfig       *server.Configuration
-		ExpectedStatusCode int
-		MockAuthToken      string
-	}{
-		{
-			"Internal orgs enabled, no authentication",
-			&serverConfigInternalOrganizations1,
-			http.StatusForbidden,
-			"",
-		},
-		{
-			"Internal orgs enabled, authentication provided",
-			&serverConfigInternalOrganizations1,
-			http.StatusOK,
-			goodJWTAuthBearer,
-		},
-	} {
-		t.Run(testCase.TestName, func(t *testing.T) {
-			helpers.RunTestWithTimeout(t, func(t *testing.T) {
-				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
-					Method:             http.MethodGet,
-					Endpoint:           server.RuleIDs,
-					AuthorizationToken: testCase.MockAuthToken,
-				}, &helpers.APIResponse{
-					StatusCode: testCase.ExpectedStatusCode,
-				})
-			}, testTimeout)
-		})
-	}
-}
-
-// TestRuleNamesResponse checks the REST API status and response
-func TestRuleNamesResponse(t *testing.T) {
-	content.ResetContent()
-	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1, testdata.RuleContent1})
-
-	expectedBody := `
-		{
-			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "foo.rules.internal.bar"],
-			"status": "ok"
-		}
-	`
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations1, nil, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RuleIDs,
-			AuthorizationToken: goodJWTAuthBearer,
-		}, &helpers.APIResponse{
-			StatusCode:  http.StatusOK,
-			Body:        expectedBody,
-			BodyChecker: ruleIDsChecker,
-		})
-	}, testTimeout)
-
-	expectedBody = `
-		{
-			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded"],
-			"status": "ok"
-		}`
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
-		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations2, nil, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RuleIDs,
-			AuthorizationToken: goodJWTAuthBearer,
-		}, &helpers.APIResponse{
-			StatusCode:  http.StatusOK,
-			Body:        expectedBody,
-			BodyChecker: ruleIDsChecker,
-		})
-	}, testTimeout)
-}
-
 func ruleIDsChecker(t testing.TB, expected, got []byte) {
 	type Response struct {
 		Status string   `json:"status"`
@@ -485,4 +288,25 @@ func ruleIDsChecker(t testing.TB, expected, got []byte) {
 	}
 
 	assert.ElementsMatch(t, expectedResp.Rules, gotResp.Rules)
+}
+
+func ruleInContentChecker(t testing.TB, expected, got []byte) {
+	type Response struct {
+		Status  string `json:"string"`
+		Content []ics_content.RuleContent
+	}
+
+	var expectedResp, gotResp Response
+
+	if err := json.Unmarshal(expected, &expectedResp); err != nil {
+		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
+		helpers.FailOnError(t, err)
+	}
+
+	if err := json.Unmarshal(got, &gotResp); err != nil {
+		err = fmt.Errorf(`"got" is not JSON. value = "%v", err = "%v"`, got, err)
+		helpers.FailOnError(t, err)
+	}
+
+	assert.ElementsMatch(t, expectedResp.Content, gotResp.Content)
 }
