@@ -84,7 +84,7 @@ func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Re
 	var rules []ics_content.RuleContent
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
-		for _, rule := range rules {
+		for _, rule := range allRules {
 			if !content.IsRuleInternal(types.RuleID(rule.Plugin.PythonModule)) {
 				rules = append(rules, rule)
 			}
