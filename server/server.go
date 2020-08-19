@@ -40,6 +40,7 @@ import (
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
@@ -332,6 +333,30 @@ func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
 	}
 }
 
+// readClusterIDsForOrgID reads the list of clusters for a given
+// organization from aggregator
+func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.ClusterName, error) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ClustersForOrganizationEndpoint,
+		orgID,
+	)
+
+	// #nosec G107
+	response, err := http.Get(aggregatorURL)
+	if err != nil {
+		return nil, err
+	}
+
+	var recvMsg struct {
+		Status   string              `json:"status"`
+		Clusters []types.ClusterName `json:"clusters"`
+	}
+
+	err = json.NewDecoder(response.Body).Decode(&recvMsg)
+	return recvMsg.Clusters, err
+}
+
 // readAggregatorReportForClusterID reads report from aggregator,
 // handles errors by sending corresponding message to the user.
 // Returns report and bool value set to true if there was no errors
@@ -583,4 +608,44 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 
 		return request, nil
 	}
+}
+
+func (server HTTPServer) getOverviewPerCluster(
+	clusterName types.ClusterName,
+	authToken *types.Identity,
+	writer http.ResponseWriter) (*proxy_types.ClusterOverview, error) {
+
+	userID := authToken.AccountNumber
+	orgID := authToken.Internal.OrgID
+	aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterName, userID, writer)
+	if !successful {
+		log.Info().Msgf("Aggregator doesn't have reports for cluster ID %s", clusterName)
+		return nil, nil
+	}
+
+	if aggregatorResponse.Meta.Count == 0 {
+		return nil, nil
+	}
+
+	totalRisks := mapset.NewSet()
+	tags := mapset.NewSet()
+
+	for _, rule := range aggregatorResponse.Report {
+		ruleID := rule.Module
+		errorKey := rule.ErrorKey
+		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+		if err != nil {
+			return nil, err
+		}
+		totalRisks.Add(ruleWithContent.TotalRisk)
+
+		for _, tag := range ruleWithContent.Tags {
+			tags.Add(tag)
+		}
+	}
+
+	return &proxy_types.ClusterOverview{
+		TotalRisksHit: totalRisks,
+		TagsHit:       tags,
+	}, nil
 }

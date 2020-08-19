@@ -10,6 +10,7 @@
     "/openapi.json": {
       "get": {
         "summary": "Returns the OpenAPI specification JSON.",
+        "description": "The OpenAPI specification of this REST API service that is represented in formatted and human-readable JSON is available under this endpoint.",
         "operationId": "getOpenApi",
         "responses": {
           "200": {
@@ -161,6 +162,7 @@
       "get": {
         "summary": "Returns a list of clusters associated with the specified organization ID.",
         "operationId": "getClustersForOrganization",
+        "description": "Returns a list of clusters, ie. cluster IDs, that are associated with the specified organization ID. Please note that there is 1:N organization to cluster mapping, ie. one cluster belongs exactly to one organization.",
         "parameters": [
           {
             "name": "orgId",
@@ -217,6 +219,7 @@
             "in": "path",
             "required": true,
             "description": "ID of the cluster which must conform to UUID format.",
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "schema": {
               "type": "string",
               "minLength": 36,
@@ -363,20 +366,24 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format.",
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            }
+            },
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "some.python.module"
           }
         ],
         "responses": {
@@ -494,20 +501,24 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format.",
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            }
+            },
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "some.python.module"
           }
         ],
         "responses": {
@@ -544,20 +555,24 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format",
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            }
+            },
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "some.python.module"
           }
         ],
         "responses": {
@@ -594,6 +609,8 @@
             "name": "clusterId",
             "in": "path",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format.",
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "schema": {
               "type": "string",
               "minLength": 36,
@@ -605,6 +622,8 @@
             "name": "ruleId",
             "in": "path",
             "required": true,
+            "description": "ID of a rule",
+            "example": "some.python.module",
             "schema": {
               "type": "string"
             }
@@ -1360,6 +1379,61 @@
           "rule",
           "prod"
         ]
+      }
+    },
+    "/org_overview": {
+      "get": {
+        "summary": "Get relevant data for an overview of hitting rules in the clusters for this organziation",
+        "operationId": "getOverviewForOrganization",
+        "description": "Retrieves an overview data about the clusters being hit by rules",
+        "parameters": [],
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "description": "Status ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "overview": {
+                      "type": "object",
+                      "properties": {
+                        "clusters_hit": {
+                          "type": "integer",
+                          "description": "Number of clusters with at least 1 Insights hit.",
+                          "example": "1"
+                        },
+                        "hit_by_risk": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "description": "Number of clusters hit by rules for each criticality",
+                            "example": "1"
+                          }
+                        },
+                        "hit_by_tag": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "description": "Number of clusters hit by rules for each category",
+                            "example": "1"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },

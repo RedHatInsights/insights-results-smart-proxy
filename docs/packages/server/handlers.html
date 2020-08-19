@@ -233,7 +233,7 @@ and sends the response back to the client</p>
 	<div class="keyword">var</div> <div class="ident">rules</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ics_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator"></div>
 
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">checkInternalRulePermissions</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">rule</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">rules</div> <div class="operator">{</div>
+		<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">rule</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">allRules</div> <div class="operator">{</div>
 			<div class="keyword">if</div> <div class="operator">!</div><div class="ident">content</div><div class="operator">.</div><div class="ident">IsRuleInternal</div><div class="operator">(</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div><div class="operator">(</div><div class="ident">rule</div><div class="operator">.</div><div class="ident">Plugin</div><div class="operator">.</div><div class="ident">PythonModule</div><div class="operator">)</div><div class="operator">)</div> <div class="operator">{</div>
 				<div class="ident">rules</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">,</div> <div class="ident">rule</div><div class="operator">)</div><div class="operator"></div>
 			<div class="operator">}</div><div class="operator"></div>
@@ -299,6 +299,74 @@ and sends the response back to the client</p>
 
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendOK</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponseWithData</div><div class="operator">(</div><div class="literal">&#34;rules&#34;</div><div class="operator">,</div> <div class="ident">ruleIDs</div><div class="operator">)</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>overviewEndpoint returns a map with an overview of number of clusters hit by rules</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">overviewEndpoint</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">authToken</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">GetAuthToken</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">clustersHits</div> <div class="operator">:=</div> <div class="literal">0</div><div class="operator"></div>
+	<div class="ident">hitsByTotalRisk</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">int</div><div class="operator">]</div><div class="ident">int</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">hitsByTags</div> <div class="operator">:=</div> <div class="ident">make</div><div class="operator">(</div><div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">int</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="ident">clusters</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">readClusterIDsForOrgID</div><div class="operator">(</div><div class="ident">authToken</div><div class="operator">.</div><div class="ident">Internal</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">clusterID</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">clusters</div> <div class="operator">{</div>
+		<div class="ident">overview</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getOverviewPerCluster</div><div class="operator">(</div><div class="ident">clusterID</div><div class="operator">,</div> <div class="ident">authToken</div><div class="operator">,</div> <div class="ident">writer</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Problem handling report for cluster %s&#34;</div><div class="operator">,</div> <div class="ident">clusterID</div><div class="operator">)</div><div class="operator"></div>
+			<div class="keyword">continue</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="keyword">if</div> <div class="ident">overview</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
+			<div class="keyword">continue</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="ident">clustersHits</div><div class="operator">&#43;&#43;</div><div class="operator"></div>
+		<div class="ident">overview</div><div class="operator">.</div><div class="ident">TotalRisksHit</div><div class="operator">.</div><div class="ident">Each</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="ident">elem</div> <div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator">)</div> <div class="ident">bool</div> <div class="operator">{</div>
+			<div class="keyword">if</div> <div class="ident">risk</div><div class="operator">,</div> <div class="ident">ok</div> <div class="operator">:=</div> <div class="ident">elem</div><div class="operator">.</div><div class="operator">(</div><div class="ident">int</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">ok</div> <div class="operator">{</div>
+				<div class="ident">hitsByTotalRisk</div><div class="operator">[</div><div class="ident">risk</div><div class="operator">]</div><div class="operator">&#43;&#43;</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">false</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">overview</div><div class="operator">.</div><div class="ident">TagsHit</div><div class="operator">.</div><div class="ident">Each</div><div class="operator">(</div><div class="keyword">func</div><div class="operator">(</div><div class="ident">elem</div> <div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div><div class="operator">)</div> <div class="ident">bool</div> <div class="operator">{</div>
+			<div class="keyword">if</div> <div class="ident">tag</div><div class="operator">,</div> <div class="ident">ok</div> <div class="operator">:=</div> <div class="ident">elem</div><div class="operator">.</div><div class="operator">(</div><div class="ident">string</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">ok</div> <div class="operator">{</div>
+				<div class="ident">hitsByTags</div><div class="operator">[</div><div class="ident">tag</div><div class="operator">]</div><div class="operator">&#43;&#43;</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
+			<div class="keyword">return</div> <div class="ident">false</div><div class="operator"></div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">type</div> <div class="ident">response</div> <div class="keyword">struct</div> <div class="operator">{</div>
+		<div class="ident">ClustersHit</div>            <div class="ident">int</div>            <div class="literal">`json:&#34;clusters_hit&#34;`</div><div class="operator"></div>
+		<div class="ident">ClustersHitByTotalRisk</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">int</div><div class="operator">]</div><div class="ident">int</div>    <div class="literal">`json:&#34;hit_by_risk&#34;`</div><div class="operator"></div>
+		<div class="ident">ClustersHitByTag</div>       <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">int</div> <div class="literal">`json:&#34;hit_by_tag&#34;`</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">r</div> <div class="operator">:=</div> <div class="ident">response</div><div class="operator">{</div>
+		<div class="ident">ClustersHit</div><div class="operator">:</div>            <div class="ident">clustersHits</div><div class="operator">,</div>
+		<div class="ident">ClustersHitByTotalRisk</div><div class="operator">:</div> <div class="ident">hitsByTotalRisk</div><div class="operator">,</div>
+		<div class="ident">ClustersHitByTag</div><div class="operator">:</div>       <div class="ident">hitsByTags</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendOK</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponseWithData</div><div class="operator">(</div><div class="literal">&#34;overview&#34;</div><div class="operator">,</div> <div class="ident">r</div><div class="operator">)</div><div class="operator">)</div><div class="operator">;</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>

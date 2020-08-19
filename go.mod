@@ -11,6 +11,7 @@ require (
 	github.com/Shopify/sarama v1.26.4 // indirect
 	github.com/aws/aws-sdk-go v1.32.11 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
+	github.com/deckarep/golang-set v1.7.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/google/uuid v1.1.1
@@ -32,7 +33,6 @@ require (
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
 	golang.org/x/text v0.3.3 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/h2non/gock.v1 v1.0.15
 	gopkg.in/ini.v1 v1.57.0 // indirect
 )
