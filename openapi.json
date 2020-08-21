@@ -1140,6 +1140,7 @@
         "parameters": [
           {
             "name": "ruleId",
+            "description": "ID that uniquely identifies the rule to return",
             "in": "path",
             "required": true,
             "schema": {
