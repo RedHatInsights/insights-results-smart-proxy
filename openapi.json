@@ -1136,7 +1136,7 @@
       },
       "get": {
         "summary": "getRule returns rule with content for provided rule ID and rule error key",
-        "description": "",
+        "description": "[DEBUG ONLY] Retrieves and returns static content for specifief rule ID and error key",
         "parameters": [
           {
             "name": "ruleId",
