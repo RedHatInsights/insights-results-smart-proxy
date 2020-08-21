@@ -777,6 +777,7 @@
     "/rule_ids": {
       "get": {
         "summary": "Returns the rule IDs of all the rules.",
+        "description": "Returns a list of the names of the rules. Rule name consist of its ID represented as a string.",
         "operationId": "getRuleIDs",
         "responses": {
           "200": {
