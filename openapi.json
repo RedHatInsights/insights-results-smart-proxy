@@ -1149,6 +1149,7 @@
           },
           {
             "name": "errorKey",
+            "description": "Selector that specifies rule error key (rule can contain more sections distinguished by error key).",
             "in": "path",
             "required": true,
             "schema": {
