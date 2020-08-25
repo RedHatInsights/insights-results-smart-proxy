@@ -33,7 +33,7 @@ const (
 )
 
 func TestGetRuleContent(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
 			Method:   http.MethodGet,
@@ -56,7 +56,7 @@ func TestGetRuleContent(t *testing.T) {
 func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
 	const N = 10
 
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
 			Method:   http.MethodGet,
@@ -81,7 +81,7 @@ func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
 func TestUpdateContent_CallMultipleTimes(t *testing.T) {
 	const N = 10
 
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
 		for i := 0; i < N; i++ {
