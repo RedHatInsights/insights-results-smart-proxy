@@ -31,7 +31,7 @@ import (
 
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -69,7 +69,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 
 // TestHTTPServer_GetContent
 func TestHTTPServer_GetContent(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		// Setup Content
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
@@ -97,7 +97,7 @@ func TestHTTPServer_GetContent(t *testing.T) {
 
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
 		// prepare content
@@ -173,7 +173,7 @@ func TestInternalOrganizations(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.TestName, func(t *testing.T) {
-			helpers.RunTestWithTimeout(t, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
 				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
 					Method:             http.MethodGet,
 					Endpoint:           server.RuleContent,
@@ -209,7 +209,7 @@ func TestRuleNames(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.TestName, func(t *testing.T) {
-			helpers.RunTestWithTimeout(t, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
 				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
 					Method:             http.MethodGet,
 					Endpoint:           server.RuleIDs,
@@ -233,7 +233,7 @@ func TestRuleNamesResponse(t *testing.T) {
 			"status": "ok"
 		}
 	`
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations1, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RuleIDs,
@@ -250,7 +250,7 @@ func TestRuleNamesResponse(t *testing.T) {
 			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded"],
 			"status": "ok"
 		}`
-	helpers.RunTestWithTimeout(t, func(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations2, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RuleIDs,

@@ -53,7 +53,7 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			helpers.RunTestWithTimeout(t, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
 				defer helpers.CleanAfterGock(t)
 
 				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
