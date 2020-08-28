@@ -35,6 +35,7 @@ data pipeline clients and the different services providing the required informat
 ### Sequence diagrams
 
 * [CCX Data pipeline sequence diagram](data_pipeline_seq_diagram.png)
+* [IO pulling data + exposing via CRD to OCP WebConsole](io_pulling_crd_seq_diagram.png)
 
 ### Interface between CCX data pipeline and OCP WebConsole
 
