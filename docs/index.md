@@ -38,9 +38,19 @@ data pipeline clients and the different services providing the required informat
 
 ### Interface between CCX data pipeline and OCP WebConsole
 
+#### Interface between CCX data pipeline and Insights Operator
+
 * [IO pulling data from CCX data pipeline](io-pulling-only.png)
+
+#### Interface between Insights Operator and OCP WebConsole based on CRD
+
 * [IO exposing data via CRD](io-pulling.png)
+* [IO exposing data via CRD - including internal structure](io-pulling-crd-internal.png)
+
+#### Interface between Insights Operator and OCP WebConsole based on Prometheus or Prometheus metrics
+
 * [IO exposing data via Prometheus metrics](io-pulling-prometheus-metrics.png)
+* [IO exposing data via Prometheus metrics - including internal structure](io-pulling-prometheus-internal.png)
 * [IO exposing data via Prometheus API](io-pulling-prometheus.png)
 
 #### Animated versions of above diagrams
