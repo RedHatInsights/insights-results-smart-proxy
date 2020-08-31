@@ -137,11 +137,12 @@ limitations under the License.
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>Package server contains implementation of REST API server (HTTPServer) for the
-Insights results smart proxy service. In current version, the following</p>
+	<td class="doc"><p>Package server contains implementation of REST API server (HTTPServer) for
+the Insights results smart proxy service. In current version, the following</p>
 
-<p>Please note that API_PREFIX is part of server configuration (see Configuration). Also please note that
-JSON format is used to transfer data between server and clients.</p>
+<p>Please note that API_PREFIX is part of server configuration (see
+Configuration). Also please note that JSON format is used to transfer data
+between server and clients.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">server</div><div class="operator"></div>
 
@@ -158,7 +159,8 @@ JSON format is used to transfer data between server and clients.</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>we just have to import this package in order to expose pprof interface in debug mode
+	<td class="doc"><p>we just have to import this package in order to expose pprof
+interface in debug mode
 disable &quot;G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof&quot;</p>
 
 <h1>nosec G108</h1>
@@ -187,7 +189,7 @@ disable &quot;G108 (CWE-): Profiling endpoint is automatically exposed on /debug
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>HTTPServer in an implementation of Server interface</p>
+	<td class="doc"><p>HTTPServer is an implementation of Server interface</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">HTTPServer</div> <div class="keyword">struct</div> <div class="operator">{</div>
 	<div class="ident">Config</div>         <div class="ident">Configuration</div><div class="operator"></div>
@@ -228,7 +230,7 @@ For example, you can set custom request and response modifiers</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>New constructs new implementation of Server interface</p>
+	<td class="doc"><p>New function constructs new implementation of Server interface.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">New</div><div class="operator">(</div><div class="ident">config</div> <div class="ident">Configuration</div><div class="operator">,</div> <div class="ident">servicesConfig</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">,</div> <div class="ident">groupsChannel</div> <div class="keyword">chan</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">groups</div><div class="operator">.</div><div class="ident">Group</div><div class="operator">)</div> <div class="operator">*</div><div class="ident">HTTPServer</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="operator">&amp;</div><div class="ident">HTTPServer</div><div class="operator">{</div>
@@ -238,7 +240,13 @@ For example, you can set custom request and response modifiers</p>
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="operator">*</div><div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">mainEndpoint</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>mainEndpoint method handles requests to the main endpoint.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="operator">*</div><div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">mainEndpoint</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendOK</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponse</div><div class="operator">(</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">responseDataError</div><div class="operator">)</div><div class="operator"></div>
@@ -249,7 +257,8 @@ For example, you can set custom request and response modifiers</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>readUserID tries to retrieve user ID from request. If any error occurs, error response is send back to client.</p>
+	<td class="doc"><p>readUserID method tries to retrieve user ID from request. If any error
+occurs, error response is send back to client.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="operator">*</div><div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">readUserID</div><div class="operator">(</div><div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">,</div> <div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">types</div><div class="operator">.</div><div class="ident">UserID</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">userID</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">GetCurrentUserID</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
@@ -267,7 +276,8 @@ For example, you can set custom request and response modifiers</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>serveAPISpecFile serves an OpenAPI specifications file specified in config file</p>
+	<td class="doc"><p>serveAPISpecFile method serves an OpenAPI specifications file specified in
+configuration file file.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">serveAPISpecFile</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">absPath</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">filepath</div><div class="operator">.</div><div class="ident">Abs</div><div class="operator">(</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">APISpecFile</div><div class="operator">)</div><div class="operator"></div>
@@ -285,7 +295,8 @@ For example, you can set custom request and response modifiers</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>Initialize perform the server initialization</p>
+	<td class="doc"><p>Initialize method performs the server initialization, including
+registration of all handlers.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="operator">*</div><div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">Initialize</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">Handler</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Initializing HTTP server at &#39;%s&#39;&#34;</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">Address</div><div class="operator">)</div><div class="operator"></div>
@@ -309,10 +320,11 @@ For example, you can set custom request and response modifiers</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>we have to enable authentication for all endpoints, including endpoints
-for Prometheus metrics and OpenAPI specification, because there is not
-single prefix of other REST API calls. The special endpoints needs to
-be handled in middleware which is not optimal</p>
+	<td class="doc"><p>we have to enable authentication for all endpoints,
+including endpoints for Prometheus metrics and OpenAPI
+specification, because there is not single prefix of other
+REST API calls. The special endpoints needs to be handled in
+middleware which is not optimal</p>
 </td>
 	<td class="code"><pre><code>		<div class="ident">noAuthURLs</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator">{</div>
 			<div class="ident">metricsURL</div><div class="operator">,</div>
@@ -353,7 +365,7 @@ be handled in middleware which is not optimal</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>Start starts server</p>
+	<td class="doc"><p>Start method starts HTTP or HTTPS server.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="operator">*</div><div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">Start</div><div class="operator">(</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="ident">address</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">Address</div><div class="operator"></div>
@@ -379,7 +391,7 @@ be handled in middleware which is not optimal</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>Stop stops server's execution</p>
+	<td class="doc"><p>Stop method stops server's execution.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="operator">*</div><div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">Stop</div><div class="operator">(</div><div class="ident">ctx</div> <div class="ident">context</div><div class="operator">.</div><div class="ident">Context</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">Serv</div><div class="operator">.</div><div class="ident">Shutdown</div><div class="operator">(</div><div class="ident">ctx</div><div class="operator">)</div><div class="operator"></div>
@@ -389,7 +401,8 @@ be handled in middleware which is not optimal</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>redirectTo</p>
+	<td class="doc"><p>redirectTo method performs request redirection to another service specified
+by its base URL.</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">redirectTo</div><div class="operator">(</div><div class="ident">baseURL</div> <div class="ident">string</div><div class="operator">)</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
@@ -422,7 +435,15 @@ be handled in middleware which is not optimal</p>
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">modifyRequest</div><div class="operator">(</div><div class="ident">requestModifiers</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">RequestModifier</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>modifyRequest function modifies HTTP request during proxying it to another
+service.
+TODO: move to utils?</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">modifyRequest</div><div class="operator">(</div><div class="ident">requestModifiers</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">RequestModifier</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">modifier</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">requestModifiers</div> <div class="operator">{</div>
 		<div class="keyword">var</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator"></div>
 		<div class="ident">request</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">modifier</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
@@ -434,7 +455,15 @@ be handled in middleware which is not optimal</p>
 	<div class="keyword">return</div> <div class="ident">request</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="ident">modifyResponse</div><div class="operator">(</div><div class="ident">responseModifiers</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ResponseModifier</div><div class="operator">,</div> <div class="ident">response</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Response</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Response</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>modifyResponse function modifies HTTP response returned by another service
+during proxying.
+TODO: move to utils?</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">modifyResponse</div><div class="operator">(</div><div class="ident">responseModifiers</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">ResponseModifier</div><div class="operator">,</div> <div class="ident">response</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Response</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Response</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">modifier</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">responseModifiers</div> <div class="operator">{</div>
 		<div class="keyword">var</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator"></div>
 		<div class="ident">response</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">=</div> <div class="ident">modifier</div><div class="operator">(</div><div class="ident">response</div><div class="operator">)</div><div class="operator"></div>
@@ -446,7 +475,14 @@ be handled in middleware which is not optimal</p>
 	<div class="keyword">return</div> <div class="ident">response</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">proxyTo</div><div class="operator">(</div><div class="ident">baseURL</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">options</div> <div class="operator">*</div><div class="ident">ProxyOptions</div><div class="operator">)</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>proxyTo method constructs proxy function to proxy request to another
+service.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">proxyTo</div><div class="operator">(</div><div class="ident">baseURL</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">options</div> <div class="operator">*</div><div class="ident">ProxyOptions</div><div class="operator">)</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">return</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
 		<div class="keyword">if</div> <div class="ident">options</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 			<div class="keyword">var</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator"></div>
@@ -802,9 +838,10 @@ Returns report and bool value set to true if there was no errors</p>
       </tr>
       
       <tr class="section">
-	<td class="doc"><p>checkInternalRulePermissions checks if organizations for internal rules are enabled
-if so, retrieves the org_id from request/token and returns whether that ID is on the list
-of allowed organizations to access internal rules</p>
+	<td class="doc"><p>checkInternalRulePermissions method checks if organizations for internal
+rules are enabled if so, retrieves the org_id from request/token and returns
+whether that ID is on the list of allowed organizations to access internal
+rules</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">checkInternalRulePermissions</div><div class="operator">(</div><div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="ident">error</div> <div class="operator">{</div>
 	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">EnableInternalRulesOrganizations</div> <div class="operator">||</div> <div class="operator">!</div><div class="ident">server</div><div class="operator">.</div><div class="ident">Config</div><div class="operator">.</div><div class="ident">Auth</div> <div class="operator">{</div>

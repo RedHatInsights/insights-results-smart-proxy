@@ -14,11 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package server contains implementation of REST API server (HTTPServer) for the
-// Insights results smart proxy service. In current version, the following
+// Package server contains implementation of REST API server (HTTPServer) for
+// the Insights results smart proxy service. In current version, the following
 //
-// Please note that API_PREFIX is part of server configuration (see Configuration). Also please note that
-// JSON format is used to transfer data between server and clients.
+// Please note that API_PREFIX is part of server configuration (see
+// Configuration). Also please note that JSON format is used to transfer data
+// between server and clients.
 //
 package server
 
@@ -31,7 +32,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	// we just have to import this package in order to expose pprof interface in debug mode
+	// we just have to import this package in order to expose pprof
+	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
 	// #nosec G108
 	_ "net/http/pprof"
@@ -54,7 +56,7 @@ import (
 	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
-// HTTPServer in an implementation of Server interface
+// HTTPServer is an implementation of Server interface
 type HTTPServer struct {
 	Config         Configuration
 	ServicesConfig services.Configuration
@@ -75,7 +77,7 @@ type ProxyOptions struct {
 	ResponseModifiers []ResponseModifier
 }
 
-// New constructs new implementation of Server interface
+// New function constructs new implementation of Server interface.
 func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group) *HTTPServer {
 	return &HTTPServer{
 		Config:         config,
@@ -84,6 +86,7 @@ func New(config Configuration, servicesConfig services.Configuration, groupsChan
 	}
 }
 
+// mainEndpoint method handles requests to the main endpoint.
 func (server *HTTPServer) mainEndpoint(writer http.ResponseWriter, _ *http.Request) {
 	err := responses.SendOK(writer, responses.BuildOkResponse())
 	if err != nil {
@@ -91,7 +94,8 @@ func (server *HTTPServer) mainEndpoint(writer http.ResponseWriter, _ *http.Reque
 	}
 }
 
-// readUserID tries to retrieve user ID from request. If any error occurs, error response is send back to client.
+// readUserID method tries to retrieve user ID from request. If any error
+// occurs, error response is send back to client.
 func (server *HTTPServer) readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error) {
 	userID, err := server.GetCurrentUserID(request)
 	if err != nil {
@@ -104,20 +108,8 @@ func (server *HTTPServer) readUserID(request *http.Request, writer http.Response
 	return userID, nil
 }
 
-// serveAPISpecFile serves an OpenAPI specifications file specified in config file
-func (server HTTPServer) serveAPISpecFile(writer http.ResponseWriter, request *http.Request) {
-	absPath, err := filepath.Abs(server.Config.APISpecFile)
-	if err != nil {
-		const message = "Error creating absolute path of OpenAPI spec file"
-		log.Error().Err(err).Msg(message)
-		handleServerError(writer, err)
-		return
-	}
-	writer.Header().Set("Content-Type", "application/json")
-	http.ServeFile(writer, request, absPath)
-}
-
-// Initialize perform the server initialization
+// Initialize method performs the server initialization, including
+// registration of all handlers.
 func (server *HTTPServer) Initialize() http.Handler {
 	log.Info().Msgf("Initializing HTTP server at '%s'", server.Config.Address)
 
@@ -131,10 +123,11 @@ func (server *HTTPServer) Initialize() http.Handler {
 
 	// enable authentication, but only if it is setup in configuration
 	if server.Config.Auth {
-		// we have to enable authentication for all endpoints, including endpoints
-		// for Prometheus metrics and OpenAPI specification, because there is not
-		// single prefix of other REST API calls. The special endpoints needs to
-		// be handled in middleware which is not optimal
+		// we have to enable authentication for all endpoints,
+		// including endpoints for Prometheus metrics and OpenAPI
+		// specification, because there is not single prefix of other
+		// REST API calls. The special endpoints needs to be handled in
+		// middleware which is not optimal
 		noAuthURLs := []string{
 			metricsURL,
 			openAPIURL,
@@ -170,7 +163,7 @@ func (server *HTTPServer) Initialize() http.Handler {
 	return router
 }
 
-// Start starts server
+// Start method starts HTTP or HTTPS server.
 func (server *HTTPServer) Start() error {
 	address := server.Config.Address
 	log.Info().Msgf("Starting HTTP server at '%s'", address)
@@ -191,12 +184,13 @@ func (server *HTTPServer) Start() error {
 	return nil
 }
 
-// Stop stops server's execution
+// Stop method stops server's execution.
 func (server *HTTPServer) Stop(ctx context.Context) error {
 	return server.Serv.Shutdown(ctx)
 }
 
-// redirectTo
+// redirectTo method performs request redirection to another service specified
+// by its base URL.
 func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
@@ -223,6 +217,9 @@ func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *h
 	}
 }
 
+// modifyRequest function modifies HTTP request during proxying it to another
+// service.
+// TODO: move to utils?
 func modifyRequest(requestModifiers []RequestModifier, request *http.Request) (*http.Request, error) {
 	for _, modifier := range requestModifiers {
 		var err error
@@ -235,6 +232,9 @@ func modifyRequest(requestModifiers []RequestModifier, request *http.Request) (*
 	return request, nil
 }
 
+// modifyResponse function modifies HTTP response returned by another service
+// during proxying.
+// TODO: move to utils?
 func modifyResponse(responseModifiers []ResponseModifier, response *http.Response) (*http.Response, error) {
 	for _, modifier := range responseModifiers {
 		var err error
@@ -247,6 +247,8 @@ func modifyResponse(responseModifiers []ResponseModifier, response *http.Respons
 	return response, nil
 }
 
+// proxyTo method constructs proxy function to proxy request to another
+// service.
 func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		if options != nil {
@@ -559,9 +561,10 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	}
 }
 
-// checkInternalRulePermissions checks if organizations for internal rules are enabled
-// if so, retrieves the org_id from request/token and returns whether that ID is on the list
-// of allowed organizations to access internal rules
+// checkInternalRulePermissions method checks if organizations for internal
+// rules are enabled if so, retrieves the org_id from request/token and returns
+// whether that ID is on the list of allowed organizations to access internal
+// rules
 func (server HTTPServer) checkInternalRulePermissions(request *http.Request) error {
 	if !server.Config.EnableInternalRulesOrganizations || !server.Config.Auth {
 		return nil
