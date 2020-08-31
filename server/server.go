@@ -108,20 +108,6 @@ func (server *HTTPServer) readUserID(request *http.Request, writer http.Response
 	return userID, nil
 }
 
-// serveAPISpecFile method serves an OpenAPI specifications file specified in
-// configuration file file.
-func (server HTTPServer) serveAPISpecFile(writer http.ResponseWriter, request *http.Request) {
-	absPath, err := filepath.Abs(server.Config.APISpecFile)
-	if err != nil {
-		const message = "Error creating absolute path of OpenAPI spec file"
-		log.Error().Err(err).Msg(message)
-		handleServerError(writer, err)
-		return
-	}
-	writer.Header().Set("Content-Type", "application/json")
-	http.ServeFile(writer, request, absPath)
-}
-
 // Initialize method performs the server initialization, including
 // registration of all handlers.
 func (server *HTTPServer) Initialize() http.Handler {
