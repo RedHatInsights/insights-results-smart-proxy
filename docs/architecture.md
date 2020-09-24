@@ -1,33 +1,30 @@
 ---
 layout: page
-nav_order: 2
+nav_order: 1
 ---
 
-# Architecture diagrams
+# Architecture
 
-# Sequence diagrams
+Smart proxy is the only external data pipeline service that is exposed directly
+to clients through cloud.redhat.com.
 
-* [CCX Data pipeline sequence diagram](data_pipeline_seq_diagram.png)
-* [IO pulling data + exposing via CRD to OCP WebConsole](io_pulling_crd_seq_diagram.png)
+This service is able to provide an interface to other services as well as
+composing responses aggregating data from different services.
 
-# Interface between CCX data pipeline and OCP WebConsole
+As an example of the first one, the `groups` endpoint will act as a proxy to the
+Content Service. But for example when asking for a cluster's latest report,
+Smart Proxy retrieves the report from Aggregator service, and if some rules are
+hit, then it takes the content for those rules from the Content Service.
 
-## Interface between CCX data pipeline and Insights Operator
+Insights Results Smart Proxy has 3 main parts:
 
-* [IO pulling data from CCX data pipeline](io-pulling-only.png)
+#. An Insights Results Aggregator client, that sends requests to the API in
+order to retrieve reports or other relevant info for the given cluster.
+#. An Insights Content Service client, that retrieve groups and static content
+for rules values from that service.
+#. A HTTP server that serve the current API, attending each request and using
+the previous clients in order to get the information from the relevant services.
 
-## Interface between Insights Operator and OCP WebConsole based on CRD
+## Smart Proxy architecture
 
-* [IO exposing data via CRD](io-pulling.png)
-* [IO exposing data via CRD - including internal structure](io-pulling-crd-internal.png)
-
-## Interface between Insights Operator and OCP WebConsole based on Prometheus or Prometheus metrics
-
-* [IO exposing data via Prometheus metrics](io-pulling-prometheus-metrics.png)
-* [IO exposing data via Prometheus metrics - including internal structure](io-pulling-prometheus-internal.png)
-* [IO exposing data via Prometheus API](io-pulling-prometheus.png)
-
-## Animated versions of above diagrams
-
-* [Animation: IO pulling data from CCX data pipeline](io-pulling-only.gif)
-* [Animation: IO exposing data via Prometheus metrics](io-pulling-prometheus-anim.gif)
+![external-data-pipeline-arch](Smart%20proxy%20architecture.png "External Data Pipeline Architecture")

@@ -1,9 +1,9 @@
 ---
 layout: page
-nav_order: 3
+nav_order: 10
 ---
 
-# Documentation for source files from this repository
+# Source files documentation
 
 * [smart_proxy.go](packages/smart_proxy.html)
 * [smart_proxy_test.go](packages/smart_proxy_test.html)
