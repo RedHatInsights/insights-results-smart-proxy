@@ -20,6 +20,7 @@ github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OneOfOne/xxhash v1.2.7/go.mod h1:eZbhyaAYD41SGSSsnmcpxVoRiQ/MPUTjUdIIOT9Um7Q=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=
+github.com/RedHatInsights/cloudwatch v0.0.0-20200512151223-b0b55757a24b h1:IFT3csatW9XMCEi54wRo+GiFshT4E2V2vWCKYg7413w=
 github.com/RedHatInsights/cloudwatch v0.0.0-20200512151223-b0b55757a24b/go.mod h1:8l+HqU8iWM6hA9kSAHgY3ItSlpEsPr8fb2R0GBp9S0U=
 github.com/RedHatInsights/insights-content-service v0.0.0-20200610101541-f0c10d6d451d/go.mod h1:j3Mc+Xh2ospxJ+K2RIZjYlI6E6E4H2Qh3cgUzhstrfQ=
 github.com/RedHatInsights/insights-content-service v0.0.0-20200619153839-23a428468a08/go.mod h1:CSzDwoJXMIPnRNOZfYn68YbXejRqSr0i4uqtB6oLYt4=
@@ -35,6 +36,10 @@ github.com/RedHatInsights/insights-operator-utils v1.4.0/go.mod h1:F7KKAdWFR70H+
 github.com/RedHatInsights/insights-operator-utils v1.4.1-0.20200729093922-bca68530a5ef/go.mod h1:F7KKAdWFR70H+3fa89ciXqimNycHdqO9HjLWRdZwOug=
 github.com/RedHatInsights/insights-operator-utils v1.5.0 h1:tuMocnJt943aE0ULZcFGOvKDAIqgZ8MPaVooO8H5+G4=
 github.com/RedHatInsights/insights-operator-utils v1.5.0/go.mod h1:n5NNAOPIv1DfnexF9Zr4LXCC3J+uBLuwgnuk1SqOw6Y=
+github.com/RedHatInsights/insights-operator-utils v1.5.1 h1:dfZsB9ZFr+l02XCJ8ss9IpxDnBn3DC0iPzFlAmoe87M=
+github.com/RedHatInsights/insights-operator-utils v1.5.1/go.mod h1:wlJ8nuJm5jjTfm5H+dbdDH7T+3AV3roXwZUs8S09+lw=
+github.com/RedHatInsights/insights-operator-utils v1.6.0 h1:jRg9v+KzPezsq7++PBmI+P+4OxnT/TFraea3M0CPUUM=
+github.com/RedHatInsights/insights-operator-utils v1.6.0/go.mod h1:RW9Jq4LgqIkV3WY6AS2EkopYyZDIr5BNGiU5I75HryM=
 github.com/RedHatInsights/insights-results-aggregator v0.0.0-20200604090056-3534f6dd9c1c/go.mod h1:7Pc15NYXErx7BMJ4rF1Hacm+29G6atzjhwBpXNFMt+0=
 github.com/RedHatInsights/insights-results-aggregator v1.0.0 h1:kwBDAc4KW4bZ18ucazwOtBZvIuzcx5ii8Y1Gw/7h12c=
 github.com/RedHatInsights/insights-results-aggregator v1.0.0/go.mod h1:oscRaIGWUHw/oln2Knjf7oW4E/JTHy2Em6vAjDMXPe8=
@@ -70,6 +75,7 @@ github.com/aws/aws-sdk-go v1.27.0/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN
 github.com/aws/aws-sdk-go v1.30.11/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/aws/aws-sdk-go v1.30.25/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/aws/aws-sdk-go v1.32.6/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
+github.com/aws/aws-sdk-go v1.32.11 h1:1nYF+Tfccn/hnAZsuwPPMSCVUVnx3j6LKOpx/WhgH0A=
 github.com/aws/aws-sdk-go v1.32.11/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
@@ -141,6 +147,9 @@ github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4
 github.com/fzipp/gocyclo v0.0.0-20150627053110-6acd4345c835/go.mod h1:BjL/N0+C+j9uNX+1xcNuM9vdSIcXCZrQZUYbXOFbgN8=
 github.com/gchaincl/sqlhooks v1.3.0 h1:yKPXxW9a5CjXaVf2HkQn6wn7TZARvbAOAelr3H8vK2Y=
 github.com/gchaincl/sqlhooks v1.3.0/go.mod h1:9BypXnereMT0+Ys8WGWHqzgkkOfHIhyeUCqXC24ra34=
+github.com/getkin/kin-openapi v0.20.0 h1:bVW07wyErauTMBQPRQxt6TvzjqD9pvKWGEzjyi3vn2U=
+github.com/getkin/kin-openapi v0.20.0/go.mod h1:WGRs2ZMM1Q8LR1QBEwUxC6RJEfaBcD0s+pcEVXFuAjw=
+github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-kit/kit v0.8.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2as=
@@ -264,6 +273,7 @@ github.com/jcmturner/gofork v1.0.0 h1:J7uCkflzTEhUZ64xqKnkDxq3kzc96ajM1Gli5ktUem
 github.com/jcmturner/gofork v1.0.0/go.mod h1:MK8+TM0La+2rjBD4jE12Kj1pCCxK7d2LK/UM3ncEo0o=
 github.com/jcxplorer/cwlogger v0.0.0-20170704082755-4e30a5a47e6a/go.mod h1:jqP/JbBwy+LLLUwzr8XTr9IrnaNxFD7kmaXZlvjH9nQ=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
+github.com/jmespath/go-jmespath v0.3.0 h1:OS12ieG61fsCg5+qLJ+SsW9NicxNkg3b25OyT2yCeUc=
 github.com/jmespath/go-jmespath v0.3.0/go.mod h1:9QtRXoHjLGCJ5IBSaohpXITPlowMeeYCZ7fLUTSywik=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=

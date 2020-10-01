@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/metrics"
 	"github.com/rs/zerolog/log"
 
@@ -186,6 +187,11 @@ func handleCommand(command string) ExitCode {
 func main() {
 	err := conf.LoadConfiguration(defaultConfigFileName)
 
+	if err != nil {
+		panic(err)
+	}
+
+	err = logger.InitZerolog(conf.GetLoggingConfiguration(), conf.GetCloudWatchConfiguration())
 	if err != nil {
 		panic(err)
 	}
