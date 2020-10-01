@@ -17,9 +17,11 @@ limitations under the License.
 // Package conf contains definition of data type named Config that represents
 // configuration of Smart Proxy service. This package also contains function
 // named LoadConfiguration that can be used to load configuration from provided
-// configuration file and/or from environment variables. Additionally two
-// specific functions named GetServerConfiguration and GetServicesConfiguration
-// are to be used to return specific configuration options.
+// configuration file and/or from environment variables. Additionally several
+// specific functions named GetServerConfiguration, GetServicesConfiguration,
+// GetSetupConfiguration, GetMetricsConfiguration, GetLoggingConfiguration and
+// GetCloudWatchConfiguration are to be used to return specific configuration
+// options.
 //
 // Generated documentation is available at:
 // https://godoc.org/github.com/RedHatInsights/insights-results-smart-proxy/conf
@@ -40,6 +42,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
@@ -69,10 +72,12 @@ type MetricsConfiguration struct {
 
 // Config has exactly the same structure as *.toml file
 var Config struct {
-	ServerConf   server.Configuration   `mapstructure:"server" toml:"server"`
-	ServicesConf services.Configuration `mapstructure:"services" toml:"services"`
-	SetupConf    SetupConfiguration     `mapstructure:"setup" toml:"setup"`
-	MetricsConf  MetricsConfiguration   `mapstructure:"metrics" toml:"metrics"`
+	ServerConf     server.Configuration           `mapstructure:"server" toml:"server"`
+	ServicesConf   services.Configuration         `mapstructure:"services" toml:"services"`
+	SetupConf      SetupConfiguration             `mapstructure:"setup" toml:"setup"`
+	MetricsConf    MetricsConfiguration           `mapstructure:"metrics" toml:"metrics"`
+	LoggingConf    logger.LoggingConfiguration    `mapstructure:"logging" toml:"logging"`
+	CloudWatchConf logger.CloudWatchConfiguration `mapstructure:"cloudwatch" toml:"cloudwatch"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
@@ -150,6 +155,16 @@ func GetSetupConfiguration() SetupConfiguration {
 // GetMetricsConfiguration returns the metrics configuration
 func GetMetricsConfiguration() MetricsConfiguration {
 	return Config.MetricsConf
+}
+
+// GetLoggingConfiguration returns logging configuration
+func GetLoggingConfiguration() logger.LoggingConfiguration {
+	return Config.LoggingConf
+}
+
+// GetCloudWatchConfiguration returns cloudwatch configuration
+func GetCloudWatchConfiguration() logger.CloudWatchConfiguration {
+	return Config.CloudWatchConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
