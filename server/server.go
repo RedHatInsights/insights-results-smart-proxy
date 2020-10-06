@@ -447,8 +447,10 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 
 		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
 		if err != nil {
-			handleServerError(writer, err)
-			return
+			log.Error().Err(err).Msgf(
+				"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
+			)
+			continue
 		}
 
 		rule := proxy_types.RuleWithContentResponse{
@@ -468,6 +470,11 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		}
 
 		rules = append(rules, rule)
+	}
+
+	if len(aggregatorResponse.Report) != 0 && len(rules) == 0 {
+		handleServerError(writer, fmt.Errorf("unable to find content for rules"))
+		return
 	}
 
 	report := proxy_types.SmartProxyReport{
@@ -499,20 +506,22 @@ func (server HTTPServer) findRule(
 			}
 
 			rule = proxy_types.RuleWithContentResponse{
-				CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
-				Description:  ruleWithContent.Description,
-				ErrorKey:     errorKey,
-				Generic:      ruleWithContent.Generic,
-				Reason:       ruleWithContent.Reason,
-				Resolution:   ruleWithContent.Resolution,
-				TotalRisk:    ruleWithContent.TotalRisk,
-				RiskOfChange: ruleWithContent.RiskOfChange,
-				RuleID:       ruleID,
-				TemplateData: aggregatorRule.TemplateData,
-				Tags:         ruleWithContent.Tags,
-				UserVote:     aggregatorRule.UserVote,
-				Disabled:     aggregatorRule.Disabled,
-				Internal:     ruleWithContent.Internal,
+				CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+				Description:     ruleWithContent.Description,
+				ErrorKey:        errorKey,
+				Generic:         ruleWithContent.Generic,
+				Reason:          ruleWithContent.Reason,
+				Resolution:      ruleWithContent.Resolution,
+				TotalRisk:       ruleWithContent.TotalRisk,
+				RiskOfChange:    ruleWithContent.RiskOfChange,
+				RuleID:          ruleID,
+				TemplateData:    aggregatorRule.TemplateData,
+				Tags:            ruleWithContent.Tags,
+				UserVote:        aggregatorRule.UserVote,
+				Disabled:        aggregatorRule.Disabled,
+				DisableFeedback: aggregatorRule.DisableFeedback,
+				DisabledAt:      aggregatorRule.DisabledAt,
+				Internal:        ruleWithContent.Internal,
 			}
 			found = true
 			break
