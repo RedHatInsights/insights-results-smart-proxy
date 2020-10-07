@@ -1,0 +1,58 @@
+//
+// vim:syntax=plantuml
+//
+// Copyright © 2020 Red Hat, Inc.
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Generate PNG image with sequence diagram by using the following command:
+// java -jar plantuml.jar acm_interface_pull_model.uml
+//
+// Generate SVG drawing with sequence diagram by using the following command:
+// java -jar plantuml.jar -tsvg acm_interface_pull_model.uml
+
+@startuml
+
+header Sequence diagram: CCX (external) data pipeline integration with ACM - pull model
+footer Copyright © 2020 Red Hat, Inc. Author: Pavel Tisnovsky
+
+database "AWS RDS DB" as storage
+participant "Insights\nResults Aggregator" as aggregator #a0a0ff
+participant "Insights\nContent Service" as content_service #a0a0ff
+participant "Smart\nProxy" as smart_proxy #a0a0ff
+collections "ACM\nHub Cluster" as acm #a0ffa0
+
+== Providing recommendations for cluster #1 ==
+acm -> smart_proxy: <b>Get</b>\n<b>recommendations</b>\n<b>for cluster #1</b>
+smart_proxy -[#808080]> aggregator: Get OCP results for cluster #1
+aggregator -[#808080]> storage: Read OCP results\ncluster #1
+storage -[#808080]> aggregator: Here are results
+aggregator -[#808080]> smart_proxy: Here are results
+smart_proxy -[#808080]> content_service: Get content\nfor rule ID
+content_service -[#808080]> smart_proxy: Here's\nrequired\ncontent
+smart_proxy -[#808080]> smart_proxy: Merge results\nwith content
+smart_proxy -> acm: <b>Recommendations</b>\n<b>for cluster</b>
+
+== Providing recommendations for cluster #2 ==
+
+acm -> smart_proxy: <b>Get</b>\n<b>recommendations</b>\n<b>for cluster #2</b>
+smart_proxy -[#808080]> aggregator: Get OCP results for cluster #2
+aggregator -[#808080]> storage: Read OCP results\ncluster #2
+storage -[#808080]> aggregator: Here are results
+aggregator -[#808080]> smart_proxy: Here are results
+smart_proxy -[#808080]> content_service: Get content\nfor rule ID
+content_service -[#808080]> smart_proxy: Here's\nrequired\ncontent
+smart_proxy -[#808080]> smart_proxy: Merge results\nwith content
+smart_proxy -> acm: <b>Recommendations</b>\n<b>for cluster</b>
+
+@enduml

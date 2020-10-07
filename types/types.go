@@ -34,20 +34,22 @@ type Timestamp = types.Timestamp
 
 // RuleWithContentResponse represents a single rule in the response of /report endpoint
 type RuleWithContentResponse struct {
-	RuleID       types.RuleID   `json:"rule_id"`
-	ErrorKey     types.ErrorKey `json:"-"`
-	CreatedAt    string         `json:"created_at"`
-	Description  string         `json:"description"`
-	Generic      string         `json:"details"`
-	Reason       string         `json:"reason"`
-	Resolution   string         `json:"resolution"`
-	TotalRisk    int            `json:"total_risk"`
-	RiskOfChange int            `json:"risk_of_change"`
-	Disabled     bool           `json:"disabled"`
-	Internal     bool           `json:"internal"`
-	UserVote     types.UserVote `json:"user_vote"`
-	TemplateData interface{}    `json:"extra_data"`
-	Tags         []string       `json:"tags"`
+	RuleID          types.RuleID    `json:"rule_id"`
+	ErrorKey        types.ErrorKey  `json:"-"`
+	CreatedAt       string          `json:"created_at"`
+	Description     string          `json:"description"`
+	Generic         string          `json:"details"`
+	Reason          string          `json:"reason"`
+	Resolution      string          `json:"resolution"`
+	TotalRisk       int             `json:"total_risk"`
+	RiskOfChange    int             `json:"risk_of_change"`
+	Disabled        bool            `json:"disabled"`
+	DisableFeedback string          `json:"disable_feedback"`
+	DisabledAt      types.Timestamp `json:"disabled_at"`
+	Internal        bool            `json:"internal"`
+	UserVote        types.UserVote  `json:"user_vote"`
+	TemplateData    interface{}     `json:"extra_data"`
+	Tags            []string        `json:"tags"`
 }
 
 // SmartProxyReport represents the response of /report endpoint for smart proxy
