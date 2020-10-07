@@ -178,20 +178,22 @@ Insights Results Aggregator, Content Service) and thus they are imported
 	<td class="doc"><p>RuleWithContentResponse represents a single rule in the response of /report endpoint</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">RuleWithContentResponse</div> <div class="keyword">struct</div> <div class="operator">{</div>
-	<div class="ident">RuleID</div>       <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div>   <div class="literal">`json:&#34;rule_id&#34;`</div><div class="operator"></div>
-	<div class="ident">ErrorKey</div>     <div class="ident">types</div><div class="operator">.</div><div class="ident">ErrorKey</div> <div class="literal">`json:&#34;-&#34;`</div><div class="operator"></div>
-	<div class="ident">CreatedAt</div>    <div class="ident">string</div>         <div class="literal">`json:&#34;created_at&#34;`</div><div class="operator"></div>
-	<div class="ident">Description</div>  <div class="ident">string</div>         <div class="literal">`json:&#34;description&#34;`</div><div class="operator"></div>
-	<div class="ident">Generic</div>      <div class="ident">string</div>         <div class="literal">`json:&#34;details&#34;`</div><div class="operator"></div>
-	<div class="ident">Reason</div>       <div class="ident">string</div>         <div class="literal">`json:&#34;reason&#34;`</div><div class="operator"></div>
-	<div class="ident">Resolution</div>   <div class="ident">string</div>         <div class="literal">`json:&#34;resolution&#34;`</div><div class="operator"></div>
-	<div class="ident">TotalRisk</div>    <div class="ident">int</div>            <div class="literal">`json:&#34;total_risk&#34;`</div><div class="operator"></div>
-	<div class="ident">RiskOfChange</div> <div class="ident">int</div>            <div class="literal">`json:&#34;risk_of_change&#34;`</div><div class="operator"></div>
-	<div class="ident">Disabled</div>     <div class="ident">bool</div>           <div class="literal">`json:&#34;disabled&#34;`</div><div class="operator"></div>
-	<div class="ident">Internal</div>     <div class="ident">bool</div>           <div class="literal">`json:&#34;internal&#34;`</div><div class="operator"></div>
-	<div class="ident">UserVote</div>     <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVote</div> <div class="literal">`json:&#34;user_vote&#34;`</div><div class="operator"></div>
-	<div class="ident">TemplateData</div> <div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div>    <div class="literal">`json:&#34;extra_data&#34;`</div><div class="operator"></div>
-	<div class="ident">Tags</div>         <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div>       <div class="literal">`json:&#34;tags&#34;`</div><div class="operator"></div>
+	<div class="ident">RuleID</div>          <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div>    <div class="literal">`json:&#34;rule_id&#34;`</div><div class="operator"></div>
+	<div class="ident">ErrorKey</div>        <div class="ident">types</div><div class="operator">.</div><div class="ident">ErrorKey</div>  <div class="literal">`json:&#34;-&#34;`</div><div class="operator"></div>
+	<div class="ident">CreatedAt</div>       <div class="ident">string</div>          <div class="literal">`json:&#34;created_at&#34;`</div><div class="operator"></div>
+	<div class="ident">Description</div>     <div class="ident">string</div>          <div class="literal">`json:&#34;description&#34;`</div><div class="operator"></div>
+	<div class="ident">Generic</div>         <div class="ident">string</div>          <div class="literal">`json:&#34;details&#34;`</div><div class="operator"></div>
+	<div class="ident">Reason</div>          <div class="ident">string</div>          <div class="literal">`json:&#34;reason&#34;`</div><div class="operator"></div>
+	<div class="ident">Resolution</div>      <div class="ident">string</div>          <div class="literal">`json:&#34;resolution&#34;`</div><div class="operator"></div>
+	<div class="ident">TotalRisk</div>       <div class="ident">int</div>             <div class="literal">`json:&#34;total_risk&#34;`</div><div class="operator"></div>
+	<div class="ident">RiskOfChange</div>    <div class="ident">int</div>             <div class="literal">`json:&#34;risk_of_change&#34;`</div><div class="operator"></div>
+	<div class="ident">Disabled</div>        <div class="ident">bool</div>            <div class="literal">`json:&#34;disabled&#34;`</div><div class="operator"></div>
+	<div class="ident">DisableFeedback</div> <div class="ident">string</div>          <div class="literal">`json:&#34;disable_feedback&#34;`</div><div class="operator"></div>
+	<div class="ident">DisabledAt</div>      <div class="ident">types</div><div class="operator">.</div><div class="ident">Timestamp</div> <div class="literal">`json:&#34;disabled_at&#34;`</div><div class="operator"></div>
+	<div class="ident">Internal</div>        <div class="ident">bool</div>            <div class="literal">`json:&#34;internal&#34;`</div><div class="operator"></div>
+	<div class="ident">UserVote</div>        <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVote</div>  <div class="literal">`json:&#34;user_vote&#34;`</div><div class="operator"></div>
+	<div class="ident">TemplateData</div>    <div class="keyword">interface</div><div class="operator">{</div><div class="operator">}</div>     <div class="literal">`json:&#34;extra_data&#34;`</div><div class="operator"></div>
+	<div class="ident">Tags</div>            <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div>        <div class="literal">`json:&#34;tags&#34;`</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
