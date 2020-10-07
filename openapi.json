@@ -89,10 +89,10 @@
                         "type": "object",
                         "properties": {
                           "title": {
-                            "type": "strings"
+                            "type": "string"
                           },
                           "description": {
-                            "type": "strings"
+                            "type": "string"
                           },
                           "tags": {
                             "type": "array",
@@ -799,7 +799,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "prod"
+        ]
       }
     },
     "/rules/{ruleId}": {
@@ -956,6 +959,9 @@
                           "additionalProperties": {
                             "type": "object",
                             "properties": {
+                              "reason": {
+                                "type": "string"
+                              },
                               "generic": {
                                 "type": "string"
                               },
@@ -1083,6 +1089,9 @@
                               "type": "object",
                               "properties": {
                                 "generic": {
+                                  "type": "string"
+                                },
+                                "reason": {
                                   "type": "string"
                                 },
                                 "metadata": {
