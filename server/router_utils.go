@@ -239,11 +239,11 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 
 	IDValidator := regexp.MustCompile(`^[a-zA-Z_0-9.]+$`)
 
-	isRuleIDValid := IDValidator.Match([]byte(splitedRuleID[0]))
-	isErrorKeyValid := IDValidator.Match([]byte(splitedRuleID[1]))
+	isRuleIDValid := IDValidator.MatchString(splitedRuleID[0])
+	isErrorKeyValid := IDValidator.MatchString(splitedRuleID[1])
 
 	if !isRuleIDValid || !isErrorKeyValid {
-		err = fmt.Errorf("invalid rule ID, each part of ID must contain only from latin characters, number, underscores or dots")
+		err = fmt.Errorf("invalid rule ID, each part of ID must contain only latin characters, number, underscores or dots")
 		log.Error().Err(err)
 		handleServerError(writer, &RouterParsingError{
 			paramName:  "rule_id",
