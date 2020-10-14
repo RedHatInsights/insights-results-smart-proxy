@@ -1225,6 +1225,21 @@
             "example": "some.python.module"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Status ok",
@@ -1237,7 +1252,7 @@
                       "type": "string",
                       "example": "ok"
                     },
-                    "disable_feedback": {
+                    "message": {
                       "type": "string",
                       "example": "test"
                     }
