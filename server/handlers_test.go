@@ -15,6 +15,7 @@
 package server_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -63,6 +64,49 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
+		})
+	}, testTimeout)
+}
+
+// TODO: test more cases for rule endpoint
+func TestHTTPServer_RuleEndpoint(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ira_server.RuleEndpoint,
+			EndpointArgs: []interface{}{
+				testdata.OrgID,
+				testdata.ClusterName,
+				testdata.UserID,
+				fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey),
+			},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3SingleRuleExpectedResponse,
+		})
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.SingleRuleEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyReportResponse3SingleRule),
 		})
 	}, testTimeout)
 }

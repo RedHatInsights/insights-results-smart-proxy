@@ -408,6 +408,90 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	return aggregatorResponse.Report, true
 }
 
+// readAggregatorRuleForClusterID reads report from aggregator,
+// handles errors by sending corresponding message to the user.
+// Returns report and bool value set to true if there was no errors
+func (server HTTPServer) readAggregatorRuleForClusterID(
+	orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, ruleID types.RuleID, errorKey types.ErrorKey, writer http.ResponseWriter,
+) (*types.RuleOnReport, bool) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.RuleEndpoint,
+		orgID,
+		clusterID,
+		userID,
+		fmt.Sprintf("%v|%v", ruleID, errorKey),
+	)
+
+	// #nosec G107
+	aggregatorResp, err := http.Get(aggregatorURL)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	var aggregatorResponse struct {
+		Report *types.RuleOnReport `json:"report"`
+		Status string              `json:"status"`
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, false
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	return aggregatorResponse.Report, true
+}
+
+func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport) (proxy_types.RuleWithContentResponse, bool) {
+	ruleID := rule.Module
+	errorKey := rule.ErrorKey
+
+	ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+	if err != nil {
+		log.Error().Err(err).Msgf(
+			"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
+		)
+		return proxy_types.RuleWithContentResponse{}, false
+	}
+
+	parsedRule := proxy_types.RuleWithContentResponse{
+		CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+		Description:     ruleWithContent.Description,
+		ErrorKey:        errorKey,
+		Generic:         ruleWithContent.Generic,
+		Reason:          ruleWithContent.Reason,
+		Resolution:      ruleWithContent.Resolution,
+		TotalRisk:       ruleWithContent.TotalRisk,
+		RiskOfChange:    ruleWithContent.RiskOfChange,
+		RuleID:          ruleID,
+		TemplateData:    rule.TemplateData,
+		Tags:            ruleWithContent.Tags,
+		UserVote:        rule.UserVote,
+		Disabled:        rule.Disabled,
+		DisableFeedback: rule.DisableFeedback,
+		DisabledAt:      rule.DisabledAt,
+		Internal:        ruleWithContent.Internal,
+	}
+
+	return parsedRule, true
+}
+
 func (server HTTPServer) fetchAggregatorReport(
 	writer http.ResponseWriter, request *http.Request,
 ) (*types.ReportResponse, bool) {
@@ -442,31 +526,10 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	var rules []proxy_types.RuleWithContentResponse
 
 	for _, aggregatorRule := range aggregatorResponse.Report {
-		ruleID := aggregatorRule.Module
-		errorKey := aggregatorRule.ErrorKey
+		rule, successful := server.fetchRuleContent(aggregatorRule)
 
-		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
-		if err != nil {
-			log.Error().Err(err).Msgf(
-				"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
-			)
+		if !successful {
 			continue
-		}
-
-		rule := proxy_types.RuleWithContentResponse{
-			CreatedAt:    ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
-			Description:  ruleWithContent.Description,
-			ErrorKey:     errorKey,
-			Generic:      ruleWithContent.Generic,
-			Reason:       ruleWithContent.Reason,
-			Resolution:   ruleWithContent.Resolution,
-			TotalRisk:    ruleWithContent.TotalRisk,
-			RiskOfChange: ruleWithContent.RiskOfChange,
-			RuleID:       ruleID,
-			TemplateData: aggregatorRule.TemplateData,
-			Tags:         ruleWithContent.Tags,
-			UserVote:     aggregatorRule.UserVote,
-			Disabled:     aggregatorRule.Disabled,
 		}
 
 		rules = append(rules, rule)
@@ -488,70 +551,48 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 }
 
-func (server HTTPServer) findRule(
-	writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID,
-) (proxy_types.RuleWithContentResponse, bool) {
-	var rule proxy_types.RuleWithContentResponse
-	found := false
-
-	for _, aggregatorRule := range report {
-		ruleID := aggregatorRule.Module
-		if ruleID == requestRuleID {
-			errorKey := aggregatorRule.ErrorKey
-
-			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
-			if err != nil {
-				handleServerError(writer, err)
-				return rule, false
-			}
-
-			rule = proxy_types.RuleWithContentResponse{
-				CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
-				Description:     ruleWithContent.Description,
-				ErrorKey:        errorKey,
-				Generic:         ruleWithContent.Generic,
-				Reason:          ruleWithContent.Reason,
-				Resolution:      ruleWithContent.Resolution,
-				TotalRisk:       ruleWithContent.TotalRisk,
-				RiskOfChange:    ruleWithContent.RiskOfChange,
-				RuleID:          ruleID,
-				TemplateData:    aggregatorRule.TemplateData,
-				Tags:            ruleWithContent.Tags,
-				UserVote:        aggregatorRule.UserVote,
-				Disabled:        aggregatorRule.Disabled,
-				DisableFeedback: aggregatorRule.DisableFeedback,
-				DisabledAt:      aggregatorRule.DisabledAt,
-				Internal:        ruleWithContent.Internal,
-			}
-			found = true
-			break
-		}
+func (server HTTPServer) fetchAggregatorReportRule(
+	writer http.ResponseWriter, request *http.Request,
+) (*types.RuleOnReport, bool) {
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	// Error message handled by function
+	if !successful {
+		return nil, false
 	}
 
-	if !found {
-		handleServerError(writer, &types.ItemNotFoundError{
-			ItemID: fmt.Sprintf("%v", requestRuleID),
-		})
-		return rule, false
+	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
+	if err != nil {
+		return nil, false
 	}
 
-	return rule, true
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	userID := authToken.AccountNumber
+	orgID := authToken.Internal.OrgID
+
+	aggregatorResponse, successful := server.readAggregatorRuleForClusterID(orgID, clusterID, userID, ruleID, errorKey, writer)
+	if !successful {
+		return nil, false
+	}
+	return aggregatorResponse, true
 }
 
 func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
-	ruleID, err := readRuleID(writer, request)
-	if err != nil {
-		return
-	}
+	var rule proxy_types.RuleWithContentResponse
+	var err error
 
-	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
+	aggregatorResponse, successful := server.fetchAggregatorReportRule(writer, request)
 	// Error message handled by function
 	if !successful {
 		return
 	}
 
-	rule, successful := server.findRule(writer, aggregatorResponse.Report, ruleID)
-	// Error message handled by function
+	rule, successful = server.fetchRuleContent(*aggregatorResponse)
+
 	if !successful {
 		return
 	}
