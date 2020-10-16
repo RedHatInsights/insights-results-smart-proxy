@@ -4,12 +4,13 @@ go 1.13
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/RedHatInsights/insights-content-service v0.0.0-20201006090430-1fa402db0eb8
-	github.com/RedHatInsights/insights-operator-utils v1.6.1
-	github.com/RedHatInsights/insights-results-aggregator v1.1.0
-	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20200826060335-2d341f371b98
-	github.com/Shopify/sarama v1.27.0 // indirect
-	github.com/aws/aws-sdk-go v1.35.3 // indirect
+	github.com/RedHatInsights/insights-content-service v0.0.0-20201009081018-083923779f00
+	github.com/RedHatInsights/insights-operator-utils v1.6.3
+	github.com/RedHatInsights/insights-results-aggregator v1.1.1
+	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20201014142608-de97c4b07d5c
+	github.com/Shopify/sarama v1.27.1 // indirect
+	github.com/aws/aws-sdk-go v1.35.8 // indirect
+	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/deckarep/golang-set v1.7.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -25,7 +26,7 @@ require (
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
-	github.com/prometheus/client_golang v1.7.1
+	github.com/prometheus/client_golang v1.8.0
 	github.com/prometheus/common v0.14.0 // indirect
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
@@ -36,9 +37,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0 // indirect
-	golang.org/x/net v0.0.0-20201002202402-0a1ea396d57c // indirect
-	golang.org/x/sys v0.0.0-20201005172224-997123666555 // indirect
+	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
+	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb // indirect
+	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520 // indirect
 	golang.org/x/text v0.3.3 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/h2non/gock.v1 v1.0.15

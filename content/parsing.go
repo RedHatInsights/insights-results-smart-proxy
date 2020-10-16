@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
 )
@@ -35,7 +34,7 @@ var (
 // TODO: consider moving parsing to content service
 
 // LoadRuleContent loads the parsed rule content into the storage
-func LoadRuleContent(contentDir *content.RuleContentDirectory) {
+func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 	for _, rule := range contentDir.Rules {
 		ruleID := types.RuleID(rule.Plugin.PythonModule)
 

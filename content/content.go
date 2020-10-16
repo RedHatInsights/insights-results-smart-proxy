@@ -22,7 +22,6 @@ import (
 	"sync"
 	"time"
 
-	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
 
@@ -30,7 +29,7 @@ import (
 )
 
 var (
-	ruleContentDirectory      *ics_content.RuleContentDirectory
+	ruleContentDirectory      *types.RuleContentDirectory
 	ruleContentDirectoryReady = sync.NewCond(&sync.Mutex{})
 	stopUpdateContentLoop     = make(chan struct{})
 )
@@ -45,11 +44,11 @@ type ruleIDAndErrorKey struct {
 type RulesWithContentStorage struct {
 	sync.RWMutex
 	rulesWithContent map[ruleIDAndErrorKey]*types.RuleWithContent
-	rules            map[types.RuleID]*ics_content.RuleContent
+	rules            map[types.RuleID]*types.RuleContent
 }
 
 // SetRuleContentDirectory is made for easy testing fake rules etc. from other directories
-func SetRuleContentDirectory(contentDir *ics_content.RuleContentDirectory) {
+func SetRuleContentDirectory(contentDir *types.RuleContentDirectory) {
 	if ruleContentDirectory == nil {
 		ruleContentDirectory = contentDir
 	}
@@ -70,7 +69,7 @@ func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 }
 
 // GetRuleContent returns content for rule
-func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, bool) {
+func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*types.RuleContent, bool) {
 	s.RLock()
 	defer s.RUnlock()
 
@@ -79,11 +78,11 @@ func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*ics_cont
 }
 
 // GetAllContent returns content for rule
-func (s *RulesWithContentStorage) GetAllContent() []ics_content.RuleContent {
+func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
 	s.RLock()
 	defer s.RUnlock()
 
-	res := make([]ics_content.RuleContent, 0, len(s.rules))
+	res := make([]types.RuleContent, 0, len(s.rules))
 	for _, rule := range s.rules {
 		res = append(res, *rule)
 	}
@@ -106,7 +105,7 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 
 // SetRule sets content for rule
 func (s *RulesWithContentStorage) SetRule(
-	ruleID types.RuleID, ruleContent ics_content.RuleContent,
+	ruleID types.RuleID, ruleContent types.RuleContent,
 ) {
 	s.Lock()
 	defer s.Unlock()
@@ -120,7 +119,7 @@ func (s *RulesWithContentStorage) ResetContent() {
 	defer s.Unlock()
 
 	s.rulesWithContent = make(map[ruleIDAndErrorKey]*types.RuleWithContent)
-	s.rules = make(map[types.RuleID]*ics_content.RuleContent)
+	s.rules = make(map[types.RuleID]*types.RuleContent)
 }
 
 // GetRuleIDs gets rule IDs for rules
@@ -139,7 +138,7 @@ func (s *RulesWithContentStorage) GetRuleIDs() []string {
 
 var rulesWithContentStorage = RulesWithContentStorage{
 	rulesWithContent: map[ruleIDAndErrorKey]*types.RuleWithContent{},
-	rules:            map[types.RuleID]*ics_content.RuleContent{},
+	rules:            map[types.RuleID]*types.RuleContent{},
 }
 
 // WaitForContentDirectoryToBeReady ensures the rule content directory is safe to read/write
@@ -173,7 +172,7 @@ func GetRuleWithErrorKeyContent(
 
 // GetRuleContent returns content for rule with provided `rule id`
 // Caching is done under the hood, don't worry about it.
-func GetRuleContent(ruleID types.RuleID) (*ics_content.RuleContent, error) {
+func GetRuleContent(ruleID types.RuleID) (*types.RuleContent, error) {
 	// to be sure the data is there
 	WaitForContentDirectoryToBeReady()
 
@@ -202,7 +201,7 @@ func GetRuleIDs() []string {
 
 // GetAllContent returns content for all the loaded rules.
 // Caching is done under the hood, don't worry about it.
-func GetAllContent() []ics_content.RuleContent {
+func GetAllContent() []types.RuleContent {
 	// to be sure the data is there
 	WaitForContentDirectoryToBeReady()
 	return rulesWithContentStorage.GetAllContent()

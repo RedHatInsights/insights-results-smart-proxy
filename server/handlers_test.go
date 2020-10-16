@@ -18,9 +18,9 @@ import (
 	"net/http"
 	"testing"
 
-	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
@@ -145,7 +145,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 }
 
 func TestInternalOrganizations(t *testing.T) {
-	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1})
+	loadMockRuleContentDir([]types.RuleContent{RuleContentInternal1})
 
 	for _, testCase := range []struct {
 		TestName           string
@@ -225,7 +225,7 @@ func TestRuleNames(t *testing.T) {
 // TestRuleNamesResponse checks the REST API status and response
 func TestRuleNamesResponse(t *testing.T) {
 	content.ResetContent()
-	loadMockRuleContentDir([]ics_content.RuleContent{RuleContentInternal1, testdata.RuleContent1})
+	loadMockRuleContentDir([]types.RuleContent{RuleContentInternal1, testdata.RuleContent1})
 
 	expectedBody := `
 		{

@@ -25,8 +25,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -84,7 +84,7 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 }
 
 // GetContent get the static rule content from content-service
-func GetContent(conf Configuration) (*content.RuleContentDirectory, error) {
+func GetContent(conf Configuration) (*types.RuleContentDirectory, error) {
 	log.Info().Msg("getting rules static content")
 	resp, err := getFromURL(conf.ContentBaseEndpoint + ContentEndpoint)
 
@@ -97,7 +97,7 @@ func GetContent(conf Configuration) (*content.RuleContentDirectory, error) {
 		return nil, err
 	}
 
-	var receivedContent content.RuleContentDirectory
+	var receivedContent types.RuleContentDirectory
 	err = gob.NewDecoder(bytes.NewReader(respBytes)).Decode(&receivedContent)
 	if err != nil {
 		log.Error().Err(err).Msg("error trying to decode rules content from received answer")
