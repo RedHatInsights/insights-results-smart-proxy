@@ -112,7 +112,7 @@ var (
 				RiskOfChange: 0,
 				Disabled:     testdata.Rule1Disabled,
 				UserVote:     types.UserVoteNone,
-				TemplateData: testdata.Rule1.MoreInfo,
+				TemplateData: testdata.Rule1ExtraData,
 				Tags:         testdata.RuleErrorKey1.Tags,
 			},
 			{
@@ -127,7 +127,7 @@ var (
 				RiskOfChange: 0,
 				Disabled:     testdata.Rule2Disabled,
 				UserVote:     types.UserVoteNone,
-				TemplateData: testdata.Rule2.MoreInfo,
+				TemplateData: testdata.Rule2ExtraData,
 				Tags:         testdata.RuleErrorKey2.Tags,
 			},
 			{
@@ -142,7 +142,7 @@ var (
 				RiskOfChange: 0,
 				Disabled:     testdata.Rule3Disabled,
 				UserVote:     types.UserVoteNone,
-				TemplateData: testdata.Rule3.MoreInfo,
+				TemplateData: testdata.Rule3ExtraData,
 				Tags:         testdata.RuleErrorKey3.Tags,
 			},
 		},
@@ -202,6 +202,28 @@ var (
 				"openshift":            1,
 				"service_availability": 1,
 			},
+		},
+	}
+
+	SmartProxyReportResponse3SingleRule = struct {
+		Status string                        `json:"status"`
+		Report types.RuleWithContentResponse `json:"report"`
+	}{
+		Status: "ok",
+		Report: types.RuleWithContentResponse{
+			RuleID:       testdata.Rule1.Module,
+			ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+			CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.Rule1.Reason,
+			Resolution:   testdata.Rule1.Resolution,
+			TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+			RiskOfChange: 0,
+			Disabled:     testdata.Rule1Disabled,
+			UserVote:     types.UserVoteNone,
+			TemplateData: testdata.Rule1ExtraData,
+			Tags:         testdata.RuleErrorKey1.Tags,
 		},
 	}
 )
