@@ -18,7 +18,6 @@ import (
 	"errors"
 	"net/http"
 
-	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
@@ -81,7 +80,7 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Request) {
 	// Generate an array of RuleContent
 	allRules := content.GetAllContent()
-	var rules []ics_content.RuleContent
+	var rules []types.RuleContent
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRules {
