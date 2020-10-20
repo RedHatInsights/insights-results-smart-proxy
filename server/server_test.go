@@ -148,6 +148,38 @@ var (
 		},
 	}
 
+	SmartProxyReportResponse3RulesWithOnlyOSD = struct {
+		Status string                  `json:"status"`
+		Report *types.SmartProxyReport `json:"report"`
+	}{
+		Status: "ok",
+		Report: &SmartProxyReport3RulesWithOnlyOSD,
+	}
+
+	SmartProxyReport3RulesWithOnlyOSD = types.SmartProxyReport{
+		Meta: types.ReportResponseMeta{
+			Count:         1,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{
+			{
+				RuleID:       testdata.Rule1.Module,
+				ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey1.Description,
+				Generic:      testdata.RuleErrorKey1.Generic,
+				Reason:       testdata.Rule1.Reason,
+				Resolution:   testdata.Rule1.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule1Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule1ExtraData,
+				Tags:         testdata.RuleErrorKey1.Tags,
+			},
+		},
+	}
+
 	GetContentResponse3Rules = struct {
 		Status string                  `json:"status"`
 		Rules  []iou_types.RuleContent `json:"content"`
@@ -200,6 +232,7 @@ var (
 			},
 			"hit_by_tag": map[string]int{
 				"openshift":            1,
+				"osd_customer":         1,
 				"service_availability": 1,
 			},
 		},
@@ -225,6 +258,11 @@ var (
 			TemplateData: testdata.Rule1ExtraData,
 			Tags:         testdata.RuleErrorKey1.Tags,
 		},
+	}
+	SmartProxyReportResponse3NoRuleFound = struct {
+		Status string `json:"status"`
+	}{
+		Status: "Rule was not found",
 	}
 )
 

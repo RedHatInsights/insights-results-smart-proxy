@@ -19,8 +19,10 @@
 package types
 
 import (
+	"encoding/json"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	mapset "github.com/deckarep/golang-set"
+	"time"
 )
 
 // UserID represents type for user id
@@ -77,3 +79,24 @@ const (
 	// UserVoteLike shows user's like
 	UserVoteLike = types.UserVoteLike
 )
+
+// RuleWithContent structure with rule and rule content
+type RuleWithContent struct {
+	Module          types.RuleID    `json:"module"`
+	Name            string          `json:"name"`
+	Summary         string          `json:"summary"`
+	Reason          string          `json:"reason"`
+	Resolution      string          `json:"resolution"`
+	MoreInfo        json.RawMessage `json:"more_info"`
+	ErrorKey        types.ErrorKey  `json:"error_key"`
+	Condition       string          `json:"condition"`
+	Description     string          `json:"description"`
+	TotalRisk       int             `json:"total_risk"`
+	RiskOfChange    int             `json:"risk_of_change"`
+	PublishDate     time.Time       `json:"publish_date"`
+	Active          bool            `json:"active"`
+	Internal        bool            `json:"internal"`
+	Generic         string          `json:"generic"`
+	Tags            []string        `json:"tags"`
+	NotRequireAdmin bool
+}

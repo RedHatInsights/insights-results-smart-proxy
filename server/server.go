@@ -30,6 +30,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	// we just have to import this package in order to expose pprof
@@ -458,7 +459,12 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 	return aggregatorResponse.Report, true
 }
 
-func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport) (proxy_types.RuleWithContentResponse, bool) {
+// fetchRuleContent - fetching content for particular rule
+// Return values:
+//   - Structure with rules and content
+//   - return true if fetching content was successful, including filtering
+//   - return true if fetching and parsing of content was successful, not including filtering
+func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (proxy_types.RuleWithContentResponse, bool, bool) {
 	ruleID := rule.Module
 	errorKey := rule.ErrorKey
 
@@ -467,7 +473,11 @@ func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport) (proxy_types.
 		log.Error().Err(err).Msgf(
 			"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
 		)
-		return proxy_types.RuleWithContentResponse{}, false
+		return proxy_types.RuleWithContentResponse{}, false, false
+	}
+
+	if OSDEligible && !ruleWithContent.NotRequireAdmin {
+		return proxy_types.RuleWithContentResponse{}, false, true
 	}
 
 	parsedRule := proxy_types.RuleWithContentResponse{
@@ -489,7 +499,7 @@ func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport) (proxy_types.
 		Internal:        ruleWithContent.Internal,
 	}
 
-	return parsedRule, true
+	return parsedRule, true, true
 }
 
 func (server HTTPServer) fetchAggregatorReport(
@@ -517,6 +527,19 @@ func (server HTTPServer) fetchAggregatorReport(
 	return aggregatorResponse, true
 }
 
+func (server HTTPServer) getOSDFlag(request *http.Request) bool {
+	OSDEligible := request.URL.Query().Get("osd_eligible")
+	if len(OSDEligible) == 0 {
+		return false
+	}
+	OSDEligibleParsed, err := strconv.ParseBool(OSDEligible)
+	if err != nil {
+		log.Err(err).Msg("Got error while parsing `osd_eligible` value")
+		return false
+	}
+	return OSDEligibleParsed
+}
+
 func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
 	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
 	if !successful {
@@ -524,9 +547,12 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 
 	var rules []proxy_types.RuleWithContentResponse
+	hasNoErrors := true
 
 	for _, aggregatorRule := range aggregatorResponse.Report {
-		rule, successful := server.fetchRuleContent(aggregatorRule)
+		rule, successful, hasNoError := server.fetchRuleContent(aggregatorRule, server.getOSDFlag(request))
+
+		hasNoErrors = hasNoErrors && hasNoError
 
 		if !successful {
 			continue
@@ -535,13 +561,16 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		rules = append(rules, rule)
 	}
 
-	if len(aggregatorResponse.Report) != 0 && len(rules) == 0 {
+	if len(aggregatorResponse.Report) != 0 && !hasNoErrors {
 		handleServerError(writer, fmt.Errorf("unable to find content for rules"))
 		return
 	}
 
 	report := proxy_types.SmartProxyReport{
-		Meta: aggregatorResponse.Meta,
+		Meta: types.ReportResponseMeta{
+			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
+			Count:         len(rules),
+		},
 		Data: rules,
 	}
 
@@ -591,14 +620,19 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		return
 	}
 
-	rule, successful = server.fetchRuleContent(*aggregatorResponse)
+	rule, successful, _ = server.fetchRuleContent(*aggregatorResponse, server.getOSDFlag(request))
 
 	if !successful {
+		err := responses.SendNotFound(writer, "Rule was not found")
+		if err != nil {
+			handleServerError(writer, err)
+			return
+		}
 		return
 	}
 
 	if rule.Internal {
-		err := server.checkInternalRulePermissions(request)
+		err = server.checkInternalRulePermissions(request)
 		if err != nil {
 			handleServerError(writer, err)
 			return
