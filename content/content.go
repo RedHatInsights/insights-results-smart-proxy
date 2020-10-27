@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/types"
+	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
@@ -43,7 +44,7 @@ type ruleIDAndErrorKey struct {
 // It's thread safe
 type RulesWithContentStorage struct {
 	sync.RWMutex
-	rulesWithContent map[ruleIDAndErrorKey]*types.RuleWithContent
+	rulesWithContent map[ruleIDAndErrorKey]*local_types.RuleWithContent
 	rules            map[types.RuleID]*types.RuleContent
 }
 
@@ -57,7 +58,7 @@ func SetRuleContentDirectory(contentDir *types.RuleContentDirectory) {
 // GetRuleWithErrorKeyContent returns content for rule with error key
 func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
-) (*types.RuleWithContent, bool) {
+) (*local_types.RuleWithContent, bool) {
 	s.RLock()
 	defer s.RUnlock()
 
@@ -92,7 +93,7 @@ func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
 
 // SetRuleWithContent sets content for rule with error key
 func (s *RulesWithContentStorage) SetRuleWithContent(
-	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent,
+	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *local_types.RuleWithContent,
 ) {
 	s.Lock()
 	defer s.Unlock()
@@ -118,7 +119,7 @@ func (s *RulesWithContentStorage) ResetContent() {
 	s.Lock()
 	defer s.Unlock()
 
-	s.rulesWithContent = make(map[ruleIDAndErrorKey]*types.RuleWithContent)
+	s.rulesWithContent = make(map[ruleIDAndErrorKey]*local_types.RuleWithContent)
 	s.rules = make(map[types.RuleID]*types.RuleContent)
 }
 
@@ -137,7 +138,7 @@ func (s *RulesWithContentStorage) GetRuleIDs() []string {
 }
 
 var rulesWithContentStorage = RulesWithContentStorage{
-	rulesWithContent: map[ruleIDAndErrorKey]*types.RuleWithContent{},
+	rulesWithContent: map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
 	rules:            map[types.RuleID]*types.RuleContent{},
 }
 
@@ -156,7 +157,7 @@ func WaitForContentDirectoryToBeReady() {
 // Caching is done under the hood, don't worry about it.
 func GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
-) (*types.RuleWithContent, error) {
+) (*local_types.RuleWithContent, error) {
 	// to be sure the data is there
 	WaitForContentDirectoryToBeReady()
 

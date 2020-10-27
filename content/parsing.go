@@ -18,7 +18,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RedHatInsights/insights-operator-utils/collections"
 	"github.com/RedHatInsights/insights-operator-utils/types"
+	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -57,23 +59,24 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				return
 			}
 
-			rulesWithContentStorage.SetRuleWithContent(ruleID, types.ErrorKey(errorKey), &types.RuleWithContent{
-				Module:       ruleID,
-				Name:         rule.Plugin.Name,
-				Summary:      rule.Summary,
-				Reason:       rule.Reason,
-				Resolution:   rule.Resolution,
-				MoreInfo:     rule.MoreInfo,
-				ErrorKey:     types.ErrorKey(errorKey),
-				Condition:    errorProperties.Metadata.Condition,
-				Description:  errorProperties.Metadata.Description,
-				TotalRisk:    calculateTotalRisk(impact, errorProperties.Metadata.Likelihood),
-				RiskOfChange: calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
-				PublishDate:  publishDate,
-				Active:       isActive,
-				Internal:     IsRuleInternal(ruleID),
-				Generic:      errorProperties.Generic,
-				Tags:         errorProperties.Metadata.Tags,
+			rulesWithContentStorage.SetRuleWithContent(ruleID, types.ErrorKey(errorKey), &local_types.RuleWithContent{
+				Module:          ruleID,
+				Name:            rule.Plugin.Name,
+				Summary:         rule.Summary,
+				Reason:          rule.Reason,
+				Resolution:      rule.Resolution,
+				MoreInfo:        rule.MoreInfo,
+				ErrorKey:        types.ErrorKey(errorKey),
+				Condition:       errorProperties.Metadata.Condition,
+				Description:     errorProperties.Metadata.Description,
+				TotalRisk:       calculateTotalRisk(impact, errorProperties.Metadata.Likelihood),
+				RiskOfChange:    calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
+				PublishDate:     publishDate,
+				Active:          isActive,
+				Internal:        IsRuleInternal(ruleID),
+				Generic:         errorProperties.Generic,
+				Tags:            errorProperties.Metadata.Tags,
+				NotRequireAdmin: collections.StringInSlice("osd_customer", errorProperties.Metadata.Tags),
 			})
 		}
 	}
