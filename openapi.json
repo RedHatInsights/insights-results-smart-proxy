@@ -161,8 +161,8 @@
     "/organizations/{orgId}/clusters": {
       "get": {
         "summary": "Returns a list of clusters associated with the specified organization ID.",
-        "operationId": "getClustersForOrganization",
         "description": "Returns a list of clusters, ie. cluster IDs, that are associated with the specified organization ID. Please note that there is 1:N organization to cluster mapping, ie. one cluster belongs exactly to one organization.",
+        "operationId": "getClustersForOrganization",
         "parameters": [
           {
             "name": "orgId",
@@ -1278,14 +1278,14 @@
             "name": "clusterId",
             "in": "path",
             "description": "ID of the cluster which must conform to UUID format",
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "required": true,
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            },
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            }
           },
           {
             "name": "ruleId",
