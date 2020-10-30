@@ -31,6 +31,9 @@ const (
 	OldReportEndpoint = "report/{org_id}/{cluster}"
 	// ReportEndpoint returns report for provided {cluster}
 	ReportEndpoint = "clusters/{cluster}/report"
+	// ReportForListOfClustersEndpoint returns rule returns reports for provided list of clusters
+	// Reports that are going to be returned are specified by list of cluster IDs that is part of path
+	ReportForListOfClustersEndpoint = "clusters/{cluster_list}/reports"
 	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configuration
 	RuleGroupsEndpoint = "groups"
 	// RuleContent returns static content for {rule_id}
@@ -82,10 +85,11 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 
 	// Common REST API endpoints
 	router.HandleFunc(apiPrefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.getClustersForOrg).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+OverviewEndpoint, server.overviewEndpoint).Methods(http.MethodGet)
+
+	// Reports endpoints
+	server.addReportsEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
 
 	// Content related endpoints
 	server.addContentEndpointsToRouter(router)
@@ -101,6 +105,12 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 		openAPIURL,
 		httputils.CreateOpenAPIHandler(server.Config.APISpecFile, server.Config.Debug, true),
 	).Methods(http.MethodGet)
+}
+
+func (server *HTTPServer) addReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
+	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ReportForListOfClustersEndpoint, server.reportForListOfClustersEndpoint).Methods(http.MethodGet)
 }
 
 func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {

@@ -409,6 +409,48 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	return aggregatorResponse.Report, true
 }
 
+func (server HTTPServer) readAggregatorReportForClusterList(
+	orgID types.OrgID, clusterList []string, writer http.ResponseWriter,
+) (*types.ClusterReports, bool) {
+	clist := strings.Join(clusterList, ",")
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ReportForListOfClustersEndpoint,
+		orgID,
+		clist)
+
+	// #nosec G107
+	aggregatorResp, err := http.Get(aggregatorURL)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	var aggregatorResponse types.ClusterReports
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, false
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	return &aggregatorResponse, true
+}
+
 // readAggregatorRuleForClusterID reads report from aggregator,
 // handles errors by sending corresponding message to the user.
 // Returns report and bool value set to true if there was no errors
@@ -527,6 +569,30 @@ func (server HTTPServer) fetchAggregatorReport(
 	return aggregatorResponse, true
 }
 
+func (server HTTPServer) fetchAggregatorReports(
+	writer http.ResponseWriter, request *http.Request,
+) (*types.ClusterReports, bool) {
+	clusterList, successful := httputils.ReadClusterListFromPath(writer, request)
+	// Error message handled by function
+	if !successful {
+		return nil, false
+	}
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	orgID := authToken.Internal.OrgID
+
+	aggregatorResponse, successful := server.readAggregatorReportForClusterList(orgID, clusterList, writer)
+	if !successful {
+		return nil, false
+	}
+	return aggregatorResponse, true
+}
+
 func (server HTTPServer) getOSDFlag(request *http.Request) bool {
 	OSDEligible := request.URL.Query().Get("osd_eligible")
 	if len(OSDEligible) == 0 {
@@ -575,6 +641,18 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 
 	err := responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+func (server HTTPServer) reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request) {
+	aggregatorResponse, successful := server.fetchAggregatorReports(writer, request)
+	if !successful {
+		return
+	}
+
+	err := responses.Send(http.StatusOK, writer, aggregatorResponse)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
