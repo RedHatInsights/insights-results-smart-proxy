@@ -342,14 +342,8 @@ this is specific to OpenAPI JSON response and for all OPTION HTTP methods</p>
 	<div class="operator">}</div> <div class="keyword">else</div> <div class="operator">{</div>
 		<div class="ident">tokenHeader</div> <div class="operator">=</div> <div class="ident">r</div><div class="operator">.</div><div class="ident">Header</div><div class="operator">.</div><div class="ident">Get</div><div class="operator">(</div><div class="literal">&#34;x-rh-identity&#34;</div><div class="operator">)</div> <div class="operator"></div><div class="comment">//Grab the token from the header</div>
 	<div class="operator">}</div><div class="operator"></div>
-</code></pre></td>
-      </tr>
-      
-      <tr class="section">
-	<td class="doc"><p>Token is missing, SHOULD RETURN with error code 403 Unauthorized - changes in utils necessary
-TODO: Change SendUnauthorized in utils to accept string instead of map interface and change here</p>
-</td>
-	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="ident">tokenHeader</div> <div class="operator">==</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
+
+	<div class="keyword">if</div> <div class="ident">tokenHeader</div> <div class="operator">==</div> <div class="literal">&#34;&#34;</div> <div class="operator">{</div>
 		<div class="keyword">const</div> <div class="ident">message</div> <div class="operator">=</div> <div class="literal">&#34;Missing auth token&#34;</div><div class="operator"></div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">message</div><div class="operator">)</div><div class="operator"></div>
 		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">w</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">AuthenticationError</div><div class="operator">{</div><div class="ident">errString</div><div class="operator">:</div> <div class="ident">message</div><div class="operator">}</div><div class="operator">)</div><div class="operator"></div>

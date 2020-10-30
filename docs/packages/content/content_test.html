@@ -138,8 +138,8 @@ limitations under the License.</p>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
-	<div class="ident">cs_content</div> <div class="literal">&#34;github.com/RedHatInsights/insights-content-service/content&#34;</div><div class="operator"></div>
 	<div class="ident">ics_server</div> <div class="literal">&#34;github.com/RedHatInsights/insights-content-service/server&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-results-aggregator-data/testdata&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/stretchr/testify/assert&#34;</div><div class="operator"></div>
 
@@ -234,11 +234,11 @@ limitations under the License.</p>
       <tr class="section">
 	<td class="doc"><p>using testdata.RuleContent4 because contains datetime in a different format</p>
 </td>
-	<td class="code"><pre><code>	<div class="ident">ruleContentDirectory</div> <div class="operator">:=</div> <div class="ident">cs_content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">{</div>
-		<div class="ident">Config</div><div class="operator">:</div> <div class="ident">cs_content</div><div class="operator">.</div><div class="ident">GlobalRuleConfig</div><div class="operator">{</div>
+	<td class="code"><pre><code>	<div class="ident">ruleContentDirectory</div> <div class="operator">:=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">{</div>
+		<div class="ident">Config</div><div class="operator">:</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">GlobalRuleConfig</div><div class="operator">{</div>
 			<div class="ident">Impact</div><div class="operator">:</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">ImpactStrToInt</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
-		<div class="ident">Rules</div><div class="operator">:</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">cs_content</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div>
+		<div class="ident">Rules</div><div class="operator">:</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleContent</div><div class="operator">{</div>
 			<div class="literal">&#34;rc4&#34;</div><div class="operator">:</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContent4</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
