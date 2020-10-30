@@ -137,8 +137,9 @@ limitations under the License.</p>
 	<div class="literal">&#34;strings&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
-	<div class="literal">&#34;github.com/RedHatInsights/insights-content-service/content&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/collections&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
+	<div class="ident">local_types</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
@@ -164,7 +165,7 @@ limitations under the License.</p>
       <tr class="section">
 	<td class="doc"><p>LoadRuleContent loads the parsed rule content into the storage</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">LoadRuleContent</div><div class="operator">(</div><div class="ident">contentDir</div> <div class="operator">*</div><div class="ident">content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">LoadRuleContent</div><div class="operator">(</div><div class="ident">contentDir</div> <div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">rule</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">contentDir</div><div class="operator">.</div><div class="ident">Rules</div> <div class="operator">{</div>
 		<div class="ident">ruleID</div> <div class="operator">:=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div><div class="operator">(</div><div class="ident">rule</div><div class="operator">.</div><div class="ident">Plugin</div><div class="operator">.</div><div class="ident">PythonModule</div><div class="operator">)</div><div class="operator"></div>
 
@@ -187,23 +188,24 @@ limitations under the License.</p>
 				<div class="keyword">return</div><div class="operator"></div>
 			<div class="operator">}</div><div class="operator"></div>
 
-			<div class="ident">rulesWithContentStorage</div><div class="operator">.</div><div class="ident">SetRuleWithContent</div><div class="operator">(</div><div class="ident">ruleID</div><div class="operator">,</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">(</div><div class="ident">errorKey</div><div class="operator">)</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleWithContent</div><div class="operator">{</div>
-				<div class="ident">Module</div><div class="operator">:</div>       <div class="ident">ruleID</div><div class="operator">,</div>
-				<div class="ident">Name</div><div class="operator">:</div>         <div class="ident">rule</div><div class="operator">.</div><div class="ident">Plugin</div><div class="operator">.</div><div class="ident">Name</div><div class="operator">,</div>
-				<div class="ident">Summary</div><div class="operator">:</div>      <div class="ident">rule</div><div class="operator">.</div><div class="ident">Summary</div><div class="operator">,</div>
-				<div class="ident">Reason</div><div class="operator">:</div>       <div class="ident">rule</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
-				<div class="ident">Resolution</div><div class="operator">:</div>   <div class="ident">rule</div><div class="operator">.</div><div class="ident">Resolution</div><div class="operator">,</div>
-				<div class="ident">MoreInfo</div><div class="operator">:</div>     <div class="ident">rule</div><div class="operator">.</div><div class="ident">MoreInfo</div><div class="operator">,</div>
-				<div class="ident">ErrorKey</div><div class="operator">:</div>     <div class="ident">types</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">(</div><div class="ident">errorKey</div><div class="operator">)</div><div class="operator">,</div>
-				<div class="ident">Condition</div><div class="operator">:</div>    <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Condition</div><div class="operator">,</div>
-				<div class="ident">Description</div><div class="operator">:</div>  <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Description</div><div class="operator">,</div>
-				<div class="ident">TotalRisk</div><div class="operator">:</div>    <div class="ident">calculateTotalRisk</div><div class="operator">(</div><div class="ident">impact</div><div class="operator">,</div> <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Likelihood</div><div class="operator">)</div><div class="operator">,</div>
-				<div class="ident">RiskOfChange</div><div class="operator">:</div> <div class="ident">calculateRiskOfChange</div><div class="operator">(</div><div class="ident">impact</div><div class="operator">,</div> <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Likelihood</div><div class="operator">)</div><div class="operator">,</div>
-				<div class="ident">PublishDate</div><div class="operator">:</div>  <div class="ident">publishDate</div><div class="operator">,</div>
-				<div class="ident">Active</div><div class="operator">:</div>       <div class="ident">isActive</div><div class="operator">,</div>
-				<div class="ident">Internal</div><div class="operator">:</div>     <div class="ident">IsRuleInternal</div><div class="operator">(</div><div class="ident">ruleID</div><div class="operator">)</div><div class="operator">,</div>
-				<div class="ident">Generic</div><div class="operator">:</div>      <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Generic</div><div class="operator">,</div>
-				<div class="ident">Tags</div><div class="operator">:</div>         <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
+			<div class="ident">rulesWithContentStorage</div><div class="operator">.</div><div class="ident">SetRuleWithContent</div><div class="operator">(</div><div class="ident">ruleID</div><div class="operator">,</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">(</div><div class="ident">errorKey</div><div class="operator">)</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">local_types</div><div class="operator">.</div><div class="ident">RuleWithContent</div><div class="operator">{</div>
+				<div class="ident">Module</div><div class="operator">:</div>          <div class="ident">ruleID</div><div class="operator">,</div>
+				<div class="ident">Name</div><div class="operator">:</div>            <div class="ident">rule</div><div class="operator">.</div><div class="ident">Plugin</div><div class="operator">.</div><div class="ident">Name</div><div class="operator">,</div>
+				<div class="ident">Summary</div><div class="operator">:</div>         <div class="ident">rule</div><div class="operator">.</div><div class="ident">Summary</div><div class="operator">,</div>
+				<div class="ident">Reason</div><div class="operator">:</div>          <div class="ident">rule</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
+				<div class="ident">Resolution</div><div class="operator">:</div>      <div class="ident">rule</div><div class="operator">.</div><div class="ident">Resolution</div><div class="operator">,</div>
+				<div class="ident">MoreInfo</div><div class="operator">:</div>        <div class="ident">rule</div><div class="operator">.</div><div class="ident">MoreInfo</div><div class="operator">,</div>
+				<div class="ident">ErrorKey</div><div class="operator">:</div>        <div class="ident">types</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">(</div><div class="ident">errorKey</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">Condition</div><div class="operator">:</div>       <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Condition</div><div class="operator">,</div>
+				<div class="ident">Description</div><div class="operator">:</div>     <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Description</div><div class="operator">,</div>
+				<div class="ident">TotalRisk</div><div class="operator">:</div>       <div class="ident">calculateTotalRisk</div><div class="operator">(</div><div class="ident">impact</div><div class="operator">,</div> <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Likelihood</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">RiskOfChange</div><div class="operator">:</div>    <div class="ident">calculateRiskOfChange</div><div class="operator">(</div><div class="ident">impact</div><div class="operator">,</div> <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Likelihood</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">PublishDate</div><div class="operator">:</div>     <div class="ident">publishDate</div><div class="operator">,</div>
+				<div class="ident">Active</div><div class="operator">:</div>          <div class="ident">isActive</div><div class="operator">,</div>
+				<div class="ident">Internal</div><div class="operator">:</div>        <div class="ident">IsRuleInternal</div><div class="operator">(</div><div class="ident">ruleID</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">Generic</div><div class="operator">:</div>         <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Generic</div><div class="operator">,</div>
+				<div class="ident">Tags</div><div class="operator">:</div>            <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
+				<div class="ident">NotRequireAdmin</div><div class="operator">:</div> <div class="ident">collections</div><div class="operator">.</div><div class="ident">StringInSlice</div><div class="operator">(</div><div class="literal">&#34;osd_customer&#34;</div><div class="operator">,</div> <div class="ident">errorProperties</div><div class="operator">.</div><div class="ident">Metadata</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">)</div><div class="operator">,</div>
 			<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
