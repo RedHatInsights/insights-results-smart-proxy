@@ -34,6 +34,9 @@ const (
 	// ReportForListOfClustersEndpoint returns rule returns reports for provided list of clusters
 	// Reports that are going to be returned are specified by list of cluster IDs that is part of path
 	ReportForListOfClustersEndpoint = "clusters/{cluster_list}/reports"
+	// ReportForListOfClustersPayloadEndpoint returns the latest reports for the given list of clusters
+	// Reports that are going to be returned are specified by list of cluster IDs that is part of request body
+	ReportForListOfClustersPayloadEndpoint = "clusters/reports"
 	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configuration
 	RuleGroupsEndpoint = "groups"
 	// RuleContent returns static content for {rule_id}
@@ -107,12 +110,16 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	).Methods(http.MethodGet)
 }
 
+// addReportsEndpointsToRouter method registers handlers for endpoints that
+// return cluster report or reports to client
 func (server *HTTPServer) addReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersEndpoint, server.reportForListOfClustersEndpoint).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+ReportForListOfClustersPayloadEndpoint, server.reportForListOfClustersPayloadEndpoint).Methods(http.MethodPost)
 }
 
+// addDebugEndpointsToRouter method registers handlers for all debug endpoints
 func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+OrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodDelete)
@@ -129,6 +136,8 @@ func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router, apiPrefi
 	router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
 }
 
+// addRuleEndpointsToRouter method registers handlers for endpoints that handle
+// rule-related operations (voting etc.)
 func (server *HTTPServer) addRuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) {
 	router.HandleFunc(apiPrefix+SingleRuleEndpoint, server.singleRuleEndpoint).Methods(http.MethodGet, http.MethodOptions)
 
@@ -175,6 +184,8 @@ func (server *HTTPServer) addRuleEndpointsToRouter(router *mux.Router, apiPrefix
 	)).Methods(http.MethodPost, http.MethodOptions)
 }
 
+// addContentEndpointsToRouter method registers handlers for endpoints that
+// returns content to clients
 func (server HTTPServer) addContentEndpointsToRouter(router *mux.Router) {
 	apiPrefix := server.Config.APIPrefix
 

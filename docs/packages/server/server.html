@@ -833,10 +833,67 @@ Return values:
 	<div class="keyword">return</div> <div class="ident">aggregatorResponse</div><div class="operator">,</div> <div class="ident">true</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">fetchAggregatorReports</div><div class="operator">(</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fetchAggregatorReports method access the Insights Results Aggregator to read
+reports for given list of clusters. Then the response structure is
+constructed from data returned by Aggregator.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">fetchAggregatorReports</div><div class="operator">(</div>
 	<div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">,</div>
 <div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">ClusterReports</div><div class="operator">,</div> <div class="ident">bool</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">clusterList</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">httputils</div><div class="operator">.</div><div class="ident">ReadClusterListFromPath</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>cluster list is specified in path (part of URL)</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">clusterList</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">httputils</div><div class="operator">.</div><div class="ident">ReadClusterListFromPath</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>Error message handled by function</p>
+</td>
+	<td class="code"><pre><code>	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">successful</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">false</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">authToken</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">GetAuthToken</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">handleServerError</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">err</div><div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">false</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">orgID</div> <div class="operator">:=</div> <div class="ident">authToken</div><div class="operator">.</div><div class="ident">Internal</div><div class="operator">.</div><div class="ident">OrgID</div><div class="operator"></div>
+
+	<div class="ident">aggregatorResponse</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">readAggregatorReportForClusterList</div><div class="operator">(</div><div class="ident">orgID</div><div class="operator">,</div> <div class="ident">clusterList</div><div class="operator">,</div> <div class="ident">writer</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">successful</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">false</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">aggregatorResponse</div><div class="operator">,</div> <div class="ident">true</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>fetchAggregatorReportsUsingRequestBodyClusterList method access the Insights
+Results Aggregator to read reports for given list of clusters. Then the
+response structure is constructed from data returned by Aggregator.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">fetchAggregatorReportsUsingRequestBodyClusterList</div><div class="operator">(</div>
+	<div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">,</div>
+<div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">ClusterReports</div><div class="operator">,</div> <div class="ident">bool</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>cluster list is specified in request body</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">clusterList</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">httputils</div><div class="operator">.</div><div class="ident">ReadClusterListFromBody</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
 </code></pre></td>
       </tr>
       
@@ -915,13 +972,67 @@ Return values:
 	<div class="operator">}</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
-<div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">reportForListOfClustersEndpoint</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="ident">aggregatorResponse</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">fetchAggregatorReports</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>reportForListOfClustersEndpoint is a handler that returns reports for
+several clusters that all need to belong to one organization specified in
+request path. List of clusters is specified in request path as well which
+means that clients needs to deal with URL limit (around 2000 characters).</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">reportForListOfClustersEndpoint</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to read results from Insights Results Aggregator service</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">aggregatorResponse</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">fetchAggregatorReports</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">successful</div> <div class="operator">{</div>
 		<div class="keyword">return</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">Send</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div> <div class="ident">writer</div><div class="operator">,</div> <div class="ident">aggregatorResponse</div><div class="operator">)</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>send the response back to client</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">Send</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div> <div class="ident">writer</div><div class="operator">,</div> <div class="ident">aggregatorResponse</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">responseDataError</div><div class="operator">)</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>reportForListOfClustersPayloadEndpoint is a handler that returns reports for
+several clusters that all need to belong to one organization specified in
+request path. List of clusters is specified in request body which means that
+clients can use as many cluster ID as the wont without any (real) limits.</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">reportForListOfClustersPayloadEndpoint</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>try to read results from Insights Results Aggregator service</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">aggregatorResponse</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">fetchAggregatorReportsUsingRequestBodyClusterList</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="operator">!</div><div class="ident">successful</div> <div class="operator">{</div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>send the response back to client</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">Send</div><div class="operator">(</div><div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div> <div class="ident">writer</div><div class="operator">,</div> <div class="ident">aggregatorResponse</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">responseDataError</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>

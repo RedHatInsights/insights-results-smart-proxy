@@ -569,10 +569,42 @@ func (server HTTPServer) fetchAggregatorReport(
 	return aggregatorResponse, true
 }
 
+// fetchAggregatorReports method access the Insights Results Aggregator to read
+// reports for given list of clusters. Then the response structure is
+// constructed from data returned by Aggregator.
 func (server HTTPServer) fetchAggregatorReports(
 	writer http.ResponseWriter, request *http.Request,
 ) (*types.ClusterReports, bool) {
+	// cluster list is specified in path (part of URL)
 	clusterList, successful := httputils.ReadClusterListFromPath(writer, request)
+	// Error message handled by function
+	if !successful {
+		return nil, false
+	}
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	orgID := authToken.Internal.OrgID
+
+	aggregatorResponse, successful := server.readAggregatorReportForClusterList(orgID, clusterList, writer)
+	if !successful {
+		return nil, false
+	}
+	return aggregatorResponse, true
+}
+
+// fetchAggregatorReportsUsingRequestBodyClusterList method access the Insights
+// Results Aggregator to read reports for given list of clusters. Then the
+// response structure is constructed from data returned by Aggregator.
+func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
+	writer http.ResponseWriter, request *http.Request,
+) (*types.ClusterReports, bool) {
+	// cluster list is specified in request body
+	clusterList, successful := httputils.ReadClusterListFromBody(writer, request)
 	// Error message handled by function
 	if !successful {
 		return nil, false
@@ -646,12 +678,36 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 }
 
+// reportForListOfClustersEndpoint is a handler that returns reports for
+// several clusters that all need to belong to one organization specified in
+// request path. List of clusters is specified in request path as well which
+// means that clients needs to deal with URL limit (around 2000 characters).
 func (server HTTPServer) reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request) {
+	// try to read results from Insights Results Aggregator service
 	aggregatorResponse, successful := server.fetchAggregatorReports(writer, request)
 	if !successful {
 		return
 	}
 
+	// send the response back to client
+	err := responses.Send(http.StatusOK, writer, aggregatorResponse)
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+// reportForListOfClustersPayloadEndpoint is a handler that returns reports for
+// several clusters that all need to belong to one organization specified in
+// request path. List of clusters is specified in request body which means that
+// clients can use as many cluster ID as the wont without any (real) limits.
+func (server HTTPServer) reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request) {
+	// try to read results from Insights Results Aggregator service
+	aggregatorResponse, successful := server.fetchAggregatorReportsUsingRequestBodyClusterList(writer, request)
+	if !successful {
+		return
+	}
+
+	// send the response back to client
 	err := responses.Send(http.StatusOK, writer, aggregatorResponse)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
