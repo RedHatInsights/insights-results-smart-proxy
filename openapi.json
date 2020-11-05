@@ -89,10 +89,10 @@
                         "type": "object",
                         "properties": {
                           "title": {
-                            "type": "strings"
+                            "type": "string"
                           },
                           "description": {
-                            "type": "strings"
+                            "type": "string"
                           },
                           "tags": {
                             "type": "array",
@@ -161,8 +161,8 @@
     "/organizations/{orgId}/clusters": {
       "get": {
         "summary": "Returns a list of clusters associated with the specified organization ID.",
-        "operationId": "getClustersForOrganization",
         "description": "Returns a list of clusters, ie. cluster IDs, that are associated with the specified organization ID. Please note that there is 1:N organization to cluster mapping, ie. one cluster belongs exactly to one organization.",
+        "operationId": "getClustersForOrganization",
         "parameters": [
           {
             "name": "orgId",
@@ -354,6 +354,224 @@
         "tags": [
           "prod"
         ]
+      }
+    },
+    "/clusters/{clusterList}/reports": {
+      "get": {
+        "summary": "Returns the latest reports for the given list of clusters. Information about the org_id and user_id is taken from the token.",
+        "operationId": "getReportsForClusters",
+        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of path.",
+        "parameters": [
+          {
+            "name": "clusterList",
+            "in": "path",
+            "description": "A comma separated list of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "description": "ID of cluster in UUID format.",
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36,
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid request, usualy caused when some cluster belongs to different organization."
+          },
+          "200": {
+            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clusters": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36,
+                        "format": "uuid"
+                      }
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36,
+                        "format": "uuid"
+                      }
+                    },
+                    "reports": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "cluster": {
+                            "type": "string",
+                             "minLength": 36,
+                             "maxLength": 36,
+                             "format": "uuid"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "properties": {
+                              "count": {
+                                "type": "integer",
+                                "description": "Number of rules that were hit by the cluster. -1 is returned when no rules are defined for the cluster.",
+                                "example": "1"
+                              },
+                              "last_checked_at": {
+                                "type": "string",
+                                "format": "date",
+                                "example": "2020-01-23T16:15:59.478901889Z"
+                              }
+                            }
+                          },
+                          "report": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "component": {
+                                  "type": "string",
+                                  "description": "The rule identifier for the hit rule.",
+                                  "example": "some.python.module"
+                                },
+                                "key": {
+                                  "type": "string",
+                                  "description": "The erroy key triggered for this rule in the cluster.",
+                                  "example": "SOME_ERROR_KEY"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "prod"
+        ]
+      }
+    },
+    "/clusters/reports": {
+      "post": {
+        "summary": "Returns the latest reports for the given list of clusters. Information about the org_id and user_id is taken from the token.",
+        "operationId": "getReportsForClustersPost",
+        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of request body.",
+        "parameters": [],
+        "requestBody": {
+            "description": "List of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
+            "required": true,
+            "content": {
+              "text/plain": {
+                "schema": {
+                }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Invalid request, usualy caused when some cluster belongs to different organization."
+          },
+          "200": {
+            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clusters": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36,
+                        "format": "uuid"
+                      }
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36,
+                        "format": "uuid"
+                      }
+                    },
+                    "reports": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "cluster": {
+                            "type": "string",
+                             "minLength": 36,
+                             "maxLength": 36,
+                             "format": "uuid"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "properties": {
+                              "count": {
+                                "type": "integer",
+                                "description": "Number of rules that were hit by the cluster. -1 is returned when no rules are defined for the cluster.",
+                                "example": "1"
+                              },
+                              "last_checked_at": {
+                                "type": "string",
+                                "format": "date",
+                                "example": "2020-01-23T16:15:59.478901889Z"
+                              }
+                            }
+                          },
+                          "report": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "component": {
+                                  "type": "string",
+                                  "description": "The rule identifier for the hit rule.",
+                                  "example": "some.python.module"
+                                },
+                                "key": {
+                                  "type": "string",
+                                  "description": "The erroy key triggered for this rule in the cluster.",
+                                  "example": "SOME_ERROR_KEY"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/clusters/{clusterId}/rules/{ruleId}/report": {
@@ -799,7 +1017,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "prod"
+        ]
       }
     },
     "/rules/{ruleId}": {
@@ -956,6 +1177,9 @@
                           "additionalProperties": {
                             "type": "object",
                             "properties": {
+                              "reason": {
+                                "type": "string"
+                              },
                               "generic": {
                                 "type": "string"
                               },
@@ -1083,6 +1307,9 @@
                               "type": "object",
                               "properties": {
                                 "generic": {
+                                  "type": "string"
+                                },
+                                "reason": {
                                   "type": "string"
                                 },
                                 "metadata": {
@@ -1216,6 +1443,21 @@
             "example": "some.python.module"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Status ok",
@@ -1228,7 +1470,7 @@
                       "type": "string",
                       "example": "ok"
                     },
-                    "disable_feedback": {
+                    "message": {
                       "type": "string",
                       "example": "test"
                     }
@@ -1254,14 +1496,14 @@
             "name": "clusterId",
             "in": "path",
             "description": "ID of the cluster which must conform to UUID format",
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "required": true,
             "schema": {
               "type": "string",
               "minLength": 36,
               "maxLength": 36,
               "format": "uuid"
-            },
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            }
           },
           {
             "name": "ruleId",

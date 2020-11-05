@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	cs_content "github.com/RedHatInsights/insights-content-service/content"
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	"github.com/stretchr/testify/assert"
 
@@ -110,11 +110,11 @@ func TestUpdateContent_CallMultipleTimes(t *testing.T) {
 
 func TestUpdateContentBadTime(t *testing.T) {
 	// using testdata.RuleContent4 because contains datetime in a different format
-	ruleContentDirectory := cs_content.RuleContentDirectory{
-		Config: cs_content.GlobalRuleConfig{
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]cs_content.RuleContent{
+		Rules: map[string]types.RuleContent{
 			"rc4": testdata.RuleContent4,
 		},
 	}

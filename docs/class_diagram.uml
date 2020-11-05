@@ -14,13 +14,13 @@ namespace conf {
 namespace content {
     class RulesWithContentStorage << (S,Aquamarine) >> {
         - rulesWithContent <font color=blue>map</font>[ruleIDAndErrorKey]*types.RuleWithContent
-        - rules <font color=blue>map</font>[types.RuleID]*content.RuleContent
+        - rules <font color=blue>map</font>[types.RuleID]*types.RuleContent
 
         + GetRuleWithErrorKeyContent(ruleID types.RuleID, errorKey types.ErrorKey) (*types.RuleWithContent, bool)
-        + GetRuleContent(ruleID types.RuleID) (*content.RuleContent, bool)
-        + GetAllContent() []content.RuleContent
+        + GetRuleContent(ruleID types.RuleID) (*types.RuleContent, bool)
+        + GetAllContent() []types.RuleContent
         + SetRuleWithContent(ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *types.RuleWithContent) 
-        + SetRule(ruleID types.RuleID, ruleContent content.RuleContent) 
+        + SetRule(ruleID types.RuleID, ruleContent types.RuleContent) 
         + ResetContent() 
         + GetRuleIDs() []string
 
@@ -39,10 +39,10 @@ namespace helpers {
     }
     class helpers.APIResponse << (T, #FF7700) >>  {
     }
-    class "helpers.APIRequest" as helpersAPIRequest {
+    class "helpers.APIResponse" as helpersAPIResponse {
         'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
     }
-    class "helpers.APIResponse" as helpersAPIResponse {
+    class "helpers.APIRequest" as helpersAPIRequest {
         'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
     }
 }
@@ -89,36 +89,48 @@ namespace server {
         + GroupsChannel <font color=blue>chan</font> []groups.Group
         + Serv *http.Server
 
-        - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
-        - readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error)
-        - serveAPISpecFile(writer http.ResponseWriter, request *http.Request) 
-        - redirectTo(baseURL string) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
-        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
-        - sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, bool)
-        - composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)
-        - readAggregatorReportForClusterID(orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter) (*types.ReportResponse, bool)
-        - fetchAggregatorReport(writer http.ResponseWriter, request *http.Request) (*types.ReportResponse, bool)
-        - reportEndpoint(writer http.ResponseWriter, request *http.Request) 
-        - findRule(writer http.ResponseWriter, report []types.RuleOnReport, requestRuleID types.RuleID) (types.RuleWithContentResponse, bool)
-        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
-        - checkInternalRulePermissions(request *http.Request) error
-        - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
         - getGroups(writer http.ResponseWriter, _ *http.Request) 
         - getContentForRule(writer http.ResponseWriter, request *http.Request) 
         - getContent(writer http.ResponseWriter, request *http.Request) 
         - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
         - getRuleIDs(writer http.ResponseWriter, request *http.Request) 
-        - addDebugEndpointsToRouter(router *mux.Router) 
+        - overviewEndpoint(writer http.ResponseWriter, request *http.Request) 
         - addEndpointsToRouter(router *mux.Router) 
+        - addReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
+        - addDebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
+        - addRuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) 
         - addContentEndpointsToRouter(router *mux.Router) 
+        - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
+        - readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error)
+        - redirectTo(baseURL string) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
+        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
+        - sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, bool)
+        - composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)
+        - readClusterIDsForOrgID(orgID types.OrgID) ([]types.ClusterName, error)
+        - readAggregatorReportForClusterID(orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter) (*types.ReportResponse, bool)
+        - readAggregatorReportForClusterList(orgID types.OrgID, clusterList []string, writer http.ResponseWriter) (*types.ClusterReports, bool)
+        - readAggregatorRuleForClusterID(orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, ruleID types.RuleID, errorKey types.ErrorKey, writer http.ResponseWriter) (*types.RuleOnReport, bool)
+        - fetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (types.RuleWithContentResponse, bool, bool)
+        - fetchAggregatorReport(writer http.ResponseWriter, request *http.Request) (*types.ReportResponse, bool)
+        - fetchAggregatorReports(writer http.ResponseWriter, request *http.Request) (*types.ClusterReports, bool)
+        - fetchAggregatorReportsUsingRequestBodyClusterList(writer http.ResponseWriter, request *http.Request) (*types.ClusterReports, bool)
+        - getOSDFlag(request *http.Request) bool
+        - reportEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - fetchAggregatorReportRule(writer http.ResponseWriter, request *http.Request) (*types.RuleOnReport, bool)
+        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - checkInternalRulePermissions(request *http.Request) error
+        - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
+        - getOverviewPerCluster(clusterName types.ClusterName, authToken *types.Identity, writer http.ResponseWriter) (*types.ClusterOverview, error)
 
-        + Initialize() http.Handler
-        + Start() error
-        + Stop(ctx context.Context) error
         + Authentication(next http.Handler, noAuthURLs []string) http.Handler
         + GetCurrentUserID(request *http.Request) (types.UserID, error)
         + GetAuthToken(request *http.Request) (*types.Identity, error)
+        + Initialize() http.Handler
+        + Start() error
+        + Stop(ctx context.Context) error
 
     }
     class NoBodyError << (S,Aquamarine) >> {
@@ -172,6 +184,31 @@ namespace services {
 
 
 namespace types {
+    class ClusterOverview << (S,Aquamarine) >> {
+        + TotalRisksHit golang-set.Set
+        + TagsHit golang-set.Set
+
+    }
+    class RuleWithContent << (S,Aquamarine) >> {
+        + Module types.RuleID
+        + Name string
+        + Summary string
+        + Reason string
+        + Resolution string
+        + MoreInfo json.RawMessage
+        + ErrorKey types.ErrorKey
+        + Condition string
+        + Description string
+        + TotalRisk int
+        + RiskOfChange int
+        + PublishDate time.Time
+        + Active bool
+        + Internal bool
+        + Generic string
+        + Tags []string
+        + NotRequireAdmin bool
+
+    }
     class RuleWithContentResponse << (S,Aquamarine) >> {
         + RuleID types.RuleID
         + ErrorKey types.ErrorKey
@@ -183,6 +220,8 @@ namespace types {
         + TotalRisk int
         + RiskOfChange int
         + Disabled bool
+        + DisableFeedback string
+        + DisabledAt types.Timestamp
         + Internal bool
         + UserVote types.UserVote
         + TemplateData <font color=blue>interface</font>{}

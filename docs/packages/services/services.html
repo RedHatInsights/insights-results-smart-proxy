@@ -149,8 +149,8 @@ implemented for Content Service.</p>
 	<div class="literal">&#34;net/http&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;net/url&#34;</div><div class="operator"></div>
 
-	<div class="literal">&#34;github.com/RedHatInsights/insights-content-service/content&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/RedHatInsights/insights-content-service/groups&#34;</div><div class="operator"></div>
+	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
@@ -233,7 +233,7 @@ implemented for Content Service.</p>
       <tr class="section">
 	<td class="doc"><p>GetContent get the static rule content from content-service</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetContent</div><div class="operator">(</div><div class="ident">conf</div> <div class="ident">Configuration</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">GetContent</div><div class="operator">(</div><div class="ident">conf</div> <div class="ident">Configuration</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;getting rules static content&#34;</div><div class="operator">)</div><div class="operator"></div>
 	<div class="ident">resp</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">getFromURL</div><div class="operator">(</div><div class="ident">conf</div><div class="operator">.</div><div class="ident">ContentBaseEndpoint</div> <div class="operator">&#43;</div> <div class="ident">ContentEndpoint</div><div class="operator">)</div><div class="operator"></div>
 
@@ -246,7 +246,7 @@ implemented for Content Service.</p>
 		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="keyword">var</div> <div class="ident">receivedContent</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator"></div>
+	<div class="keyword">var</div> <div class="ident">receivedContent</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator"></div>
 	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">gob</div><div class="operator">.</div><div class="ident">NewDecoder</div><div class="operator">(</div><div class="ident">bytes</div><div class="operator">.</div><div class="ident">NewReader</div><div class="operator">(</div><div class="ident">respBytes</div><div class="operator">)</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Decode</div><div class="operator">(</div><div class="operator">&amp;</div><div class="ident">receivedContent</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;error trying to decode rules content from received answer&#34;</div><div class="operator">)</div><div class="operator"></div>

@@ -23,7 +23,6 @@ import (
 	"testing"
 	"time"
 
-	ics_content "github.com/RedHatInsights/insights-content-service/content"
 	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	"github.com/rs/zerolog"
@@ -113,7 +112,7 @@ var (
 				RiskOfChange: 0,
 				Disabled:     testdata.Rule1Disabled,
 				UserVote:     types.UserVoteNone,
-				TemplateData: testdata.Rule1.MoreInfo,
+				TemplateData: testdata.Rule1ExtraData,
 				Tags:         testdata.RuleErrorKey1.Tags,
 			},
 			{
@@ -128,7 +127,7 @@ var (
 				RiskOfChange: 0,
 				Disabled:     testdata.Rule2Disabled,
 				UserVote:     types.UserVoteNone,
-				TemplateData: testdata.Rule2.MoreInfo,
+				TemplateData: testdata.Rule2ExtraData,
 				Tags:         testdata.RuleErrorKey2.Tags,
 			},
 			{
@@ -143,39 +142,71 @@ var (
 				RiskOfChange: 0,
 				Disabled:     testdata.Rule3Disabled,
 				UserVote:     types.UserVoteNone,
-				TemplateData: testdata.Rule3.MoreInfo,
+				TemplateData: testdata.Rule3ExtraData,
 				Tags:         testdata.RuleErrorKey3.Tags,
 			},
 		},
 	}
 
-	GetContentResponse3Rules = struct {
-		Status string                    `json:"status"`
-		Rules  []ics_content.RuleContent `json:"content"`
+	SmartProxyReportResponse3RulesWithOnlyOSD = struct {
+		Status string                  `json:"status"`
+		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Rules: []ics_content.RuleContent{
+		Report: &SmartProxyReport3RulesWithOnlyOSD,
+	}
+
+	SmartProxyReport3RulesWithOnlyOSD = types.SmartProxyReport{
+		Meta: types.ReportResponseMeta{
+			Count:         1,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{
+			{
+				RuleID:       testdata.Rule1.Module,
+				ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey1.Description,
+				Generic:      testdata.RuleErrorKey1.Generic,
+				Reason:       testdata.Rule1.Reason,
+				Resolution:   testdata.Rule1.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule1Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule1ExtraData,
+				Tags:         testdata.RuleErrorKey1.Tags,
+			},
+		},
+	}
+
+	GetContentResponse3Rules = struct {
+		Status string                  `json:"status"`
+		Rules  []iou_types.RuleContent `json:"content"`
+	}{
+		Status: "ok",
+		Rules: []iou_types.RuleContent{
 			testdata.RuleContent1,
 			testdata.RuleContent2,
 			testdata.RuleContent3,
 		},
 	}
 
-	RuleContentInternal1 = ics_content.RuleContent{
+	RuleContentInternal1 = iou_types.RuleContent{
 		Summary:    testdata.Rule1.Summary,
 		Reason:     testdata.Rule1.Reason,
 		Resolution: testdata.Rule1.Resolution,
 		MoreInfo:   testdata.Rule1.MoreInfo,
-		Plugin: ics_content.RulePluginInfo{
+		Plugin: iou_types.RulePluginInfo{
 			Name:         testdata.Rule1.Name,
 			NodeID:       "",
 			ProductCode:  "",
 			PythonModule: internalTestRuleModule,
 		},
-		ErrorKeys: map[string]ics_content.RuleErrorKeyContent{
+		ErrorKeys: map[string]iou_types.RuleErrorKeyContent{
 			"ek1": {
 				Generic: testdata.RuleErrorKey1.Generic,
-				Metadata: ics_content.ErrorKeyMetadata{
+				Metadata: iou_types.ErrorKeyMetadata{
 					Condition:   testdata.RuleErrorKey1.Condition,
 					Description: testdata.RuleErrorKey1.Description,
 					Impact:      testdata.ImpactIntToStr[testdata.RuleErrorKey1.Impact],
@@ -201,9 +232,37 @@ var (
 			},
 			"hit_by_tag": map[string]int{
 				"openshift":            1,
+				"osd_customer":         1,
 				"service_availability": 1,
 			},
 		},
+	}
+
+	SmartProxyReportResponse3SingleRule = struct {
+		Status string                        `json:"status"`
+		Report types.RuleWithContentResponse `json:"report"`
+	}{
+		Status: "ok",
+		Report: types.RuleWithContentResponse{
+			RuleID:       testdata.Rule1.Module,
+			ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+			CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.Rule1.Reason,
+			Resolution:   testdata.Rule1.Resolution,
+			TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+			RiskOfChange: 0,
+			Disabled:     testdata.Rule1Disabled,
+			UserVote:     types.UserVoteNone,
+			TemplateData: testdata.Rule1ExtraData,
+			Tags:         testdata.RuleErrorKey1.Tags,
+		},
+	}
+	SmartProxyReportResponse3NoRuleFound = struct {
+		Status string `json:"status"`
+	}{
+		Status: "Rule was not found",
 	}
 )
 
@@ -212,15 +271,15 @@ func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
 }
 
-func loadMockRuleContentDir(rulesContent []ics_content.RuleContent) {
-	rules := make(map[string]ics_content.RuleContent)
+func loadMockRuleContentDir(rulesContent []iou_types.RuleContent) {
+	rules := make(map[string]iou_types.RuleContent)
 
 	for index, rule := range rulesContent {
 		key := fmt.Sprintf("rc%d", index)
 		rules[key] = rule
 	}
-	ruleContentDirectory := ics_content.RuleContentDirectory{
-		Config: ics_content.GlobalRuleConfig{
+	ruleContentDirectory := iou_types.RuleContentDirectory{
+		Config: iou_types.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
 		Rules: rules,
@@ -293,7 +352,7 @@ func ruleIDsChecker(t testing.TB, expected, got []byte) {
 func ruleInContentChecker(t testing.TB, expected, got []byte) {
 	type Response struct {
 		Status  string `json:"string"`
-		Content []ics_content.RuleContent
+		Content []iou_types.RuleContent
 	}
 
 	var expectedResp, gotResp Response
