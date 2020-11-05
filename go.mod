@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20201009081018-083923779f00
-	github.com/RedHatInsights/insights-operator-utils v1.6.6
+	github.com/RedHatInsights/insights-operator-utils v1.6.7
 	github.com/RedHatInsights/insights-results-aggregator v1.1.2
 	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20201020122143-b8e277272e95
 	github.com/aws/aws-sdk-go v1.35.8 // indirect
