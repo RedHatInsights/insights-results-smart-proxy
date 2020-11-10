@@ -45,17 +45,19 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 		for errorKey, errorProperties := range rule.ErrorKeys {
 			impact, found := contentDir.Config.Impact[errorProperties.Metadata.Impact]
 			if !found {
-				log.Error().Msgf(`impact "%v" doesn't have integer representation'`, impact)
+				log.Error().Msgf(`impact "%v" doesn't have integer representation' (skipping)`, impact)
 				continue
 			}
 
 			isActive, success := getActiveStatus(errorProperties.Metadata.Status)
 			if success != true {
+				log.Error().Msgf(`fatal: rule ID %v with key %v has invalid status`, ruleID, errorKey)
 				return
 			}
 
 			publishDate, err := timeParse(errorProperties.Metadata.PublishDate)
 			if err != nil {
+				log.Error().Msgf(`fatal: rule ID %v with key %v has improper datetime attribute`, ruleID, errorKey)
 				return
 			}
 
