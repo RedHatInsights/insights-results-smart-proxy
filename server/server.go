@@ -647,15 +647,12 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 
 	var rules []proxy_types.RuleWithContentResponse
 	var rulesNotFound []types.RuleID
-	hasNoErrors := true
 
 	for _, aggregatorRule := range aggregatorResponse.Report {
 		rule, successful, hasNoError := server.fetchRuleContent(aggregatorRule, server.getOSDFlag(request))
 
-		hasNoErrors = hasNoErrors && hasNoError
-
 		if !successful {
-			if !hasNoErrors {
+			if !hasNoError {
 				rulesNotFound = append(rulesNotFound, aggregatorRule.Module)
 			}
 			continue
@@ -663,7 +660,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		rules = append(rules, rule)
 	}
 
-	if len(aggregatorResponse.Report) != 0 && len(rulesNotFound) != 0 {
+	if len(rules) == 0 && len(rulesNotFound) != 0 {
 		handleServerError(
 			writer,
 			&types.ItemNotFoundError{

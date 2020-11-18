@@ -941,15 +941,12 @@ response structure is constructed from data returned by Aggregator.</p>
 
 	<div class="keyword">var</div> <div class="ident">rules</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator"></div>
 	<div class="keyword">var</div> <div class="ident">rulesNotFound</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div><div class="operator"></div>
-	<div class="ident">hasNoErrors</div> <div class="operator">:=</div> <div class="ident">true</div><div class="operator"></div>
 
 	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">aggregatorRule</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">aggregatorResponse</div><div class="operator">.</div><div class="ident">Report</div> <div class="operator">{</div>
 		<div class="ident">rule</div><div class="operator">,</div> <div class="ident">successful</div><div class="operator">,</div> <div class="ident">hasNoError</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">fetchRuleContent</div><div class="operator">(</div><div class="ident">aggregatorRule</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getOSDFlag</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
-		<div class="ident">hasNoErrors</div> <div class="operator">=</div> <div class="ident">hasNoErrors</div> <div class="operator">&amp;&amp;</div> <div class="ident">hasNoError</div><div class="operator"></div>
-
 		<div class="keyword">if</div> <div class="operator">!</div><div class="ident">successful</div> <div class="operator">{</div>
-			<div class="keyword">if</div> <div class="operator">!</div><div class="ident">hasNoErrors</div> <div class="operator">{</div>
+			<div class="keyword">if</div> <div class="operator">!</div><div class="ident">hasNoError</div> <div class="operator">{</div>
 				<div class="ident">rulesNotFound</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">rulesNotFound</div><div class="operator">,</div> <div class="ident">aggregatorRule</div><div class="operator">.</div><div class="ident">Module</div><div class="operator">)</div><div class="operator"></div>
 			<div class="operator">}</div><div class="operator"></div>
 			<div class="keyword">continue</div><div class="operator"></div>
@@ -957,7 +954,7 @@ response structure is constructed from data returned by Aggregator.</p>
 		<div class="ident">rules</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">,</div> <div class="ident">rule</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">aggregatorResponse</div><div class="operator">.</div><div class="ident">Report</div><div class="operator">)</div> <div class="operator">!=</div> <div class="literal">0</div> <div class="operator">&amp;&amp;</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">rulesNotFound</div><div class="operator">)</div> <div class="operator">!=</div> <div class="literal">0</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">)</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">&amp;&amp;</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">rulesNotFound</div><div class="operator">)</div> <div class="operator">!=</div> <div class="literal">0</div> <div class="operator">{</div>
 		<div class="ident">handleServerError</div><div class="operator">(</div>
 			<div class="ident">writer</div><div class="operator">,</div>
 			<div class="operator">&amp;</div><div class="ident">types</div><div class="operator">.</div><div class="ident">ItemNotFoundError</div><div class="operator">{</div>
