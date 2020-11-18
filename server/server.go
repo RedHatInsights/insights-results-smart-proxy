@@ -33,6 +33,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
@@ -645,6 +646,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 
 	var rules []proxy_types.RuleWithContentResponse
+	var rulesNotFound []types.RuleID
 	hasNoErrors := true
 
 	for _, aggregatorRule := range aggregatorResponse.Report {
@@ -653,14 +655,21 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		hasNoErrors = hasNoErrors && hasNoError
 
 		if !successful {
+			if !hasNoErrors {
+				rulesNotFound = append(rulesNotFound, aggregatorRule.Module)
+			}
 			continue
 		}
-
 		rules = append(rules, rule)
 	}
 
-	if len(aggregatorResponse.Report) != 0 && !hasNoErrors {
-		handleServerError(writer, fmt.Errorf("unable to find content for rules"))
+	if len(aggregatorResponse.Report) != 0 && len(rulesNotFound) != 0 {
+		handleServerError(
+			writer,
+			&types.ItemNotFoundError{
+				ItemID: rulesNotFound,
+			},
+		)
 		return
 	}
 
