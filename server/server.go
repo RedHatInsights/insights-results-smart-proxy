@@ -645,29 +645,14 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		return
 	}
 
-	var rules []proxy_types.RuleWithContentResponse
-	var rulesNotFound []types.RuleID
-
+	rules := []proxy_types.RuleWithContentResponse{}
 	for _, aggregatorRule := range aggregatorResponse.Report {
-		rule, successful, hasNoError := server.fetchRuleContent(aggregatorRule, server.getOSDFlag(request))
+		rule, successful, _ := server.fetchRuleContent(aggregatorRule, server.getOSDFlag(request))
 
 		if !successful {
-			if !hasNoError {
-				rulesNotFound = append(rulesNotFound, aggregatorRule.Module)
-			}
 			continue
 		}
 		rules = append(rules, rule)
-	}
-
-	if len(rules) == 0 && len(rulesNotFound) != 0 {
-		handleServerError(
-			writer,
-			&types.ItemNotFoundError{
-				ItemID: rulesNotFound,
-			},
-		)
-		return
 	}
 
 	report := proxy_types.SmartProxyReport{

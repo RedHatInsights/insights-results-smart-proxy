@@ -86,6 +86,14 @@ var (
 		InternalRulesOrganizations:       []iou_types.OrgID{2},
 	}
 
+	SmartProxyEmptyReportResponse = struct {
+		Status string                  `json:"status"`
+		Report *types.SmartProxyReport `json:"report"`
+	}{
+		Status: "ok",
+		Report: &SmartProxyEmptyReport,
+	}
+
 	SmartProxyReportResponse3Rules = struct {
 		Status string                  `json:"status"`
 		Report *types.SmartProxyReport `json:"report"`
@@ -94,6 +102,13 @@ var (
 		Report: &SmartProxyReport3Rules,
 	}
 
+	SmartProxyEmptyReport = types.SmartProxyReport{
+		Meta: types.ReportResponseMeta{
+			Count:         0,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{},
+	}
 	SmartProxyReport3Rules = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
 			Count:         3,
