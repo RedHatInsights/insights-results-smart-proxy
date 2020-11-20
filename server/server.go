@@ -668,7 +668,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 
 	status := http.StatusOK
-	if rulesWithoutContent > 0 {
+	if rulesWithoutContent > 0 && len(rules) == 0 {
 		status = http.StatusInternalServerError
 	}
 

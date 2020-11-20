@@ -962,7 +962,7 @@ response structure is constructed from data returned by Aggregator.</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">status</div> <div class="operator">:=</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator"></div>
-	<div class="keyword">if</div> <div class="ident">rulesWithoutContent</div> <div class="operator">&gt;</div> <div class="literal">0</div> <div class="operator">{</div>
+	<div class="keyword">if</div> <div class="ident">rulesWithoutContent</div> <div class="operator">&gt;</div> <div class="literal">0</div> <div class="operator">&amp;&amp;</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">)</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">{</div>
 		<div class="ident">status</div> <div class="operator">=</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusInternalServerError</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
