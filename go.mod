@@ -7,7 +7,7 @@ require (
 	github.com/RedHatInsights/insights-content-service v0.0.0-20201009081018-083923779f00
 	github.com/RedHatInsights/insights-operator-utils v1.6.8
 	github.com/RedHatInsights/insights-results-aggregator v1.1.2
-	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20201109115720-126bd0348556
+	github.com/RedHatInsights/insights-results-aggregator-data v0.0.0-20201119125145-1c839a4b8ff4
 	github.com/aws/aws-sdk-go v1.35.8 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/deckarep/golang-set v1.7.1
