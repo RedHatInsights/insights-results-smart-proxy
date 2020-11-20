@@ -764,9 +764,9 @@ Returns report and bool value set to true if there was no errors</p>
 Return values:
   - Structure with rules and content
   - return true if fetching content was successful, including filtering
-  - return true if fetching and parsing of content was successful, not including filtering</p>
+  - return true if the rule has been filtered by OSDElegible field. False otherwise</p>
 </td>
-	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">fetchRuleContent</div><div class="operator">(</div><div class="ident">rule</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleOnReport</div><div class="operator">,</div> <div class="ident">OSDEligible</div> <div class="ident">bool</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">,</div> <div class="ident">bool</div><div class="operator">,</div> <div class="ident">bool</div><div class="operator">)</div> <div class="operator">{</div>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">fetchRuleContent</div><div class="operator">(</div><div class="ident">rule</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleOnReport</div><div class="operator">,</div> <div class="ident">OSDEligible</div> <div class="ident">bool</div><div class="operator">)</div> <div class="operator">(</div><div class="operator">*</div><div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">,</div> <div class="ident">bool</div><div class="operator">,</div> <div class="ident">bool</div><div class="operator">)</div> <div class="operator">{</div>
 	<div class="ident">ruleID</div> <div class="operator">:=</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">Module</div><div class="operator"></div>
 	<div class="ident">errorKey</div> <div class="operator">:=</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator"></div>
 
@@ -775,11 +775,11 @@ Return values:
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div>
 			<div class="literal">&#34;unable to get content for rule with id %v and error key %v&#34;</div><div class="operator">,</div> <div class="ident">ruleID</div><div class="operator">,</div> <div class="ident">errorKey</div><div class="operator">,</div>
 		<div class="operator">)</div><div class="operator"></div>
-		<div class="keyword">return</div> <div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="ident">false</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="ident">false</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">if</div> <div class="ident">OSDEligible</div> <div class="operator">&amp;&amp;</div> <div class="operator">!</div><div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">NotRequireAdmin</div> <div class="operator">{</div>
-		<div class="keyword">return</div> <div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div><div class="operator">}</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="ident">true</div><div class="operator"></div>
+		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">,</div> <div class="ident">true</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">parsedRule</div> <div class="operator">:=</div> <div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div>
@@ -801,7 +801,7 @@ Return values:
 		<div class="ident">Internal</div><div class="operator">:</div>        <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Internal</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="keyword">return</div> <div class="ident">parsedRule</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">,</div> <div class="ident">true</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="operator">&amp;</div><div class="ident">parsedRule</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">,</div> <div class="ident">false</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">fetchAggregatorReport</div><div class="operator">(</div>
@@ -940,24 +940,33 @@ response structure is constructed from data returned by Aggregator.</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">rules</div> <div class="operator">:=</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div><div class="operator">}</div><div class="operator"></div>
+	<div class="ident">rulesWithoutContent</div> <div class="operator">:=</div> <div class="literal">0</div><div class="operator"></div>
 	<div class="keyword">for</div> <div class="ident">_</div><div class="operator">,</div> <div class="ident">aggregatorRule</div> <div class="operator">:=</div> <div class="keyword">range</div> <div class="ident">aggregatorResponse</div><div class="operator">.</div><div class="ident">Report</div> <div class="operator">{</div>
-		<div class="ident">rule</div><div class="operator">,</div> <div class="ident">successful</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">fetchRuleContent</div><div class="operator">(</div><div class="ident">aggregatorRule</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getOSDFlag</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">rule</div><div class="operator">,</div> <div class="ident">successful</div><div class="operator">,</div> <div class="ident">filtered</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">fetchRuleContent</div><div class="operator">(</div><div class="ident">aggregatorRule</div><div class="operator">,</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">getOSDFlag</div><div class="operator">(</div><div class="ident">request</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 		<div class="keyword">if</div> <div class="operator">!</div><div class="ident">successful</div> <div class="operator">{</div>
+			<div class="keyword">if</div> <div class="operator">!</div><div class="ident">filtered</div> <div class="operator">{</div>
+				<div class="ident">rulesWithoutContent</div><div class="operator">&#43;&#43;</div><div class="operator"></div>
+			<div class="operator">}</div><div class="operator"></div>
 			<div class="keyword">continue</div><div class="operator"></div>
 		<div class="operator">}</div><div class="operator"></div>
-		<div class="ident">rules</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">,</div> <div class="ident">rule</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">rules</div> <div class="operator">=</div> <div class="ident">append</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">rule</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="ident">report</div> <div class="operator">:=</div> <div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">SmartProxyReport</div><div class="operator">{</div>
 		<div class="ident">Meta</div><div class="operator">:</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">ReportResponseMeta</div><div class="operator">{</div>
 			<div class="ident">LastCheckedAt</div><div class="operator">:</div> <div class="ident">aggregatorResponse</div><div class="operator">.</div><div class="ident">Meta</div><div class="operator">.</div><div class="ident">LastCheckedAt</div><div class="operator">,</div>
-			<div class="ident">Count</div><div class="operator">:</div>         <div class="ident">len</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">Count</div><div class="operator">:</div>         <div class="ident">len</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">)</div> <div class="operator">&#43;</div> <div class="ident">rulesWithoutContent</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
 		<div class="ident">Data</div><div class="operator">:</div> <div class="ident">rules</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendOK</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponseWithData</div><div class="operator">(</div><div class="literal">&#34;report&#34;</div><div class="operator">,</div> <div class="ident">report</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">status</div> <div class="operator">:=</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">rulesWithoutContent</div> <div class="operator">&gt;</div> <div class="literal">0</div> <div class="operator">{</div>
+		<div class="ident">status</div> <div class="operator">=</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusInternalServerError</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">err</div> <div class="operator">:=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">Send</div><div class="operator">(</div><div class="ident">status</div><div class="operator">,</div> <div class="ident">writer</div><div class="operator">,</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponseWithData</div><div class="operator">(</div><div class="literal">&#34;report&#34;</div><div class="operator">,</div> <div class="ident">report</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">responseDataError</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
@@ -1065,7 +1074,7 @@ clients can use as many cluster ID as the wont without any (real) limits.</p>
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">func</div> <div class="operator">(</div><div class="ident">server</div> <div class="ident">HTTPServer</div><div class="operator">)</div> <div class="ident">singleRuleEndpoint</div><div class="operator">(</div><div class="ident">writer</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">ResponseWriter</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">var</div> <div class="ident">rule</div> <div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator"></div>
+	<div class="keyword">var</div> <div class="ident">rule</div> <div class="operator">*</div><div class="ident">proxy_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator"></div>
 	<div class="keyword">var</div> <div class="ident">err</div> <div class="ident">error</div><div class="operator"></div>
 
 	<div class="ident">aggregatorResponse</div><div class="operator">,</div> <div class="ident">successful</div> <div class="operator">:=</div> <div class="ident">server</div><div class="operator">.</div><div class="ident">fetchAggregatorReportRule</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
@@ -1098,7 +1107,7 @@ clients can use as many cluster ID as the wont without any (real) limits.</p>
 		<div class="operator">}</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
 
-	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendOK</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponseWithData</div><div class="operator">(</div><div class="literal">&#34;report&#34;</div><div class="operator">,</div> <div class="ident">rule</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
+	<div class="ident">err</div> <div class="operator">=</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">SendOK</div><div class="operator">(</div><div class="ident">writer</div><div class="operator">,</div> <div class="ident">responses</div><div class="operator">.</div><div class="ident">BuildOkResponseWithData</div><div class="operator">(</div><div class="literal">&#34;report&#34;</div><div class="operator">,</div> <div class="operator">*</div><div class="ident">rule</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="ident">responseDataError</div><div class="operator">)</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>

@@ -102,8 +102,8 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyEmptyReportResponse),
+			StatusCode: http.StatusInternalServerError,
+			Body:       helpers.ToJSONString(SmartProxyReportResponse1RuleNoContent),
 		})
 	}, testTimeout)
 }
