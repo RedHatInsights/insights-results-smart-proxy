@@ -506,8 +506,8 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 // Return values:
 //   - Structure with rules and content
 //   - return true if fetching content was successful, including filtering
-//   - return true if fetching and parsing of content was successful, not including filtering
-func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (proxy_types.RuleWithContentResponse, bool, bool) {
+//   - return true if the rule has been filtered by OSDElegible field. False otherwise
+func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (*proxy_types.RuleWithContentResponse, bool, bool) {
 	ruleID := rule.Module
 	errorKey := rule.ErrorKey
 
@@ -516,11 +516,11 @@ func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible b
 		log.Error().Err(err).Msgf(
 			"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
 		)
-		return proxy_types.RuleWithContentResponse{}, false, false
+		return nil, false, false
 	}
 
 	if OSDEligible && !ruleWithContent.NotRequireAdmin {
-		return proxy_types.RuleWithContentResponse{}, false, true
+		return nil, false, true
 	}
 
 	parsedRule := proxy_types.RuleWithContentResponse{
@@ -542,7 +542,7 @@ func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible b
 		Internal:        ruleWithContent.Internal,
 	}
 
-	return parsedRule, true, true
+	return &parsedRule, true, false
 }
 
 func (server HTTPServer) fetchAggregatorReport(
@@ -645,43 +645,34 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		return
 	}
 
-	var rules []proxy_types.RuleWithContentResponse
-	var rulesNotFound []types.RuleID
-	hasNoErrors := true
-
+	rules := []proxy_types.RuleWithContentResponse{}
+	rulesWithoutContent := 0
 	for _, aggregatorRule := range aggregatorResponse.Report {
-		rule, successful, hasNoError := server.fetchRuleContent(aggregatorRule, server.getOSDFlag(request))
-
-		hasNoErrors = hasNoErrors && hasNoError
+		rule, successful, filtered := server.fetchRuleContent(aggregatorRule, server.getOSDFlag(request))
 
 		if !successful {
-			if !hasNoErrors {
-				rulesNotFound = append(rulesNotFound, aggregatorRule.Module)
+			if !filtered {
+				rulesWithoutContent++
 			}
 			continue
 		}
-		rules = append(rules, rule)
-	}
-
-	if len(aggregatorResponse.Report) != 0 && len(rulesNotFound) != 0 {
-		handleServerError(
-			writer,
-			&types.ItemNotFoundError{
-				ItemID: rulesNotFound,
-			},
-		)
-		return
+		rules = append(rules, *rule)
 	}
 
 	report := proxy_types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
 			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
-			Count:         len(rules),
+			Count:         len(rules) + rulesWithoutContent,
 		},
 		Data: rules,
 	}
 
-	err := responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	status := http.StatusOK
+	if rulesWithoutContent > 0 && len(rules) == 0 {
+		status = http.StatusInternalServerError
+	}
+
+	err := responses.Send(status, writer, responses.BuildOkResponseWithData("report", report))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
@@ -754,7 +745,7 @@ func (server HTTPServer) fetchAggregatorReportRule(
 }
 
 func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
-	var rule proxy_types.RuleWithContentResponse
+	var rule *proxy_types.RuleWithContentResponse
 	var err error
 
 	aggregatorResponse, successful := server.fetchAggregatorReportRule(writer, request)
@@ -782,7 +773,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		}
 	}
 
-	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", rule))
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", *rule))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
