@@ -194,7 +194,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reportsResponse"
+                }
+              }
             },
             "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster."
           },
@@ -205,108 +209,6 @@
         "operationId": "getReportsForClusters",
         "summary": "Returns the latest reports for the given list of clusters.",
         "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of path."
-      }
-    },
-    "/clusters/reports": {
-      "post": {
-        "requestBody": {
-          "description": "List of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
-          "content": {
-            "text/plain": {
-              "schema": {}
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "clusters": {
-                      "type": "array",
-                      "items": {
-                        "format": "uuid",
-                        "maxLength": 36,
-                        "minLength": 36,
-                        "type": "string"
-                      }
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "format": "uuid",
-                        "maxLength": 36,
-                        "minLength": 36,
-                        "type": "string"
-                      }
-                    },
-                    "reports": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "cluster": {
-                            "format": "uuid",
-                            "maxLength": 36,
-                            "minLength": 36,
-                            "type": "string"
-                          },
-                          "meta": {
-                            "type": "object",
-                            "properties": {
-                              "count": {
-                                "description": "Number of rules that were hit by the cluster. -1 is returned when no rules are defined for the cluster.",
-                                "type": "integer",
-                                "example": "1"
-                              },
-                              "last_checked_at": {
-                                "format": "date",
-                                "type": "string",
-                                "example": "2020-01-23T16:15:59.478901889Z"
-                              }
-                            }
-                          },
-                          "report": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "component": {
-                                  "description": "The rule identifier for the hit rule.",
-                                  "type": "string",
-                                  "example": "some.python.module"
-                                },
-                                "key": {
-                                  "description": "The erroy key triggered for this rule in the cluster.",
-                                  "type": "string",
-                                  "example": "SOME_ERROR_KEY"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster."
-          },
-          "400": {
-            "description": "Invalid request, usualy caused when some cluster belongs to different organization."
-          }
-        },
-        "operationId": "getReportsForClustersPost",
-        "summary": "Returns the latest reports for the given list of clusters.",
-        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of request body."
       }
     },
     "/clusters/{clusterId}/rules/{ruleId}/like": {
@@ -1063,6 +965,40 @@
         "summary": "Returns the latest single rule report for a cluster that contains information and content.",
         "description": "The rule is specified by the cluster ID and rule ID from params and information about the org_id and user_id is taken from the token. The latest rule report available for the given combination will be returned."
       }
+    },
+    "/clusters/reports": {
+      "post": {
+        "requestBody": {
+          "description": "List of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
+          "content": {
+            "text/plain": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reportsResponse"
+                }
+              }
+            },
+            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster."
+          },
+          "400": {
+            "description": "Invalid request, usualy caused when some cluster belongs to different organization."
+          }
+        },
+        "operationId": "getReportsForClustersPost",
+        "summary": "Returns the latest reports for the given list of clusters.",
+        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of request body."
+      }
     }
   },
   "components": {
@@ -1263,6 +1199,221 @@
             ]
           },
           "status": "ok"
+        }
+      },
+      "reportsAnalysisMetadataPluginSet": {
+        "description": "",
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "commit": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "insights-core": {
+            "commit": "placeholder",
+            "version": "insights-core-3.0.176-1"
+          }
+        }
+      },
+      "reportsAnalysisMetadata": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "execution_context": {
+            "description": "",
+            "type": "string"
+          },
+          "finish": {
+            "format": "date-time",
+            "description": "",
+            "type": "string"
+          },
+          "plugin_sets": {
+            "$ref": "#/components/schemas/reportsAnalysisMetadataPluginSet",
+            "description": ""
+          },
+          "start": {
+            "format": "date-time",
+            "description": "",
+            "type": "string"
+          }
+        }
+      },
+      "reportsComponentLinks": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "kcs": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "docs": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bz": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "reportsComponent": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "component": {
+            "description": "",
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          },
+          "key": {
+            "description": "",
+            "type": "string"
+          },
+          "rule_id": {
+            "description": "",
+            "type": "string"
+          },
+          "tags": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "description": "",
+            "type": "string"
+          },
+          "links": {
+            "$ref": "#/components/schemas/reportsComponentLinks",
+            "description": ""
+          }
+        }
+      },
+      "reportsSkipDetails": {
+        "title": "Root Type for reportsSkipsDetails",
+        "description": "",
+        "type": "object",
+        "properties": {
+          "details": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "rule_fqdn": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "details": "All: ['ccx_rules_ocp.external.rules.container_max_root_partition_size.check_container_runtime_config'] Any: ",
+          "reason": "MISSING_REQUIREMENTS",
+          "rule_fqdn": "ccx_rules_ocp.external.rules.container_max_root_partition_size.report",
+          "type": "skip"
+        }
+      },
+      "reportsCluster": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "analysis_metadata": {
+            "$ref": "#/components/schemas/reportsAnalysisMetadata",
+            "description": ""
+          },
+          "fingerprints": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "info": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reportsComponent"
+            }
+          },
+          "reports": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reportsComponent"
+            }
+          },
+          "skips": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reportsSkipDetails"
+            }
+          },
+          "system": {
+            "description": "",
+            "type": "object",
+            "properties": {
+              "hostname": {
+                "type": "string"
+              },
+              "metadata": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "reportsResponse": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "clusters": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "errors": {
+            "description": "",
+            "type": "string"
+          },
+          "reports": {
+            "description": "",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/reportsCluster"
+            }
+          },
+          "generated_at": {
+            "description": "",
+            "type": "string"
+          },
+          "status": {
+            "description": "",
+            "type": "string"
+          }
         }
       }
     }
