@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2020 Red Hat, Inc
+ Copyright 2021 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -184,9 +184,7 @@ It's thread safe</p>
 	<td class="doc"><p>SetRuleContentDirectory is made for easy testing fake rules etc. from other directories</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">SetRuleContentDirectory</div><div class="operator">(</div><div class="ident">contentDir</div> <div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleContentDirectory</div><div class="operator">)</div> <div class="operator">{</div>
-	<div class="keyword">if</div> <div class="ident">ruleContentDirectory</div> <div class="operator">==</div> <div class="ident">nil</div> <div class="operator">{</div>
-		<div class="ident">ruleContentDirectory</div> <div class="operator">=</div> <div class="ident">contentDir</div><div class="operator"></div>
-	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">ruleContentDirectory</div> <div class="operator">=</div> <div class="ident">contentDir</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>

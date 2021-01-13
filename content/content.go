@@ -50,9 +50,7 @@ type RulesWithContentStorage struct {
 
 // SetRuleContentDirectory is made for easy testing fake rules etc. from other directories
 func SetRuleContentDirectory(contentDir *types.RuleContentDirectory) {
-	if ruleContentDirectory == nil {
-		ruleContentDirectory = contentDir
-	}
+	ruleContentDirectory = contentDir
 }
 
 // GetRuleWithErrorKeyContent returns content for rule with error key
