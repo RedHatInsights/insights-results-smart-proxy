@@ -221,7 +221,7 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 		const message = "unable to get rule id"
 		log.Error().Err(err).Msg(message)
 		handleServerError(writer, err)
-		return types.RuleID(0), types.ErrorKey(0), err
+		return types.RuleID(""), types.ErrorKey(""), err
 	}
 
 	splitedRuleID := strings.Split(string(ruleIDWithErrorKey), "|")
@@ -234,7 +234,7 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 			paramValue: ruleIDWithErrorKey,
 			errString:  err.Error(),
 		})
-		return types.RuleID(0), types.ErrorKey(0), err
+		return types.RuleID(""), types.ErrorKey(""), err
 	}
 
 	IDValidator := regexp.MustCompile(`^[a-zA-Z_0-9.]+$`)
@@ -250,7 +250,7 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 			paramValue: ruleIDWithErrorKey,
 			errString:  err.Error(),
 		})
-		return types.RuleID(0), types.ErrorKey(0), err
+		return types.RuleID(""), types.ErrorKey(""), err
 	}
 
 	return types.RuleID(splitedRuleID[0]), types.ErrorKey(splitedRuleID[1]), nil
@@ -262,7 +262,7 @@ func readRuleID(writer http.ResponseWriter, request *http.Request) (types.RuleID
 		const message = "unable to get rule id"
 		log.Error().Err(err).Msg(message)
 		handleServerError(writer, err)
-		return types.RuleID(0), err
+		return types.RuleID(""), err
 	}
 
 	ruleIDValidator := regexp.MustCompile(`^[a-zA-Z_0-9.]+$`)
@@ -277,7 +277,7 @@ func readRuleID(writer http.ResponseWriter, request *http.Request) (types.RuleID
 			paramValue: ruleID,
 			errString:  err.Error(),
 		})
-		return types.RuleID(0), err
+		return types.RuleID(""), err
 	}
 
 	return types.RuleID(ruleID), nil
@@ -289,7 +289,7 @@ func readErrorKey(writer http.ResponseWriter, request *http.Request) (types.Erro
 		const message = "unable to get error_key"
 		log.Error().Err(err).Msg(message)
 		handleServerError(writer, err)
-		return types.ErrorKey(0), err
+		return types.ErrorKey(""), err
 	}
 
 	return types.ErrorKey(errorKey), nil

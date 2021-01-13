@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2020 Red Hat, Inc
+ Copyright 2021 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -252,6 +252,8 @@ implemented for Content Service.</p>
 		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msg</div><div class="operator">(</div><div class="literal">&#34;error trying to decode rules content from received answer&#34;</div><div class="operator">)</div><div class="operator"></div>
 		<div class="keyword">return</div> <div class="ident">nil</div><div class="operator">,</div> <div class="ident">err</div><div class="operator"></div>
 	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">log</div><div class="operator">.</div><div class="ident">Info</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div><div class="literal">&#34;Got %d rules from content-service&#34;</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">receivedContent</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="operator">&amp;</div><div class="ident">receivedContent</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
