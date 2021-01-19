@@ -104,5 +104,7 @@ func GetContent(conf Configuration) (*types.RuleContentDirectory, error) {
 		return nil, err
 	}
 
+	log.Info().Msgf("Got %d rules from content-service", len(receivedContent.Rules))
+
 	return &receivedContent, nil
 }
