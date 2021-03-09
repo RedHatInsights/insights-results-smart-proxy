@@ -4,6 +4,7 @@
 [![GitHub Pages](https://img.shields.io/badge/%20-GitHub%20Pages-informational)](https://redhatinsights.github.io/insights-results-smart-proxy/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/RedHatInsights/insights-results-smart-proxy)](https://goreportcard.com/report/github.com/RedHatInsights/insights-results-smart-proxy)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/insights-results-smart-proxy)
+[![License](https://img.shields.io/badge/license-Apache-blue)](https://github.com/RedHatInsights/insights-results-smart-proxy/blob/master/LICENSE)
 
 Smart proxy for insights results
 
