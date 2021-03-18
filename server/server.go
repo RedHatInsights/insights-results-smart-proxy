@@ -507,23 +507,32 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 //   - Structure with rules and content
 //   - return true if fetching content was successful, including filtering
 //   - return true if the rule has been filtered by OSDElegible field. False otherwise
-func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (*proxy_types.RuleWithContentResponse, bool, bool) {
+func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
+	ruleWithContentResponse *proxy_types.RuleWithContentResponse,
+	success bool,
+	osdFiltered bool,
+) {
 	ruleID := rule.Module
 	errorKey := rule.ErrorKey
+
+	ruleWithContentResponse = nil
+	success = false
+	osdFiltered = false
 
 	ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
 	if err != nil {
 		log.Error().Err(err).Msgf(
 			"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
 		)
-		return nil, false, false
+		return
 	}
 
 	if OSDEligible && !ruleWithContent.NotRequireAdmin {
-		return nil, false, true
+		osdFiltered = true
+		return
 	}
 
-	parsedRule := proxy_types.RuleWithContentResponse{
+	ruleWithContentResponse = &proxy_types.RuleWithContentResponse{
 		CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
 		Description:     ruleWithContent.Description,
 		ErrorKey:        errorKey,
@@ -541,8 +550,8 @@ func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible b
 		DisabledAt:      rule.DisabledAt,
 		Internal:        ruleWithContent.Internal,
 	}
-
-	return &parsedRule, true, false
+	success = true
+	return
 }
 
 func (server HTTPServer) fetchAggregatorReport(
