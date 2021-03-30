@@ -21,3 +21,13 @@ internal_rules_organizations_csv_file = ""
 
 [metrics]
 namespace = "smart_proxy"
+
+[sentry]
+dns = ""
+
+[kafka_zerolog]
+broker = ""
+topic = ""
+cert_path = ""
+level = ""
+
