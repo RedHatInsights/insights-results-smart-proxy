@@ -611,6 +611,11 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 			}
 			continue
 		}
+
+		if aggregatorRule.Disabled {
+			continue
+		}
+
 		rules = append(rules, *rule)
 	}
 
