@@ -32,8 +32,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
-
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
@@ -502,58 +500,6 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 	return aggregatorResponse.Report, true
 }
 
-// fetchRuleContent - fetching content for particular rule
-// Return values:
-//   - Structure with rules and content
-//   - return true if fetching content was successful, including filtering
-//   - return true if the rule has been filtered by OSDElegible field. False otherwise
-func (server HTTPServer) fetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
-	ruleWithContentResponse *proxy_types.RuleWithContentResponse,
-	success bool,
-	osdFiltered bool,
-) {
-	ruleID := rule.Module
-	errorKey := rule.ErrorKey
-
-	ruleWithContentResponse = nil
-	success = false
-	osdFiltered = false
-
-	ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
-	if err != nil {
-		log.Error().Err(err).Msgf(
-			"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
-		)
-		return
-	}
-
-	if OSDEligible && !ruleWithContent.NotRequireAdmin {
-		osdFiltered = true
-		return
-	}
-
-	ruleWithContentResponse = &proxy_types.RuleWithContentResponse{
-		CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
-		Description:     ruleWithContent.Description,
-		ErrorKey:        errorKey,
-		Generic:         ruleWithContent.Generic,
-		Reason:          ruleWithContent.Reason,
-		Resolution:      ruleWithContent.Resolution,
-		TotalRisk:       ruleWithContent.TotalRisk,
-		RiskOfChange:    ruleWithContent.RiskOfChange,
-		RuleID:          ruleID,
-		TemplateData:    rule.TemplateData,
-		Tags:            ruleWithContent.Tags,
-		UserVote:        rule.UserVote,
-		Disabled:        rule.Disabled,
-		DisableFeedback: rule.DisableFeedback,
-		DisabledAt:      rule.DisabledAt,
-		Internal:        ruleWithContent.Internal,
-	}
-	success = true
-	return
-}
-
 func (server HTTPServer) fetchAggregatorReport(
 	writer http.ResponseWriter, request *http.Request,
 ) (*types.ReportResponse, bool) {
@@ -657,7 +603,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	rules := []proxy_types.RuleWithContentResponse{}
 	rulesWithoutContent := 0
 	for _, aggregatorRule := range aggregatorResponse.Report {
-		rule, successful, filtered := server.fetchRuleContent(aggregatorRule, server.getOSDFlag(request))
+		rule, successful, filtered := content.FetchRuleContent(aggregatorRule, server.getOSDFlag(request))
 
 		if !successful {
 			if !filtered {
@@ -763,7 +709,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		return
 	}
 
-	rule, successful, _ = server.fetchRuleContent(*aggregatorResponse, server.getOSDFlag(request))
+	rule, successful, _ = content.FetchRuleContent(*aggregatorResponse, server.getOSDFlag(request))
 
 	if !successful {
 		err := responses.SendNotFound(writer, "Rule was not found")
