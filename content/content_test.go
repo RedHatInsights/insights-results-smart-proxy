@@ -15,6 +15,7 @@
 package content_test
 
 import (
+	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"net/http"
 	"testing"
 	"time"
@@ -140,4 +141,157 @@ func TestGetAllContent(t *testing.T) {
 	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
 	rules := content.GetAllContent()
 	assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
+}
+
+func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		rule := testdata.RuleOnReport1
+		ruleContent, success, osdFiltered := content.FetchRuleContent(rule, true)
+		assert.True(t, success)
+		assert.False(t, osdFiltered)
+		assert.NotNil(t, ruleContent)
+
+		ruleID := testdata.RuleOnReport1.Module
+		errorKey := testdata.RuleOnReport1.ErrorKey
+		ruleWithContent, _ := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+		ruleWithContentResponse := &local_types.RuleWithContentResponse{
+			CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+			Description:     ruleWithContent.Description,
+			ErrorKey:        errorKey,
+			Generic:         ruleWithContent.Generic,
+			Reason:          ruleWithContent.Reason,
+			Resolution:      ruleWithContent.Resolution,
+			TotalRisk:       ruleWithContent.TotalRisk,
+			RiskOfChange:    ruleWithContent.RiskOfChange,
+			RuleID:          ruleID,
+			TemplateData:    rule.TemplateData,
+			Tags:            ruleWithContent.Tags,
+			UserVote:        rule.UserVote,
+			Disabled:        rule.Disabled,
+			DisableFeedback: rule.DisableFeedback,
+			DisabledAt:      rule.DisabledAt,
+			Internal:        ruleWithContent.Internal,
+		}
+
+		assert.Equal(t, ruleWithContentResponse, ruleContent)
+
+	}, testTimeout)
+}
+
+func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		rule := testdata.RuleOnReport1
+		ruleContent, success, osdFiltered := content.FetchRuleContent(rule, false)
+		assert.True(t, success)
+		assert.False(t, osdFiltered)
+		assert.NotNil(t, ruleContent)
+
+		ruleID := testdata.RuleOnReport1.Module
+		errorKey := testdata.RuleOnReport1.ErrorKey
+		ruleWithContent, _ := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+		ruleWithContentResponse := &local_types.RuleWithContentResponse{
+			CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+			Description:     ruleWithContent.Description,
+			ErrorKey:        errorKey,
+			Generic:         ruleWithContent.Generic,
+			Reason:          ruleWithContent.Reason,
+			Resolution:      ruleWithContent.Resolution,
+			TotalRisk:       ruleWithContent.TotalRisk,
+			RiskOfChange:    ruleWithContent.RiskOfChange,
+			RuleID:          ruleID,
+			TemplateData:    rule.TemplateData,
+			Tags:            ruleWithContent.Tags,
+			UserVote:        rule.UserVote,
+			Disabled:        rule.Disabled,
+			DisableFeedback: rule.DisableFeedback,
+			DisabledAt:      rule.DisabledAt,
+			Internal:        ruleWithContent.Internal,
+		}
+
+		assert.Equal(t, ruleWithContentResponse, ruleContent)
+
+	}, testTimeout)
+}
+
+func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		var rule = types.RuleOnReport{
+			Module:          testdata.Rule1.Module,
+			ErrorKey:        testdata.RuleErrorKey1.ErrorKey,
+			UserVote:        types.UserVoteNone,
+			Disabled:        true,
+			DisableFeedback: "",
+			DisabledAt:      "",
+			TemplateData:    testdata.Rule1ExtraData,
+		}
+
+		ruleContent, success, osdFiltered := content.FetchRuleContent(rule, false)
+		assert.True(t, success)
+		assert.False(t, osdFiltered)
+		assert.NotNil(t, ruleContent)
+
+	}, testTimeout)
+}
+
+func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		var rule = types.RuleOnReport{
+			Module:          types.RuleID("ccx_rules_ocp.deprecated_a_long_time_ago_should_not_exist"),
+			ErrorKey:        testdata.RuleErrorKey1.ErrorKey,
+			UserVote:        types.UserVoteNone,
+			Disabled:        false,
+			DisableFeedback: "",
+			DisabledAt:      "",
+			TemplateData:    nil,
+		}
+
+		ruleContent, success, _ := content.FetchRuleContent(rule, false)
+		assert.False(t, success)
+		assert.Nil(t, ruleContent)
+
+	}, testTimeout)
 }

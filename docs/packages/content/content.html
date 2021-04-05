@@ -472,6 +472,62 @@ Caching is done under the hood, don't worry about it.</p>
 </code></pre></td>
       </tr>
       
+      <tr class="section">
+	<td class="doc"><p>fetchRuleContent - fetching content for particular rule
+Return values:
+  - Structure with rules and content
+  - return true if fetching content was successful, including filtering
+  - return true if the rule has been filtered by OSDElegible field. False otherwise</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">FetchRuleContent</div><div class="operator">(</div><div class="ident">rule</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleOnReport</div><div class="operator">,</div> <div class="ident">OSDEligible</div> <div class="ident">bool</div><div class="operator">)</div> <div class="operator">(</div>
+	<div class="ident">ruleWithContentResponse</div> <div class="operator">*</div><div class="ident">local_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">,</div>
+	<div class="ident">success</div> <div class="ident">bool</div><div class="operator">,</div>
+	<div class="ident">osdFiltered</div> <div class="ident">bool</div><div class="operator">,</div>
+<div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">ruleID</div> <div class="operator">:=</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">Module</div><div class="operator"></div>
+	<div class="ident">errorKey</div> <div class="operator">:=</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator"></div>
+
+	<div class="ident">ruleWithContentResponse</div> <div class="operator">=</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="ident">success</div> <div class="operator">=</div> <div class="ident">false</div><div class="operator"></div>
+	<div class="ident">osdFiltered</div> <div class="operator">=</div> <div class="ident">false</div><div class="operator"></div>
+
+	<div class="ident">ruleWithContent</div><div class="operator">,</div> <div class="ident">err</div> <div class="operator">:=</div> <div class="ident">GetRuleWithErrorKeyContent</div><div class="operator">(</div><div class="ident">ruleID</div><div class="operator">,</div> <div class="ident">errorKey</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">err</div> <div class="operator">!=</div> <div class="ident">nil</div> <div class="operator">{</div>
+		<div class="ident">log</div><div class="operator">.</div><div class="ident">Error</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Err</div><div class="operator">(</div><div class="ident">err</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Msgf</div><div class="operator">(</div>
+			<div class="literal">&#34;unable to get content for rule with id %v and error key %v&#34;</div><div class="operator">,</div> <div class="ident">ruleID</div><div class="operator">,</div> <div class="ident">errorKey</div><div class="operator">,</div>
+		<div class="operator">)</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="keyword">if</div> <div class="ident">OSDEligible</div> <div class="operator">&amp;&amp;</div> <div class="operator">!</div><div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">NotRequireAdmin</div> <div class="operator">{</div>
+		<div class="ident">osdFiltered</div> <div class="operator">=</div> <div class="ident">true</div><div class="operator"></div>
+		<div class="keyword">return</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">ruleWithContentResponse</div> <div class="operator">=</div> <div class="operator">&amp;</div><div class="ident">local_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div>
+		<div class="ident">CreatedAt</div><div class="operator">:</div>       <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">PublishDate</div><div class="operator">.</div><div class="ident">UTC</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Format</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="ident">Description</div><div class="operator">:</div>     <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Description</div><div class="operator">,</div>
+		<div class="ident">ErrorKey</div><div class="operator">:</div>        <div class="ident">errorKey</div><div class="operator">,</div>
+		<div class="ident">Generic</div><div class="operator">:</div>         <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Generic</div><div class="operator">,</div>
+		<div class="ident">Reason</div><div class="operator">:</div>          <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
+		<div class="ident">Resolution</div><div class="operator">:</div>      <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Resolution</div><div class="operator">,</div>
+		<div class="ident">TotalRisk</div><div class="operator">:</div>       <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">TotalRisk</div><div class="operator">,</div>
+		<div class="ident">RiskOfChange</div><div class="operator">:</div>    <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">RiskOfChange</div><div class="operator">,</div>
+		<div class="ident">RuleID</div><div class="operator">:</div>          <div class="ident">ruleID</div><div class="operator">,</div>
+		<div class="ident">TemplateData</div><div class="operator">:</div>    <div class="ident">rule</div><div class="operator">.</div><div class="ident">TemplateData</div><div class="operator">,</div>
+		<div class="ident">Tags</div><div class="operator">:</div>            <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
+		<div class="ident">UserVote</div><div class="operator">:</div>        <div class="ident">rule</div><div class="operator">.</div><div class="ident">UserVote</div><div class="operator">,</div>
+		<div class="ident">Disabled</div><div class="operator">:</div>        <div class="ident">rule</div><div class="operator">.</div><div class="ident">Disabled</div><div class="operator">,</div>
+		<div class="ident">DisableFeedback</div><div class="operator">:</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">DisableFeedback</div><div class="operator">,</div>
+		<div class="ident">DisabledAt</div><div class="operator">:</div>      <div class="ident">rule</div><div class="operator">.</div><div class="ident">DisabledAt</div><div class="operator">,</div>
+		<div class="ident">Internal</div><div class="operator">:</div>        <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Internal</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="ident">success</div> <div class="operator">=</div> <div class="ident">true</div><div class="operator"></div>
+	<div class="keyword">return</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
     </tbody>
   </table>
 </div>
