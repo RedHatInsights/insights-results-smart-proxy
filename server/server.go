@@ -94,20 +94,6 @@ func (server *HTTPServer) mainEndpoint(writer http.ResponseWriter, _ *http.Reque
 	}
 }
 
-// readUserID method tries to retrieve user ID from request. If any error
-// occurs, error response is send back to client.
-func (server *HTTPServer) readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error) {
-	userID, err := server.GetCurrentUserID(request)
-	if err != nil {
-		const message = "Unable to get user id"
-		log.Error().Err(err).Msg(message)
-		handleServerError(writer, err)
-		return "", err
-	}
-
-	return userID, nil
-}
-
 // Initialize method performs the server initialization, including
 // registration of all handlers.
 func (server *HTTPServer) Initialize() http.Handler {
@@ -187,34 +173,6 @@ func (server *HTTPServer) Start() error {
 // Stop method stops server's execution.
 func (server *HTTPServer) Stop(ctx context.Context) error {
 	return server.Serv.Shutdown(ctx)
-}
-
-// redirectTo method performs request redirection to another service specified
-// by its base URL.
-func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
-
-		if err != nil {
-			log.Error().Err(err).Msg("Error during endpoint URL parsing")
-			handleServerError(writer, err)
-		}
-
-		// test service available
-		_, err = http.Get(endpointURL.String())
-		if err != nil {
-			log.Error().Err(err).Msg("Aggregator service unavailable")
-
-			if _, ok := err.(*url.Error); ok {
-				err = &AggregatorServiceUnavailableError{}
-			}
-
-			handleServerError(writer, err)
-		}
-
-		log.Info().Msgf("Redirecting to %s", endpointURL.String())
-		http.Redirect(writer, request, endpointURL.String(), 302)
-	}
 }
 
 // modifyRequest function modifies HTTP request during proxying it to another
