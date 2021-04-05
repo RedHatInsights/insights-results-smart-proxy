@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright 2020 Red Hat, Inc
+ Copyright 2021 Red Hat, Inc
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -134,6 +134,7 @@ limitations under the License.</p>
 	<td class="code"><pre><code><div class="keyword">package</div> <div class="ident">content_test</div><div class="operator"></div>
 
 <div class="keyword">import</div> <div class="operator">(</div>
+	<div class="ident">local_types</div> <div class="literal">&#34;github.com/RedHatInsights/insights-results-smart-proxy/types&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;net/http&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;testing&#34;</div><div class="operator"></div>
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
@@ -266,6 +267,158 @@ limitations under the License.</p>
 	<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContentDirectory3Rules</div><div class="operator">.</div><div class="ident">Rules</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">rules</div><div class="operator">)</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
+<div class="keyword">func</div> <div class="ident">TestFetchRuleContent_OSDEligibleNotRequiredAdmin</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="ident">testing</div><div class="operator">.</div><div class="ident">TB</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="keyword">defer</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CleanAfterGock</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">ContentBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
+			<div class="ident">Method</div><div class="operator">:</div>   <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
+			<div class="ident">Endpoint</div><div class="operator">:</div> <div class="ident">ics_server</div><div class="operator">.</div><div class="ident">AllContentEndpoint</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
+			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">MustGobSerialize</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContentDirectory3Rules</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">content</div><div class="operator">.</div><div class="ident">UpdateContent</div><div class="operator">(</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">rule</div> <div class="operator">:=</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleOnReport1</div><div class="operator"></div>
+		<div class="ident">ruleContent</div><div class="operator">,</div> <div class="ident">success</div><div class="operator">,</div> <div class="ident">osdFiltered</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">FetchRuleContent</div><div class="operator">(</div><div class="ident">rule</div><div class="operator">,</div> <div class="ident">true</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">True</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div><div class="ident">success</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">False</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div><div class="ident">osdFiltered</div><div class="operator">)</div> <div class="operator"></div><div class="comment">//NotRequiredAdmin is true in Rule1</div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">ruleContent</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">ruleID</div> <div class="operator">:=</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleOnReport1</div><div class="operator">.</div><div class="ident">Module</div><div class="operator"></div>
+		<div class="ident">errorKey</div> <div class="operator">:=</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleOnReport1</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator"></div>
+		<div class="ident">ruleWithContent</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">GetRuleWithErrorKeyContent</div><div class="operator">(</div><div class="ident">ruleID</div><div class="operator">,</div> <div class="ident">errorKey</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">ruleWithContentResponse</div> <div class="operator">:=</div> <div class="operator">&amp;</div><div class="ident">local_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div>
+			<div class="ident">CreatedAt</div><div class="operator">:</div>       <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">PublishDate</div><div class="operator">.</div><div class="ident">UTC</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Format</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">Description</div><div class="operator">:</div>     <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Description</div><div class="operator">,</div>
+			<div class="ident">ErrorKey</div><div class="operator">:</div>        <div class="ident">errorKey</div><div class="operator">,</div>
+			<div class="ident">Generic</div><div class="operator">:</div>         <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Generic</div><div class="operator">,</div>
+			<div class="ident">Reason</div><div class="operator">:</div>          <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
+			<div class="ident">Resolution</div><div class="operator">:</div>      <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Resolution</div><div class="operator">,</div>
+			<div class="ident">TotalRisk</div><div class="operator">:</div>       <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">TotalRisk</div><div class="operator">,</div>
+			<div class="ident">RiskOfChange</div><div class="operator">:</div>    <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">RiskOfChange</div><div class="operator">,</div>
+			<div class="ident">RuleID</div><div class="operator">:</div>          <div class="ident">ruleID</div><div class="operator">,</div>
+			<div class="ident">TemplateData</div><div class="operator">:</div>    <div class="ident">rule</div><div class="operator">.</div><div class="ident">TemplateData</div><div class="operator">,</div>
+			<div class="ident">Tags</div><div class="operator">:</div>            <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
+			<div class="ident">UserVote</div><div class="operator">:</div>        <div class="ident">rule</div><div class="operator">.</div><div class="ident">UserVote</div><div class="operator">,</div>
+			<div class="ident">Disabled</div><div class="operator">:</div>        <div class="ident">rule</div><div class="operator">.</div><div class="ident">Disabled</div><div class="operator">,</div>
+			<div class="ident">DisableFeedback</div><div class="operator">:</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">DisableFeedback</div><div class="operator">,</div>
+			<div class="ident">DisabledAt</div><div class="operator">:</div>      <div class="ident">rule</div><div class="operator">.</div><div class="ident">DisabledAt</div><div class="operator">,</div>
+			<div class="ident">Internal</div><div class="operator">:</div>        <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Internal</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">ruleWithContentResponse</div><div class="operator">,</div> <div class="ident">ruleContent</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestFetchRuleContent_NotOSDEligible</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="ident">testing</div><div class="operator">.</div><div class="ident">TB</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="keyword">defer</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CleanAfterGock</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">ContentBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
+			<div class="ident">Method</div><div class="operator">:</div>   <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
+			<div class="ident">Endpoint</div><div class="operator">:</div> <div class="ident">ics_server</div><div class="operator">.</div><div class="ident">AllContentEndpoint</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
+			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">MustGobSerialize</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContentDirectory3Rules</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">content</div><div class="operator">.</div><div class="ident">UpdateContent</div><div class="operator">(</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">rule</div> <div class="operator">:=</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleOnReport1</div><div class="operator"></div>
+		<div class="ident">ruleContent</div><div class="operator">,</div> <div class="ident">success</div><div class="operator">,</div> <div class="ident">osdFiltered</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">FetchRuleContent</div><div class="operator">(</div><div class="ident">rule</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">True</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div><div class="ident">success</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">False</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div><div class="ident">osdFiltered</div><div class="operator">)</div> <div class="operator"></div><div class="comment">//NotRequiredAdmin is true in Rule1</div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">ruleContent</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">ruleID</div> <div class="operator">:=</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleOnReport1</div><div class="operator">.</div><div class="ident">Module</div><div class="operator"></div>
+		<div class="ident">errorKey</div> <div class="operator">:=</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleOnReport1</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator"></div>
+		<div class="ident">ruleWithContent</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">GetRuleWithErrorKeyContent</div><div class="operator">(</div><div class="ident">ruleID</div><div class="operator">,</div> <div class="ident">errorKey</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">ruleWithContentResponse</div> <div class="operator">:=</div> <div class="operator">&amp;</div><div class="ident">local_types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div>
+			<div class="ident">CreatedAt</div><div class="operator">:</div>       <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">PublishDate</div><div class="operator">.</div><div class="ident">UTC</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Format</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">Description</div><div class="operator">:</div>     <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Description</div><div class="operator">,</div>
+			<div class="ident">ErrorKey</div><div class="operator">:</div>        <div class="ident">errorKey</div><div class="operator">,</div>
+			<div class="ident">Generic</div><div class="operator">:</div>         <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Generic</div><div class="operator">,</div>
+			<div class="ident">Reason</div><div class="operator">:</div>          <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
+			<div class="ident">Resolution</div><div class="operator">:</div>      <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Resolution</div><div class="operator">,</div>
+			<div class="ident">TotalRisk</div><div class="operator">:</div>       <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">TotalRisk</div><div class="operator">,</div>
+			<div class="ident">RiskOfChange</div><div class="operator">:</div>    <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">RiskOfChange</div><div class="operator">,</div>
+			<div class="ident">RuleID</div><div class="operator">:</div>          <div class="ident">ruleID</div><div class="operator">,</div>
+			<div class="ident">TemplateData</div><div class="operator">:</div>    <div class="ident">rule</div><div class="operator">.</div><div class="ident">TemplateData</div><div class="operator">,</div>
+			<div class="ident">Tags</div><div class="operator">:</div>            <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
+			<div class="ident">UserVote</div><div class="operator">:</div>        <div class="ident">rule</div><div class="operator">.</div><div class="ident">UserVote</div><div class="operator">,</div>
+			<div class="ident">Disabled</div><div class="operator">:</div>        <div class="ident">rule</div><div class="operator">.</div><div class="ident">Disabled</div><div class="operator">,</div>
+			<div class="ident">DisableFeedback</div><div class="operator">:</div> <div class="ident">rule</div><div class="operator">.</div><div class="ident">DisableFeedback</div><div class="operator">,</div>
+			<div class="ident">DisabledAt</div><div class="operator">:</div>      <div class="ident">rule</div><div class="operator">.</div><div class="ident">DisabledAt</div><div class="operator">,</div>
+			<div class="ident">Internal</div><div class="operator">:</div>        <div class="ident">ruleWithContent</div><div class="operator">.</div><div class="ident">Internal</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Equal</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">ruleWithContentResponse</div><div class="operator">,</div> <div class="ident">ruleContent</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestFetchRuleContent_DisabledRuleExist</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="ident">testing</div><div class="operator">.</div><div class="ident">TB</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="keyword">defer</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CleanAfterGock</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">ContentBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
+			<div class="ident">Method</div><div class="operator">:</div>   <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
+			<div class="ident">Endpoint</div><div class="operator">:</div> <div class="ident">ics_server</div><div class="operator">.</div><div class="ident">AllContentEndpoint</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
+			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">MustGobSerialize</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContentDirectory3Rules</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">content</div><div class="operator">.</div><div class="ident">UpdateContent</div><div class="operator">(</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="keyword">var</div> <div class="ident">rule</div> <div class="operator">=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleOnReport</div><div class="operator">{</div>
+			<div class="ident">Module</div><div class="operator">:</div>          <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1</div><div class="operator">.</div><div class="ident">Module</div><div class="operator">,</div>
+			<div class="ident">ErrorKey</div><div class="operator">:</div>        <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">,</div>
+			<div class="ident">UserVote</div><div class="operator">:</div>        <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVoteNone</div><div class="operator">,</div>
+			<div class="ident">Disabled</div><div class="operator">:</div>        <div class="ident">true</div><div class="operator">,</div>
+			<div class="ident">DisableFeedback</div><div class="operator">:</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">DisabledAt</div><div class="operator">:</div>      <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">TemplateData</div><div class="operator">:</div>    <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1ExtraData</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="ident">ruleContent</div><div class="operator">,</div> <div class="ident">success</div><div class="operator">,</div> <div class="ident">osdFiltered</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">FetchRuleContent</div><div class="operator">(</div><div class="ident">rule</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">True</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div><div class="ident">success</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">False</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div><div class="ident">osdFiltered</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">NotNil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">ruleContent</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+<div class="keyword">func</div> <div class="ident">TestFetchRuleContent_RuleDoesNotExist</div><div class="operator">(</div><div class="ident">t</div> <div class="operator">*</div><div class="ident">testing</div><div class="operator">.</div><div class="ident">T</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">helpers</div><div class="operator">.</div><div class="ident">RunTestWithTimeout</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="keyword">func</div><div class="operator">(</div><div class="ident">t</div> <div class="ident">testing</div><div class="operator">.</div><div class="ident">TB</div><div class="operator">)</div> <div class="operator">{</div>
+		<div class="keyword">defer</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">CleanAfterGock</div><div class="operator">(</div><div class="ident">t</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">helpers</div><div class="operator">.</div><div class="ident">GockExpectAPIRequest</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">.</div><div class="ident">ContentBaseEndpoint</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIRequest</div><div class="operator">{</div>
+			<div class="ident">Method</div><div class="operator">:</div>   <div class="ident">http</div><div class="operator">.</div><div class="ident">MethodGet</div><div class="operator">,</div>
+			<div class="ident">Endpoint</div><div class="operator">:</div> <div class="ident">ics_server</div><div class="operator">.</div><div class="ident">AllContentEndpoint</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div> <div class="operator">&amp;</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">APIResponse</div><div class="operator">{</div>
+			<div class="ident">StatusCode</div><div class="operator">:</div> <div class="ident">http</div><div class="operator">.</div><div class="ident">StatusOK</div><div class="operator">,</div>
+			<div class="ident">Body</div><div class="operator">:</div>       <div class="ident">helpers</div><div class="operator">.</div><div class="ident">MustGobSerialize</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleContentDirectory3Rules</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="ident">content</div><div class="operator">.</div><div class="ident">UpdateContent</div><div class="operator">(</div><div class="ident">helpers</div><div class="operator">.</div><div class="ident">DefaultServicesConfig</div><div class="operator">)</div><div class="operator"></div>
+
+		<div class="keyword">var</div> <div class="ident">rule</div> <div class="operator">=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleOnReport</div><div class="operator">{</div>
+			<div class="ident">Module</div><div class="operator">:</div>          <div class="ident">types</div><div class="operator">.</div><div class="ident">RuleID</div><div class="operator">(</div><div class="literal">&#34;ccx_rules_ocp.deprecated_a_long_time_ago_should_not_exist&#34;</div><div class="operator">)</div><div class="operator">,</div>
+			<div class="ident">ErrorKey</div><div class="operator">:</div>        <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">,</div>
+			<div class="ident">UserVote</div><div class="operator">:</div>        <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVoteNone</div><div class="operator">,</div>
+			<div class="ident">Disabled</div><div class="operator">:</div>        <div class="ident">false</div><div class="operator">,</div>
+			<div class="ident">DisableFeedback</div><div class="operator">:</div> <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">DisabledAt</div><div class="operator">:</div>      <div class="literal">&#34;&#34;</div><div class="operator">,</div>
+			<div class="ident">TemplateData</div><div class="operator">:</div>    <div class="ident">nil</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator"></div>
+
+		<div class="ident">ruleContent</div><div class="operator">,</div> <div class="ident">success</div><div class="operator">,</div> <div class="ident">_</div> <div class="operator">:=</div> <div class="ident">content</div><div class="operator">.</div><div class="ident">FetchRuleContent</div><div class="operator">(</div><div class="ident">rule</div><div class="operator">,</div> <div class="ident">false</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">False</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div><div class="ident">success</div><div class="operator">)</div><div class="operator"></div>
+		<div class="ident">assert</div><div class="operator">.</div><div class="ident">Nil</div><div class="operator">(</div><div class="ident">t</div><div class="operator">,</div> <div class="ident">ruleContent</div><div class="operator">)</div><div class="operator"></div>
+
+	<div class="operator">}</div><div class="operator">,</div> <div class="ident">testTimeout</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
 </code></pre></td>
       </tr>
       

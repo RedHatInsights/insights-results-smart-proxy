@@ -239,3 +239,55 @@ func updateContent(servicesConf services.Configuration) {
 	WaitForContentDirectoryToBeReady()
 	LoadRuleContent(ruleContentDirectory)
 }
+
+// FetchRuleContent - fetching content for particular rule
+// Return values:
+//   - Structure with rules and content
+//   - return true if fetching content was successful, including filtering
+//   - return true if the rule has been filtered by OSDElegible field. False otherwise
+func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
+	ruleWithContentResponse *local_types.RuleWithContentResponse,
+	success bool,
+	osdFiltered bool,
+) {
+	ruleID := rule.Module
+	errorKey := rule.ErrorKey
+
+	ruleWithContentResponse = nil
+	success = false
+	osdFiltered = false
+
+	ruleWithContent, err := GetRuleWithErrorKeyContent(ruleID, errorKey)
+	if err != nil {
+		log.Error().Err(err).Msgf(
+			"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
+		)
+		return
+	}
+
+	if OSDEligible && !ruleWithContent.NotRequireAdmin {
+		osdFiltered = true
+		return
+	}
+
+	ruleWithContentResponse = &local_types.RuleWithContentResponse{
+		CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+		Description:     ruleWithContent.Description,
+		ErrorKey:        errorKey,
+		Generic:         ruleWithContent.Generic,
+		Reason:          ruleWithContent.Reason,
+		Resolution:      ruleWithContent.Resolution,
+		TotalRisk:       ruleWithContent.TotalRisk,
+		RiskOfChange:    ruleWithContent.RiskOfChange,
+		RuleID:          ruleID,
+		TemplateData:    rule.TemplateData,
+		Tags:            ruleWithContent.Tags,
+		UserVote:        rule.UserVote,
+		Disabled:        rule.Disabled,
+		DisableFeedback: rule.DisableFeedback,
+		DisabledAt:      rule.DisabledAt,
+		Internal:        ruleWithContent.Internal,
+	}
+	success = true
+	return
+}
