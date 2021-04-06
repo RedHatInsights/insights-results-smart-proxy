@@ -191,7 +191,12 @@ func main() {
 		panic(err)
 	}
 
-	err = logger.InitZerolog(conf.GetLoggingConfiguration(), conf.GetCloudWatchConfiguration())
+	err = logger.InitZerolog(
+		conf.GetLoggingConfiguration(),
+		conf.GetCloudWatchConfiguration(),
+		conf.GetSentryLoggingConfiguration(),
+		conf.GetKafkaZerologConfiguration(),
+	)
 	if err != nil {
 		panic(err)
 	}

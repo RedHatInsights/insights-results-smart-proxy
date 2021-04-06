@@ -72,12 +72,14 @@ type MetricsConfiguration struct {
 
 // Config has exactly the same structure as *.toml file
 var Config struct {
-	ServerConf     server.Configuration           `mapstructure:"server" toml:"server"`
-	ServicesConf   services.Configuration         `mapstructure:"services" toml:"services"`
-	SetupConf      SetupConfiguration             `mapstructure:"setup" toml:"setup"`
-	MetricsConf    MetricsConfiguration           `mapstructure:"metrics" toml:"metrics"`
-	LoggingConf    logger.LoggingConfiguration    `mapstructure:"logging" toml:"logging"`
-	CloudWatchConf logger.CloudWatchConfiguration `mapstructure:"cloudwatch" toml:"cloudwatch"`
+	ServerConf        server.Configuration              `mapstructure:"server" toml:"server"`
+	ServicesConf      services.Configuration            `mapstructure:"services" toml:"services"`
+	SetupConf         SetupConfiguration                `mapstructure:"setup" toml:"setup"`
+	MetricsConf       MetricsConfiguration              `mapstructure:"metrics" toml:"metrics"`
+	LoggingConf       logger.LoggingConfiguration       `mapstructure:"logging" toml:"logging"`
+	CloudWatchConf    logger.CloudWatchConfiguration    `mapstructure:"cloudwatch" toml:"cloudwatch"`
+	SentryLoggingConf logger.SentryLoggingConfiguration `mapstructure:"sentry" toml:"sentry"`
+	KafkaZerologConf  logger.KafkaZerologConfiguration  `mapstructure:"kafka_zerolog" toml:"kafka_zerolog"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
@@ -165,6 +167,16 @@ func GetLoggingConfiguration() logger.LoggingConfiguration {
 // GetCloudWatchConfiguration returns cloudwatch configuration
 func GetCloudWatchConfiguration() logger.CloudWatchConfiguration {
 	return Config.CloudWatchConf
+}
+
+// GetSentryLoggingConfiguration returns sentry logging configuration
+func GetSentryLoggingConfiguration() logger.SentryLoggingConfiguration {
+	return Config.SentryLoggingConf
+}
+
+// GetKafkaZerologConfiguration returns the kafkazero log configuration
+func GetKafkaZerologConfiguration() logger.KafkaZerologConfiguration {
+	return Config.KafkaZerologConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
