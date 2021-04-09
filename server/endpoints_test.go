@@ -46,8 +46,6 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 		{"like", http.MethodPut, server.LikeRuleEndpoint, ira_server.LikeRuleEndpoint},
 		{"dislike", http.MethodPut, server.DislikeRuleEndpoint, ira_server.DislikeRuleEndpoint},
 		{"reset_vote", http.MethodPut, server.ResetVoteOnRuleEndpoint, ira_server.ResetVoteOnRuleEndpoint},
-		{"enable", http.MethodPut, server.EnableRuleForClusterEndpoint, ira_server.EnableRuleForClusterEndpoint},
-		{"disable", http.MethodPut, server.DisableRuleForClusterEndpoint, ira_server.DisableRuleForClusterEndpoint},
 		{"get_vote", http.MethodGet, server.GetVoteOnRuleEndpoint, ira_server.GetVoteOnRuleEndpoint},
 	}
 
