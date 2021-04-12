@@ -900,6 +900,16 @@
             },
             "in": "path",
             "required": true
+          },
+          {
+            "name": "getDisabled",
+            "description": "If true, disabled rules will be sent too.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {

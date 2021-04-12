@@ -294,3 +294,14 @@ func readErrorKey(writer http.ResponseWriter, request *http.Request) (types.Erro
 
 	return types.ErrorKey(errorKey), nil
 }
+
+// readGetDisabledParam returns the value of the "getDisabled" parameter in query
+// if available
+func readGetDisabledParam(request *http.Request) (bool, error) {
+	getDisabled := request.URL.Query().Get("getDisabled")
+	if len(getDisabled) == 0 {
+		// missing parameter, return defaults
+		return false, nil
+	}
+	return strconv.ParseBool(getDisabled)
+}

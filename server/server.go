@@ -558,6 +558,12 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		return
 	}
 
+	includeDisabled, err := readGetDisabledParam(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
 	rules := []proxy_types.RuleWithContentResponse{}
 	rulesWithoutContent := 0
 	for _, aggregatorRule := range aggregatorResponse.Report {
@@ -570,7 +576,8 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 			continue
 		}
 
-		if aggregatorRule.Disabled {
+		if aggregatorRule.Disabled && !includeDisabled {
+			// Rule is disabled and request doesn't ask for disabled rules
 			continue
 		}
 
@@ -590,7 +597,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		status = http.StatusInternalServerError
 	}
 
-	err := responses.Send(status, writer, responses.BuildOkResponseWithData("report", report))
+	err = responses.Send(status, writer, responses.BuildOkResponseWithData("report", report))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
