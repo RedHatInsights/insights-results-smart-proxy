@@ -25,7 +25,6 @@ import (
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
-
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
@@ -35,7 +34,6 @@ import (
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
-
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ReportEndpoint,
@@ -135,7 +133,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint + "?osd_eligible=true",
+			Endpoint:     server.ReportEndpoint + "?" + server.OSDEligibleParam + "=true",
 			EndpointArgs: []interface{}{testdata.ClusterName},
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
@@ -147,7 +145,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
-	// time.Sleep(1 * time.Second)
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -173,7 +171,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint + "?getDisabled=false",
+			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=false",
 			EndpointArgs: []interface{}{testdata.ClusterName},
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
@@ -260,7 +258,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
-			Endpoint:     server.SingleRuleEndpoint + "?osd_eligible=true",
+			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
 			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
@@ -303,7 +301,7 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
-			Endpoint:     server.SingleRuleEndpoint + "?osd_eligible=true",
+			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
 			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey2.RuleModule, testdata.RuleErrorKey2.ErrorKey)},
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
@@ -345,6 +343,7 @@ func TestHTTPServer_GetContent(t *testing.T) {
 
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 

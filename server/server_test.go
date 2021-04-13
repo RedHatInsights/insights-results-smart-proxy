@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	testTimeout            = 10 * time.Second
+	testTimeout            = 5 * time.Second
 	internalTestRuleModule = "foo.rules.internal.bar"
 )
 
@@ -362,6 +362,7 @@ func TestServerStartError(t *testing.T) {
 	}, services.Configuration{
 		AggregatorBaseEndpoint: "http://localhost:8081/api/v1/",
 		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
+		// GroupsPollingTime:      2 * time.Minute,
 	},
 		nil,
 	)

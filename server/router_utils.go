@@ -28,6 +28,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	// OSDEligibleParam parameter
+	OSDEligibleParam = "osd_eligible"
+	// GetDisabledParam parameter
+	GetDisabledParam = "get_disabled"
+)
+
 // getRouterParam retrieves parameter from URL like `/organization/{org_id}`
 func getRouterParam(request *http.Request, paramName string) (string, error) {
 	// try to read value for parameter with given name
@@ -295,13 +302,23 @@ func readErrorKey(writer http.ResponseWriter, request *http.Request) (types.Erro
 	return types.ErrorKey(errorKey), nil
 }
 
-// readGetDisabledParam returns the value of the "getDisabled" parameter in query
-// if available
-func readGetDisabledParam(request *http.Request) (bool, error) {
-	getDisabled := request.URL.Query().Get("getDisabled")
-	if len(getDisabled) == 0 {
-		// missing parameter, return defaults
+// readQueryParam return the value of the parameter in the query. If not found, defaults to false
+func readQueryBoolParam(name string, request *http.Request) (bool, error) {
+	value := request.URL.Query().Get(name)
+	if len(value) == 0 {
 		return false, nil
 	}
-	return strconv.ParseBool(getDisabled)
+	return strconv.ParseBool(value)
+}
+
+// readGetDisabledParam returns the value of the "get_disabled" parameter in query
+// if available
+func readGetDisabledParam(request *http.Request) (bool, error) {
+	return readQueryBoolParam(GetDisabledParam, request)
+}
+
+// readOSDEligibleParam returns the value of the "osd_eligible" parameter in query
+// if available
+func readOSDEligible(request *http.Request) (bool, error) {
+	return readQueryBoolParam(OSDEligibleParam, request)
 }

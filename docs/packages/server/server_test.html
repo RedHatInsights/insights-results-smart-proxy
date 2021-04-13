@@ -155,7 +155,7 @@ limitations under the License.
 <div class="operator">)</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
-	<div class="ident">testTimeout</div>            <div class="operator">=</div> <div class="literal">10</div> <div class="operator">*</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Second</div><div class="operator"></div>
+	<div class="ident">testTimeout</div>            <div class="operator">=</div> <div class="literal">5</div> <div class="operator">*</div> <div class="ident">time</div><div class="operator">.</div><div class="ident">Second</div><div class="operator"></div>
 	<div class="ident">internalTestRuleModule</div> <div class="operator">=</div> <div class="literal">&#34;foo.rules.internal.bar&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
@@ -496,7 +496,13 @@ This one won't match with the authentication token used</p>
 	<div class="operator">}</div><div class="operator">,</div> <div class="ident">services</div><div class="operator">.</div><div class="ident">Configuration</div><div class="operator">{</div>
 		<div class="ident">AggregatorBaseEndpoint</div><div class="operator">:</div> <div class="literal">&#34;http://localhost:8081/api/v1/&#34;</div><div class="operator">,</div>
 		<div class="ident">ContentBaseEndpoint</div><div class="operator">:</div>    <div class="literal">&#34;http://localhost:8082/api/v1/&#34;</div><div class="operator">,</div>
-	<div class="operator">}</div><div class="operator">,</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GroupsPollingTime:      2 * time.Minute,</p>
+</td>
+	<td class="code"><pre><code>	<div class="operator">}</div><div class="operator">,</div>
 		<div class="ident">nil</div><div class="operator">,</div>
 	<div class="operator">)</div><div class="operator"></div>
 
