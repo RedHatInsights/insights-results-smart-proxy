@@ -978,7 +978,7 @@
                                     "type": "string"
                                   },
                                   "likelihood": {
-                                    "type": "number"
+                                    "type": "integer"
                                   },
                                   "publish_date": {
                                     "type": "string"
@@ -1107,7 +1107,7 @@
                                       "type": "string"
                                     },
                                     "likelihood": {
-                                      "type": "number"
+                                      "type": "integer"
                                     },
                                     "publish_date": {
                                       "type": "string"
