@@ -300,6 +300,14 @@ This one won't match with the authentication token used</p>
 		<div class="ident">Report</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">SmartProxyReport3RulesWithOnlyOSD</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>
 
+	<div class="ident">SmartProxyReportResponse3RulesOnlyEnabled</div> <div class="operator">=</div> <div class="keyword">struct</div> <div class="operator">{</div>
+		<div class="ident">Status</div> <div class="ident">string</div>                  <div class="literal">`json:&#34;status&#34;`</div><div class="operator"></div>
+		<div class="ident">Report</div> <div class="operator">*</div><div class="ident">types</div><div class="operator">.</div><div class="ident">SmartProxyReport</div> <div class="literal">`json:&#34;report&#34;`</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator">{</div>
+		<div class="ident">Status</div><div class="operator">:</div> <div class="literal">&#34;ok&#34;</div><div class="operator">,</div>
+		<div class="ident">Report</div><div class="operator">:</div> <div class="operator">&amp;</div><div class="ident">SmartProxyReport3RulesOnlyEnabled</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
 	<div class="ident">SmartProxyReport3RulesWithOnlyOSD</div> <div class="operator">=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">SmartProxyReport</div><div class="operator">{</div>
 		<div class="ident">Meta</div><div class="operator">:</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">ReportResponseMeta</div><div class="operator">{</div>
 			<div class="ident">Count</div><div class="operator">:</div>         <div class="literal">1</div><div class="operator">,</div>
@@ -320,6 +328,45 @@ This one won't match with the authentication token used</p>
 				<div class="ident">UserVote</div><div class="operator">:</div>     <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVoteNone</div><div class="operator">,</div>
 				<div class="ident">TemplateData</div><div class="operator">:</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1ExtraData</div><div class="operator">,</div>
 				<div class="ident">Tags</div><div class="operator">:</div>         <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
+			<div class="operator">}</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+	<div class="operator">}</div><div class="operator"></div>
+
+	<div class="ident">SmartProxyReport3RulesOnlyEnabled</div> <div class="operator">=</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">SmartProxyReport</div><div class="operator">{</div>
+		<div class="ident">Meta</div><div class="operator">:</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">ReportResponseMeta</div><div class="operator">{</div>
+			<div class="ident">Count</div><div class="operator">:</div>         <div class="literal">3</div><div class="operator">,</div>
+			<div class="ident">LastCheckedAt</div><div class="operator">:</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">Timestamp</div><div class="operator">(</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">LastCheckedAt</div><div class="operator">.</div><div class="ident">UTC</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Format</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339</div><div class="operator">)</div><div class="operator">)</div><div class="operator">,</div>
+		<div class="operator">}</div><div class="operator">,</div>
+		<div class="ident">Data</div><div class="operator">:</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">types</div><div class="operator">.</div><div class="ident">RuleWithContentResponse</div><div class="operator">{</div>
+			<div class="operator">{</div>
+				<div class="ident">RuleID</div><div class="operator">:</div>       <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1</div><div class="operator">.</div><div class="ident">Module</div><div class="operator">,</div>
+				<div class="ident">ErrorKey</div><div class="operator">:</div>     <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">,</div>
+				<div class="ident">CreatedAt</div><div class="operator">:</div>    <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">PublishDate</div><div class="operator">.</div><div class="ident">UTC</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Format</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">Description</div><div class="operator">:</div>  <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">Description</div><div class="operator">,</div>
+				<div class="ident">Generic</div><div class="operator">:</div>      <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">Generic</div><div class="operator">,</div>
+				<div class="ident">Reason</div><div class="operator">:</div>       <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
+				<div class="ident">Resolution</div><div class="operator">:</div>   <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1</div><div class="operator">.</div><div class="ident">Resolution</div><div class="operator">,</div>
+				<div class="ident">TotalRisk</div><div class="operator">:</div>    <div class="ident">calculateTotalRisk</div><div class="operator">(</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">Impact</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">Likelihood</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">RiskOfChange</div><div class="operator">:</div> <div class="literal">0</div><div class="operator">,</div>
+				<div class="ident">Disabled</div><div class="operator">:</div>     <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1Disabled</div><div class="operator">,</div>
+				<div class="ident">UserVote</div><div class="operator">:</div>     <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVoteNone</div><div class="operator">,</div>
+				<div class="ident">TemplateData</div><div class="operator">:</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule1ExtraData</div><div class="operator">,</div>
+				<div class="ident">Tags</div><div class="operator">:</div>         <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey1</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
+			<div class="operator">}</div><div class="operator">,</div>
+			<div class="operator">{</div>
+				<div class="ident">RuleID</div><div class="operator">:</div>       <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule2</div><div class="operator">.</div><div class="ident">Module</div><div class="operator">,</div>
+				<div class="ident">ErrorKey</div><div class="operator">:</div>     <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey2</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">,</div>
+				<div class="ident">CreatedAt</div><div class="operator">:</div>    <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey2</div><div class="operator">.</div><div class="ident">PublishDate</div><div class="operator">.</div><div class="ident">UTC</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Format</div><div class="operator">(</div><div class="ident">time</div><div class="operator">.</div><div class="ident">RFC3339</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">Description</div><div class="operator">:</div>  <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey2</div><div class="operator">.</div><div class="ident">Description</div><div class="operator">,</div>
+				<div class="ident">Generic</div><div class="operator">:</div>      <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey2</div><div class="operator">.</div><div class="ident">Generic</div><div class="operator">,</div>
+				<div class="ident">Reason</div><div class="operator">:</div>       <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule2</div><div class="operator">.</div><div class="ident">Reason</div><div class="operator">,</div>
+				<div class="ident">Resolution</div><div class="operator">:</div>   <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule2</div><div class="operator">.</div><div class="ident">Resolution</div><div class="operator">,</div>
+				<div class="ident">TotalRisk</div><div class="operator">:</div>    <div class="ident">calculateTotalRisk</div><div class="operator">(</div><div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey2</div><div class="operator">.</div><div class="ident">Impact</div><div class="operator">,</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey2</div><div class="operator">.</div><div class="ident">Likelihood</div><div class="operator">)</div><div class="operator">,</div>
+				<div class="ident">RiskOfChange</div><div class="operator">:</div> <div class="literal">0</div><div class="operator">,</div>
+				<div class="ident">Disabled</div><div class="operator">:</div>     <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule2Disabled</div><div class="operator">,</div>
+				<div class="ident">UserVote</div><div class="operator">:</div>     <div class="ident">types</div><div class="operator">.</div><div class="ident">UserVoteNone</div><div class="operator">,</div>
+				<div class="ident">TemplateData</div><div class="operator">:</div> <div class="ident">testdata</div><div class="operator">.</div><div class="ident">Rule2ExtraData</div><div class="operator">,</div>
+				<div class="ident">Tags</div><div class="operator">:</div>         <div class="ident">testdata</div><div class="operator">.</div><div class="ident">RuleErrorKey2</div><div class="operator">.</div><div class="ident">Tags</div><div class="operator">,</div>
 			<div class="operator">}</div><div class="operator">,</div>
 		<div class="operator">}</div><div class="operator">,</div>
 	<div class="operator">}</div><div class="operator"></div>

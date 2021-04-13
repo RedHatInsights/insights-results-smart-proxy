@@ -32,6 +32,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
