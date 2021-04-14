@@ -30,8 +30,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
+
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
@@ -92,20 +92,6 @@ func (server *HTTPServer) mainEndpoint(writer http.ResponseWriter, _ *http.Reque
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
-}
-
-// readUserID method tries to retrieve user ID from request. If any error
-// occurs, error response is send back to client.
-func (server *HTTPServer) readUserID(request *http.Request, writer http.ResponseWriter) (types.UserID, error) {
-	userID, err := server.GetCurrentUserID(request)
-	if err != nil {
-		const message = "Unable to get user id"
-		log.Error().Err(err).Msg(message)
-		handleServerError(writer, err)
-		return "", err
-	}
-
-	return userID, nil
 }
 
 // Initialize method performs the server initialization, including
@@ -187,34 +173,6 @@ func (server *HTTPServer) Start() error {
 // Stop method stops server's execution.
 func (server *HTTPServer) Stop(ctx context.Context) error {
 	return server.Serv.Shutdown(ctx)
-}
-
-// redirectTo method performs request redirection to another service specified
-// by its base URL.
-func (server HTTPServer) redirectTo(baseURL string) func(http.ResponseWriter, *http.Request) {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
-
-		if err != nil {
-			log.Error().Err(err).Msg("Error during endpoint URL parsing")
-			handleServerError(writer, err)
-		}
-
-		// test service available
-		_, err = http.Get(endpointURL.String())
-		if err != nil {
-			log.Error().Err(err).Msg("Aggregator service unavailable")
-
-			if _, ok := err.(*url.Error); ok {
-				err = &AggregatorServiceUnavailableError{}
-			}
-
-			handleServerError(writer, err)
-		}
-
-		log.Info().Msgf("Redirecting to %s", endpointURL.String())
-		http.Redirect(writer, request, endpointURL.String(), 302)
-	}
 }
 
 // modifyRequest function modifies HTTP request during proxying it to another
@@ -581,38 +539,23 @@ func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	return aggregatorResponse, true
 }
 
-func (server HTTPServer) getOSDFlag(request *http.Request) bool {
-	OSDEligible := request.URL.Query().Get("osd_eligible")
-	if len(OSDEligible) == 0 {
-		return false
-	}
-	OSDEligibleParsed, err := strconv.ParseBool(OSDEligible)
-	if err != nil {
-		log.Err(err).Msg("Got error while parsing `osd_eligible` value")
-		return false
-	}
-	return OSDEligibleParsed
-}
-
 func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
 	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
 	if !successful {
 		return
 	}
 
-	rules := []proxy_types.RuleWithContentResponse{}
-	rulesWithoutContent := 0
-	for _, aggregatorRule := range aggregatorResponse.Report {
-		rule, successful, filtered := content.FetchRuleContent(aggregatorRule, server.getOSDFlag(request))
-
-		if !successful {
-			if !filtered {
-				rulesWithoutContent++
-			}
-			continue
-		}
-		rules = append(rules, *rule)
+	includeDisabled, err := readGetDisabledParam(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
 	}
+
+	osdFlag, err := readOSDEligible(request)
+	if err != nil {
+		log.Err(err).Msgf("Got error while parsing `%s` value", OSDEligibleParam)
+	}
+	rules, rulesWithoutContent := filterRulesResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
 
 	report := proxy_types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
@@ -627,7 +570,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		status = http.StatusInternalServerError
 	}
 
-	err := responses.Send(status, writer, responses.BuildOkResponseWithData("report", report))
+	err = responses.Send(status, writer, responses.BuildOkResponseWithData("report", report))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
@@ -709,7 +652,11 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		return
 	}
 
-	rule, successful, _ = content.FetchRuleContent(*aggregatorResponse, server.getOSDFlag(request))
+	osdFlag, err := readOSDEligible(request)
+	if err != nil {
+		log.Err(err).Msgf("Got error while parsing `%s` value", OSDEligibleParam)
+	}
+	rule, successful, _ = content.FetchRuleContent(*aggregatorResponse, osdFlag)
 
 	if !successful {
 		err := responses.SendNotFound(writer, "Rule was not found")
@@ -824,4 +771,35 @@ func (server HTTPServer) getOverviewPerCluster(
 		TotalRisksHit: totalRisks,
 		TagsHit:       tags,
 	}, nil
+}
+
+// filterRulesResponse returns an array of RuleWithContentResponse with only the rules that matches 3 criteria:
+// - The rule has content from the content-service
+// - The disabled filter is not match
+// - The OSD elegible filter is not match
+func filterRulesResponse(aggregatorReport []types.RuleOnReport, filterOSD, filterDisabled bool) (
+	filteredRules []proxy_types.RuleWithContentResponse,
+	noContentRules int,
+) {
+	filteredRules = []proxy_types.RuleWithContentResponse{}
+	noContentRules = 0
+
+	for _, aggregatorRule := range aggregatorReport {
+		if aggregatorRule.Disabled && filterDisabled {
+			continue
+		}
+
+		rule, successful, filtered := content.FetchRuleContent(aggregatorRule, filterOSD)
+		if !successful {
+			if !filtered {
+				noContentRules++
+			}
+			continue
+		}
+
+		filteredRules = append(filteredRules, *rule)
+
+	}
+
+	return
 }

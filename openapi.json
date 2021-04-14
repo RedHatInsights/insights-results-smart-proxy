@@ -900,6 +900,26 @@
             },
             "in": "path",
             "required": true
+          },
+          {
+            "name": "osd_eligible",
+            "description": "If true, only OSD eligible rules will be sent.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
+          },
+          {
+            "name": "get_disabled",
+            "description": "If true, disabled rules will be sent too.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -947,6 +967,16 @@
             },
             "in": "path",
             "required": true
+          },
+          {
+            "name": "osd_eligible",
+            "description": "If true, only OSD eligible rules will be sent.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
