@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	testTimeout            = 5 * time.Second
+	testTimeout            = 10 * time.Second
 	internalTestRuleModule = "foo.rules.internal.bar"
 )
 
