@@ -179,6 +179,14 @@ var (
 		Report: &SmartProxyReport3RulesOnlyEnabled,
 	}
 
+	SmartProxyReportResponse3RulesAll = struct {
+		Status string                  `json:"status"`
+		Report *types.SmartProxyReport `json:"report"`
+	}{
+		Status: "ok",
+		Report: &SmartProxyReport3RulesWithDisabled,
+	}
+
 	SmartProxyReport3RulesWithOnlyOSD = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
 			Count:         1,
@@ -204,6 +212,45 @@ var (
 	}
 
 	SmartProxyReport3RulesOnlyEnabled = types.SmartProxyReport{
+		Meta: types.ReportResponseMeta{
+			Count:         2,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{
+			{
+				RuleID:       testdata.Rule1.Module,
+				ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey1.Description,
+				Generic:      testdata.RuleErrorKey1.Generic,
+				Reason:       testdata.Rule1.Reason,
+				Resolution:   testdata.Rule1.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule1Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule1ExtraData,
+				Tags:         testdata.RuleErrorKey1.Tags,
+			},
+			{
+				RuleID:       testdata.Rule2.Module,
+				ErrorKey:     testdata.RuleErrorKey2.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey2.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey2.Description,
+				Generic:      testdata.RuleErrorKey2.Generic,
+				Reason:       testdata.Rule2.Reason,
+				Resolution:   testdata.Rule2.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule2Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule2ExtraData,
+				Tags:         testdata.RuleErrorKey2.Tags,
+			},
+		},
+	}
+
+	SmartProxyReport3RulesWithDisabled = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
 			Count:         3,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
@@ -238,6 +285,21 @@ var (
 				UserVote:     types.UserVoteNone,
 				TemplateData: testdata.Rule2ExtraData,
 				Tags:         testdata.RuleErrorKey2.Tags,
+			},
+			{
+				RuleID:       testdata.Rule5.Module,
+				ErrorKey:     testdata.RuleErrorKey5.ErrorKey,
+				CreatedAt:    testdata.RuleErrorKey5.PublishDate.UTC().Format(time.RFC3339),
+				Description:  testdata.RuleErrorKey5.Description,
+				Generic:      testdata.RuleErrorKey5.Generic,
+				Reason:       testdata.Rule5.Reason,
+				Resolution:   testdata.Rule5.Resolution,
+				TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey5.Impact, testdata.RuleErrorKey5.Likelihood),
+				RiskOfChange: 0,
+				Disabled:     testdata.Rule5Disabled,
+				UserVote:     types.UserVoteNone,
+				TemplateData: testdata.Rule5ExtraData,
+				Tags:         testdata.RuleErrorKey5.Tags,
 			},
 		},
 	}
@@ -352,7 +414,7 @@ func loadMockRuleContentDir(rulesContent []iou_types.RuleContent) {
 }
 
 func init() {
-	zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 }
 
 func TestServerStartError(t *testing.T) {
