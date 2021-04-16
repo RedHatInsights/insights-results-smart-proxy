@@ -555,6 +555,10 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	if err != nil {
 		log.Err(err).Msgf("Got error while parsing `%s` value", OSDEligibleParam)
 	}
+
+	log.Info().Msgf("%s flag = %t", GetDisabledParam, includeDisabled)
+	log.Info().Msgf("%s flag = %t", OSDEligibleParam, osdFlag)
+
 	rules, rulesWithoutContent := filterRulesResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
 
 	report := proxy_types.SmartProxyReport{
@@ -777,15 +781,16 @@ func (server HTTPServer) getOverviewPerCluster(
 // - The rule has content from the content-service
 // - The disabled filter is not match
 // - The OSD elegible filter is not match
-func filterRulesResponse(aggregatorReport []types.RuleOnReport, filterOSD, filterDisabled bool) (
+func filterRulesResponse(aggregatorReport []types.RuleOnReport, filterOSD, getDisabled bool) (
 	filteredRules []proxy_types.RuleWithContentResponse,
 	noContentRules int,
 ) {
+	log.Debug().Bool(GetDisabledParam, getDisabled).Bool(OSDEligibleParam, filterOSD).Msg("Filtering rules in report")
 	filteredRules = []proxy_types.RuleWithContentResponse{}
 	noContentRules = 0
 
 	for _, aggregatorRule := range aggregatorReport {
-		if aggregatorRule.Disabled && filterDisabled {
+		if aggregatorRule.Disabled && !getDisabled {
 			continue
 		}
 
