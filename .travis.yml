@@ -26,6 +26,7 @@ jobs:
         - make test
         - ./check_coverage.sh
       after_success:
+        - env
         - bash <(curl -s https://codecov.io/bash)
     - stage: integration tests
       script:
