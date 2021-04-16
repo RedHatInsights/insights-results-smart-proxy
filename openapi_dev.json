@@ -226,6 +226,26 @@
               "maxLength": 36,
               "format": "uuid"
             }
+          },
+          {
+            "name": "osd_eligible",
+            "description": "If true, only OSD eligible rules will be sent.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
+          },
+          {
+            "name": "get_disabled",
+            "description": "If true, disabled rules will be sent too.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -384,6 +404,16 @@
               "type": "string"
             },
             "example": "some.python.module"
+          },
+          {
+            "name": "osd_eligible",
+            "description": "If true, only OSD eligible rules will be sent.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -978,7 +1008,7 @@
                                     "type": "string"
                                   },
                                   "likelihood": {
-                                    "type": "number"
+                                    "type": "integer"
                                   },
                                   "publish_date": {
                                     "type": "string"
@@ -1107,7 +1137,7 @@
                                       "type": "string"
                                     },
                                     "likelihood": {
-                                      "type": "number"
+                                      "type": "integer"
                                     },
                                     "publish_date": {
                                       "type": "string"

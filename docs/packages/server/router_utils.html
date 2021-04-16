@@ -147,6 +147,23 @@ limitations under the License.</p>
 	<div class="literal">&#34;github.com/rs/zerolog/log&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
+<div class="keyword">const</div> <div class="operator">(</div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>OSDEligibleParam parameter</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">OSDEligibleParam</div> <div class="operator">=</div> <div class="literal">&#34;osd_eligible&#34;</div><div class="operator"></div>
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>GetDisabledParam parameter</p>
+</td>
+	<td class="code"><pre><code>	<div class="ident">GetDisabledParam</div> <div class="operator">=</div> <div class="literal">&#34;get_disabled&#34;</div><div class="operator"></div>
+<div class="operator">)</div><div class="operator"></div>
+
 </code></pre></td>
       </tr>
       
@@ -517,6 +534,42 @@ with the one of the authenticated user when the authentication is enabled</p>
 	<div class="operator">}</div><div class="operator"></div>
 
 	<div class="keyword">return</div> <div class="ident">types</div><div class="operator">.</div><div class="ident">ErrorKey</div><div class="operator">(</div><div class="ident">errorKey</div><div class="operator">)</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>readQueryParam return the value of the parameter in the query. If not found, defaults to false</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">readQueryBoolParam</div><div class="operator">(</div><div class="ident">name</div> <div class="ident">string</div><div class="operator">,</div> <div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">bool</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="ident">value</div> <div class="operator">:=</div> <div class="ident">request</div><div class="operator">.</div><div class="ident">URL</div><div class="operator">.</div><div class="ident">Query</div><div class="operator">(</div><div class="operator">)</div><div class="operator">.</div><div class="ident">Get</div><div class="operator">(</div><div class="ident">name</div><div class="operator">)</div><div class="operator"></div>
+	<div class="keyword">if</div> <div class="ident">len</div><div class="operator">(</div><div class="ident">value</div><div class="operator">)</div> <div class="operator">==</div> <div class="literal">0</div> <div class="operator">{</div>
+		<div class="keyword">return</div> <div class="ident">false</div><div class="operator">,</div> <div class="ident">nil</div><div class="operator"></div>
+	<div class="operator">}</div><div class="operator"></div>
+	<div class="keyword">return</div> <div class="ident">strconv</div><div class="operator">.</div><div class="ident">ParseBool</div><div class="operator">(</div><div class="ident">value</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>readGetDisabledParam returns the value of the &quot;get_disabled&quot; parameter in query
+if available</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">readGetDisabledParam</div><div class="operator">(</div><div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">bool</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">return</div> <div class="ident">readQueryBoolParam</div><div class="operator">(</div><div class="ident">GetDisabledParam</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>readOSDEligibleParam returns the value of the &quot;osd_eligible&quot; parameter in query
+if available</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">func</div> <div class="ident">readOSDEligible</div><div class="operator">(</div><div class="ident">request</div> <div class="operator">*</div><div class="ident">http</div><div class="operator">.</div><div class="ident">Request</div><div class="operator">)</div> <div class="operator">(</div><div class="ident">bool</div><div class="operator">,</div> <div class="ident">error</div><div class="operator">)</div> <div class="operator">{</div>
+	<div class="keyword">return</div> <div class="ident">readQueryBoolParam</div><div class="operator">(</div><div class="ident">OSDEligibleParam</div><div class="operator">,</div> <div class="ident">request</div><div class="operator">)</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 </code></pre></td>
