@@ -559,7 +559,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	log.Info().Msgf("%s flag = %t", GetDisabledParam, includeDisabled)
 	log.Info().Msgf("%s flag = %t", OSDEligibleParam, osdFlag)
 
-	rules, rulesWithoutContent := filterRulesResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
+	rules, disabledRules, rulesWithoutContent := filterRulesResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
 
 	report := proxy_types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
@@ -570,7 +570,9 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 
 	status := http.StatusOK
-	if rulesWithoutContent > 0 && len(rules) == 0 {
+
+	// This condition checks that the only rules for the cluster have missing content
+	if rulesWithoutContent > 0 && len(rules) == 0 && disabledRules == 0 {
 		status = http.StatusInternalServerError
 	}
 
@@ -783,14 +785,17 @@ func (server HTTPServer) getOverviewPerCluster(
 // - The OSD elegible filter is not match
 func filterRulesResponse(aggregatorReport []types.RuleOnReport, filterOSD, getDisabled bool) (
 	filteredRules []proxy_types.RuleWithContentResponse,
+	disabledRules int,
 	noContentRules int,
 ) {
 	log.Debug().Bool(GetDisabledParam, getDisabled).Bool(OSDEligibleParam, filterOSD).Msg("Filtering rules in report")
 	filteredRules = []proxy_types.RuleWithContentResponse{}
+	disabledRules = 0
 	noContentRules = 0
 
 	for _, aggregatorRule := range aggregatorReport {
 		if aggregatorRule.Disabled && !getDisabled {
+			disabledRules++
 			continue
 		}
 
@@ -803,7 +808,6 @@ func filterRulesResponse(aggregatorReport []types.RuleOnReport, filterOSD, getDi
 		}
 
 		filteredRules = append(filteredRules, *rule)
-
 	}
 
 	return
