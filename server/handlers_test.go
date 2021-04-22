@@ -30,6 +30,17 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
 
+var (
+	RuleContentDirectoryOnly1Rule = types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc5": testdata.RuleContent5,
+		},
+	}
+)
+
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
@@ -222,6 +233,45 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse3RulesAll),
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing.T) {
+	content.ResetContent()
+	time.Sleep(1 * time.Second)
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3Rules1DisabledExpectedResponse,
+		})
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnly1Rule),
+		})
+
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyEmptyResponse),
 		})
 	}, testTimeout)
 }
