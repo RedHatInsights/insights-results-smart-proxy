@@ -179,6 +179,14 @@ var (
 		Report: &SmartProxyReport3RulesOnlyEnabled,
 	}
 
+	SmartProxyEmptyResponse = struct {
+		Status string                  `json:"status"`
+		Report *types.SmartProxyReport `json:"report"`
+	}{
+		Status: "ok",
+		Report: &SmartProxyReportEmptyCount2,
+	}
+
 	SmartProxyReportResponse3RulesAll = struct {
 		Status string                  `json:"status"`
 		Report *types.SmartProxyReport `json:"report"`
@@ -248,6 +256,14 @@ var (
 				Tags:         testdata.RuleErrorKey2.Tags,
 			},
 		},
+	}
+
+	SmartProxyReportEmptyCount2 = types.SmartProxyReport{
+		Meta: types.ReportResponseMeta{
+			Count:         2,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{},
 	}
 
 	SmartProxyReport3RulesWithDisabled = types.SmartProxyReport{
