@@ -155,11 +155,12 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 	for _, clusterID := range clusters {
 		overview, err := server.getOverviewPerCluster(clusterID, authToken, writer)
 		if err != nil {
-			log.Info().Msgf("Problem handling report for cluster %s", clusterID)
+			log.Error().Err(err).Msgf("Problem handling report for cluster %s.", clusterID)
 			continue
 		}
 
 		if overview == nil {
+			log.Error().Msgf("Overview for cluster %v is nil. Skipping.", clusterID)
 			continue
 		}
 
