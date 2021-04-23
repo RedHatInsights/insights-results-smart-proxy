@@ -146,7 +146,6 @@ Insights Results Aggregator, Content Service) and thus they are imported
 	<div class="literal">&#34;time&#34;</div><div class="operator"></div>
 
 	<div class="literal">&#34;github.com/RedHatInsights/insights-operator-utils/types&#34;</div><div class="operator"></div>
-	<div class="ident">mapset</div> <div class="literal">&#34;github.com/deckarep/golang-set&#34;</div><div class="operator"></div>
 <div class="operator">)</div><div class="operator"></div>
 
 </code></pre></td>
@@ -224,8 +223,20 @@ Insights Results Aggregator, Content Service) and thus they are imported
 	<td class="doc"><p>ClusterOverview type for handling the overview result for each cluster</p>
 </td>
 	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">ClusterOverview</div> <div class="keyword">struct</div> <div class="operator">{</div>
-	<div class="ident">TotalRisksHit</div> <div class="ident">mapset</div><div class="operator">.</div><div class="ident">Set</div><div class="operator"></div>
-	<div class="ident">TagsHit</div>       <div class="ident">mapset</div><div class="operator">.</div><div class="ident">Set</div><div class="operator"></div>
+	<div class="ident">TotalRisksHit</div> <div class="operator">[</div><div class="operator">]</div><div class="ident">int</div><div class="operator"></div>
+	<div class="ident">TagsHit</div>       <div class="operator">[</div><div class="operator">]</div><div class="ident">string</div><div class="operator"></div>
+<div class="operator">}</div><div class="operator"></div>
+
+</code></pre></td>
+      </tr>
+      
+      <tr class="section">
+	<td class="doc"><p>OrgOverviewResponse serves as a the API response for /org_overview endpoint</p>
+</td>
+	<td class="code"><pre><code><div class="keyword">type</div> <div class="ident">OrgOverviewResponse</div> <div class="keyword">struct</div> <div class="operator">{</div>
+	<div class="ident">ClustersHit</div>            <div class="ident">int</div>            <div class="literal">`json:&#34;clusters_hit&#34;`</div><div class="operator"></div>
+	<div class="ident">ClustersHitByTotalRisk</div> <div class="keyword">map</div><div class="operator">[</div><div class="ident">int</div><div class="operator">]</div><div class="ident">int</div>    <div class="literal">`json:&#34;hit_by_risk&#34;`</div><div class="operator"></div>
+	<div class="ident">ClustersHitByTag</div>       <div class="keyword">map</div><div class="operator">[</div><div class="ident">string</div><div class="operator">]</div><div class="ident">int</div> <div class="literal">`json:&#34;hit_by_tag&#34;`</div><div class="operator"></div>
 <div class="operator">}</div><div class="operator"></div>
 
 <div class="keyword">const</div> <div class="operator">(</div>
