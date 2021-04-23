@@ -42,7 +42,6 @@ import (
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
-	mapset "github.com/deckarep/golang-set"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
@@ -753,23 +752,27 @@ func (server HTTPServer) getOverviewPerCluster(
 	}
 
 	if aggregatorResponse.Meta.Count == 0 {
+		log.Info().Msgf("Cluster report doesn't have any hits. Skipping from overview.")
 		return nil, nil
 	}
 
-	totalRisks := mapset.NewSet()
-	tags := mapset.NewSet()
+	totalRisks := make([]int, 0)
+	tags := make([]string, 0)
 
 	for _, rule := range aggregatorResponse.Report {
 		ruleID := rule.Module
 		errorKey := rule.ErrorKey
 		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
 		if err != nil {
-			return nil, err
+			log.Error().Err(err).Msgf("Unable to retrieve content for rule %v|%v", ruleID, errorKey)
+			// this rule is not visible in OCM UI either, so we can continue calculating to be consistent
+			continue
 		}
-		totalRisks.Add(ruleWithContent.TotalRisk)
+
+		totalRisks = append(totalRisks, ruleWithContent.TotalRisk)
 
 		for _, tag := range ruleWithContent.Tags {
-			tags.Add(tag)
+			tags = append(tags, tag)
 		}
 	}
 

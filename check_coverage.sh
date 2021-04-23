@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-THRESHOLD=${COV_THRESHOLD:=55}
+THRESHOLD=${COV_THRESHOLD:=54}
 
 RED_BG=$(tput setab 1)
 GREEN_BG=$(tput setab 2)
