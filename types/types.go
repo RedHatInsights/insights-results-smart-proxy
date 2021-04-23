@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/types"
-	mapset "github.com/deckarep/golang-set"
 )
 
 // UserID represents type for user id
@@ -65,8 +64,15 @@ type UserVote = types.UserVote
 
 // ClusterOverview type for handling the overview result for each cluster
 type ClusterOverview struct {
-	TotalRisksHit mapset.Set
-	TagsHit       mapset.Set
+	TotalRisksHit []int
+	TagsHit       []string
+}
+
+// OrgOverviewResponse serves as a the API response for /org_overview endpoint
+type OrgOverviewResponse struct {
+	ClustersHit            int            `json:"clusters_hit"`
+	ClustersHitByTotalRisk map[int]int    `json:"hit_by_risk"`
+	ClustersHitByTag       map[string]int `json:"hit_by_tag"`
 }
 
 const (
