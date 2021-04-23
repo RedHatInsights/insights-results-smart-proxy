@@ -23,6 +23,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 // getGroups retrieves the groups configuration from a channel to get the latest valid one
@@ -137,6 +138,7 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 // overviewEndpoint returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *http.Request) {
 	authToken, err := server.GetAuthToken(request)
+	orgID := authToken.Internal.OrgID
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -146,11 +148,12 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 	hitsByTotalRisk := make(map[int]int)
 	hitsByTags := make(map[string]int)
 
-	clusters, err := server.readClusterIDsForOrgID(authToken.Internal.OrgID)
+	clusters, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
+	log.Info().Msgf("Retrieving overview for org_id %v and its clusters: %v", orgID, clusters)
 
 	for _, clusterID := range clusters {
 		overview, err := server.getOverviewPerCluster(clusterID, authToken, writer)
@@ -160,33 +163,21 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 		}
 
 		if overview == nil {
-			log.Error().Msgf("Overview for cluster %v is nil. Skipping.", clusterID)
+			log.Error().Msgf("Overview for cluster %v is empty. Skipping.", clusterID)
 			continue
 		}
 
 		clustersHits++
-		overview.TotalRisksHit.Each(func(elem interface{}) bool {
-			if risk, ok := elem.(int); ok {
-				hitsByTotalRisk[risk]++
-			}
-			return false
-		})
+		for _, totalRisk := range overview.TotalRisksHit {
+			hitsByTotalRisk[totalRisk]++
+		}
 
-		overview.TagsHit.Each(func(elem interface{}) bool {
-			if tag, ok := elem.(string); ok {
-				hitsByTags[tag]++
-			}
-			return false
-		})
+		for _, tag := range overview.TagsHit {
+			hitsByTags[tag]++
+		}
 	}
 
-	type response struct {
-		ClustersHit            int            `json:"clusters_hit"`
-		ClustersHitByTotalRisk map[int]int    `json:"hit_by_risk"`
-		ClustersHitByTag       map[string]int `json:"hit_by_tag"`
-	}
-
-	r := response{
+	r := sptypes.OrgOverviewResponse{
 		ClustersHit:            clustersHits,
 		ClustersHitByTotalRisk: hitsByTotalRisk,
 		ClustersHitByTag:       hitsByTags,
