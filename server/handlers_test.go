@@ -41,6 +41,12 @@ var (
 	}
 )
 
+func startUpdateContentLoop(servicesConf services.Configuration) {
+	// synchronized first update!
+	UpdateContent(servicesConf)
+	go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+}
+
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
@@ -62,7 +68,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -101,7 +107,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -139,7 +145,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -197,7 +203,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory5Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -260,7 +266,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnly1Rule),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -304,7 +310,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -347,7 +353,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -390,7 +396,7 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -420,7 +426,7 @@ func TestHTTPServer_GetContent(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -470,7 +476,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
