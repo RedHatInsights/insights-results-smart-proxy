@@ -27,6 +27,7 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
 
