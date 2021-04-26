@@ -43,13 +43,19 @@ var (
 )
 
 func startUpdateContentLoop(servicesConf services.Configuration) {
-	// synchronized first update!
-	content.UpdateContent(servicesConf)
 	go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
+}
+
+// timeToBreathe make sure the content-servicing goroutine is cleaned up (it
+// would be better to use some form of better synchronization, but it will need
+// code change just for the sake of unit tests).
+func timeToBreathe() {
+	time.Sleep(2 * time.Second)
 }
 
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -86,7 +92,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
-	time.Sleep(1 * time.Second)
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -125,7 +131,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
-	time.Sleep(1 * time.Second)
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -163,7 +169,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
-	time.Sleep(1 * time.Second)
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -245,8 +251,8 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing.T) {
+	timeToBreathe()
 	content.ResetContent()
-	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -285,7 +291,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
-	time.Sleep(1 * time.Second)
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -328,7 +334,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
-	time.Sleep(1 * time.Second)
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -371,7 +377,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
-	time.Sleep(1 * time.Second)
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -415,6 +421,7 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 
 // TestHTTPServer_GetContent
 func TestHTTPServer_GetContent(t *testing.T) {
+	timeToBreathe()
 	content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -444,7 +451,7 @@ func TestHTTPServer_GetContent(t *testing.T) {
 
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
-	time.Sleep(1 * time.Second)
+	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
