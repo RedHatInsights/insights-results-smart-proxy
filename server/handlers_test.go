@@ -44,7 +44,7 @@ var (
 
 func startUpdateContentLoop(servicesConf services.Configuration) {
 	// synchronized first update!
-	UpdateContent(servicesConf)
+	content.UpdateContent(servicesConf)
 	go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 }
 
