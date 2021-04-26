@@ -33,7 +33,7 @@ Before you submit your pull request consider the following guidelines:
 
 * Create your patch, **ideally including appropriate test cases**
 * Include documentation that either describe a change to a behavior or the changed capability to an end user
-* Commit your changes using **a descriptive commit message**. If you are fixing an issue please include something like 'this closes issue #xyz'
+* Commit your changes using **a descriptive commit message**. If you are fixing an issue please include something like 'this closes issue #xyz' or 'fixes issue #xyz'
   * Please make sure your tests pass!
   * Currently we use Travis CI for our automated testing.
 
