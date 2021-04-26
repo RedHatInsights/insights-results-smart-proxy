@@ -25,6 +25,5 @@ package content
 // to see why this trick is needed for using package internal
 // symbols (externally invisible) in unit tests.
 var (
-	UpdateContent             = updateContent
 	RuleContentDirectoryReady = ruleContentDirectoryReady
 )
