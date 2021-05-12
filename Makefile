@@ -35,7 +35,7 @@ ineffassign: ## Run ineffassign checker
 	./ineffassign.sh
 
 shellcheck: ## Run shellcheck
-	shellcheck *.sh
+	shellcheck --exclude=SC1090,SC2086,SC2034,SC1091 *.sh
 
 errcheck: ## Run errcheck
 	@echo "Running errcheck"
