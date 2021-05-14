@@ -1070,7 +1070,7 @@
               "3",
               "4"
             ],
-            "type": "string"
+            "type": "integer"
           },
           "risk_of_change": {
             "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
@@ -1081,7 +1081,7 @@
               "3",
               "4"
             ],
-            "type": "string"
+            "type": "integer"
           },
           "disabled": {
             "description": "If this rule result disabled or not. This field can be used in the UI to show only specific set of rules results.",
