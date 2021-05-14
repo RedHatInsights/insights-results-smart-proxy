@@ -1064,22 +1064,22 @@
           "total_risk": {
             "description": "Total risk - calculated from rule impact and likelihood.",
             "enum": [
-              "0",
-              "1",
-              "2",
-              "3",
-              "4"
+              0,
+              1,
+              2,
+              3,
+              4
             ],
             "type": "integer"
           },
           "risk_of_change": {
             "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
             "enum": [
-              "0",
-              "1",
-              "2",
-              "3",
-              "4"
+              0,
+              1,
+              2,
+              3,
+              4
             ],
             "type": "integer"
           },
