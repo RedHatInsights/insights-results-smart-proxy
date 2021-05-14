@@ -29,6 +29,10 @@ complexity > 9
   does not exceed specified threshold
 * `errcheck` for checking for all unchecked errors in go programs
 
+Additionally `shellcheck` is run against all shell scripts found in this
+repository. For more info about this checker please visit its home page
+https://www.shellcheck.net/.
+
 All the above test and checks should be executed without a single error in order
 to merge new changes into `master` branch.
 
