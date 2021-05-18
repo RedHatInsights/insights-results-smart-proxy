@@ -1,9 +1,8 @@
 (use 'rhizome.viz)
 (use 'rhizome.dot)
 
-(def g {:kafka [:insights-results-notificator :insights-results-db-writer]
-        :insights-results-notificator [:queue :insights-results-notificator-logger]
-        :insights-results-db-writer   [:storage :insights-results-db-writer-logger]
+(def g {:kafka [:insights-results-db-writer]
+        :insights-results-db-writer   [:storage :insights-results-db-writer-logger :queue]
         :storage [:insights-results-aggregator]
         :insights-results-aggregator [:ccx-smart-proxy]
         :ccx-insights-content-service [:ccx-smart-proxy]
