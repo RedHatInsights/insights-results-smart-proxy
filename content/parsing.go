@@ -40,8 +40,6 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 	for _, rule := range contentDir.Rules {
 		ruleID := types.RuleID(rule.Plugin.PythonModule)
 
-		rulesWithContentStorage.SetRule(ruleID, rule)
-
 		for errorKey, errorProperties := range rule.ErrorKeys {
 			impact, found := contentDir.Config.Impact[errorProperties.Metadata.Impact]
 			if !found {
@@ -61,6 +59,15 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				return
 			}
 
+			totalRisk := calculateTotalRisk(impact, errorProperties.Metadata.Likelihood)
+
+			ruleTmp := &rule
+			if ruleTmpErrorKey, ok := ruleTmp.ErrorKeys[errorKey]; ok {
+				ruleTmpErrorKey.TotalRisk = totalRisk
+				ruleTmp.ErrorKeys[errorKey] = ruleTmpErrorKey
+			}
+			rulesWithContentStorage.SetRule(ruleID, *ruleTmp)
+
 			rulesWithContentStorage.SetRuleWithContent(ruleID, types.ErrorKey(errorKey), &local_types.RuleWithContent{
 				Module:          ruleID,
 				Name:            rule.Plugin.Name,
@@ -71,7 +78,7 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				ErrorKey:        types.ErrorKey(errorKey),
 				Condition:       errorProperties.Metadata.Condition,
 				Description:     errorProperties.Metadata.Description,
-				TotalRisk:       calculateTotalRisk(impact, errorProperties.Metadata.Likelihood),
+				TotalRisk:       totalRisk,
 				RiskOfChange:    calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
 				PublishDate:     publishDate,
 				Active:          isActive,
