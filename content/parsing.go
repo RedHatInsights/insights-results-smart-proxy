@@ -37,7 +37,7 @@ var (
 
 // LoadRuleContent loads the parsed rule content into the storage
 func LoadRuleContent(contentDir *types.RuleContentDirectory) {
-	for _, rule := range contentDir.Rules {
+	for i, rule := range contentDir.Rules {
 		ruleID := types.RuleID(rule.Plugin.PythonModule)
 
 		for errorKey, errorProperties := range rule.ErrorKeys {
@@ -61,12 +61,12 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 
 			totalRisk := calculateTotalRisk(impact, errorProperties.Metadata.Likelihood)
 
-			ruleTmp := &rule
+			ruleTmp := contentDir.Rules[i]
 			if ruleTmpErrorKey, ok := ruleTmp.ErrorKeys[errorKey]; ok {
 				ruleTmpErrorKey.TotalRisk = totalRisk
 				ruleTmp.ErrorKeys[errorKey] = ruleTmpErrorKey
 			}
-			rulesWithContentStorage.SetRule(ruleID, *ruleTmp)
+			rulesWithContentStorage.SetRule(ruleID, ruleTmp)
 
 			rulesWithContentStorage.SetRuleWithContent(ruleID, types.ErrorKey(errorKey), &local_types.RuleWithContent{
 				Module:          ruleID,
