@@ -27,7 +27,6 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
-	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
 
@@ -42,20 +41,8 @@ var (
 	}
 )
 
-func startUpdateContentLoop(servicesConf services.Configuration) {
-	go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
-}
-
-// timeToBreathe make sure the content-servicing goroutine is cleaned up (it
-// would be better to use some form of better synchronization, but it will need
-// code change just for the sake of unit tests).
-func timeToBreathe() {
-	time.Sleep(2 * time.Second)
-}
-
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
-	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -75,7 +62,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -92,7 +79,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
-	timeToBreathe()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -114,7 +101,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -131,7 +118,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
-	timeToBreathe()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -152,7 +139,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -169,7 +156,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
-	timeToBreathe()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -210,7 +197,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory5Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -251,8 +238,8 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing.T) {
-	timeToBreathe()
 	content.ResetContent()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -273,7 +260,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnly1Rule),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -291,7 +278,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
-	timeToBreathe()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -317,7 +304,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -334,7 +321,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
-	timeToBreathe()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -360,7 +347,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -377,7 +364,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
-	timeToBreathe()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -403,7 +390,7 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -421,7 +408,6 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 
 // TestHTTPServer_GetContent
 func TestHTTPServer_GetContent(t *testing.T) {
-	timeToBreathe()
 	content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -434,7 +420,7 @@ func TestHTTPServer_GetContent(t *testing.T) {
 			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -451,7 +437,7 @@ func TestHTTPServer_GetContent(t *testing.T) {
 
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
-	timeToBreathe()
+	time.Sleep(1 * time.Second)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -484,7 +470,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{

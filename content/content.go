@@ -211,7 +211,7 @@ func RunUpdateContentLoop(servicesConf services.Configuration) {
 	ticker := time.NewTicker(servicesConf.GroupsPollingTime)
 
 	for {
-		UpdateContent(servicesConf)
+		updateContent(servicesConf)
 
 		select {
 		case <-ticker.C:
@@ -226,8 +226,7 @@ func StopUpdateContentLoop() {
 	stopUpdateContentLoop <- struct{}{}
 }
 
-// UpdateContent function updates rule content
-func UpdateContent(servicesConf services.Configuration) {
+func updateContent(servicesConf services.Configuration) {
 	var err error
 
 	contentServiceDirectory, err := services.GetContent(servicesConf)
