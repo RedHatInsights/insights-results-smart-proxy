@@ -163,7 +163,10 @@ func checkPermissions(writer http.ResponseWriter, request *http.Request, orgID t
 		identity := identityContext.(types.Identity)
 		if identity.Internal.OrgID != orgID {
 			const message = "You have no permissions to get or change info about this organization"
-			log.Error().Msg(message)
+			log.Error().
+				Int("user org_id", int(identity.Internal.OrgID)).
+				Int("org_id used in REST API request", int(orgID)).
+				Msg(message)
 			handleServerError(writer, &types.ItemNotFoundError{ItemID: orgID})
 			return errors.New(message)
 		}
