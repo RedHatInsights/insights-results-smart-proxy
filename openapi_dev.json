@@ -1367,42 +1367,36 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    },
-                    "overview": {
-                      "type": "object",
-                      "properties": {
-                        "clusters_hit": {
-                          "type": "integer",
-                          "description": "Number of clusters with at least 1 Insights hit.",
-                          "example": "1"
-                        },
-                        "hit_by_risk": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "integer",
-                            "description": "Number of clusters hit by rules for each criticality",
-                            "example": "1"
-                          }
-                        },
-                        "hit_by_tag": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "integer",
-                            "description": "Number of clusters hit by rules for each category",
-                            "example": "1"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/overview_response"
                 }
               }
             }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "description": "List of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
+          "content": {
+            "text/plain": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/overview_response"
+                }
+              }
+            },
+            "description": "Status ok"
           }
         }
       }
@@ -1413,6 +1407,43 @@
   "components": {
     "links": {},
     "callbacks": {},
-    "schemas": {}
+    "schemas": {
+      "overview_response": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "overview": {
+            "type": "object",
+            "properties": {
+              "clusters_hit": {
+                "description": "Number of clusters with at least 1 Insights hit.",
+                "type": "integer",
+                "example": "1"
+              },
+              "hit_by_risk": {
+                "type": "object",
+                "additionalProperties": {
+                  "description": "Number of clusters hit by rules for each criticality",
+                  "type": "integer",
+                  "example": "1"
+                }
+              },
+              "hit_by_tag": {
+                "type": "object",
+                "additionalProperties": {
+                  "description": "Number of clusters hit by rules for each category",
+                  "type": "integer",
+                  "example": "1"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
