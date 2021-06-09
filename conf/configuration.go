@@ -84,11 +84,21 @@ var Config struct {
 	KafkaZerologConf  logger.KafkaZerologConfiguration  `mapstructure:"kafka_zerolog" toml:"kafka_zerolog"`
 }
 
-func setupClowderConfiguration(config *clowder.AppConfig) error{
+func setupClowderConfiguration(config *clowder.AppConfig) error {
 	// TODO: insert logic to replace SELECTED configuration variables
 	return nil
 }
 
+func envSupportsClowder() bool {
+	clowderEnabled := os.Getenv("CLOWDER_ENABLED")
+	if clowderEnabled == "True" ||
+		clowderEnabled == "true" ||
+		clowderEnabled == "1" ||
+		clowderEnabled == "yes" {
+		return true
+	}
+	return false
+}
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
 // configFileEnvVariableName or from env
 func LoadConfiguration(defaultConfigFile string) error {
@@ -140,7 +150,7 @@ func LoadConfiguration(defaultConfigFile string) error {
 		return fmt.Errorf("fatal error config file: %s", err)
 	}
 
-	if clowder.IsClowderEnabled() {
+	if clowder.IsClowderEnabled() && envSupportsClowder() {
 		fmt.Println("Clowder is enabled")
 		return setupClowderConfiguration(clowder.LoadedConfig)
 	} else {
