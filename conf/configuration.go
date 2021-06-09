@@ -41,6 +41,8 @@ import (
 	"strconv"
 	"strings"
 
+	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
+
 	"github.com/BurntSushi/toml"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/types"
@@ -82,6 +84,11 @@ var Config struct {
 	KafkaZerologConf  logger.KafkaZerologConfiguration  `mapstructure:"kafka_zerolog" toml:"kafka_zerolog"`
 }
 
+func setupClowderConfiguration(config *clowder.AppConfig) error{
+	// TODO: insert logic to replace SELECTED configuration variables
+	return nil
+}
+
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
 // configFileEnvVariableName or from env
 func LoadConfiguration(defaultConfigFile string) error {
@@ -106,7 +113,7 @@ func LoadConfiguration(defaultConfigFile string) error {
 		// config by itself
 		fakeTomlConfigWriter := new(bytes.Buffer)
 
-		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(Config)
+		err = toml.NewEncoder(fakeTomlConfigWriter).Encode(Config)
 		if err != nil {
 			return err
 		}
@@ -128,7 +135,20 @@ func LoadConfiguration(defaultConfigFile string) error {
 	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
 
-	return viper.Unmarshal(&Config)
+	err = viper.Unmarshal(&Config)
+	if err != nil {
+		return fmt.Errorf("fatal error config file: %s", err)
+	}
+
+	if clowder.IsClowderEnabled() {
+		fmt.Println("Clowder is enabled")
+		return setupClowderConfiguration(clowder.LoadedConfig)
+	} else {
+		fmt.Println("Clowder is disabled")
+	}
+
+	// everything's should be ok
+	return nil
 }
 
 // GetServerConfiguration returns server configuration
