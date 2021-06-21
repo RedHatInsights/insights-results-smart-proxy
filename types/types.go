@@ -95,7 +95,6 @@ type RuleWithContent struct {
 	Resolution      string         `json:"resolution"`
 	MoreInfo        string         `json:"more_info"`
 	ErrorKey        types.ErrorKey `json:"error_key"`
-	Condition       string         `json:"condition"`
 	Description     string         `json:"description"`
 	TotalRisk       int            `json:"total_risk"`
 	RiskOfChange    int            `json:"risk_of_change"`

@@ -4,10 +4,10 @@ go 1.14
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/RedHatInsights/insights-content-service v0.0.0-20210318154736-b97628dd5625
-	github.com/RedHatInsights/insights-operator-utils v1.8.3
+	github.com/RedHatInsights/insights-content-service v0.0.0-20210614100534-366b353ab4be
+	github.com/RedHatInsights/insights-operator-utils v1.10.0
 	github.com/RedHatInsights/insights-results-aggregator v1.1.2
-	github.com/RedHatInsights/insights-results-aggregator-data v1.0.0
+	github.com/RedHatInsights/insights-results-aggregator-data v1.0.1-0.20210614072933-b25730b1e023
 	github.com/aws/aws-sdk-go v1.38.9 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

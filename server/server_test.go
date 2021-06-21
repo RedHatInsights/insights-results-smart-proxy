@@ -347,7 +347,6 @@ var (
 			"ek1": {
 				Generic: testdata.RuleErrorKey1.Generic,
 				Metadata: iou_types.ErrorKeyMetadata{
-					Condition:   testdata.RuleErrorKey1.Condition,
 					Description: testdata.RuleErrorKey1.Description,
 					Impact:      testdata.ImpactIntToStr[testdata.RuleErrorKey1.Impact],
 					Likelihood:  testdata.RuleErrorKey1.Likelihood,
@@ -369,6 +368,25 @@ var (
 			"hit_by_risk": map[string]int{
 				"1": 1,
 				"2": 2,
+			},
+			"hit_by_tag": map[string]int{
+				"openshift":            1,
+				"osd_customer":         1,
+				"service_availability": 1,
+			},
+		},
+	}
+
+	OverviewResponsePostEndpoint = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 1,
+			"hit_by_risk": map[string]int{
+				"1": 1,
+				"2": 1,
 			},
 			"hit_by_tag": map[string]int{
 				"openshift":            1,
