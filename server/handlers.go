@@ -15,6 +15,7 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -184,6 +185,64 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 	}
 
 	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// overviewEndpointWithClusterIDs returns a map with an overview of number of clusters hit by rules
+func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) {
+	// get reports for the cluster list in body
+	log.Info().Msg("Retrieving reports for clusters to generate org_overview")
+	aggregatorResponse, ok := server.fetchAggregatorReportsUsingRequestBodyClusterList(writer, request)
+	if !ok {
+		// errors already handled
+		return
+	}
+
+	clustersHits := 0
+	hitsByTotalRisk := make(map[int]int)
+	hitsByTags := make(map[string]int)
+
+	for _, singleReport := range aggregatorResponse.Reports {
+		var clusterReport types.ReportRules
+
+		if err := json.Unmarshal(singleReport, &clusterReport); err != nil {
+			log.Error().Err(err).Msgf("The report %v is not ok", singleReport)
+			continue
+		}
+
+		if len(clusterReport.HitRules) == 0 {
+			continue
+		}
+
+		clustersHits++
+
+		for _, rule := range clusterReport.HitRules {
+			ruleID := rule.Module
+			errorKey := rule.ErrorKey
+			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+			if err != nil {
+				log.Error().Err(err).Msgf("Unable to retrieve content for rule %s", ruleID)
+				continue
+			}
+
+			hitsByTotalRisk[ruleWithContent.TotalRisk]++
+
+			for _, tag := range ruleWithContent.Tags {
+				hitsByTags[tag]++
+			}
+		}
+
+	}
+
+	r := sptypes.OrgOverviewResponse{
+		ClustersHit:            clustersHits,
+		ClustersHitByTotalRisk: hitsByTotalRisk,
+		ClustersHitByTag:       hitsByTags,
+	}
+
+	if err := responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
 		handleServerError(writer, err)
 		return
 	}

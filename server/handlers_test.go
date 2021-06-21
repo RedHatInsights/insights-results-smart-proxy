@@ -25,10 +25,12 @@ import (
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
+	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 )
 
 var (
@@ -614,6 +616,49 @@ func TestRuleNamesResponse(t *testing.T) {
 			StatusCode:  http.StatusOK,
 			Body:        expectedBody,
 			BodyChecker: ruleIDsChecker,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_OverviewWithClusterIDsEndpoint
+func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
+	timeToBreathe()
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare content
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		// prepare reports reponse
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ReportForListOfClustersEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, data.ClusterIDInURL},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(data.AggregatorReportForClusterList),
+			},
+		)
+
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodPost,
+			Endpoint: server.OverviewEndpoint,
+			OrgID:    testdata.OrgID,
+			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(OverviewResponsePostEndpoint),
 		})
 	}, testTimeout)
 }

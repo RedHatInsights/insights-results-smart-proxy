@@ -90,6 +90,7 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.getClustersForOrg).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+OverviewEndpoint, server.overviewEndpoint).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+OverviewEndpoint, server.overviewEndpointWithClusterIDs).Methods(http.MethodPost)
 
 	// Reports endpoints
 	server.addReportsEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)

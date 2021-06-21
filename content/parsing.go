@@ -76,7 +76,6 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				Resolution:      rule.Resolution,
 				MoreInfo:        rule.MoreInfo,
 				ErrorKey:        types.ErrorKey(errorKey),
-				Condition:       errorProperties.Metadata.Condition,
 				Description:     errorProperties.Metadata.Description,
 				TotalRisk:       totalRisk,
 				RiskOfChange:    calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
