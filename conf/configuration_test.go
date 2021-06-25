@@ -201,7 +201,6 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 	}, conf.GetServicesConfiguration())
 }
 
-
 // TestLoadConfigurationFromEnvVariableClowderEnabledNotSupported tests loading.
 // the config file for testing from an environment variable. Clowder config is
 // available but clowder is not supported in this environment.
