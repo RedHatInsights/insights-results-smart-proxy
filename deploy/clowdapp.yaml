@@ -28,6 +28,8 @@ objects:
     envName: ${ENV_NAME}
     dependencies:
       - ingress
+      - insights-results
+      - insights-content-service
     deployments:
       - name: smart-proxy
         minReplicas: ${{MIN_REPLICAS}}
@@ -80,26 +82,6 @@ objects:
               value: ${HABERDASHER_LABELS}
             - name: HABERDASHER_TAGS
               value: ${HABERDASHER_TAGS}
-            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__LOG_GROUP
-              valueFrom:
-                secretKeyRef:
-                  key: log_group_name
-                  name: cloudwatch
-            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__AWS_REGION
-              valueFrom:
-                secretKeyRef:
-                  key: aws_region
-                  name: cloudwatch
-            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__AWS_ACCESS_ID
-              valueFrom:
-                secretKeyRef:
-                  key: aws_access_key_id
-                  name: cloudwatch
-            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__AWS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: aws_secret_access_key
-                  name: cloudwatch
           image: ${IMAGE}:${IMAGE_TAG}
           resources:
             requests:
@@ -126,10 +108,19 @@ parameters:
   value: '1'
 - description: Minimum number of pods to use when autoscaling is enabled
   name: MAX_REPLICAS
-  value: '16'
-- name: PAYLOAD_TRACKER_TOPIC
-  description: Kafka topic for publishing updated for the Payload Tracker service
-  value: platform.payload-status
+  value: '1'
+- name: DEBUG
+  value: "true"
+- name: AUTH
+  value: "true"
+- name: IRSP_ENABLE_INTERNAL_ORGANIZATIONS
+  value: "false"
+- name: INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL
+  value: "http://insights-results-aggregator:8080/api/v1/"
+- name: INSIGHTS_CONTENT_SERVICE_URL
+  value: "http://ccx-insights-content-service:8080/api/v1/"
+- name: INSIGHTS_CONTENT_SERVICE_POLL_TIME
+  value: "60s"
 - name: HABERDASHER_EMITTER
   description: Emitter for haberdasher logs [stderr|kafka]
   value: stderr
@@ -139,7 +130,22 @@ parameters:
 - name: HABERDASHER_KAFKA_TOPIC
   description: Kafka topic for haberdasher kafka emitter
   value: "platform.logging.logs"
-- name: DEBUG
-  value: "true"
-- name: AUTH
+- name: HABERDASHER_TAGS
+  description: Haberdasher tags for unstructured logs
+  value: '["ccx"]'
+- name: HABERDASHER_LABELS
+  description: Haberdasher labels for unstructured logs
+  value: '{"app": "ccx-smart-proxy"}'
+- name: IRSP_API_PREFIX
+  required: true
+  value: /api/insights-results-aggregator/v1/
+- name: LOGGING_TO_CLOUD_WATCH_ENABLED
   value: "false"
+  required: true
+- name: CLOUDWATCH_DEBUG
+  value: "false"
+  required: true
+- name: IRSP_LOG_STREAM
+  value: $HOSTNAME
+- name: CREATE_STREAM_IF_NOT_EXISTS
+  value: "true"
