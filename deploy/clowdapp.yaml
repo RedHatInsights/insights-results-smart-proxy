@@ -1,0 +1,165 @@
+# Copyright 2021 Red Hat, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: ccx-smart-proxy
+objects:
+
+- kind: HorizontalPodAutoscaler
+  apiVersion: autoscaling/v1
+  metadata:
+    labels:
+      app: ccx-smart-proxy
+    name: ccx-smart-proxy
+  spec:
+    minReplicas: ${{MIN_REPLICAS}}
+    maxReplicas: ${{MAX_REPLICAS}}
+    scaleTargetRef:
+      apiVersion: v1
+      kind: Deployment
+      name: ccx-smart-proxy
+    targetCPUUtilizationPercentage: 80
+
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: ccx-smart-proxy
+  spec:
+    envName: ${ENV_NAME}
+    dependencies:
+      - ingress
+      - insights-results
+      - insights-content-service
+    deployments:
+      - name: smart-proxy
+        minReplicas: ${{MIN_REPLICAS}}
+        webServices:
+          public:
+            enabled: false
+          private:
+            enabled: false
+          metrics:
+            enabled: true
+        podSpec:
+          env:
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS
+              value: ":8080"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_PREFIX
+              value: "${IRSP_API_PREFIX}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE
+              value: "/openapi/openapi.json"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__DEBUG
+              value: "${DEBUG}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__AUTH
+              value: "${AUTH}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__AUTH_TYPE
+              value: "xrh"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS
+              value: "${IRSP_ENABLE_INTERNAL_ORGANIZATIONS}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR
+              value: ${INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT
+              value: ${INSIGHTS_CONTENT_SERVICE_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME
+              value: ${INSIGHTS_CONTENT_SERVICE_POLL_TIME}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
+              value: /etc/ccx-smart-proxy-secrets/internal_rules_organizations.csv
+            - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
+              value: ${LOGGING_TO_CLOUD_WATCH_ENABLED}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__DEBUG
+              value: ${CLOUDWATCH_DEBUG}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__STREAM_NAME
+              value: ${IRSP_LOG_STREAM}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__CREATE_STREAM_IF_NOT_EXISTS
+              value: ${CREATE_STREAM_IF_NOT_EXISTS}
+            - name: HABERDASHER_EMITTER
+              value: ${HABERDASHER_EMITTER}
+            - name: HABERDASHER_KAFKA_BOOTSTRAP
+              value: ${HABERDASHER_KAFKA_BOOTSTRAP}
+            - name: HABERDASHER_KAFKA_TOPIC
+              value: ${HABERDASHER_KAFKA_TOPIC}
+            - name: HABERDASHER_LABELS
+              value: ${HABERDASHER_LABELS}
+            - name: HABERDASHER_TAGS
+              value: ${HABERDASHER_TAGS}
+          image: ${IMAGE}:${IMAGE_TAG}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+            limits:
+              cpu: 250m
+              memory: 600Mi
+parameters:
+- description: Image name
+  name: IMAGE
+  value: quay.io/cloudservices/ccx-smart-proxy
+- description: Image tag
+  name: IMAGE_TAG
+  required: true
+- description: Determines Clowder deployment
+  name: CLOWDER_ENABLED
+  value: "true"
+- description: ClowdEnv Name
+  name: ENV_NAME
+  required: true
+- description: Minimum number of pods to use when autoscaling is enabled
+  name: MIN_REPLICAS
+  value: '1'
+- description: Minimum number of pods to use when autoscaling is enabled
+  name: MAX_REPLICAS
+  value: '1'
+- name: DEBUG
+  value: "true"
+- name: AUTH
+  value: "true"
+- name: IRSP_ENABLE_INTERNAL_ORGANIZATIONS
+  value: "false"
+- name: INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL
+  value: "http://insights-results-aggregator:8080/api/v1/"
+- name: INSIGHTS_CONTENT_SERVICE_URL
+  value: "http://ccx-insights-content-service:8080/api/v1/"
+- name: INSIGHTS_CONTENT_SERVICE_POLL_TIME
+  value: "60s"
+- name: HABERDASHER_EMITTER
+  description: Emitter for haberdasher logs [stderr|kafka]
+  value: stderr
+- name: HABERDASHER_KAFKA_BOOTSTRAP
+  description: Bootstrap server for haberdasher kafka emitter
+  value: "mq-kafka:29092"
+- name: HABERDASHER_KAFKA_TOPIC
+  description: Kafka topic for haberdasher kafka emitter
+  value: "platform.logging.logs"
+- name: HABERDASHER_TAGS
+  description: Haberdasher tags for unstructured logs
+  value: '["ccx"]'
+- name: HABERDASHER_LABELS
+  description: Haberdasher labels for unstructured logs
+  value: '{"app": "ccx-smart-proxy"}'
+- name: IRSP_API_PREFIX
+  required: true
+  value: /api/insights-results-aggregator/v1/
+- name: LOGGING_TO_CLOUD_WATCH_ENABLED
+  value: "false"
+  required: true
+- name: CLOUDWATCH_DEBUG
+  value: "false"
+  required: true
+- name: IRSP_LOG_STREAM
+  value: $HOSTNAME
+- name: CREATE_STREAM_IF_NOT_EXISTS
+  value: "true"

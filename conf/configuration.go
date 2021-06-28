@@ -41,6 +41,8 @@ import (
 	"strconv"
 	"strings"
 
+	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
+
 	"github.com/BurntSushi/toml"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/types"
@@ -106,7 +108,7 @@ func LoadConfiguration(defaultConfigFile string) error {
 		// config by itself
 		fakeTomlConfigWriter := new(bytes.Buffer)
 
-		err := toml.NewEncoder(fakeTomlConfigWriter).Encode(Config)
+		err = toml.NewEncoder(fakeTomlConfigWriter).Encode(Config)
 		if err != nil {
 			return err
 		}
@@ -128,7 +130,19 @@ func LoadConfiguration(defaultConfigFile string) error {
 	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
 
-	return viper.Unmarshal(&Config)
+	err = viper.Unmarshal(&Config)
+	if err != nil {
+		return fmt.Errorf("fatal error config file: %s", err)
+	}
+
+	if clowder.IsClowderEnabled() {
+		fmt.Println("Clowder is enabled")
+	} else {
+		fmt.Println("Clowder is disabled")
+	}
+
+	// everything's should be ok
+	return nil
 }
 
 // GetServerConfiguration returns server configuration
@@ -183,7 +197,7 @@ func GetKafkaZerologConfiguration() logger.KafkaZerologConfiguration {
 // otherwise it returns corresponding error
 func checkIfFileExists(path string) error {
 	if len(path) == 0 {
-		return fmt.Errorf("Empty path provided")
+		return fmt.Errorf("empty path provided")
 	}
 	fileInfo, err := os.Stat(path)
 	if os.IsNotExist(err) {

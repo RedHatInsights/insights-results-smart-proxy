@@ -201,6 +201,28 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 	}, conf.GetServicesConfiguration())
 }
 
+// TestLoadConfigurationFromEnvVariableClowderEnabledNotSupported tests loading.
+// the config file for testing from an environment variable. Clowder config is
+// available but clowder is not supported in this environment.
+func TestLoadConfigurationFromEnvVariableClowderEnabledNotSupported(t *testing.T) {
+	os.Clearenv()
+
+	mustSetEnv(t, "CCX_NOTIFICATION_SERVICE_CONFIG_FILE", "tests/config1")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+	mustLoadConfiguration("CCX_NOTIFICATION_SERVICE_CONFIG_FILE")
+}
+
+// TestLoadConfigurationFromEnvVariableClowderEnabledNotSupported tests loading.
+// the config file for testing from an environment variable. Clowder config is
+// available and clowder is supported in this environment.
+func TestLoadConfigurationFromEnvVariableClowderEnabledAndSupported(t *testing.T) {
+	os.Clearenv()
+	mustSetEnv(t, "CCX_NOTIFICATION_SERVICE_CONFIG_FILE", "tests/config1")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+	mustSetEnv(t, "CLOWDER_ENABLED", "true")
+	mustLoadConfiguration("CCX_NOTIFICATION_SERVICE_CONFIG_FILE")
+}
+
 func setEnvVariables(t *testing.T) {
 	os.Clearenv()
 
