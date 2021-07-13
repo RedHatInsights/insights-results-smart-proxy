@@ -278,6 +278,7 @@ func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
 		Generic:         ruleWithContent.Generic,
 		Reason:          ruleWithContent.Reason,
 		Resolution:      ruleWithContent.Resolution,
+		MoreInfo:        ruleWithContent.MoreInfo,
 		TotalRisk:       ruleWithContent.TotalRisk,
 		RiskOfChange:    ruleWithContent.RiskOfChange,
 		RuleID:          ruleID,
