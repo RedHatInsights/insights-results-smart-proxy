@@ -42,6 +42,7 @@ type RuleWithContentResponse struct {
 	Generic         string          `json:"details"`
 	Reason          string          `json:"reason"`
 	Resolution      string          `json:"resolution"`
+	MoreInfo        string          `json:"more_info"`
 	TotalRisk       int             `json:"total_risk"`
 	RiskOfChange    int             `json:"risk_of_change"`
 	Disabled        bool            `json:"disabled"`

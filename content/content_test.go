@@ -15,10 +15,11 @@
 package content_test
 
 import (
-	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"net/http"
 	"testing"
 	"time"
+
+	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
 	"github.com/RedHatInsights/insights-operator-utils/types"
@@ -172,6 +173,7 @@ func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
 			Generic:         ruleWithContent.Generic,
 			Reason:          ruleWithContent.Reason,
 			Resolution:      ruleWithContent.Resolution,
+			MoreInfo:        ruleWithContent.MoreInfo,
 			TotalRisk:       ruleWithContent.TotalRisk,
 			RiskOfChange:    ruleWithContent.RiskOfChange,
 			RuleID:          ruleID,
@@ -218,6 +220,7 @@ func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
 			Generic:         ruleWithContent.Generic,
 			Reason:          ruleWithContent.Reason,
 			Resolution:      ruleWithContent.Resolution,
+			MoreInfo:        ruleWithContent.MoreInfo,
 			TotalRisk:       ruleWithContent.TotalRisk,
 			RiskOfChange:    ruleWithContent.RiskOfChange,
 			RuleID:          ruleID,
