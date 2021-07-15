@@ -521,7 +521,7 @@
         ]
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/like": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/like": {
       "put": {
         "summary": "Puts like for the rule with cluster for current user",
         "operationId": "addLikeToRule",
@@ -549,6 +549,16 @@
               "type": "string"
             },
             "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -575,7 +585,7 @@
         ]
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/dislike": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/dislike": {
       "put": {
         "summary": "Puts dislike for the rule with cluster for current user",
         "operationId": "addDislikeToRule",
@@ -603,6 +613,16 @@
               "type": "string"
             },
             "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -629,7 +649,7 @@
         ]
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/reset_vote": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/reset_vote": {
       "put": {
         "summary": "Resets vote for the rule with cluster for current user",
         "operationId": "resetVoteForRule",
@@ -657,6 +677,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -683,7 +713,7 @@
         ]
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/get_vote": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/get_vote": {
       "get": {
         "summary": "Returns vote for the rule with cluster for current user",
         "operationId": "getVoteForRule",
@@ -711,6 +741,16 @@
               "type": "string"
             },
             "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -1171,7 +1211,7 @@
         }
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/disable": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/disable": {
       "put": {
         "summary": "Disables a rule/health check recommendation for specified cluster",
         "operationId": "disableRule",
@@ -1199,6 +1239,16 @@
               "type": "string"
             },
             "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -1225,7 +1275,7 @@
         ]
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/disable_feedback": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}disable_feedback": {
       "post": {
         "summary": "Returns rule/health check's disable feedback",
         "operationId": "disableRuleFeedback",
@@ -1248,11 +1298,21 @@
             "name": "ruleId",
             "in": "path",
             "required": true,
-            "description": "ID of the rule",
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
             "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "requestBody": {
@@ -1298,7 +1358,7 @@
         ]
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/enable": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/enable": {
       "put": {
         "summary": "Re-enables a rule/health check recommendation for specified cluster",
         "operationId": "enableRule",
@@ -1307,8 +1367,8 @@
           {
             "name": "clusterId",
             "in": "path",
-            "description": "ID of the cluster which must conform to UUID format",
             "required": true,
+            "description": "ID of the cluster which must conform to UUID format",
             "schema": {
               "type": "string",
               "minLength": 36,
@@ -1326,6 +1386,16 @@
               "type": "string"
             },
             "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
