@@ -23,15 +23,15 @@ objects:
   apiVersion: autoscaling/v1
   metadata:
     labels:
-      app: ccx-smart-proxy
-    name: ccx-smart-proxy
+      app: ccx-data-pipeline
+    name: ccx-smart-proxy-service
   spec:
     minReplicas: ${{MIN_REPLICAS}}
     maxReplicas: ${{MAX_REPLICAS}}
     scaleTargetRef:
-      apiVersion: v1
+      apiVersion: apps/v1
       kind: Deployment
-      name: ccx-smart-proxy
+      name: ccx-smart-proxy-service
     targetCPUUtilizationPercentage: 80
 
 - apiVersion: cloud.redhat.com/v1alpha1
@@ -40,16 +40,12 @@ objects:
     name: ccx-smart-proxy
   spec:
     envName: ${ENV_NAME}
-    dependencies:
-      - ingress
-      - insights-results
-      - insights-content-service
     deployments:
-      - name: smart-proxy
+      - name: service
         minReplicas: ${{MIN_REPLICAS}}
         webServices:
           public:
-            enabled: false
+            enabled: true
           private:
             enabled: false
           metrics:
@@ -57,7 +53,7 @@ objects:
         podSpec:
           env:
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS
-              value: ":8080"
+              value: ":8000"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_PREFIX
               value: "${IRSP_API_PREFIX}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE
@@ -97,6 +93,26 @@ objects:
             - name: HABERDASHER_TAGS
               value: ${HABERDASHER_TAGS}
           image: ${IMAGE}:${IMAGE_TAG}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: ${IRSP_API_PREFIX}openapi.json
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: ${IRSP_API_PREFIX}openapi.json
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
           resources:
             requests:
               cpu: 100m
@@ -130,9 +146,9 @@ parameters:
 - name: IRSP_ENABLE_INTERNAL_ORGANIZATIONS
   value: "false"
 - name: INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL
-  value: "http://insights-results-aggregator:8080/api/v1/"
+  value: "http://ccx-insights-results-aggregator:10000/api/v1/"
 - name: INSIGHTS_CONTENT_SERVICE_URL
-  value: "http://ccx-insights-content-service:8080/api/v1/"
+  value: "http://ccx-insights-content-service:10000/api/v1/"
 - name: INSIGHTS_CONTENT_SERVICE_POLL_TIME
   value: "60s"
 - name: HABERDASHER_EMITTER
