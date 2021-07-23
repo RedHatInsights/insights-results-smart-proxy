@@ -22,3 +22,10 @@ else
     echo "OpenAPI spec file validation failed"
     exit 1
 fi
+
+if docker run --rm -v "${PWD}":/local/:Z openapitools/openapi-generator-cli validate -i ./local/openapi_dev.json; then
+    echo "OpenAPI [DEV] spec file is OK"
+else
+    echo "OpenAPI [DEV] spec file validation failed"
+    exit 1
+fi

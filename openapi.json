@@ -211,7 +211,7 @@
         "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of path."
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/like": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/like": {
       "put": {
         "tags": [
           "rule",
@@ -219,27 +219,37 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
+            "in": "path",
+            "required": true,
             "description": "ID of the cluster which must conform to UUID format.",
             "schema": {
-              "format": "uuid",
-              "maxLength": 36,
+              "type": "string",
               "minLength": 36,
-              "type": "string"
+              "maxLength": 36,
+              "format": "uuid"
             },
-            "in": "path",
-            "required": true
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
-            "example": "some.python.module",
             "name": "ruleId",
+            "in": "path",
+            "required": true,
             "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
+            "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
             "in": "path",
-            "required": true
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -265,7 +275,7 @@
         "description": "Puts like for the rule(ruleId) with cluster(clusterId) for current user(from auth token)"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/dislike": {
+    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/dislike": {
       "put": {
         "tags": [
           "rule",
@@ -273,27 +283,37 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
+            "in": "path",
+            "required": true,
             "description": "ID of the cluster which must conform to UUID format",
             "schema": {
-              "format": "uuid",
-              "maxLength": 36,
+              "type": "string",
               "minLength": 36,
-              "type": "string"
+              "maxLength": 36,
+              "format": "uuid"
             },
-            "in": "path",
-            "required": true
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
-            "example": "some.python.module",
             "name": "ruleId",
+            "in": "path",
+            "required": true,
             "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
+            "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
             "in": "path",
-            "required": true
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -319,7 +339,7 @@
         "description": "Puts dislike for the rule(ruleId) with cluster(clusterId) for current user(from auth token)"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/reset_vote": {
+    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/reset_vote": {
       "put": {
         "tags": [
           "rule",
@@ -327,27 +347,37 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
-            "description": "ID of the cluster which must conform to UUID format.",
-            "schema": {
-              "format": "uuid",
-              "maxLength": 36,
-              "minLength": 36,
-              "type": "string"
-            },
             "in": "path",
-            "required": true
+            "required": true,
+            "description": "ID of the cluster which must conform to UUID format.",
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            }
           },
           {
-            "example": "some.python.module",
             "name": "ruleId",
+            "in": "path",
+            "required": true,
             "description": "ID of a rule",
+            "example": "some.python.module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
             "schema": {
               "type": "string"
             },
-            "in": "path",
-            "required": true
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -650,7 +680,7 @@
         "description": "The static content is taken from the cache periodically updated from the content service"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/disable": {
+    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/disable": {
       "put": {
         "tags": [
           "rule",
@@ -658,27 +688,37 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
+            "in": "path",
+            "required": true,
             "description": "ID of the cluster which must conform to UUID format",
             "schema": {
-              "format": "uuid",
-              "maxLength": 36,
+              "type": "string",
               "minLength": 36,
-              "type": "string"
+              "maxLength": 36,
+              "format": "uuid"
             },
-            "in": "path",
-            "required": true
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
-            "example": "some.python.module",
             "name": "ruleId",
+            "in": "path",
+            "required": true,
             "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
+            "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
             "in": "path",
-            "required": true
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -704,7 +744,7 @@
         "description": "Disables a rule (ruleId) for cluster (clusterId) for current organization/user"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/disable_feedback": {
+    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/disable_feedback": {
       "post": {
         "requestBody": {
           "content": {
@@ -727,27 +767,37 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
+            "in": "path",
+            "required": true,
             "description": "ID of the cluster which must conform to UUID format",
             "schema": {
-              "format": "uuid",
-              "maxLength": 36,
+              "type": "string",
               "minLength": 36,
-              "type": "string"
+              "maxLength": 36,
+              "format": "uuid"
             },
-            "in": "path",
-            "required": true
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
-            "example": "some.python.module",
             "name": "ruleId",
-            "description": "ID of the rule",
+            "in": "path",
+            "required": true,
+            "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
+            "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
             "in": "path",
-            "required": true
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {
@@ -777,7 +827,7 @@
         "description": "Returns rule/health check's disable feedback"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/enable": {
+    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/enable": {
       "put": {
         "tags": [
           "rule",
@@ -785,27 +835,37 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
+            "in": "path",
+            "required": true,
             "description": "ID of the cluster which must conform to UUID format",
             "schema": {
-              "format": "uuid",
-              "maxLength": 36,
+              "type": "string",
               "minLength": 36,
-              "type": "string"
+              "maxLength": 36,
+              "format": "uuid"
             },
-            "in": "path",
-            "required": true
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           },
           {
-            "example": "some.python.module",
             "name": "ruleId",
+            "in": "path",
+            "required": true,
             "description": "ID of a rule",
             "schema": {
               "type": "string"
             },
+            "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
             "in": "path",
-            "required": true
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
           }
         ],
         "responses": {

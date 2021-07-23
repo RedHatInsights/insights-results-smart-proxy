@@ -57,7 +57,7 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 					Method:       testCase.method,
 					Endpoint:     testCase.newEndpoint,
-					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.UserID},
+					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1, testdata.UserID},
 				}, &helpers.APIResponse{
 					StatusCode: http.StatusOK,
 					Body:       `{"status": "ok"}`,
@@ -66,7 +66,7 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 				helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 					Method:       testCase.method,
 					Endpoint:     testCase.endpoint,
-					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID},
+					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
 					UserID:       testdata.UserID,
 					OrgID:        testdata.OrgID,
 				}, &helpers.APIResponse{
@@ -85,7 +85,7 @@ func TestHTTPServer_ProxyTo_VoteEndpointBadCharacter(t *testing.T) {
 	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfig, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
 		Method:       http.MethodPut,
 		Endpoint:     server.LikeRuleEndpoint,
-		EndpointArgs: []interface{}{badClusterName, testdata.Rule1ID},
+		EndpointArgs: []interface{}{badClusterName, testdata.Rule1ID, testdata.ErrorKey1},
 		UserID:       testdata.UserID,
 		OrgID:        testdata.OrgID,
 	}, &helpers.APIResponse{
