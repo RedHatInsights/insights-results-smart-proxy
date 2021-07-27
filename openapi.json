@@ -275,7 +275,7 @@
         "description": "Puts like for the rule(ruleId) with cluster(clusterId) for current user(from auth token)"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/dislike": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/dislike": {
       "put": {
         "tags": [
           "rule",
@@ -339,7 +339,7 @@
         "description": "Puts dislike for the rule(ruleId) with cluster(clusterId) for current user(from auth token)"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/reset_vote": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/reset_vote": {
       "put": {
         "tags": [
           "rule",
@@ -680,7 +680,7 @@
         "description": "The static content is taken from the cache periodically updated from the content service"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/disable": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/disable": {
       "put": {
         "tags": [
           "rule",
@@ -744,7 +744,7 @@
         "description": "Disables a rule (ruleId) for cluster (clusterId) for current organization/user"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/disable_feedback": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/disable_feedback": {
       "post": {
         "requestBody": {
           "content": {
@@ -827,7 +827,7 @@
         "description": "Returns rule/health check's disable feedback"
       }
     },
-    "/clusters/{clusterId}/rules/{ruleId}/{errorKey}/enable": {
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/enable": {
       "put": {
         "tags": [
           "rule",

@@ -50,19 +50,19 @@ const (
 	// MetricsEndpoint returns prometheus metrics
 	MetricsEndpoint = "metrics"
 	// LikeRuleEndpoint likes rule with {rule_id} for {cluster} using current user(from auth header)
-	LikeRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/{error_key}/like"
+	LikeRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/like"
 	// DislikeRuleEndpoint dislikes rule with {rule_id} for {cluster} using current user(from auth header)
-	DislikeRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/{error_key}/dislike"
+	DislikeRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/dislike"
 	// ResetVoteOnRuleEndpoint resets vote on rule with {rule_id} for {cluster} using current user(from auth header)
-	ResetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/{error_key}/reset_vote"
+	ResetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/reset_vote"
 	// GetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
-	GetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/{error_key}/get_vote"
+	GetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/get_vote"
 	// DisableRuleForClusterEndpoint disables a rule for specified cluster
-	DisableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/{error_key}/disable"
+	DisableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/disable"
 	// EnableRuleForClusterEndpoint re-enables a rule for specified cluster
-	EnableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/{error_key}/enable"
+	EnableRuleForClusterEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/enable"
 	// DisableRuleFeedbackEndpoint accepts a feedback from user when (s)he disables a rule
-	DisableRuleFeedbackEndpoint = "clusters/{cluster}/rules/{rule_id}/{error_key}/disable_feedback"
+	DisableRuleFeedbackEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/disable_feedback"
 	// OverviewEndpoint returns some overview data for the clusters belonging to the org id
 	OverviewEndpoint = "org_overview"
 
