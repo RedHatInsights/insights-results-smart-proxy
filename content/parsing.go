@@ -118,20 +118,20 @@ func commaSeparatedStrToTags(str string) []string {
 	return strings.Split(str, ",")
 }
 
-func timeParse(value string) (time.Time, bool, error) {
-	var err error
-	missing := false
+func timeParse(value string) (publishDate time.Time, missing bool, err error) {
+	missing = false
+	publishDate = time.Time{}
 
 	if value == "" {
 		missing = true
-		return time.Time{}, missing, nil
+		return
 	}
 
 	for _, datetimeLayout := range timeParseFormats {
-		parsedDate, err := time.Parse(datetimeLayout, value)
+		publishDate, err = time.Parse(datetimeLayout, value)
 
 		if err == nil {
-			return parsedDate, missing, err
+			return
 		}
 
 		log.Info().Msgf(
@@ -146,7 +146,7 @@ func timeParse(value string) (time.Time, bool, error) {
 		err = errors.New("invalid format of publish_date")
 	}
 
-	return time.Time{}, missing, err
+	return
 }
 
 // Reads Status string, first returned bool is active status, second bool is a success check
