@@ -298,3 +298,95 @@ func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
 
 	}, testTimeout)
 }
+
+func TestUpdateContentInvalidStatus(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.Status = "foo"
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	assert.NotNil(t, err)
+}
+
+func TestUpdateContentMissingStatus(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.Status = ""
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	helpers.FailOnError(t, err)
+}
+
+func TestUpdateContentInvalidPublishDate(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.PublishDate = "invalid date"
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	assert.NotNil(t, err)
+}
+
+func TestUpdateContentMissingPublishDate(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.PublishDate = ""
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	helpers.FailOnError(t, err)
+}

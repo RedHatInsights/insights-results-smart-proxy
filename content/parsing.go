@@ -15,6 +15,7 @@
 package content
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -47,16 +48,22 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				continue
 			}
 
-			isActive, success := getActiveStatus(errorProperties.Metadata.Status)
+			// we allow empty/missing, but not incorrect
+			active, success, missing := getActiveStatus(errorProperties.Metadata.Status)
 			if success != true {
-				log.Error().Msgf(`fatal: rule ID %v with key %v has invalid status`, ruleID, errorKey)
-				return
+				log.Error().Msgf(`rule ID %v with key %v has invalid status attribute`, ruleID, errorKey)
+				continue
+			} else if missing {
+				log.Warn().Msgf(`rule ID %v with key %v has missing status attribute`, ruleID, errorKey)
 			}
 
-			publishDate, err := timeParse(errorProperties.Metadata.PublishDate)
+			// we allow empty/missing, but not incorrect format
+			publishDate, missing, err := timeParse(errorProperties.Metadata.PublishDate)
 			if err != nil {
-				log.Error().Msgf(`fatal: rule ID %v with key %v has improper datetime attribute`, ruleID, errorKey)
-				return
+				log.Error().Err(err).Msgf(`rule ID %v with key %v has improper publish_date attribute`, ruleID, errorKey)
+				continue
+			} else if missing {
+				log.Warn().Msgf(`rule ID %v with key %v has missing publish_date attribute`, ruleID, errorKey)
 			}
 
 			totalRisk := calculateTotalRisk(impact, errorProperties.Metadata.Likelihood)
@@ -80,7 +87,7 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				TotalRisk:       totalRisk,
 				RiskOfChange:    calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
 				PublishDate:     publishDate,
-				Active:          isActive,
+				Active:          active,
 				Internal:        IsRuleInternal(ruleID),
 				Generic:         errorProperties.Generic,
 				Tags:            errorProperties.Metadata.Tags,
@@ -111,13 +118,20 @@ func commaSeparatedStrToTags(str string) []string {
 	return strings.Split(str, ",")
 }
 
-func timeParse(value string) (time.Time, error) {
-	var err error
+func timeParse(value string) (publishDate time.Time, missing bool, err error) {
+	missing = false
+	publishDate = time.Time{}
+
+	if value == "" {
+		missing = true
+		return
+	}
+
 	for _, datetimeLayout := range timeParseFormats {
-		parsedDate, err := time.Parse(datetimeLayout, value)
+		publishDate, err = time.Parse(datetimeLayout, value)
 
 		if err == nil {
-			return parsedDate, nil
+			return
 		}
 
 		log.Info().Msgf(
@@ -126,28 +140,35 @@ func timeParse(value string) (time.Time, error) {
 		)
 	}
 
-	log.Error().Err(err)
+	if err != nil {
+		log.Error().Msgf("problem parsing publish_date: %v", err)
+	} else {
+		err = errors.New("invalid format of publish_date")
+	}
 
-	return time.Time{}, err
+	return
 }
 
 // Reads Status string, first returned bool is active status, second bool is a success check
-func getActiveStatus(status string) (bool, bool) {
-	var isActive, success bool
+func getActiveStatus(status string) (active, success, missing bool) {
+	active, success, missing = false, false, false
 
-	switch strings.ToLower(strings.TrimSpace(status)) {
+	status = strings.ToLower(strings.TrimSpace(status))
+
+	switch status {
 	case "active":
-		isActive = true
+		active = true
 		success = true
 	case "inactive":
-		isActive = false
 		success = true
+	case "":
+		success = true
+		missing = true
 	default:
 		log.Error().Msgf("invalid rule error key status: '%s'", status)
-		success = false
 	}
 
-	return isActive, success
+	return
 }
 
 // IsRuleInternal tries to look for the word "internal" in the ruleID / rule module,
