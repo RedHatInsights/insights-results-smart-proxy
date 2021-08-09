@@ -459,27 +459,27 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 
 func (server HTTPServer) fetchAggregatorReport(
 	writer http.ResponseWriter, request *http.Request,
-) (*types.ReportResponse, bool) {
-	clusterID, successful := httputils.ReadClusterName(writer, request)
+) (aggregatorResponse *types.ReportResponse, successful bool, clusterID types.ClusterName) {
+	clusterID, successful = httputils.ReadClusterName(writer, request)
 	// Error message handled by function
 	if !successful {
-		return nil, false
+		return
 	}
 
 	authToken, err := server.GetAuthToken(request)
 	if err != nil {
 		handleServerError(writer, err)
-		return nil, false
+		return
 	}
 
 	userID := authToken.AccountNumber
 	orgID := authToken.Internal.OrgID
 
-	aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
+	aggregatorResponse, successful = server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
 	if !successful {
-		return nil, false
+		return
 	}
-	return aggregatorResponse, true
+	return
 }
 
 // fetchAggregatorReports method access the Insights Results Aggregator to read
@@ -539,7 +539,7 @@ func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 }
 
 func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
-	aggregatorResponse, successful := server.fetchAggregatorReport(writer, request)
+	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
 	if !successful {
 		return
 	}
@@ -552,11 +552,11 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 
 	osdFlag, err := readOSDEligible(request)
 	if err != nil {
-		log.Err(err).Msgf("Got error while parsing `%s` value", OSDEligibleParam)
+		log.Err(err).Msgf("Cluster ID: %v; Got error while parsing `%s` value", clusterID, OSDEligibleParam)
 	}
 
-	log.Info().Msgf("%s flag = %t", GetDisabledParam, includeDisabled)
-	log.Info().Msgf("%s flag = %t", OSDEligibleParam, osdFlag)
+	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
+	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
 
 	rules, disabledRules, rulesWithoutContent := filterRulesResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
 
@@ -572,6 +572,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 
 	// This condition checks that the only rules for the cluster have missing content
 	if rulesWithoutContent > 0 && len(rules) == 0 && disabledRules == 0 {
+		log.Error().Msgf("Cluster ID: %v; Rules are hitting, but we don't have content for any of them.", clusterID)
 		status = http.StatusInternalServerError
 	}
 
