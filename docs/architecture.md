@@ -6,7 +6,8 @@ nav_order: 1
 # Architecture
 
 Smart proxy is the only external data pipeline service that is exposed directly
-to clients through cloud.redhat.com.
+to clients through cloud.redhat.com and also through console.redhat.com using
+indirection mechanism.
 
 This service is able to provide an interface to other services as well as
 composing responses aggregating data from different services.
