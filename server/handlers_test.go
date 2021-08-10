@@ -39,6 +39,15 @@ var (
 			Impact: testdata.ImpactStrToInt,
 		},
 		Rules: map[string]types.RuleContent{
+			"rc1": testdata.RuleContent1,
+		},
+	}
+
+	RuleContentDirectoryOnlyDisabledRule = types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
 			"rc5": testdata.RuleContent5,
 		},
 	}
@@ -93,6 +102,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
+// Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 	timeToBreathe()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
@@ -119,6 +129,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 		startUpdateContentLoop(helpers.DefaultServicesConfig)
 		defer content.StopUpdateContentLoop()
 
+		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
@@ -126,8 +137,50 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusInternalServerError,
+			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse1RuleNoContent),
+		})
+	}, testTimeout)
+}
+
+// Reproducer for Bug 1977858
+func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
+	timeToBreathe()
+	content.ResetContent()
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		// content-service responses with only 1 rule
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnly1Rule),
+		})
+
+		startUpdateContentLoop(helpers.DefaultServicesConfig)
+		defer content.StopUpdateContentLoop()
+
+		// 1 rule returned, but count = 3
+		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules2NoContent),
 		})
 	}, testTimeout)
 }
@@ -272,7 +325,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 			Endpoint: ics_server.AllContentEndpoint,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnly1Rule),
+			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnlyDisabledRule),
 		})
 
 		startUpdateContentLoop(helpers.DefaultServicesConfig)

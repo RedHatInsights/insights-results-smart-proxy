@@ -558,25 +558,28 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
 
-	rules, disabledRules, rulesWithoutContent := filterRulesResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
+	visibleRules, noContentRulesCnt, disabledRulesCnt := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
 
+	totalRuleCnt := len(visibleRules) + noContentRulesCnt
+
+	// Edge case where rules are hitting, but we don't have content for any of them.
+	// This case should appear as "No issues found" in customer-facing applications, because the only
+	// thing we could show is rule module + error key, which have no informational value to customers.
+	if len(visibleRules) == 0 && noContentRulesCnt > 0 && disabledRulesCnt == 0 {
+		log.Error().Msgf("Cluster ID: %v; Rules are hitting, but we don't have content for any of them.", clusterID)
+		totalRuleCnt = 0
+	}
+
+	// Meta.Count is only used to perform checks for special cases
 	report := proxy_types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
 			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
-			Count:         len(rules) + rulesWithoutContent,
+			Count:         totalRuleCnt,
 		},
-		Data: rules,
+		Data: visibleRules,
 	}
 
-	status := http.StatusOK
-
-	// This condition checks that the only rules for the cluster have missing content
-	if rulesWithoutContent > 0 && len(rules) == 0 && disabledRules == 0 {
-		log.Error().Msgf("Cluster ID: %v; Rules are hitting, but we don't have content for any of them.", clusterID)
-		status = http.StatusInternalServerError
-	}
-
-	err = responses.Send(status, writer, responses.BuildOkResponseWithData("report", report))
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
@@ -783,35 +786,34 @@ func (server HTTPServer) getOverviewPerCluster(
 	}, nil
 }
 
-// filterRulesResponse returns an array of RuleWithContentResponse with only the rules that matches 3 criteria:
+// filterRulesInResponse returns an array of RuleWithContentResponse with only the rules that matches 3 criteria:
 // - The rule has content from the content-service
 // - The disabled filter is not match
 // - The OSD elegible filter is not match
-func filterRulesResponse(aggregatorReport []types.RuleOnReport, filterOSD, getDisabled bool) (
-	filteredRules []proxy_types.RuleWithContentResponse,
-	disabledRules int,
-	noContentRules int,
+func filterRulesInResponse(aggregatorReport []types.RuleOnReport, filterOSD, getDisabled bool) (
+	okRules []proxy_types.RuleWithContentResponse,
+	noContentRulesCnt int,
+	disabledRulesCnt int,
 ) {
 	log.Debug().Bool(GetDisabledParam, getDisabled).Bool(OSDEligibleParam, filterOSD).Msg("Filtering rules in report")
-	filteredRules = []proxy_types.RuleWithContentResponse{}
-	disabledRules = 0
-	noContentRules = 0
+	okRules = []proxy_types.RuleWithContentResponse{}
+	disabledRulesCnt, noContentRulesCnt = 0, 0
 
 	for _, aggregatorRule := range aggregatorReport {
 		if aggregatorRule.Disabled && !getDisabled {
-			disabledRules++
+			disabledRulesCnt++
 			continue
 		}
 
 		rule, successful, filtered := content.FetchRuleContent(aggregatorRule, filterOSD)
 		if !successful {
 			if !filtered {
-				noContentRules++
+				noContentRulesCnt++
 			}
 			continue
 		}
 
-		filteredRules = append(filteredRules, *rule)
+		okRules = append(okRules, *rule)
 	}
 
 	return
