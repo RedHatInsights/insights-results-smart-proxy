@@ -426,10 +426,10 @@ var (
 	}{
 		Status: "ok",
 		Overview: map[string]interface{}{
-			"clusters_hit": 1,
+			"clusters_hit": 2,
 			"hit_by_risk": map[string]int{
 				"1": 1,
-				"2": 1,
+				"2": 2,
 			},
 			"hit_by_tag": map[string]int{
 				"openshift":            1,

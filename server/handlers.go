@@ -200,11 +200,21 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 		return
 	}
 
+	r := generateOrgOverview(aggregatorResponse)
+
+	if err := responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// generateOrgOverview generates an OrgOverviewResponse from the aggregator's response
+func generateOrgOverview(aggregatorReport *types.ClusterReports) sptypes.OrgOverviewResponse {
 	clustersHits := 0
 	hitsByTotalRisk := make(map[int]int)
 	hitsByTags := make(map[string]int)
 
-	for _, singleReport := range aggregatorResponse.Reports {
+	for _, singleReport := range aggregatorReport.Reports {
 		var clusterReport types.ReportRules
 
 		if err := json.Unmarshal(singleReport, &clusterReport); err != nil {
@@ -219,6 +229,10 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 		clustersHits++
 
 		for _, rule := range clusterReport.HitRules {
+			if rule.Disabled {
+				continue
+			}
+
 			ruleID := rule.Module
 			errorKey := rule.ErrorKey
 			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
@@ -236,14 +250,9 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 
 	}
 
-	r := sptypes.OrgOverviewResponse{
+	return sptypes.OrgOverviewResponse{
 		ClustersHit:            clustersHits,
 		ClustersHitByTotalRisk: hitsByTotalRisk,
 		ClustersHitByTag:       hitsByTags,
-	}
-
-	if err := responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
-		handleServerError(writer, err)
-		return
 	}
 }
