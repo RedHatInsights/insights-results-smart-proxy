@@ -81,7 +81,7 @@ func TestLoadServerConfiguration(t *testing.T) {
 	serverCfg := conf.GetServerConfiguration()
 
 	assert.Equal(t, ":8080", serverCfg.Address)
-	assert.Equal(t, "/api/v1/", serverCfg.APIPrefix)
+	assert.Equal(t, "/api/v1/", serverCfg.APIv1Prefix)
 }
 
 func TestLoadConfigurationFromFile(t *testing.T) {
@@ -107,8 +107,8 @@ func TestLoadConfigurationFromFile(t *testing.T) {
 
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
-		APIPrefix:                        "/api/v1/",
-		APISpecFile:                      "openapi.json",
+		APIv1Prefix:                      "/api/v1/",
+		APIv1SpecFile:                    "openapi.json",
 		AuthType:                         "xrh",
 		Debug:                            true,
 		UseHTTPS:                         false,
@@ -183,8 +183,8 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
-		APIPrefix:                        "/api/v1/",
-		APISpecFile:                      "openapi.json",
+		APIv1Prefix:                      "/api/v1/",
+		APIv1SpecFile:                    "openapi.json",
 		AuthType:                         "xrh",
 		Debug:                            true,
 		UseHTTPS:                         false,

@@ -65,8 +65,8 @@ var (
 	// server configuration (with CORS disabled)
 	DefaultServerConfig = server.Configuration{
 		Address:                          ":8081",
-		APIPrefix:                        "/api/v1/",
-		APISpecFile:                      "openapi.json",
+		APIv1Prefix:                      "/api/v1/",
+		APIv1SpecFile:                    "openapi.json",
 		Debug:                            true,
 		Auth:                             false,
 		AuthType:                         "",
@@ -78,14 +78,14 @@ var (
 	// DefaultServerConfigCORS is data structure that represents default
 	// server configuration with CORS enabled
 	DefaultServerConfigCORS = server.Configuration{
-		Address:     ":8081",
-		APIPrefix:   "/api/v1/",
-		APISpecFile: "openapi.json",
-		Debug:       true,
-		Auth:        false,
-		AuthType:    "",
-		UseHTTPS:    false,
-		EnableCORS:  true,
+		Address:       ":8081",
+		APIv1Prefix:   "/api/v1/",
+		APIv1SpecFile: "openapi.json",
+		Debug:         true,
+		Auth:          false,
+		AuthType:      "",
+		UseHTTPS:      false,
+		EnableCORS:    true,
 	}
 
 	// DefaultServicesConfig is data structure that represents default
@@ -129,5 +129,5 @@ func AssertAPIRequest(
 
 	// send the request to newly created REST API server and check its
 	// response (if it matches the provided one)
-	helpers.AssertAPIRequest(t, testServer, serverConfig.APIPrefix, request, expectedResponse)
+	helpers.AssertAPIRequest(t, testServer, serverConfig.APIv1Prefix, request, expectedResponse)
 }

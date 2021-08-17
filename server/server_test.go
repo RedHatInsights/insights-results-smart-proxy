@@ -47,8 +47,8 @@ var (
 
 	serverConfigJWT = server.Configuration{
 		Address:                          ":8081",
-		APIPrefix:                        "/api/v1/",
-		APISpecFile:                      "openapi.json",
+		APIv1Prefix:                      "/api/v1/",
+		APIv1SpecFile:                    "openapi.json",
 		Debug:                            true,
 		Auth:                             true,
 		AuthType:                         "jwt",
@@ -60,8 +60,8 @@ var (
 
 	serverConfigInternalOrganizations1 = server.Configuration{
 		Address:                          ":8081",
-		APIPrefix:                        "/api/v1/",
-		APISpecFile:                      "openapi.json",
+		APIv1Prefix:                      "/api/v1/",
+		APIv1SpecFile:                    "openapi.json",
 		Debug:                            true,
 		Auth:                             true,
 		AuthType:                         "jwt",
@@ -75,8 +75,8 @@ var (
 	// This one won't match with the authentication token used
 	serverConfigInternalOrganizations2 = server.Configuration{
 		Address:                          ":8081",
-		APIPrefix:                        "/api/v1/",
-		APISpecFile:                      "openapi.json",
+		APIv1Prefix:                      "/api/v1/",
+		APIv1SpecFile:                    "openapi.json",
 		Debug:                            true,
 		Auth:                             true,
 		AuthType:                         "jwt",
@@ -497,8 +497,8 @@ func init() {
 
 func TestServerStartError(t *testing.T) {
 	testServer := server.New(server.Configuration{
-		Address:   "localhost:99999",
-		APIPrefix: "",
+		Address:     "localhost:99999",
+		APIv1Prefix: "",
 	}, services.Configuration{
 		AggregatorBaseEndpoint: "http://localhost:8081/api/v1/",
 		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",

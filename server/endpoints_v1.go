@@ -76,14 +76,15 @@ const (
 	DeleteClustersEndpoint = ira_server.DeleteClustersEndpoint
 )
 
-func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
-	apiPrefix := server.Config.APIPrefix
-	openAPIURL := apiPrefix + filepath.Base(server.Config.APISpecFile)
+// addV1EndpointsToRouter adds API V1 specific endpoints to the router
+func (server *HTTPServer) addV1EndpointsToRouter(router *mux.Router) {
+	apiPrefix := server.Config.APIv1Prefix
+	openAPIURL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
 	aggregatorBaseEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
 
 	// It is possible to use special REST API endpoints in debug mode
 	if server.Config.Debug {
-		server.addDebugEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
+		server.addV1DebugEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
 	}
 
 	// Common REST API endpoints
@@ -93,13 +94,13 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+OverviewEndpoint, server.overviewEndpointWithClusterIDs).Methods(http.MethodPost)
 
 	// Reports endpoints
-	server.addReportsEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
+	server.addV1ReportsEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
 
 	// Content related endpoints
-	server.addContentEndpointsToRouter(router)
+	server.addV1ContentEndpointsToRouter(router)
 
 	// Rules related endpoints
-	server.addRuleEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
+	server.addV1RuleEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
 
 	// Prometheus metrics
 	router.Handle(apiPrefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
@@ -107,21 +108,21 @@ func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
 	// OpenAPI specs
 	router.HandleFunc(
 		openAPIURL,
-		httputils.CreateOpenAPIHandler(server.Config.APISpecFile, server.Config.Debug, true),
+		httputils.CreateOpenAPIHandler(server.Config.APIv1SpecFile, server.Config.Debug, true),
 	).Methods(http.MethodGet)
 }
 
-// addReportsEndpointsToRouter method registers handlers for endpoints that
+// addV1ReportsEndpointsToRouter method registers handlers for endpoints that
 // return cluster report or reports to client
-func (server *HTTPServer) addReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
+func (server *HTTPServer) addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersEndpoint, server.reportForListOfClustersEndpoint).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersPayloadEndpoint, server.reportForListOfClustersPayloadEndpoint).Methods(http.MethodPost)
 }
 
-// addDebugEndpointsToRouter method registers handlers for all debug endpoints
-func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
+// addV1DebugEndpointsToRouter method registers handlers for all debug endpoints
+func (server *HTTPServer) addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+OrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodDelete)
 	router.HandleFunc(apiPrefix+DeleteClustersEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodDelete)
@@ -137,9 +138,9 @@ func (server *HTTPServer) addDebugEndpointsToRouter(router *mux.Router, apiPrefi
 	router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
 }
 
-// addRuleEndpointsToRouter method registers handlers for endpoints that handle
+// addV1RuleEndpointsToRouter method registers handlers for endpoints that handle
 // rule-related operations (voting etc.)
-func (server *HTTPServer) addRuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) {
+func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) {
 	router.HandleFunc(apiPrefix+SingleRuleEndpoint, server.singleRuleEndpoint).Methods(http.MethodGet, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(
@@ -181,10 +182,10 @@ func (server *HTTPServer) addRuleEndpointsToRouter(router *mux.Router, apiPrefix
 	)).Methods(http.MethodPost, http.MethodOptions)
 }
 
-// addContentEndpointsToRouter method registers handlers for endpoints that
+// addV1ContentEndpointsToRouter method registers handlers for endpoints that
 // returns content to clients
-func (server HTTPServer) addContentEndpointsToRouter(router *mux.Router) {
-	apiPrefix := server.Config.APIPrefix
+func (server HTTPServer) addV1ContentEndpointsToRouter(router *mux.Router) {
+	apiPrefix := server.Config.APIv1Prefix
 
 	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)

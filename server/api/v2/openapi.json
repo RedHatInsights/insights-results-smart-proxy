@@ -1,0 +1,68 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Insights Results Aggregator",
+    "version": "2.0.0",
+    "description": "Aggregation service for the results of running Insights rules.",
+    "contact": {}
+  },
+  "paths": {
+    "/openapi.json": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "openapi": {
+                      "type": "string"
+                    },
+                    "info": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "paths": {
+                      "description": "Available paths and their descriptions.",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON containing the OpenAPI specification for this service."
+          }
+        },
+        "operationId": "getOpenApi",
+        "summary": "Returns the OpenAPI specification JSON.",
+        "description": "The OpenAPI specification of this REST API service that is represented in formatted and human-readable JSON is available under this endpoint."
+      }
+    },
+    "/metrics": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {}
+            },
+            "description": "Default response containing all metrics in semi-structured text format"
+          }
+        },
+        "operationId": "getMetrics",
+        "summary": "Read all metrics exposed by this service",
+        "description": "Set of metrics provided by insights-operator-utils library providing total number of requests counter, API endpoints response times, and counter of HTTP status code responses. Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with go_ and process_ prefixes."
+      }
+    }
+  }
+}
