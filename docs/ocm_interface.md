@@ -16,7 +16,7 @@ Insights Advisor integration components utilize two different APIs:
 Two forms of URL are supported:
 
 1. `https://console.redhat.com/openshift/details/s/${subscription_ID}#insights`
-1. `https://console.redhat.com/openshift/details/${cluster_UUID}#insights
+1. `https://console.redhat.com/openshift/details/${cluster_UUID}#insights`
 
 For example:
 
