@@ -19,11 +19,11 @@ hit, then it takes the content for those rules from the Content Service.
 
 Insights Results Smart Proxy has 3 main parts:
 
-#. An Insights Results Aggregator client, that sends requests to the API in
+1. An Insights Results Aggregator client, that sends requests to the API in
 order to retrieve reports or other relevant info for the given cluster.
-#. An Insights Content Service client, that retrieve groups and static content
+1. An Insights Content Service client, that retrieve groups and static content
 for rules values from that service.
-#. A HTTP server that serve the current API, attending each request and using
+1. A HTTP server that serve the current API, attending each request and using
 the previous clients in order to get the information from the relevant services.
 
 ## Smart Proxy architecture
