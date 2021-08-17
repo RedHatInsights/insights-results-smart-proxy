@@ -50,6 +50,13 @@ var (
 		},
 	}
 
+	ReportCluster2 = types.ReportRules{
+		HitRules: []types.RuleOnReport{
+			testdata.RuleOnReport5,
+			testdata.RuleOnReport2,
+		},
+	}
+
 	// AggregatorReportForClusterList
 	AggregatorReportForClusterList = types.ClusterReports{
 		ClusterList: []types.ClusterName{
@@ -60,7 +67,7 @@ var (
 		Errors: []types.ClusterName{},
 		Reports: map[types.ClusterName]json.RawMessage{
 			ClusterName1: whateverToJSONRawMessage(ReportCluster1),
-			ClusterName2: json.RawMessage([]byte("{}")),
+			ClusterName2: whateverToJSONRawMessage(ReportCluster2),
 			ClusterName3: json.RawMessage([]byte("{}")),
 		},
 		GeneratedAt: GeneratedAt,
