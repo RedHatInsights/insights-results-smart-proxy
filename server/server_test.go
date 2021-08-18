@@ -48,7 +48,9 @@ var (
 	serverConfigJWT = server.Configuration{
 		Address:                          ":8081",
 		APIv1Prefix:                      "/api/v1/",
-		APIv1SpecFile:                    "openapi.json",
+		APIv2Prefix:                      "/api/v2/",
+		APIv1SpecFile:                    "server/api/v1/openapi.json",
+		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
 		Auth:                             true,
 		AuthType:                         "jwt",
@@ -61,7 +63,9 @@ var (
 	serverConfigInternalOrganizations1 = server.Configuration{
 		Address:                          ":8081",
 		APIv1Prefix:                      "/api/v1/",
-		APIv1SpecFile:                    "openapi.json",
+		APIv2Prefix:                      "/api/v2/",
+		APIv1SpecFile:                    "server/api/v1/openapi.json",
+		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
 		Auth:                             true,
 		AuthType:                         "jwt",
@@ -76,7 +80,9 @@ var (
 	serverConfigInternalOrganizations2 = server.Configuration{
 		Address:                          ":8081",
 		APIv1Prefix:                      "/api/v1/",
-		APIv1SpecFile:                    "openapi.json",
+		APIv2Prefix:                      "/api/v2/",
+		APIv1SpecFile:                    "server/api/v1/openapi.json",
+		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
 		Auth:                             true,
 		AuthType:                         "jwt",
@@ -499,6 +505,7 @@ func TestServerStartError(t *testing.T) {
 	testServer := server.New(server.Configuration{
 		Address:     "localhost:99999",
 		APIv1Prefix: "",
+		APIv2Prefix: "",
 	}, services.Configuration{
 		AggregatorBaseEndpoint: "http://localhost:8081/api/v1/",
 		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",

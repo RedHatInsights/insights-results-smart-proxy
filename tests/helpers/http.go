@@ -66,7 +66,9 @@ var (
 	DefaultServerConfig = server.Configuration{
 		Address:                          ":8081",
 		APIv1Prefix:                      "/api/v1/",
-		APIv1SpecFile:                    "openapi.json",
+		APIv2Prefix:                      "/api/v2/",
+		APIv1SpecFile:                    "server/api/v1/openapi.json",
+		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
 		Auth:                             false,
 		AuthType:                         "",
@@ -80,7 +82,9 @@ var (
 	DefaultServerConfigCORS = server.Configuration{
 		Address:       ":8081",
 		APIv1Prefix:   "/api/v1/",
-		APIv1SpecFile: "openapi.json",
+		APIv2Prefix:   "/api/v2/",
+		APIv1SpecFile: "server/api/v1/openapi.json",
+		APIv2SpecFile: "server/api/v2/openapi.json",
 		Debug:         true,
 		Auth:          false,
 		AuthType:      "",

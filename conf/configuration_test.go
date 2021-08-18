@@ -82,13 +82,16 @@ func TestLoadServerConfiguration(t *testing.T) {
 
 	assert.Equal(t, ":8080", serverCfg.Address)
 	assert.Equal(t, "/api/v1/", serverCfg.APIv1Prefix)
+	assert.Equal(t, "/api/v2/", serverCfg.APIv2Prefix)
 }
 
 func TestLoadConfigurationFromFile(t *testing.T) {
 	config := `[server]
 		address = ":8080"
-		api_prefix = "/api/v1/"
-		api_spec_file = "openapi.json"
+		api_v1_prefix = "/api/v1/"
+		api_v2_prefix = "/api/v2/"
+		api_v1_spec_file = "server/api/v1/openapi.json"
+		api_v2_spec_file = "server/api/v2/openapi.json"
 		debug = true
 		use_https = false
 		enable_cors = true
@@ -108,7 +111,9 @@ func TestLoadConfigurationFromFile(t *testing.T) {
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
 		APIv1Prefix:                      "/api/v1/",
-		APIv1SpecFile:                    "openapi.json",
+		APIv1SpecFile:                    "server/api/v1/openapi.json",
+		APIv2Prefix:                      "/api/v2/",
+		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		AuthType:                         "xrh",
 		Debug:                            true,
 		UseHTTPS:                         false,
@@ -184,7 +189,9 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
 		APIv1Prefix:                      "/api/v1/",
-		APIv1SpecFile:                    "openapi.json",
+		APIv1SpecFile:                    "server/api/v1/openapi.json",
+		APIv2Prefix:                      "/api/v2/",
+		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		AuthType:                         "xrh",
 		Debug:                            true,
 		UseHTTPS:                         false,
@@ -227,8 +234,10 @@ func setEnvVariables(t *testing.T) {
 	os.Clearenv()
 
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS", ":8080")
-	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_PREFIX", "/api/v1/")
-	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE", "openapi.json")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX", "/api/v1/")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE", "server/api/v1/openapi.json")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_PREFIX", "/api/v2/")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_SPEC_FILE", "server/api/v2/openapi.json")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__DEBUG", "true")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS", "false")
 

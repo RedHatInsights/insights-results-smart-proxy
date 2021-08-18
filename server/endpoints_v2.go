@@ -31,7 +31,7 @@ const (
 	ClustersDetail = "/rule​/{rule_id}​/clusters_detail​/"
 )
 
-// addV1EndpointsToRouter adds API V2 specific endpoints to the router
+// addV2EndpointsToRouter adds API V2 specific endpoints to the router
 func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 	apiV2Prefix := server.Config.APIv2Prefix
 	openAPIv2URL := apiV2Prefix + filepath.Base(server.Config.APIv2SpecFile)
