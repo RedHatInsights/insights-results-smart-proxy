@@ -1088,7 +1088,7 @@
   "components": {
     "schemas": {
       "reportData": {
-        "description": "/clusters/{clusterId}/report returns an array of ruleHit isntances",
+        "description": "/clusters/{clusterId}/report returns an array of ruleHit instances",
         "type": "object",
         "properties": {
           "rule_id": {

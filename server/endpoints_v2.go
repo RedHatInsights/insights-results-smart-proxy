@@ -25,10 +25,10 @@ import (
 
 const (
 	// ReportEndpointV2 https://issues.redhat.com/browse/CCXDEV-5097
-	ReportEndpointV2 = "/cluster/{cluster}"
+	ReportEndpointV2 = "cluster/{cluster}"
 
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
-	ClustersDetail = "/rule​/{rule_id}​/clusters_detail​/"
+	ClustersDetail = "rule​/{rule_id}​/clusters_detail​/"
 )
 
 // addV2EndpointsToRouter adds API V2 specific endpoints to the router
@@ -67,7 +67,7 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 // addV2ReportsEndpointsToRouter method registers handlers for endpoints that
 // return cluster report or reports to client
 func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
-	return
+	router.HandleFunc(apiPrefix+ReportEndpointV2, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 }
 
 // addV2DebugEndpointsToRouter method registers handlers for all debug endpoints
