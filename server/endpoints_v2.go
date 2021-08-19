@@ -1,4 +1,4 @@
-// Copyright 2020 Red Hat, Inc
+// Copyright 2020, 2021 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 
 const (
 	// ReportEndpointV2 https://issues.redhat.com/browse/CCXDEV-5097
-	ReportEndpointV2 = "cluster/{cluster}"
+	ReportEndpointV2 = "cluster/{cluster}/reports"
 
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
 	ClustersDetail = "rule/{rule_id}/clusters_detail/"
