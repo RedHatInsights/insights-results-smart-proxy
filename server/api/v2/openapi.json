@@ -118,6 +118,145 @@
         "summary": "Returns the latest insights report for a cluster.",
         "description": "The report is specified by the cluster ID from params and information about the org_id and user_id is taken from the token. The latest report available for the given combination will be returned."
       }
+    },
+    "/rule/{ruleId}": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "ruleId",
+            "description": "ID of the rule which content is required",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "resolution": {
+                          "type": "string"
+                        },
+                        "more_info": {
+                          "type": "string"
+                        },
+                        "plugin": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "node_id": {
+                              "type": "string"
+                            },
+                            "product_code": {
+                              "type": "string"
+                            },
+                            "python_module": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "error_keys": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "properties": {
+                              "reason": {
+                                "type": "string"
+                              },
+                              "generic": {
+                                "type": "string"
+                              },
+                              "metadata": {
+                                "type": "object",
+                                "properties": {
+                                  "condition": {
+                                    "type": "string"
+                                  },
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "impact": {
+                                    "type": "string"
+                                  },
+                                  "likelihood": {
+                                    "type": "integer"
+                                  },
+                                  "publish_date": {
+                                    "type": "string"
+                                  },
+                                  "status": {
+                                    "type": "string"
+                                  },
+                                  "tags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON object with the content."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Item not found in the storage"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Rule ID is not available"
+          },
+          "503": {
+            "content": {
+              "text/plain": {}
+            },
+            "description": "Content service is unavailable"
+          }
+        },
+        "operationId": "getContentForRule",
+        "summary": "Get all static content for the given ruleId",
+        "description": "The static content is taken from the cache periodically updated from the content service"
+      }
     }
   },
   "components": {
