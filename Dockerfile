@@ -24,7 +24,9 @@ RUN make build && \
 FROM registry.redhat.io/ubi8-minimal
 
 COPY --from=builder /opt/app-root/src/insights-results-smart-proxy .
-COPY --from=builder /opt/app-root/src/openapi.json /openapi/openapi.json
+COPY --from=builder /opt/app-root/src/server/api/v1/openapi.json /openapi/v1/openapi.json
+COPY --from=builder /opt/app-root/src/server/api/v2/openapi.json /openapi/v2/openapi.json
+
 
 # temporarily disabled haberdasher because it was duplicating logs
 # RUN curl -L -o /usr/bin/haberdasher \

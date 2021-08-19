@@ -101,10 +101,10 @@ func (server *HTTPServer) Initialize() http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(httputils.LogRequest)
 
-	apiPrefix := server.Config.APIPrefix
+	apiPrefix := server.Config.APIv1Prefix
 
 	metricsURL := apiPrefix + MetricsEndpoint
-	openAPIURL := apiPrefix + filepath.Base(server.Config.APISpecFile)
+	openAPIURL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
 
 	// enable authentication, but only if it is setup in configuration
 	if server.Config.Auth {
@@ -146,6 +146,11 @@ func (server *HTTPServer) Initialize() http.Handler {
 	server.addEndpointsToRouter(router)
 
 	return router
+}
+
+func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
+	server.addV1EndpointsToRouter(router)
+	server.addV2EndpointsToRouter(router)
 }
 
 // Start method starts HTTP or HTTPS server.
@@ -280,7 +285,7 @@ func (server HTTPServer) sendRequest(
 }
 
 func (server HTTPServer) composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error) {
-	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIPrefix)
+	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIv1Prefix)
 	return url.Parse(baseEndpoint + endpoint)
 }
 
@@ -730,7 +735,7 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 		vars := mux.Vars(request)
 		vars["user_id"] = string(identity.AccountNumber)
 
-		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIPrefix, newEndpoint, vars)
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
 		request.URL, err = url.Parse(newURL)
 		if err != nil {
 			return nil, &ParamsParsingError{}

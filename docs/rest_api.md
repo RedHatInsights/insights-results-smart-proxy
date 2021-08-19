@@ -4,8 +4,9 @@ nav_order: 3
 ---
 # REST API
 
+The API is currently split into two versions, see the [corresponding README](https://github.com/RedHatInsights/insights-results-smart-proxy/blob/master/server/api/README.md) for more info.
 Aggregator service provides information about its REST API schema via endpoint
-`api/v1/openapi.json`.
+`api/v1/openapi.json` and `api/v1/openapi.json` respectively.
 OpenAPI 3.0 is used to describe the schema; it can be read by human and consumed
 by computers.
 
@@ -14,10 +15,11 @@ based on OpenAPI 3.0 specification by using the following command:
 
 ```shell
 curl localhost:8080/api/v1/openapi.json
+curl localhost:8080/api/v2/openapi.json
 ```
 
 Please note that OpenAPI schema is accessible w/o the need to provide
-authorization tokens.
+authorization tokens, so it can be used to perform liveness/readiness probes.
 
 ## Authorization tokens
 

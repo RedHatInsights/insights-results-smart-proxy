@@ -59,7 +59,8 @@ func setEnvSettings(t *testing.T, settings map[string]string) {
 func TestStartServer_BadServerAddress(t *testing.T) {
 	setEnvSettings(t, map[string]string{
 		"INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS":            "non-existing-host:1",
-		"INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE":      "openapi.json",
+		"INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE":   "server/api/v1/openapi.json",
+		"INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_SPEC_FILE":   "server/api/v2/openapi.json",
 		"INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME": "60s",
 	})
 

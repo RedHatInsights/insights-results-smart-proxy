@@ -54,10 +54,14 @@ objects:
           env:
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS
               value: ":8000"
-            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_PREFIX
-              value: "${IRSP_API_PREFIX}"
-            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_SPEC_FILE
-              value: "/openapi/openapi.json"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX
+              value: "${IRSP_API_V1_PREFIX}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE
+              value: "/openapi/v1/openapi.json"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_PREFIX
+              value: "${IRSP_API_V2_PREFIX}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_SPEC_FILE
+              value: "/openapi/v2/openapi.json"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__DEBUG
               value: "${DEBUG}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__AUTH
@@ -96,7 +100,7 @@ objects:
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: ${IRSP_API_PREFIX}openapi.json
+              path: ${IRSP_API_V1_PREFIX}openapi.json
               port: 8000
               scheme: HTTP
             initialDelaySeconds: 10
@@ -106,7 +110,7 @@ objects:
           readinessProbe:
             failureThreshold: 3
             httpGet:
-              path: ${IRSP_API_PREFIX}openapi.json
+              path: ${IRSP_API_V1_PREFIX}openapi.json
               port: 8000
               scheme: HTTP
             initialDelaySeconds: 5
@@ -166,9 +170,12 @@ parameters:
 - name: HABERDASHER_LABELS
   description: Haberdasher labels for unstructured logs
   value: '{"app": "ccx-smart-proxy"}'
-- name: IRSP_API_PREFIX
+- name: IRSP_API_V1_PREFIX
   required: true
   value: /api/insights-results-aggregator/v1/
+- name: IRSP_API_V2_PREFIX
+  required: true
+  value: /api/insights-results-aggregator/v2/
 - name: LOGGING_TO_CLOUD_WATCH_ENABLED
   value: "false"
   required: true

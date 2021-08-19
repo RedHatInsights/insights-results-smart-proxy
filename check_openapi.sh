@@ -16,12 +16,20 @@
 echo "Testing OpenAPI specifications file"
 # shellcheck disable=2181
 
-if docker run --rm -v "${PWD}":/local/:Z openapitools/openapi-generator-cli validate -i ./local/openapi.json; then
-    echo "OpenAPI spec file is OK"
+if docker run --rm -v "${PWD}":/local/:Z openapitools/openapi-generator-cli validate -i ./local/server/api/v1/openapi.json; then
+    echo "OpenAPI spec file for API v1 is OK"
 else
-    echo "OpenAPI spec file validation failed"
+    echo "OpenAPI spec file for API v1 validation failed"
     exit 1
 fi
+
+if docker run --rm -v "${PWD}":/local/:Z openapitools/openapi-generator-cli validate -i ./local/server/api/v2/openapi.json; then
+    echo "OpenAPI spec file for API v2 is OK"
+else
+    echo "OpenAPI spec file for API v2 validation failed"
+    exit 1
+fi
+
 
 if docker run --rm -v "${PWD}":/local/:Z openapitools/openapi-generator-cli validate -i ./local/openapi_dev.json; then
     echo "OpenAPI [DEV] spec file is OK"

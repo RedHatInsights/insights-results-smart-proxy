@@ -19,12 +19,15 @@ directory if no configuration is provided. This can be overriden by
 ## Server configuration
 
 Server configuration is in section `[server]` in config file.
+The API is currently split into two versions, see the [corresponding README](https://github.com/RedHatInsights/insights-results-smart-proxy/blob/master/server/api/README.md)
 
 ```toml
 [server]
 address = ":8080"
-api_prefix = "/api/v1/"
-api_spec_file = "openapi.json"
+api_v1_prefix = "/api/v1/"
+api_v2_prefix = "/api/v2/"
+api_v1_spec_file = "server/api/v1/openapi.json"
+api_v2_spec_file = "server/api/v2/openapi.json"
 debug = true
 auth = true
 auth_type = "xrh"
@@ -36,8 +39,10 @@ log_auth_token = true
 ```
 
 * `address` is host and port which server should listen to
-* `api_prefix` is prefix for RestAPI path
-* `api_spec_file` is the location of a required OpenAPI specifications file
+* `api_v1_prefix` is prefix for the REST API V1
+* `api_v2_prefix` is prefix for the REST API V2
+* `api_v1_spec_file` is the location of a required OpenAPI specifications file for API V1
+* `api_v2_spec_file` is the location of a required OpenAPI specifications file for API V2
 * `debug` is developer mode that enables some special API endpoints not used on production. In
 production, `false` is used every time.
 * `auth` turns on or turns authentication. Please note that this option can be set to `false` only

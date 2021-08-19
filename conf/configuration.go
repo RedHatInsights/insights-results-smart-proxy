@@ -147,9 +147,14 @@ func LoadConfiguration(defaultConfigFile string) error {
 
 // GetServerConfiguration returns server configuration
 func GetServerConfiguration() server.Configuration {
-	err := checkIfFileExists(Config.ServerConf.APISpecFile)
+	err := checkIfFileExists(Config.ServerConf.APIv1SpecFile)
 	if err != nil {
-		log.Fatal().Err(err).Msg("All customer facing APIs MUST serve the current OpenAPI specification")
+		log.Fatal().Err(err).Msg("API V1: All customer facing APIs MUST serve the current OpenAPI specification")
+	}
+
+	err = checkIfFileExists(Config.ServerConf.APIv2SpecFile)
+	if err != nil {
+		log.Fatal().Err(err).Msg("API V2: All customer facing APIs MUST serve the current OpenAPI specification")
 	}
 
 	Config.ServerConf.InternalRulesOrganizations = getInternalRulesOrganizations()
