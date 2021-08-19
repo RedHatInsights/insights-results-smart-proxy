@@ -28,7 +28,7 @@ const (
 	ReportEndpointV2 = "cluster/{cluster}"
 
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
-	ClustersDetail = "rule​/{rule_id}​/clusters_detail​/"
+	ClustersDetail = "rule/{rule_id}/clusters_detail/"
 )
 
 // addV2EndpointsToRouter adds API V2 specific endpoints to the router
