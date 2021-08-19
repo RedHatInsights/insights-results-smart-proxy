@@ -64,7 +64,7 @@
         "description": "Set of metrics provided by insights-operator-utils library providing total number of requests counter, API endpoints response times, and counter of HTTP status code responses. Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with go_ and process_ prefixes."
       }
     },
-    "/clusters/{clusterId}/report": {
+    "/cluster/{clusterId}/reports": {
       "get": {
         "tags": [
           "prod"
