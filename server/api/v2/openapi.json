@@ -63,6 +63,223 @@
         "summary": "Read all metrics exposed by this service",
         "description": "Set of metrics provided by insights-operator-utils library providing total number of requests counter, API endpoints response times, and counter of HTTP status code responses. Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with go_ and process_ prefixes."
       }
+    },
+    "/clusters/{clusterId}/report": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
+            "name": "clusterId",
+            "description": "ID of the cluster which must conform to UUID format.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "osd_eligible",
+            "description": "If true, only OSD eligible rules will be sent.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
+          },
+          {
+            "name": "get_disabled",
+            "description": "If true, disabled rules will be sent too.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reportResponse"
+                }
+              }
+            },
+            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster."
+          }
+        },
+        "deprecated": false,
+        "operationId": "getReportForCluster",
+        "summary": "Returns the latest insights report for a cluster.",
+        "description": "The report is specified by the cluster ID from params and information about the org_id and user_id is taken from the token. The latest report available for the given combination will be returned."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "reportData": {
+        "description": "/clusters/{clusterId}/report returns an array of ruleHit isntances",
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "description": "ID of a rule.",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "description": "The title of the rule, a short description.",
+            "type": "string"
+          },
+          "details": {
+            "description": "Details of the rule - templates rendered on frontend.",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Reason for the issue, giving the user more accurate description of the cause.",
+            "type": "string"
+          },
+          "resolution": {
+            "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base.",
+            "type": "string"
+          },
+          "total_risk": {
+            "description": "Total risk - calculated from rule impact and likelihood.",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "type": "integer"
+          },
+          "risk_of_change": {
+            "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "type": "integer"
+          },
+          "disabled": {
+            "description": "If this rule result disabled or not. This field can be used in the UI to show only specific set of rules results.",
+            "type": "boolean"
+          },
+          "disable_feedback": {
+            "type": "string"
+          },
+          "disabled_at": {
+            "type": "string"
+          },
+          "internal": {
+            "type": "boolean"
+          },
+          "user_vote": {
+            "format": "int32",
+            "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
+            "enum": [
+              "-1",
+              "0",
+              "1"
+            ],
+            "type": "integer"
+          },
+          "extra_data": {
+            "description": "Used as templating data for other content (details, resolution, etc.), has varying structure depending on the rules in the report.",
+            "type": "object"
+          },
+          "tags": {
+            "description": "List of tags that the rule contains, forming rule groups.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "rule_id": "ccx_rules_ocm.tutorial_rule.report",
+          "created_at": "2020-04-08T00:42:00Z",
+          "description": "Introducing Insights for Red Hat OpenShift Container Platform",
+          "details": "Red Hat Insights for OpenShift is a proactive management solution. It provides ongoing infrastructure analyses of your Red Hat OpenShift Container Platform 4.2 and later installations. Red Hat Insights helps you identify, prioritize, and resolve risks to security, performance, availability, and stability before they become urgent issues.\nRed Hat Insights for OpenShift uses the Remote Health Monitoring feature of OpenShift 4. The health checks are created by Red Hat subject matter experts and assessed according to severity and impact.\nThis is an example  recommendation that you can safely ignore. To disable it, click  the triple-dot menu button next to the header, and select Disable.\n\n[Knowledgebase Article](https://access.redhat.com/search/#/knowledgebase)\n\n",
+          "reason": "",
+          "resolution": "",
+          "total_risk": 1,
+          "risk_of_change": 0,
+          "disabled": false,
+          "disable_feedback": "",
+          "disabled_at": "",
+          "internal": false,
+          "user_vote": 0,
+          "extra_data": {
+            "error_key": "TUTORIAL_ERROR",
+            "type": "rule"
+          },
+          "tags": [
+            "openshift",
+            "service_availability"
+          ]
+        }
+      },
+      "reportMeta": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "last_checked_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "example": {
+          "count": 9,
+          "last_checked_at": "2020-12-08T09:45:23Z"
+        }
+      },
+      "reportResponse": {
+        "description": "Response data type for GET /clusters/{clusterId}/report endpoint",
+        "type": "object",
+        "properties": {
+          "report": {
+            "$ref": "#/components/schemas/report",
+            "description": ""
+          },
+          "status": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      },
+      "report": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reportData"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/reportMeta",
+            "description": ""
+          }
+        }
+      }
     }
   }
 }
