@@ -29,6 +29,9 @@ const (
 
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
 	ClustersDetail = "rule/{rule_id}/clusters_detail/"
+
+	// RuleContentV2 https://issues.redhat.com/browse/CCXDEV-5094
+	RuleContentV2 = "rule/{rule_id}"
 )
 
 // addV2EndpointsToRouter adds API V2 specific endpoints to the router
@@ -85,5 +88,5 @@ func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPref
 // addV2ContentEndpointsToRouter method registers handlers for endpoints that
 // returns content to clients
 func (server HTTPServer) addV2ContentEndpointsToRouter(router *mux.Router, apiPrefix string) {
-	return
+	router.HandleFunc(apiPrefix+RuleContentV2, server.getContentForRule).Methods(http.MethodGet)
 }
