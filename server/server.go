@@ -24,6 +24,7 @@ limitations under the License.
 package server
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -407,6 +408,53 @@ func (server HTTPServer) readAggregatorReportForClusterList(
 	return &aggregatorResponse, true
 }
 
+func (server HTTPServer) readAggregatorReportForClusterListFromBody(
+	orgID types.OrgID, request *http.Request, writer http.ResponseWriter,
+) (*types.ClusterReports, bool) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ReportForListOfClustersPayloadEndpoint,
+		orgID,
+	)
+
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+	// #nosec G107
+	aggregatorResp, err := http.Post(aggregatorURL, "application/json", bytes.NewBuffer(body))
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	var aggregatorResponse types.ClusterReports
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, false
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	return &aggregatorResponse, true
+
+}
+
 // readAggregatorRuleForClusterID reads report from aggregator,
 // handles errors by sending corresponding message to the user.
 // Returns report and bool value set to true if there was no errors
@@ -516,13 +564,7 @@ func (server HTTPServer) fetchAggregatorReports(
 func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	writer http.ResponseWriter, request *http.Request,
 ) (*types.ClusterReports, bool) {
-	// cluster list is specified in request body
-	clusterList, successful := httputils.ReadClusterListFromBody(writer, request)
-	// Error message handled by function
-	if !successful {
-		return nil, false
-	}
-
+	// auth token from request headers
 	authToken, err := server.GetAuthToken(request)
 	if err != nil {
 		handleServerError(writer, err)
@@ -531,7 +573,7 @@ func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 
 	orgID := authToken.Internal.OrgID
 
-	aggregatorResponse, successful := server.readAggregatorReportForClusterList(orgID, clusterList, writer)
+	aggregatorResponse, successful := server.readAggregatorReportForClusterListFromBody(orgID, request, writer)
 	if !successful {
 		return nil, false
 	}
