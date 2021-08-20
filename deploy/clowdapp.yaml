@@ -24,24 +24,24 @@ objects:
   metadata:
     labels:
       app: ccx-data-pipeline
-    name: ccx-smart-proxy-service
+    name: ccx-smart-proxy
   spec:
     minReplicas: ${{MIN_REPLICAS}}
     maxReplicas: ${{MAX_REPLICAS}}
     scaleTargetRef:
       apiVersion: apps/v1
       kind: Deployment
-      name: ccx-smart-proxy-service
+      name: ccx-smart-proxy
     targetCPUUtilizationPercentage: 80
 
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
   metadata:
-    name: ccx-smart-proxy
+    name: ccx
   spec:
     envName: ${ENV_NAME}
     deployments:
-      - name: service
+      - name: smart-proxy
         minReplicas: ${{MIN_REPLICAS}}
         webServices:
           public:
