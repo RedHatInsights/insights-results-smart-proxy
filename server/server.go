@@ -429,16 +429,23 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 		return nil, false
 	}
 
+	return handleReportsResponse(aggregatorResp, writer)
+}
+
+// handleReportsResponse analyses the aggregator's response and
+// writes an appropriate response to the client, handling any
+// possible error in the meantime
+func handleReportsResponse(response *http.Response, writer http.ResponseWriter) (*types.ClusterReports, bool) {
 	var aggregatorResponse types.ClusterReports
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
 	}
 
-	if aggregatorResp.StatusCode != http.StatusOK {
-		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+	if response.StatusCode != http.StatusOK {
+		err := responses.Send(response.StatusCode, writer, responseBytes)
 		if err != nil {
 			log.Error().Err(err).Msg(responseDataError)
 		}
@@ -452,7 +459,6 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 	}
 
 	return &aggregatorResponse, true
-
 }
 
 // readAggregatorRuleForClusterID reads report from aggregator,
