@@ -691,9 +691,9 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 		// prepare reports reponse
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method:       http.MethodGet,
-				Endpoint:     ira_server.ReportForListOfClustersEndpoint,
-				EndpointArgs: []interface{}{testdata.OrgID, data.ClusterIDInURL},
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ReportForListOfClustersPayloadEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
