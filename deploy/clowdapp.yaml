@@ -53,7 +53,7 @@ objects:
         podSpec:
           env:
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS
-              value: ":8000"
+              value: ":8080"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX
               value: "${IRSP_API_V1_PREFIX}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE
@@ -101,7 +101,7 @@ objects:
             failureThreshold: 3
             httpGet:
               path: ${IRSP_API_V1_PREFIX}openapi.json
-              port: 8000
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 10
@@ -111,7 +111,7 @@ objects:
             failureThreshold: 3
             httpGet:
               path: ${IRSP_API_V1_PREFIX}openapi.json
-              port: 8000
+              port: 8080
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
