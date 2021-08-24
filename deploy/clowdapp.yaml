@@ -17,54 +17,43 @@ apiVersion: v1
 kind: Template
 metadata:
   name: ccx-smart-proxy
+
 objects:
-
-- kind: ClowdEnvironment
-  apiVersion: cloud.redhat.com/v1alpha1
-  metadata:
-    name: ${ENV_NAME}
-  spec:
-    providers:
-      web:
-        mode: operator
-        privatePort: 8080
-        port: 8080
-
 - kind: HorizontalPodAutoscaler
   apiVersion: autoscaling/v1
   metadata:
     labels:
       app: ccx-data-pipeline
-    name: ccx-smart-proxy
+    name: ccx-smart-proxy-service
   spec:
     minReplicas: ${{MIN_REPLICAS}}
     maxReplicas: ${{MAX_REPLICAS}}
     scaleTargetRef:
       apiVersion: apps/v1
       kind: Deployment
-      name: ccx-smart-proxy
+      name: ccx-smart-proxy-service
     targetCPUUtilizationPercentage: 80
 
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
   metadata:
-    name: ccx
+    name: ccx-smart-proxy
   spec:
     envName: ${ENV_NAME}
     deployments:
-      - name: smart-proxy
+      - name: service
         minReplicas: ${{MIN_REPLICAS}}
         webServices:
           public:
             enabled: true
           private:
-            enabled: false
+            enabled: true
           metrics:
             enabled: true
         podSpec:
           env:
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS
-              value: ":8080"
+              value: ":8000"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX
               value: "${IRSP_API_V1_PREFIX}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE
@@ -112,7 +101,7 @@ objects:
             failureThreshold: 3
             httpGet:
               path: ${IRSP_API_V1_PREFIX}openapi.json
-              port: 8080
+              port: 8000
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 10
@@ -122,7 +111,7 @@ objects:
             failureThreshold: 3
             httpGet:
               path: ${IRSP_API_V1_PREFIX}openapi.json
-              port: 8080
+              port: 8000
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -135,6 +124,29 @@ objects:
             limits:
               cpu: 250m
               memory: 600Mi
+
+- kind: Service
+  apiVersion: v1
+  metadata:
+    annotations:
+      prometheus.io/path: ${IRSP_API_V1_PREFIX}metrics
+      prometheus.io/port: "8080"
+      prometheus.io/scheme: http
+      prometheus.io/scrape: true
+    name: ccx-smart-proxy
+    labels:
+      app: ccx-smart-proxy
+  spec:
+    ports:
+    - name: web-legacy
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: ccx-smart-proxy
+    sessionAffinity: None
+    type: ClusterIP
+    
 parameters:
 - description: Image name
   name: IMAGE
