@@ -132,7 +132,7 @@ objects:
       prometheus.io/path: ${IRSP_API_V1_PREFIX}metrics
       prometheus.io/port: "8080"
       prometheus.io/scheme: http
-      prometheus.io/scrape: true
+      prometheus.io/scrape: "true"
     name: ccx-smart-proxy
     labels:
       app: ccx-smart-proxy
