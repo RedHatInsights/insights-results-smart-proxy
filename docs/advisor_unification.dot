@@ -1,0 +1,46 @@
+digraph {
+ #   rankdir = LR;
+
+    CCXDEV_5077[shape="box",label="CCXDEV-5077\napi v2",style="filled",fillcolor="#80ff80"]
+    CCXDEV_5097[shape="box",label="CCXDEV-5097\nGET clusters",style="filled",fillcolor="#80ff80"]
+    CCXDEV_5094[shape="box",label="CCXDEV-5094\nRename rules/content",style="filled",fillcolor="#80ff80"]
+    CCXDEV_5076[shape="box",label="CCXDEV-5076\nNew endpoint reports",style="filled",fillcolor="#80ff80"]
+    CCXDEV_5079[shape="box",label="CCXDEV-5079\nPoC: recomm.backend",style="filled",fillcolor="#ffff80"]
+    CCXDEV_5088[shape="box",label="CCXDEV-5088\nClusters detail",style="filled",fillcolor="#ff8080"]
+    CCXDEV_5089[shape="box",label="CCXDEV-5089\nList of active clusters",style="filled",fillcolor="#ffff80"]
+    CCXDEV_5080[shape="box",label="CCXDEV-5080\nRecommendation view",style="filled",fillcolor="#ff8080"]
+    CCXDEV_5263[shape="box",label="CCXDEV-5263\nDecide: resolution_risk",style="filled",fillcolor="#ff8080"]
+    CCXDEV_5050[shape="box",label="CCXDEV-5050\nDefine resolution_risk",style="filled",fillcolor="#8080ff"]
+    CCXDEV_5051[shape="box",label="CCXDEV-5051\nAdd resolution_risk",style="filled",fillcolor="#8080ff"]
+    CCXDEV_5244[shape="box",label="CCXDEV-5244\nres_risk for all rules"]
+    CCXDEV_5090[shape="box",label="CCXDEV-5090\nres_risk in rule content"]
+    CCXDEV_5091[shape="box",label="CCXDEV-5091\nUser rating in /content"]
+    CCXDEV_5092[shape="box",label="CCXDEV-5092\nDB table:rule-wide rating"]
+    CCXDEV_5093[shape="box",label="CCXDEV-5093\nendpoint POST /rating/"]
+    CCXDEV_5095[shape="box",label="CCXDEV-5095\n/ack/{rule_id}"]
+    CCXDEV_5096[shape="box",label="CCXDEV-5096\nrule groups configuration"]
+    CCXDEV_4945[shape="box",label="CCXDEV-4945\nModify org_overview endpoint",style="filled",fillcolor="#ff8080"]
+    CCXDEV_5613[shape="box",label="CCXDEV-5613\nimpact number: /rule/"]
+    CCXDEV_5615[shape="box",label="CCXDEV-5615\nimpact number: /rules/{ruleId}/content/"]
+    CCXDEV_5049[shape="box",label="CCXDEV-5049\ntests and deploy process"]
+    CCXDEV_5587[shape="box",label="CCXDEV-5589\nOpenAPI spec tests"]
+    CCXDEV_5534[shape="box",label="CCXDEV-5534\n/content rule+error_key"]
+
+    CCXDEV_5077 -> CCXDEV_5097
+    CCXDEV_5077 -> CCXDEV_5094
+    CCXDEV_5077 -> CCXDEV_5076
+    CCXDEV_5077 -> CCXDEV_5080
+    CCXDEV_5089 -> CCXDEV_5080
+    CCXDEV_5079 -> CCXDEV_5088
+    CCXDEV_5089 -> CCXDEV_5088
+    CCXDEV_5077 -> CCXDEV_5088
+    CCXDEV_5050 -> CCXDEV_5244
+    CCXDEV_5051 -> CCXDEV_5244
+    CCXDEV_5050 -> CCXDEV_5090
+    CCXDEV_5050 -> CCXDEV_5263
+    CCXDEV_5051 -> CCXDEV_5090
+    CCXDEV_5092 -> CCXDEV_5091
+    CCXDEV_5092 -> CCXDEV_5093
+    CCXDEV_5613 -> CCXDEV_5615
+    CCXDEV_5089 -> CCXDEV_4945
+}
