@@ -127,6 +127,34 @@ func TestUpdateContentBadTime(t *testing.T) {
 	helpers.FailOnError(t, err)
 }
 
+func TestResetContentWhenUpdating(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory5Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		ruleIDs := content.GetRuleIDs()
+		assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(ruleIDs))
+	}, testTimeout)
+}
+
 func TestResetContent(t *testing.T) {
 	ruleIDs := content.GetRuleIDs()
 	assert.NotEqual(t, 0, len(ruleIDs))
