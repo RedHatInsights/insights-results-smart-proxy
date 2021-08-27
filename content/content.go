@@ -238,6 +238,7 @@ func UpdateContent(servicesConf services.Configuration) {
 
 	SetRuleContentDirectory(contentServiceDirectory)
 	WaitForContentDirectoryToBeReady()
+	ResetContent()
 	LoadRuleContent(ruleContentDirectory)
 }
 
