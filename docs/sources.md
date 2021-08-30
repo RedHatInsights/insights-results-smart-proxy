@@ -10,7 +10,6 @@ nav_order: 10
 * [version.go](packages/version.html)
 * [server/rules.go](packages/server/rules.html)
 * [server/router_utils_test.go](packages/server/router_utils_test.html)
-* [server/export_test.go](packages/server/export_test.html)
 * [server/endpoints.go](packages/server/endpoints.html)
 * [server/handlers.go](packages/server/handlers.html)
 * [server/server.go](packages/server/server.html)

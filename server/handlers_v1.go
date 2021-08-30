@@ -19,6 +19,7 @@ import (
 	"errors"
 	"net/http"
 
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
@@ -50,8 +51,8 @@ func (server *HTTPServer) getGroups(writer http.ResponseWriter, _ *http.Request)
 
 // getContentForRule retrieves the static content for the given ruleID
 func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *http.Request) {
-	ruleID, err := readRuleID(writer, request)
-	if err != nil {
+	ruleID, successful := httputils.ReadRuleID(writer, request)
+	if !successful {
 		// already handled in readRuleID
 		return
 	}
@@ -104,8 +105,8 @@ func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Re
 // getClustersForOrg retrieves the list of clusters belonging to this organization
 func (server HTTPServer) getClustersForOrg(writer http.ResponseWriter, request *http.Request) {
 	// readOrganizationID is done only for checking the authentication
-	_, err := readOrganizationID(writer, request, server.Config.Auth)
-	if err != nil {
+	_, successful := httputils.ReadOrganizationID(writer, request, server.Config.Auth)
+	if !successful {
 		// already handled in readOrganizationID ?
 		return
 	}
