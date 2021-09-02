@@ -73,15 +73,17 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				ruleTmpErrorKey.TotalRisk = totalRisk
 				ruleTmp.ErrorKeys[errorKey] = ruleTmpErrorKey
 			}
+			// sets "plugin" level, containing usual fields + list of error keys
 			rulesWithContentStorage.SetRule(ruleID, ruleTmp)
 
 			rulesWithContentStorage.SetRuleWithContent(ruleID, types.ErrorKey(errorKey), &local_types.RuleWithContent{
 				Module:          ruleID,
 				Name:            rule.Plugin.Name,
-				Summary:         rule.Summary,
-				Reason:          rule.Reason,
-				Resolution:      rule.Resolution,
-				MoreInfo:        rule.MoreInfo,
+				Generic:         errorProperties.Generic,
+				Summary:         errorProperties.Summary,
+				Reason:          errorProperties.Reason,
+				Resolution:      errorProperties.Resolution,
+				MoreInfo:        errorProperties.MoreInfo,
 				ErrorKey:        types.ErrorKey(errorKey),
 				Description:     errorProperties.Metadata.Description,
 				TotalRisk:       totalRisk,
@@ -89,7 +91,6 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				PublishDate:     publishDate,
 				Active:          active,
 				Internal:        IsRuleInternal(ruleID),
-				Generic:         errorProperties.Generic,
 				Tags:            errorProperties.Metadata.Tags,
 				NotRequireAdmin: collections.StringInSlice("osd_customer", errorProperties.Metadata.Tags),
 			})
