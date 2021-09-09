@@ -50,6 +50,7 @@ import (
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 
@@ -61,6 +62,7 @@ type HTTPServer struct {
 	Config         Configuration
 	ServicesConfig services.Configuration
 	GroupsChannel  chan []groups.Group
+	amsClient      *amsclient.AMSClient
 	Serv           *http.Server
 }
 
@@ -78,10 +80,23 @@ type ProxyOptions struct {
 }
 
 // New function constructs new implementation of Server interface.
-func New(config Configuration, servicesConfig services.Configuration, groupsChannel chan []groups.Group) *HTTPServer {
+func New(
+	config Configuration,
+	servicesConfig services.Configuration,
+	amsConfig amsclient.Configuration,
+	groupsChannel chan []groups.Group,
+) *HTTPServer {
+
+	amsClient, err := amsclient.NewAMSClient(amsConfig)
+	if err != nil {
+		log.Error().Err(err).Msg("Cannot init the AMSClient, using old approach")
+		amsClient = nil
+	}
+
 	return &HTTPServer{
 		Config:         config,
 		ServicesConfig: servicesConfig,
+		amsClient:      amsClient,
 		GroupsChannel:  groupsChannel,
 	}
 }
@@ -301,6 +316,10 @@ func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
 // readClusterIDsForOrgID reads the list of clusters for a given
 // organization from aggregator
 func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.ClusterName, error) {
+	if server.amsClient != nil {
+		return server.amsClient.GetClustersForOrganization(orgID, nil, []string{"Deprovisioned", "Archived"}), nil
+	}
+
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ClustersForOrganizationEndpoint,

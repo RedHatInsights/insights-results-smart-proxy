@@ -21,6 +21,7 @@ import (
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
@@ -128,6 +129,7 @@ func AssertAPIRequest(
 	testServer := server.New(
 		*serverConfig,
 		*servicesConfig,
+		amsclient.Configuration{},
 		groupsChannel,
 	)
 
