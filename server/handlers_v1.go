@@ -16,7 +16,6 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
@@ -28,13 +27,12 @@ import (
 	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
-// getGroups retrieves the groups configuration from a channel to get the latest valid one
-// and sends the response back to the client
+// getGroups sends the latest valid groups configuration to the client in
+// standard HTTP response
 func (server *HTTPServer) getGroups(writer http.ResponseWriter, _ *http.Request) {
-	groupsConfig := <-server.GroupsChannel
-	if groupsConfig == nil {
-		err := errors.New("no groups retrieved")
-		log.Error().Err(err).Msg("groups cannot be retrieved from content service. Check logs")
+	// retrieve the latest groups configuration
+	groupsConfig, err := server.getGroupsConfig()
+	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
@@ -42,7 +40,7 @@ func (server *HTTPServer) getGroups(writer http.ResponseWriter, _ *http.Request)
 	responseContent := make(map[string]interface{})
 	responseContent["status"] = "ok"
 	responseContent["groups"] = groupsConfig
-	err := responses.SendOK(writer, responseContent)
+	err = responses.SendOK(writer, responseContent)
 	if err != nil {
 		log.Error().Err(err).Msg("Cannot send response")
 		handleServerError(writer, err)

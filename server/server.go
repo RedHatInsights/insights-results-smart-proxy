@@ -27,6 +27,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -793,6 +794,19 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 
 		return request, nil
 	}
+}
+
+// getGroupsConfig retrieves the groups configuration from a channel to get the
+// latest valid one
+func (server HTTPServer) getGroupsConfig() ([]groups.Group, error) {
+	groupsConfig := <-server.GroupsChannel
+	if groupsConfig == nil {
+		err := errors.New("no groups retrieved")
+		log.Error().Err(err).Msg("groups cannot be retrieved from content service. Check logs")
+		return nil, err
+	}
+
+	return groupsConfig, nil
 }
 
 func (server HTTPServer) getOverviewPerCluster(
