@@ -18,5 +18,5 @@ package amsclient
 type Configuration struct {
 	Token    string `mapstructure:"token" toml:"token"`
 	URL      string `mapstructure:"url" toml:"url"`
-	PageSize int    `mapstrictire:"page_size" toml:"page_size"`
+	PageSize int    `default:"100" mapstructure:"page_size" toml:"page_size"`
 }

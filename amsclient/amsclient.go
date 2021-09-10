@@ -16,7 +16,6 @@ package amsclient
 
 import (
 	"fmt"
-	"strings"
 
 	sdk "github.com/openshift-online/ocm-sdk-go"
 	"github.com/rs/zerolog/log"
@@ -42,16 +41,9 @@ func NewAMSClient(conf Configuration) (*AMSClient, error) {
 		return nil, err
 	}
 
-	var pageSize int
-	if conf.PageSize == 0 {
-		pageSize = 100
-	} else {
-		pageSize = conf.PageSize
-	}
-
 	return &AMSClient{
 		connection: conn,
-		pageSize:   pageSize,
+		pageSize:   conf.PageSize,
 	}, nil
 }
 
@@ -65,22 +57,10 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 		return retval
 	}
 
-	searchQuery := fmt.Sprintf("organization_id is '%s'", internalOrgID)
-
-	if len(statusFilter) > 0 {
-		clusterIDQuery := " and status in ('" + strings.Join(statusFilter, "',") + "')"
-		searchQuery = searchQuery + clusterIDQuery
-	}
-
-	if len(statusNegativeFilter) > 0 {
-		clusterIDQuery := " and status not in ('" + strings.Join(statusNegativeFilter, "',") + "')"
-		searchQuery = searchQuery + clusterIDQuery
-	}
-
+	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter)
 	subscriptionClient := c.connection.AccountsMgmt().V1().Subscriptions()
 
-	pageNum := 1
-	for {
+	for pageNum := 1; ; pageNum++ {
 		response, err := subscriptionClient.List().Size(c.pageSize).Page(pageNum).
 			Search(searchQuery).Fields("external_cluster_id").Send()
 
@@ -101,8 +81,6 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 			}
 			retval = append(retval, types.ClusterName(clusterID))
 		}
-
-		pageNum++
 	}
 
 	return retval
