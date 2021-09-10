@@ -17,8 +17,9 @@ package amsclient_test
 import (
 	"testing"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/rs/zerolog"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 )
 
 var defaultConfig amsclient.Configuration = amsclient.Configuration{

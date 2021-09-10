@@ -23,6 +23,11 @@ import (
 	"github.com/RedHatInsights/insights-results-aggregator/types"
 )
 
+const (
+	// defaultPageSize is the page size used when it is not defined in the configuration
+	defaultPageSize = 100
+)
+
 // AMSClient allow us to interact the AMS API
 type AMSClient struct {
 	connection *sdk.Connection
@@ -39,6 +44,10 @@ func NewAMSClient(conf Configuration) (*AMSClient, error) {
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to build the connection to AMS API")
 		return nil, err
+	}
+
+	if conf.PageSize <= 0 {
+		conf.PageSize = defaultPageSize
 	}
 
 	return &AMSClient{
