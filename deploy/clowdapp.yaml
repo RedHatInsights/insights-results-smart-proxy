@@ -54,6 +54,8 @@ objects:
           env:
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS
               value: ":8000"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_DBG_PREFIX
+              value: "${IRSP_API_DBG_PREFIX}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX
               value: "${IRSP_API_V1_PREFIX}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE
@@ -110,7 +112,7 @@ objects:
           readinessProbe:
             failureThreshold: 3
             httpGet:
-              path: ${IRSP_API_V1_PREFIX}openapi.json
+              path: ${IRSP_API_V2_PREFIX}openapi.json
               port: 8000
               scheme: HTTP
             initialDelaySeconds: 5
@@ -193,6 +195,9 @@ parameters:
 - name: HABERDASHER_LABELS
   description: Haberdasher labels for unstructured logs
   value: '{"app": "ccx-smart-proxy"}'
+- name: IRSP_API_DBG_PREFIX
+  required: true
+  value: /api/insights-results-aggregator/dbg/
 - name: IRSP_API_V1_PREFIX
   required: true
   value: /api/insights-results-aggregator/v1/

@@ -11,6 +11,10 @@ The following structure is currently handling v1/v2 endpoints for the reasons be
         - `server/handlers_v2.go`
         - `server/endpoints_v2.go`
         - OpenAPI spec in `server/api/v2/openapi.json`
+    - API dbg (debug endpoints used only by integration tests)
+        - `server/handlers_dbg.go`
+        - `server/endpoints_dbg.go`
+        - OpenAPI spec in `server/api/dbg/openapi.json`
     - test files are shared, as the handler methods have to have different names anyway 
 
 To avoid unneccessary go.mod mess and to avoid going against the Go conventions regarding [code organization](https://blog.golang.org/organizing-go-code), it doesn't make sense from Go perspective to have `server/api/v1/endpoints.go` and `server/api/v2/endpoints.go`, as this creates more problems than it solves since Go treats any subdirectory as an individual package -- this can be avoided by including the subdir in the import string or by creating an `internal/` subdirectory in `server/`, but once again, any of these seemed much more messy to me than having `server/endpoints_v1.go` and `server/endpoints_v2.go`, especially since we will eventually have only one version.
