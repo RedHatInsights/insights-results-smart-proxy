@@ -138,7 +138,7 @@ objects:
       app: ccx-smart-proxy
   spec:
     ports:
-    - name: web-legacy
+    - name: web
       port: 8080
       protocol: TCP
       targetPort: 8000
