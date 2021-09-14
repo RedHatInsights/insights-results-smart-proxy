@@ -317,7 +317,11 @@ func copyHeader(srcHeaders http.Header, dstHeaders http.Header) {
 // organization from aggregator
 func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.ClusterName, error) {
 	if server.amsClient != nil {
-		return server.amsClient.GetClustersForOrganization(orgID, nil, []string{"Deprovisioned", "Archived"}), nil
+		return server.amsClient.GetClustersForOrganization(
+			orgID,
+			nil,
+			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
+		), nil
 	}
 
 	aggregatorURL := httputils.MakeURLToEndpoint(

@@ -27,6 +27,16 @@ import (
 const (
 	// defaultPageSize is the page size used when it is not defined in the configuration
 	defaultPageSize = 100
+
+	// strings for logging and errors
+	orgNoInternalID     = "Organization doesn't have proper internal ID"
+	orgMoreInternalOrgs = "More than one internal organization for the given orgID"
+	orgIDTag            = "OrgID"
+
+	// StatusDeprovisioned indicates the corresponding cluster subscription status
+	StatusDeprovisioned = "Deprovisioned"
+	// StatusArchived indicates the corresponding cluster subscription status
+	StatusArchived = "Archived"
 )
 
 // AMSClient allow us to interact the AMS API
@@ -96,7 +106,12 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 		for _, item := range response.Items().Slice() {
 			clusterID, ok := item.GetExternalClusterID()
 			if !ok {
-				fmt.Println("Not external cluster ID")
+				if id, ok := item.GetID(); ok {
+					log.Info().Str("IntClusterID", id).Msg("Not external cluster ID")
+				} else {
+					log.Info().Msg("Not external cluster ID")
+				}
+
 				continue
 			}
 			retval = append(retval, types.ClusterName(clusterID))
@@ -120,14 +135,14 @@ func (c *AMSClient) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, err
 	}
 
 	if response.Items().Len() != 1 {
-		log.Error().Int("orgIDs length", response.Items().Len()).Msg("More than one organization for the given orgID")
-		return "", fmt.Errorf("More than one organization for the given orgID (%d)", orgID)
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgMoreInternalOrgs)
+		return "", fmt.Errorf(orgMoreInternalOrgs)
 	}
 
 	internalID, ok := response.Items().Get(0).GetID()
 	if !ok {
-		log.Error().Msgf("Organization %d doesn't have proper internal ID", orgID)
-		return "", fmt.Errorf("Organization %d doesn't have proper internal ID", orgID)
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgNoInternalID)
+		return "", fmt.Errorf(orgNoInternalID)
 	}
 
 	return internalID, nil
