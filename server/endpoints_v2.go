@@ -45,11 +45,6 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 	openAPIv2URL := apiV2Prefix + filepath.Base(server.Config.APIv2SpecFile)
 	aggregatorBaseEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
 
-	// It is possible to use special REST API endpoints in debug mode
-	if server.Config.Debug {
-		server.addV2DebugEndpointsToRouter(router, apiV2Prefix, aggregatorBaseEndpoint)
-	}
-
 	// Common REST API endpoints
 	router.HandleFunc(apiV2Prefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
 
@@ -76,12 +71,6 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 // return cluster report or reports to client
 func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+ReportEndpointV2, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
-}
-
-// addV2DebugEndpointsToRouter method registers handlers for all debug endpoints
-func (server *HTTPServer) addV2DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
-	// endpoints for pprof - needed for profiling, ie. usually in debug mode
-	router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
 }
 
 // addV2RuleEndpointsToRouter method registers handlers for endpoints that handle

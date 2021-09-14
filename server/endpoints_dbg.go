@@ -35,17 +35,23 @@ const (
 
 // adddbgEndpointsToRouter adds API dbg specific endpoints to the router
 func (server *HTTPServer) adddbgEndpointsToRouter(router *mux.Router) {
-	apiPrefix := server.Config.APIdbgPrefix
-	aggregatorBaseEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
+	// It is possible to use special REST API endpoints in debug mode
+	if server.Config.Debug {
+		apiPrefix := server.Config.APIdbgPrefix
+		aggregatorBaseEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
 
-	router.HandleFunc(apiPrefix+DbgOrganizationsEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+DbgDeleteOrganizationsEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+DbgDeleteClustersEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodDelete)
+		router.HandleFunc(apiPrefix+DbgOrganizationsEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodGet)
+		router.HandleFunc(apiPrefix+DbgDeleteOrganizationsEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodDelete)
+		router.HandleFunc(apiPrefix+DbgDeleteClustersEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodDelete)
 
-	router.HandleFunc(apiPrefix+DbgGetVoteOnRuleEndpoint, server.proxyTo(
-		aggregatorBaseEndpoint,
-		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.GetVoteOnRuleEndpoint),
-		}},
-	)).Methods(http.MethodGet)
+		router.HandleFunc(apiPrefix+DbgGetVoteOnRuleEndpoint, server.proxyTo(
+			aggregatorBaseEndpoint,
+			&ProxyOptions{RequestModifiers: []RequestModifier{
+				server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.GetVoteOnRuleEndpoint),
+			}},
+		)).Methods(http.MethodGet)
+
+		// endpoints for pprof - needed for profiling, ie. usually in debug mode
+		router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
+	}
 }
