@@ -16,6 +16,7 @@ package amsclient
 
 import (
 	"fmt"
+	"net/http"
 
 	sdk "github.com/openshift-online/ocm-sdk-go"
 	"github.com/rs/zerolog/log"
@@ -34,11 +35,17 @@ type AMSClient struct {
 	pageSize   int
 }
 
-// NewAMSClient creates an AMSClient from the configuration
+// NewAMSClient create an AMSClient from the configuration
 func NewAMSClient(conf Configuration) (*AMSClient, error) {
+	return NewAMSClientWithTransport(conf, nil)
+}
+
+// NewAMSClientWithTransport creates an AMSClient from the configuration, enabling to use a transport wrapper
+func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) (*AMSClient, error) {
 	conn, err := sdk.NewConnectionBuilder().
 		URL(conf.URL).
 		Tokens(conf.Token).
+		TransportWrapper(func(http.RoundTripper) http.RoundTripper { return transport }).
 		Build()
 
 	if err != nil {
@@ -61,17 +68,21 @@ func NewAMSClient(conf Configuration) (*AMSClient, error) {
 func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) []types.ClusterName {
 	var retval []types.ClusterName = []types.ClusterName{}
 
-	internalOrgID, err := c.getInternalOrgIDFromExternal(orgID)
+	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
 	if err != nil {
 		return retval
 	}
 
 	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter)
-	subscriptionClient := c.connection.AccountsMgmt().V1().Subscriptions()
+	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
 
 	for pageNum := 1; ; pageNum++ {
-		response, err := subscriptionClient.List().Size(c.pageSize).Page(pageNum).
-			Search(searchQuery).Fields("external_cluster_id").Send()
+		response, err := subscriptionListRequest.
+			Size(c.pageSize).
+			Page(pageNum).
+			Fields("external_cluster_id").
+			Search(searchQuery).
+			Send()
 
 		if err != nil {
 			return retval
@@ -95,9 +106,14 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 	return retval
 }
 
-func (c *AMSClient) getInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
-	orgsClient := c.connection.AccountsMgmt().V1().Organizations()
-	response, err := orgsClient.List().Search(fmt.Sprintf("external_id = %d", orgID)).Send()
+// GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API
+func (c *AMSClient) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
+	orgsListRequest := c.connection.AccountsMgmt().V1().Organizations().List()
+	response, err := orgsListRequest.
+		Search(fmt.Sprintf("external_id = %d", orgID)).
+		Fields("id,external_id").
+		Send()
+
 	if err != nil {
 		log.Error().Err(err).Msg("")
 		return "", err
