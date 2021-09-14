@@ -238,6 +238,7 @@ func setEnvVariables(t *testing.T) {
 	os.Clearenv()
 
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS", ":8080")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_DBG_PREFIX", "/api/dbg/")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX", "/api/v1/")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE", "server/api/v1/openapi.json")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_PREFIX", "/api/v2/")
