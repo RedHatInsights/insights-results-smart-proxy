@@ -46,6 +46,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/rs/zerolog/log"
@@ -82,6 +83,7 @@ var Config struct {
 	CloudWatchConf    logger.CloudWatchConfiguration    `mapstructure:"cloudwatch" toml:"cloudwatch"`
 	SentryLoggingConf logger.SentryLoggingConfiguration `mapstructure:"sentry" toml:"sentry"`
 	KafkaZerologConf  logger.KafkaZerologConfiguration  `mapstructure:"kafka_zerolog" toml:"kafka_zerolog"`
+	AMSClientConf     amsclient.Configuration           `mapstructure:"amsclient" toml:"amsclient"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
@@ -196,6 +198,11 @@ func GetSentryLoggingConfiguration() logger.SentryLoggingConfiguration {
 // GetKafkaZerologConfiguration returns the kafkazero log configuration
 func GetKafkaZerologConfiguration() logger.KafkaZerologConfiguration {
 	return Config.KafkaZerologConf
+}
+
+// GetAMSClientConfiguration returns the amsclient configuration
+func GetAMSClientConfiguration() amsclient.Configuration {
+	return Config.AMSClientConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,

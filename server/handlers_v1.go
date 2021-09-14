@@ -155,6 +155,12 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 	}
 	log.Info().Msgf("Retrieving overview for org_id %v and its clusters: %v", orgID, clusters)
 
+	// TODO: For every cluster retrieved from AMS API above, generate a cluster list and
+	// retrieve all the reports from Aggregator
+	// The aggregator should include in different keys the error IDs (wrong UUID or belonging to other org)
+	// The missing ones (clusters registered in the list but no report available)
+	// The available ones with the whole report
+
 	for _, clusterID := range clusters {
 		overview, err := server.getOverviewPerCluster(clusterID, authToken, writer)
 		if err != nil {

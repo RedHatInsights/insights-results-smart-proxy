@@ -108,12 +108,13 @@ func startServer() ExitCode {
 	serverCfg := conf.GetServerConfiguration()
 	metricsCfg := conf.GetMetricsConfiguration()
 	servicesCfg := conf.GetServicesConfiguration()
+	amsConfig := conf.GetAMSClientConfiguration()
 	groupsChannel := make(chan []groups.Group)
 
 	if metricsCfg.Namespace != "" {
 		metrics.AddAPIMetricsWithNamespace(metricsCfg.Namespace)
 	}
-	serverInstance = server.New(serverCfg, servicesCfg, groupsChannel)
+	serverInstance = server.New(serverCfg, servicesCfg, amsConfig, groupsChannel)
 
 	go updateGroupInfo(servicesCfg, groupsChannel)
 	go proxy_content.RunUpdateContentLoop(servicesCfg)
