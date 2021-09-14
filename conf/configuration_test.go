@@ -112,7 +112,7 @@ func TestLoadConfigurationFromFile(t *testing.T) {
 
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
-		APIdbgPrefix:                      "/api/dbg/",
+		APIdbgPrefix:                     "/api/dbg/",
 		APIv1Prefix:                      "/api/v1/",
 		APIv1SpecFile:                    "server/api/v1/openapi.json",
 		APIv2Prefix:                      "/api/v2/",
@@ -191,7 +191,7 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
-		APIdbgPrefix:                      "/api/dbg/",
+		APIdbgPrefix:                     "/api/dbg/",
 		APIv1Prefix:                      "/api/v1/",
 		APIv1SpecFile:                    "server/api/v1/openapi.json",
 		APIv2Prefix:                      "/api/v2/",
