@@ -23,13 +23,13 @@ import (
 )
 
 const (
-	// OrganizationsEndpoint returns all organizations. DEBUG only
+	// DbgOrganizationsEndpoint returns all organizations. DEBUG only
 	DbgOrganizationsEndpoint = ira_server.OrganizationsEndpoint
-	// DeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
+	// DbgDeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
 	DbgDeleteOrganizationsEndpoint = ira_server.DeleteOrganizationsEndpoint
-	// DeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
+	// DbgDeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
 	DbgDeleteClustersEndpoint = ira_server.DeleteClustersEndpoint
-	// GetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
+	// DbgGetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
 	DbgGetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/get_vote"
 )
 
