@@ -19,12 +19,13 @@ digraph {
     CCXDEV_5093[shape="box",label="CCXDEV-5093\nendpoint POST /rating/"]
     CCXDEV_5095[shape="box",label="CCXDEV-5095\n/ack/{rule_id}"]
     CCXDEV_5096[shape="box",label="CCXDEV-5096\nrule groups configuration"]
-    CCXDEV_4945[shape="box",label="CCXDEV-4945\nModify org_overview endpoint",style="filled",fillcolor="#ff8080"]
+    CCXDEV_4945[shape="box",label="CCXDEV-4945\nModify org_overview endpoint",style="filled",fillcolor="#80ff80"]
     CCXDEV_5613[shape="box",label="CCXDEV-5613\nimpact number: /rule/"]
     CCXDEV_5615[shape="box",label="CCXDEV-5615\nimpact number: /rules/{ruleId}/content/"]
     CCXDEV_5049[shape="box",label="CCXDEV-5049\ntests and deploy process"]
     CCXDEV_5587[shape="box",label="CCXDEV-5589\nOpenAPI spec tests"]
     CCXDEV_5534[shape="box",label="CCXDEV-5534\n/content rule+error_key"]
+    CCXDEV_5864[shape="box",label="CCXDEV-5864\nAccess to AMS API"]
 
     CCXDEV_5077 -> CCXDEV_5097
     CCXDEV_5077 -> CCXDEV_5094
@@ -33,6 +34,8 @@ digraph {
     CCXDEV_5089 -> CCXDEV_5080
     CCXDEV_5079 -> CCXDEV_5088
     CCXDEV_5089 -> CCXDEV_5088
+    CCXDEV_5864 -> CCXDEV_5080
+    CCXDEV_5864 -> CCXDEV_5088
     CCXDEV_5077 -> CCXDEV_5088
     CCXDEV_5050 -> CCXDEV_5244
     CCXDEV_5051 -> CCXDEV_5244
@@ -42,5 +45,4 @@ digraph {
     CCXDEV_5092 -> CCXDEV_5091
     CCXDEV_5092 -> CCXDEV_5093
     CCXDEV_5613 -> CCXDEV_5615
-    CCXDEV_5089 -> CCXDEV_4945
 }
