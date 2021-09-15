@@ -11,7 +11,6 @@ require (
 	github.com/aws/aws-sdk-go v1.38.9 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/openshift-online/ocm-sdk-go v0.1.204 // indirect
@@ -22,5 +21,4 @@ require (
 	github.com/stretchr/testify v1.7.0
 	gitlab.com/c0b/go-ordered-json v0.0.0-20171130231205-49bbdab258c2 // indirect
 	gopkg.in/h2non/gock.v1 v1.0.16 // indirect
-	gopkg.in/jcmturner/gokrb5.v7 v7.5.0 // indirect
 )
