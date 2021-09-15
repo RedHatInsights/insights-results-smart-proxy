@@ -133,9 +133,6 @@ func (server *HTTPServer) addV1DebugEndpointsToRouter(router *mux.Router, apiPre
 			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.GetVoteOnRuleEndpoint),
 		}},
 	)).Methods(http.MethodGet)
-
-	// endpoints for pprof - needed for profiling, ie. usually in debug mode
-	router.PathPrefix("/debug/pprof/").Handler(http.DefaultServeMux)
 }
 
 // addV1RuleEndpointsToRouter method registers handlers for endpoints that handle

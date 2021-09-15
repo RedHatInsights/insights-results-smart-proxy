@@ -23,6 +23,7 @@ import (
 // Configuration represents configuration of REST API HTTP server
 type Configuration struct {
 	Address                          string        `mapstructure:"address" toml:"address"`
+	APIdbgPrefix                     string        `mapstructure:"api_dbg_prefix" toml:"api_dbg_prefix"`
 	APIv1Prefix                      string        `mapstructure:"api_v1_prefix" toml:"api_v1_prefix"`
 	APIv2Prefix                      string        `mapstructure:"api_v2_prefix" toml:"api_v2_prefix"`
 	APIv1SpecFile                    string        `mapstructure:"api_v1_spec_file" toml:"api_v1_spec_file"`

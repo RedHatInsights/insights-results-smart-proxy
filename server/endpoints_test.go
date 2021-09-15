@@ -28,13 +28,16 @@ import (
 )
 
 func TestMakeURLToEndpointWithValidValue(t *testing.T) {
+	apiPrefixdbg := "api/dbg/"
 	apiPrefixv1 := "api/v1/"
 	apiPrefixv2 := "api/v2/"
 	endpoint := "some_valid_endpoint"
 
+	retvaldbg := httputils.MakeURLToEndpoint(apiPrefixdbg, endpoint)
 	retvalv1 := httputils.MakeURLToEndpoint(apiPrefixv1, endpoint)
 	retvalv2 := httputils.MakeURLToEndpoint(apiPrefixv2, endpoint)
 
+	assert.Equal(t, "api/dbg/some_valid_endpoint", retvaldbg)
 	assert.Equal(t, "api/v1/some_valid_endpoint", retvalv1)
 	assert.Equal(t, "api/v2/some_valid_endpoint", retvalv2)
 }

@@ -81,6 +81,7 @@ func TestLoadServerConfiguration(t *testing.T) {
 	serverCfg := conf.GetServerConfiguration()
 
 	assert.Equal(t, ":8080", serverCfg.Address)
+	assert.Equal(t, "/api/dbg/", serverCfg.APIdbgPrefix)
 	assert.Equal(t, "/api/v1/", serverCfg.APIv1Prefix)
 	assert.Equal(t, "/api/v2/", serverCfg.APIv2Prefix)
 }
@@ -88,6 +89,7 @@ func TestLoadServerConfiguration(t *testing.T) {
 func TestLoadConfigurationFromFile(t *testing.T) {
 	config := `[server]
 		address = ":8080"
+		api_dbg_prefix = "/api/dbg/"
 		api_v1_prefix = "/api/v1/"
 		api_v2_prefix = "/api/v2/"
 		api_v1_spec_file = "server/api/v1/openapi.json"
@@ -110,6 +112,7 @@ func TestLoadConfigurationFromFile(t *testing.T) {
 
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
+		APIdbgPrefix:                     "/api/dbg/",
 		APIv1Prefix:                      "/api/v1/",
 		APIv1SpecFile:                    "server/api/v1/openapi.json",
 		APIv2Prefix:                      "/api/v2/",
@@ -188,6 +191,7 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 
 	assert.Equal(t, server.Configuration{
 		Address:                          ":8080",
+		APIdbgPrefix:                     "/api/dbg/",
 		APIv1Prefix:                      "/api/v1/",
 		APIv1SpecFile:                    "server/api/v1/openapi.json",
 		APIv2Prefix:                      "/api/v2/",
@@ -234,6 +238,7 @@ func setEnvVariables(t *testing.T) {
 	os.Clearenv()
 
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS", ":8080")
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_DBG_PREFIX", "/api/dbg/")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX", "/api/v1/")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE", "server/api/v1/openapi.json")
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_PREFIX", "/api/v2/")

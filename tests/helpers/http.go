@@ -66,6 +66,7 @@ var (
 	// server configuration (with CORS disabled)
 	DefaultServerConfig = server.Configuration{
 		Address:                          ":8081",
+		APIdbgPrefix:                     "/api/dbg/",
 		APIv1Prefix:                      "/api/v1/",
 		APIv2Prefix:                      "/api/v2/",
 		APIv1SpecFile:                    "server/api/v1/openapi.json",
@@ -82,6 +83,7 @@ var (
 	// server configuration with CORS enabled
 	DefaultServerConfigCORS = server.Configuration{
 		Address:       ":8081",
+		APIdbgPrefix:  "/api/dbg/",
 		APIv1Prefix:   "/api/v1/",
 		APIv2Prefix:   "/api/v2/",
 		APIv1SpecFile: "server/api/v1/openapi.json",
