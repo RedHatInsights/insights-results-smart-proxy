@@ -151,7 +151,10 @@ func (server *HTTPServer) Initialize() http.Handler {
 }
 
 func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {
-	server.adddbgEndpointsToRouter(router)
+	// It is possible to use special REST API endpoints in debug mode
+	if server.Config.Debug {
+		server.adddbgEndpointsToRouter(router)
+	}
 	server.addV1EndpointsToRouter(router)
 	server.addV2EndpointsToRouter(router)
 }
