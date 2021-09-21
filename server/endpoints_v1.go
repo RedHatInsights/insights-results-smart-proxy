@@ -178,7 +178,7 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 	router.HandleFunc(apiPrefix+DisableRuleFeedbackEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DisableRuleForClusterEndpoint),
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DisableRuleFeedbackEndpoint),
 		}},
 	)).Methods(http.MethodPost, http.MethodOptions)
 }
