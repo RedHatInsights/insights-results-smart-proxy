@@ -19,6 +19,5 @@ require (
 	github.com/rs/zerolog v1.21.0
 	github.com/spf13/viper v1.7.2-0.20210415161207-7fdb267c730d
 	github.com/stretchr/testify v1.7.0
-	gitlab.com/c0b/go-ordered-json v0.0.0-20171130231205-49bbdab258c2 // indirect
-	gopkg.in/h2non/gock.v1 v1.0.16 // indirect
+	gopkg.in/h2non/gock.v1 v1.0.16
 )
