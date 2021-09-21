@@ -163,12 +163,16 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 
 	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
-		nil,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DisableRuleForClusterEndpoint),
+		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
-		nil,
+		&ProxyOptions{RequestModifiers: []RequestModifier{
+			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.EnableRuleForClusterEndpoint),
+		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+DisableRuleFeedbackEndpoint, server.proxyTo(
