@@ -404,7 +404,7 @@ var (
 				MoreInfo:   testdata.RuleErrorKey1.MoreInfo,
 				Metadata: iou_types.ErrorKeyMetadata{
 					Description: testdata.RuleErrorKey1.Description,
-					Impact:      testdata.ImpactIntToStr[testdata.RuleErrorKey1.Impact],
+					Impact:      testdata.RuleErrorKey1.Impact,
 					Likelihood:  testdata.RuleErrorKey1.Likelihood,
 					PublishDate: testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
 					Tags:        testdata.RuleErrorKey1.Tags,
