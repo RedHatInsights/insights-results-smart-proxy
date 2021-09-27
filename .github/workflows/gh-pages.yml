@@ -31,6 +31,8 @@ jobs:
           go-version: '^1.14.1'
       - name: Generate docgo
         run: make godoc
+      - name: Store the Gitleaks file
+        run: mkdir docs/build && cp docs/.gitleaks.toml docs/build
       - name: Generate Jekyll site
         uses: helaili/jekyll-action@v2
         with:
