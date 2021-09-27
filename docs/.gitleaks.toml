@@ -1,0 +1,4 @@
+# Global allowlist
+[allowlist]
+    description = "Files containing literate document of keys used only for testing"
+    files = ["packages/amsclient/utils_test.html"]
