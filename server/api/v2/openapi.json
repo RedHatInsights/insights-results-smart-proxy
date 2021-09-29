@@ -287,6 +287,36 @@
         }
       }
     },
+    "/ack/{rule_id}": {
+      "delele": {
+        "operationId": "deleteAckRuleSystemWide",
+        "summary": "Deletes an acknowledgement for a rule",
+        "description": "Deletes an acknowledgement for a rule, by its rule ID. If the ack existed, it is deleted and a 204 is returned. Otherwise, a 404 is returned.",
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "description": "Specification of rule selector (ID+error key) and a justification why rule has been disabled.",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module|error_key"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rule ack has been deleted"
+          },
+          "404": {
+            "description": "Rule has not been acked (disabled) previously"
+          }
+        }
+      }
+    },
     "/rule/{ruleId}": {
       "get": {
         "tags": [
