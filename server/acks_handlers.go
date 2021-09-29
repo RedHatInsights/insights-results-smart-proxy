@@ -30,8 +30,63 @@ const (
 	contentType = "Content-Type"
 	appJSON     = "application/json; charset=utf-8"
 
-	authTokenFormatError = "unable to read orgID and userID from auth. token!"
+	authTokenFormatError       = "unable to read orgID and userID from auth. token!"
+	improperRuleSelectorFormat = "improper rule selector format"
+	readRuleStatusError        = "read rule status error"
 )
+
+// method getAcknowledge retrieves the info about rule acknowledgement made
+// from this account. Acks are created, deleted, and queired by Insights rule
+// ID, not by their own ack ID.
+//
+// An example response:
+//
+// {
+//   "rule": "string",
+//   "justification": "string",  <- can not be set by this call!!!
+//   "created_by": "string",
+//   "created_at": "2021-09-04T17:52:48.976Z",
+//   "updated_at": "2021-09-04T17:52:48.976Z"
+// }
+func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *http.Request) {
+	writer.Header().Set(contentType, appJSON)
+
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		// everything's handled already
+		return
+	}
+
+	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
+	if err != nil {
+		log.Error().Err(err).Msg(improperRuleSelectorFormat)
+		// server error has been handled already
+		return
+	}
+
+	// we seem to have all data -> let's display them
+	logFullRuleSelector(orgID, userID, ruleID, errorKey)
+
+	// test if the rule has been acknowledged already
+	ruleAck, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg(readRuleStatusError)
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// rule was not acked -> nothing to return
+	if !found {
+		writer.WriteHeader(http.StatusNotFound)
+		log.Info().Msg("Rule has not been disabled previously -> nothing to return!")
+		return
+	}
+
+	// we have the metadata about rule, let's send it into client in
+	// response payload
+	returnRuleAckToClient(writer, ruleAck)
+}
 
 // method acknowledgePost acknowledges (and therefore hides) a rule from view
 // in an account. If there's already an acknowledgement of this rule by this
@@ -85,7 +140,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	// check if rule selector has the proper format
 	ruleID, errorKey, err := parsers.ParseRuleSelector(parameters.RuleSelector)
 	if err != nil {
-		log.Error().Err(err).Msg("improper rule selector format")
+		log.Error().Err(err).Msg(improperRuleSelectorFormat)
 		// return HTTP code 400 to client
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
@@ -100,7 +155,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	// test if the rule has been acknowledged already
 	_, found, err := server.readRuleDisableStatus(ruleID, errorKey, orgID, userID)
 	if err != nil {
-		log.Error().Err(err).Msg("read rule status error")
+		log.Error().Err(err).Msg(readRuleStatusError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -150,23 +205,18 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 
 	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
 	if err != nil {
-		log.Error().Err(err).Msg("improper rule selector format")
+		log.Error().Err(err).Msg(improperRuleSelectorFormat)
 		// server error has been handled already
 		return
 	}
 
 	// we seem to have all data -> let's display them
-	log.Info().
-		Int("org", int(orgID)).
-		Str("account", string(userID)).
-		Str("ruleID", string(ruleID)).
-		Str("errorKey", string(errorKey)).
-		Msg("Proper rule selector provided")
+	logFullRuleSelector(orgID, userID, ruleID, errorKey)
 
 	// test if the rule has been acknowledged already
 	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
 	if err != nil {
-		log.Error().Err(err).Msg("read rule status error")
+		log.Error().Err(err).Msg(readRuleStatusError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}

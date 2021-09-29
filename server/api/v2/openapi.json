@@ -288,6 +288,41 @@
       }
     },
     "/ack/{rule_id}": {
+      "get": {
+        "operationId": "getAckRuleSystemWide",
+        "summary": "AckGetEndpoint read the acknowledgement info about disabled rule",
+        "description": "AckGetEndpoint read the acknowledgement info about disabled rule",
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "description": "Specification of rule selector (ID+error key) and a justification why rule has been disabled.",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module|error_key"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
+                }
+              }
+            },
+            "description": "Rule ack has been found, the metadata is returned in response body"
+          },
+          "404": {
+            "description": "Rule has not been acked (disabled) previously"
+          }
+        }
+      },
       "delete": {
         "operationId": "deleteAckRuleSystemWide",
         "summary": "Deletes an acknowledgement for a rule",
