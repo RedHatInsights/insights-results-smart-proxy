@@ -288,7 +288,7 @@
       }
     },
     "/ack/{rule_id}": {
-      "delele": {
+      "delete": {
         "operationId": "deleteAckRuleSystemWide",
         "summary": "Deletes an acknowledgement for a rule",
         "description": "Deletes an acknowledgement for a rule, by its rule ID. If the ack existed, it is deleted and a 204 is returned. Otherwise, a 404 is returned.",
