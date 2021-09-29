@@ -246,6 +246,47 @@
         "description": "The static content is taken from the cache periodically updated from the content service"
       }
     },
+    "/ack": {
+      "post": {
+        "operationId": "ackRuleSystemWide",
+        "summary": "Acknowledges/hide the rule for given account",
+        "description": "Acknowledges (and therefore hides) a rule from view in an account. If there's already an acknowledgement of this rule by this account, then return that. Othervise, a new ack is created.",
+        "tags": [
+          "prod"
+        ],
+        "requestBody": {
+          "description": "Specification of rule selector (ID+error key) and a justification why rule has been disabled.",
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/overview_response"
+                }
+              }
+            },
+            "description": "Rule has been disabled already"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
+                }
+              }
+            },
+            "description": "Rule has been acked (disabled)"
+          }
+        }
+      }
+    },
     "/rule/{ruleId}": {
       "get": {
         "tags": [
@@ -546,6 +587,44 @@
           "status": {
             "description": "",
             "type": "string"
+          }
+        }
+      },
+      "systemWideRuleDisable": {
+        "description": "An information about rule that has been disabled for whole account",
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Information about the operation status",
+            "type": "string",
+            "example": "ok"
+          },
+          "rule": {
+            "type": "string",
+            "description": "Rule selector: rule ID + error key",
+            "example": "foo.bar|baz"
+          },
+          "justification": {
+            "type": "string",
+            "description": "Justification (message) provided by user",
+            "example": "I don't like this rule!"
+          },
+          "created_by": {
+            "type": "string",
+            "description": "ID of user (account)",
+            "example": "42"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the rule has been acked/disabled",
+            "example": "2021-09-05T16:29:33+02:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the rule justification has been changed (can be empty)",
+            "example": "2021-09-05T16:29:33+02:00"
           }
         }
       },
