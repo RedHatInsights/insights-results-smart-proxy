@@ -34,6 +34,8 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 )
 
+const aggregatorImproperCodeMessage = "Aggregator responded with improper HTTP code: %v"
+
 // readRuleSelectorAndJustificationFromBody function tries to read data
 // structure types.AcknowledgementRuleSelectorJustification from response
 // payload (body)
@@ -124,7 +126,42 @@ func (server *HTTPServer) ackRuleSystemWide(
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK {
-		err := fmt.Errorf("Aggregator responded with improper HTTP code: %v", response.StatusCode)
+		err := fmt.Errorf(aggregatorImproperCodeMessage, response.StatusCode)
+		return err
+	}
+
+	return nil
+}
+
+// deleteAckRuleSystemWide method deletes the acknowledgement of a rule via
+// Insights Aggregator REST API
+func (server *HTTPServer) deleteAckRuleSystemWide(
+	ruleID types.Component, errorKey types.ErrorKey,
+	orgID types.OrgID, userID types.UserID) error {
+
+	// try to ack rule via Insights Aggregator REST API
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.EnableRuleSystemWide,
+		ruleID, errorKey, orgID, userID,
+	)
+
+	// call PUT method
+	req, err := http.NewRequest(http.MethodPut, aggregatorURL, nil)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	// check the aggregator response
+	if response.StatusCode != http.StatusOK {
+		err := fmt.Errorf(aggregatorImproperCodeMessage, response.StatusCode)
 		return err
 	}
 
