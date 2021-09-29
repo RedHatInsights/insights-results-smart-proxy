@@ -46,6 +46,11 @@ const (
 	// this rule by this account, then return that. Otherwise, a new ack is
 	// created.
 	AckAcknowledgePostEndpoint = "ack"
+
+	// AckDeleteEndpoint deletes an acknowledgement for a rule, by its rule
+	// ID. If the ack existed, it is deleted and a 204 is returned.
+	// Otherwise, a 404 is returned.
+	AckDeleteEndpoint = "ack/{rule_id}"
 )
 
 // addV2EndpointsToRouter adds API V2 specific endpoints to the router
@@ -89,6 +94,7 @@ func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPref
 	// and acks_utils.go for more information about these endpoints
 	// prepared to be compatible with RHEL Insights Advisor.
 	router.HandleFunc(apiPrefix+AckAcknowledgePostEndpoint, server.acknowledgePost).Methods(http.MethodPost)
+	router.HandleFunc(apiPrefix+AckDeleteEndpoint, server.deleteAcknowledge).Methods(http.MethodDelete)
 }
 
 // addV2ContentEndpointsToRouter method registers handlers for endpoints that

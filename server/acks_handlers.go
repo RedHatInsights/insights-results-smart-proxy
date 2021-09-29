@@ -22,12 +22,15 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-operator-utils/parsers"
+	"github.com/RedHatInsights/insights-operator-utils/types"
 )
 
 // HTTP response-related constants
 const (
 	contentType = "Content-Type"
 	appJSON     = "application/json; charset=utf-8"
+
+	authTokenFormatError = "unable to read orgID and userID from auth. token!"
 )
 
 // method acknowledgePost acknowledges (and therefore hides) a rule from view
@@ -54,13 +57,13 @@ const (
 // HTTP/1.1 200 OK is returned if rule has been already acked
 // HTTP/1.1 201 Created is returned if rule has been acked by this call
 func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *http.Request) {
-	const readRuleStatusError = "can not retrieve rule disable status from Aggregator"
 	const readRuleJustificationError = "can not retrieve rule disable justification from Aggregator"
 
 	writer.Header().Set(contentType, appJSON)
 
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
+		log.Error().Msg(authTokenFormatError)
 		// everything's handled already
 		return
 	}
@@ -132,4 +135,58 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	// we have the metadata about rule, let's send it into client in
 	// response payload
 	returnRuleAckToClient(writer, updatedAcknowledgement)
+}
+
+// method deleteAcknowledge deletes an acknowledgement for a rule, by its rule
+// ID. If the ack existed, it is deleted and a 204 is returned. Otherwise, a
+// 404 is returned.
+func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request *http.Request) {
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		// everything's handled already
+		return
+	}
+
+	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
+	if err != nil {
+		log.Error().Err(err).Msg("improper rule selector format")
+		// server error has been handled already
+		return
+	}
+
+	// we seem to have all data -> let's display them
+	log.Info().
+		Int("org", int(orgID)).
+		Str("account", string(userID)).
+		Str("ruleID", string(ruleID)).
+		Str("errorKey", string(errorKey)).
+		Msg("Proper rule selector provided")
+
+	// test if the rule has been acknowledged already
+	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg("read rule status error")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !found {
+		writer.WriteHeader(http.StatusNotFound)
+		log.Info().Msg("Rule has not been disabled previously -> ACK won't be deleted")
+		return
+	}
+
+	// rule has been found -> let's delete the ACK
+	// delete acknowledgement for a rule
+	log.Info().Msg("About to delete ACK for a rule")
+	err = server.deleteAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to delete rule acknowledgement")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// return 204 -> rule ack has been deleted
+	writer.WriteHeader(http.StatusNoContent)
 }
