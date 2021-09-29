@@ -103,9 +103,18 @@ func (server *HTTPServer) ackRuleSystemWide(
 		ruleID, errorKey, orgID, userID,
 	)
 
-	// call PUT method, provide the required data in payload
+	// generate payload in JSON format
 	jsonReq, err := json.Marshal(j)
+	if err != nil {
+		return err
+	}
+
+	// call PUT method, provide the required data in payload
 	req, err := http.NewRequest(http.MethodPut, aggregatorURL, bytes.NewBuffer(jsonReq))
+	if err != nil {
+		return err
+	}
+
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	client := &http.Client{}
 	response, err := client.Do(req)
