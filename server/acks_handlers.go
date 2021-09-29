@@ -17,6 +17,7 @@ limitations under the License.
 package server
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -64,6 +65,37 @@ const (
 // Please note that for the sake of simplicity we don't use links section as
 // pagination is not supported ATM.
 func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.Request) {
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		// everything's handled already
+		return
+	}
+
+	acks, err := server.readListOfAckedRules(orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to retrieve list of acked rules")
+		// server error has been handled already
+		return
+	}
+
+	responseBody := prepareAckList(acks)
+
+	// serialize the above data structure into JSON format
+	bytes, err := json.MarshalIndent(responseBody, "", "\t")
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// and send the serialized structure to client
+	_, err = writer.Write(bytes)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// return 200 OK (default)
 }
 
 // method getAcknowledge retrieves the info about rule acknowledgement made
