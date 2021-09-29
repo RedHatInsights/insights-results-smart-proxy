@@ -323,6 +323,50 @@
           }
         }
       },
+      "put": {
+        "operationId": "UpdateAckRuleSystemWide",
+        "summary": "Updates an acknowledgement for a rule, by rule ID.",
+        "description": "Updates an acknowledgement for a rule, by rule ID. A new justification can be supplied.",
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "description": "Specification of rule selector (ID+error key).",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module|error_key"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Specification of justification why rule has been disabled.",
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
+                }
+              }
+            },
+            "description": "Rule ack has been found and updated, the metadata is returned in response body"
+          },
+          "404": {
+            "description": "Rule has not been acked (disabled) previously"
+          }
+        }
+      },
       "delete": {
         "operationId": "deleteAckRuleSystemWide",
         "summary": "Deletes an acknowledgement for a rule",
