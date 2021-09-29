@@ -29,6 +29,8 @@ import (
 const (
 	contentType = "Content-Type"
 	appJSON     = "application/json; charset=utf-8"
+
+	authTokenFormatError = "unable to read orgID and userID from auth. token!"
 )
 
 // method acknowledgePost acknowledges (and therefore hides) a rule from view
@@ -61,6 +63,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
+		log.Error().Msg(authTokenFormatError)
 		// everything's handled already
 		return
 	}
@@ -140,6 +143,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request *http.Request) {
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
+		log.Error().Msg(authTokenFormatError)
 		// everything's handled already
 		return
 	}
