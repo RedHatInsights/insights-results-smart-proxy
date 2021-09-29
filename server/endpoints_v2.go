@@ -37,6 +37,15 @@ const (
 
 	// ContentV2 returns all the static content avaiable for the user
 	ContentV2 = "content"
+
+	// Endpoints to acknowledge rule and to manipulate with
+	// acknowledgements.
+
+	// AckAcknowledgePostEndpoint acknowledges (and therefore hides) a rule
+	// from view in an account. If there's already an acknowledgement of
+	// this rule by this account, then return that. Otherwise, a new ack is
+	// created.
+	AckAcknowledgePostEndpoint = "ack"
 )
 
 // addV2EndpointsToRouter adds API V2 specific endpoints to the router
@@ -76,7 +85,10 @@ func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiP
 // addV2RuleEndpointsToRouter method registers handlers for endpoints that handle
 // rule-related operations (voting etc.)
 func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) {
-	return
+	// Acknowledgement-related endpoints. Please look into acks_handlers.go
+	// and acks_utils.go for more information about these endpoints
+	// prepared to be compatible with RHEL Insights Advisor.
+	router.HandleFunc(apiPrefix+AckAcknowledgePostEndpoint, server.acknowledgePost).Methods(http.MethodPost)
 }
 
 // addV2ContentEndpointsToRouter method registers handlers for endpoints that
