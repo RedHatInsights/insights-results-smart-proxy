@@ -227,6 +227,47 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 	return nil
 }
 
+// Method readListOfAckedRules reads all rules that has been acked system-wide
+func (server *HTTPServer) readListOfAckedRules(
+	orgID types.OrgID, userID types.UserID) ([]types.SystemWideRuleDisable, error) {
+
+	// wont be used anywhere else
+	type responsePayload struct {
+		Status      string                        `json:"status"`
+		RuleDisable []types.SystemWideRuleDisable `json:"disabledRules"`
+	}
+
+	// try to read rule list from Insights Aggregator
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ListOfDisabledRulesSystemWide,
+		orgID, userID,
+	)
+
+	// #nosec G107
+	response, err := http.Get(aggregatorURL)
+	if err != nil {
+		return nil, err
+	}
+
+	// check the aggregator response
+	if response.StatusCode != http.StatusOK {
+		err := fmt.Errorf("Unexpected HTTP code during reading list of rules: %v", response.StatusCode)
+		return nil, err
+	}
+
+	var payload responsePayload
+
+	// decode the response payload
+	err = json.NewDecoder(response.Body).Decode(&payload)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info().Int("#rules", len(payload.RuleDisable)).Msg("Read disabled rules")
+	return payload.RuleDisable, nil
+}
+
 // readRuleDisableStatus method read system-wide rule disable status from
 // Insights Results Aggregator via REST API
 func (server *HTTPServer) readRuleDisableStatus(
@@ -294,4 +335,30 @@ func logFullRuleSelector(orgID types.OrgID, userID types.UserID,
 		Str("ruleID", string(ruleID)).
 		Str("errorKey", string(errorKey)).
 		Msg("Selector for rule acknowledgement")
+}
+
+// prepareAckList converts data to format accepted by Insights Advisor
+func prepareAckList(acks []types.SystemWideRuleDisable) types.AcknowledgementsResponse {
+	var responseBody types.AcknowledgementsResponse
+
+	// fill-in metadata part of response body
+	responseBody.Metadata.Count = len(acks)
+
+	// fill-in data part of response body
+	responseBody.Data = make([]types.Acknowledgement, len(acks))
+
+	// perform conversion item-by-item
+	i := 0
+	for _, ack := range acks {
+		var acknowledgement types.Acknowledgement
+		acknowledgement.Rule = string(ack.RuleID) + "|" + string(ack.ErrorKey)
+		acknowledgement.Justification = ack.Justification
+		acknowledgement.CreatedBy = string(ack.UserID)
+		acknowledgement.CreatedAt = formatNullTime(ack.CreatedAt)
+		acknowledgement.UpdatedAt = formatNullTime(ack.UpdatedAT)
+		responseBody.Data[i] = acknowledgement
+		i++
+	}
+
+	return responseBody
 }
