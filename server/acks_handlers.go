@@ -94,7 +94,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 		Str("errorKey", string(errorKey)).
 		Msg("Parsed rule selector")
 
-	// test if the rule has been acknowledget already
+	// test if the rule has been acknowledged already
 	_, found, err := server.readRuleDisableStatus(ruleID, errorKey, orgID, userID)
 	if err != nil {
 		log.Error().Err(err).Msg("read rule status error")
