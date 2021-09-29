@@ -41,6 +41,10 @@ const (
 	// Endpoints to acknowledge rule and to manipulate with
 	// acknowledgements.
 
+	// AckListEndpoint list acks from this account where the rule is
+	// active. Will return an empty list if this account has no acks.
+	AckListEndpoint = "ack"
+
 	// AckGetEndpoint read the acknowledgement info about disabled rule.
 	// Acks are created, deleted, and queried by Insights rule ID, not
 	// by their own ack ID.
@@ -51,6 +55,11 @@ const (
 	// this rule by this account, then return that. Otherwise, a new ack is
 	// created.
 	AckAcknowledgePostEndpoint = "ack"
+
+	// AckUpdateEndpoint updates an acknowledgement for a rule, by rule ID.
+	// A new justification can be supplied. The username is taken from the
+	// authenticated request. The updated ack is returned.
+	AckUpdateEndpoint = "ack/{rule_id}"
 
 	// AckDeleteEndpoint deletes an acknowledgement for a rule, by its rule
 	// ID. If the ack existed, it is deleted and a 204 is returned.
@@ -98,8 +107,10 @@ func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPref
 	// Acknowledgement-related endpoints. Please look into acks_handlers.go
 	// and acks_utils.go for more information about these endpoints
 	// prepared to be compatible with RHEL Insights Advisor.
+	router.HandleFunc(apiPrefix+AckListEndpoint, server.readAckList).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+AckGetEndpoint, server.getAcknowledge).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+AckAcknowledgePostEndpoint, server.acknowledgePost).Methods(http.MethodPost)
+	router.HandleFunc(apiPrefix+AckUpdateEndpoint, server.updateAcknowledge).Methods(http.MethodPut)
 	router.HandleFunc(apiPrefix+AckDeleteEndpoint, server.deleteAcknowledge).Methods(http.MethodDelete)
 }
 
