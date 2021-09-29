@@ -176,6 +176,7 @@ func (server *HTTPServer) updateAckRuleSystemWide(
 	}
 
 	// do POST request and read response from Insights Aggregator
+	// #nosec G107
 	response, err := http.Post(aggregatorURL, appJSON,
 		bytes.NewBuffer(jsonData))
 	if err != nil {
