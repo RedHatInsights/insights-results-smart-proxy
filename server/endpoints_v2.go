@@ -41,6 +41,11 @@ const (
 	// Endpoints to acknowledge rule and to manipulate with
 	// acknowledgements.
 
+	// AckGetEndpoint read the acknowledgement info about disabled rule.
+	// Acks are created, deleted, and queried by Insights rule ID, not
+	// by their own ack ID.
+	AckGetEndpoint = "ack/{rule_id}"
+
 	// AckAcknowledgePostEndpoint acknowledges (and therefore hides) a rule
 	// from view in an account. If there's already an acknowledgement of
 	// this rule by this account, then return that. Otherwise, a new ack is
@@ -93,6 +98,7 @@ func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPref
 	// Acknowledgement-related endpoints. Please look into acks_handlers.go
 	// and acks_utils.go for more information about these endpoints
 	// prepared to be compatible with RHEL Insights Advisor.
+	router.HandleFunc(apiPrefix+AckGetEndpoint, server.getAcknowledge).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+AckAcknowledgePostEndpoint, server.acknowledgePost).Methods(http.MethodPost)
 	router.HandleFunc(apiPrefix+AckDeleteEndpoint, server.deleteAcknowledge).Methods(http.MethodDelete)
 }
