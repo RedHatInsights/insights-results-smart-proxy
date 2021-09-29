@@ -226,3 +226,13 @@ func formatNullTime(t sql.NullTime) string {
 	}
 	return t.Time.Format(time.RFC3339)
 }
+
+func logFullRuleSelector(orgID types.OrgID, userID types.UserID,
+	ruleID types.RuleID, errorKey types.ErrorKey) {
+	log.Info().
+		Int("org", int(orgID)).
+		Str("account", string(userID)).
+		Str("ruleID", string(ruleID)).
+		Str("errorKey", string(errorKey)).
+		Msg("Selector for rule acknowledgement")
+}
