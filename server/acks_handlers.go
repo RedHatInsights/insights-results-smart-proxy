@@ -33,7 +33,38 @@ const (
 	authTokenFormatError       = "unable to read orgID and userID from auth. token!"
 	improperRuleSelectorFormat = "improper rule selector format"
 	readRuleStatusError        = "read rule status error"
+	readRuleJustificationError = "can not retrieve rule disable justification from Aggregator"
 )
+
+// method readAckList list acks from this account where the rule is active.
+// Will return an empty list if this account has no acks.
+//
+// Response format should look like:
+// {
+//   "meta": {
+//     "count": 0
+//   },
+//   "links": {
+//     "first": "string",
+//     "previous": "string",
+//     "next": "string",
+//     "last": "string"
+//   },
+//   "data": [
+//     {
+//       "rule": "string",
+//       "justification": "string",
+//       "created_by": "string",
+//       "created_at": "2021-09-04T17:11:35.130Z",
+//       "updated_at": "2021-09-04T17:11:35.130Z"
+//     }
+//   ]
+// }
+//
+// Please note that for the sake of simplicity we don't use links section as
+// pagination is not supported ATM.
+func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.Request) {
+}
 
 // method getAcknowledge retrieves the info about rule acknowledgement made
 // from this account. Acks are created, deleted, and queired by Insights rule
@@ -112,8 +143,6 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 // HTTP/1.1 200 OK is returned if rule has been already acked
 // HTTP/1.1 201 Created is returned if rule has been acked by this call
 func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *http.Request) {
-	const readRuleJustificationError = "can not retrieve rule disable justification from Aggregator"
-
 	writer.Header().Set(contentType, appJSON)
 
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
@@ -181,6 +210,93 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	// Aggregator REST API is source of truth - let's re-read rule status
 	// from it
 	updatedAcknowledgement, _, err := server.readRuleDisableStatus(ruleID, errorKey, orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg(readRuleJustificationError)
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// we have the metadata about rule, let's send it into client in
+	// response payload
+	returnRuleAckToClient(writer, updatedAcknowledgement)
+}
+
+// method updateAcknowledge updates an acknowledgement for a rule, by rule ID.
+// A new justification can be supplied. The username is taken from the
+// authenticated request. The updated ack is returned.
+//
+// An example of request:
+//
+// {
+//    "justification": "string"
+// }
+//
+// An example response:
+//
+// {
+//   "rule": "string",
+//   "justification": "string",
+//   "created_by": "string",
+//   "created_at": "2021-09-04T17:52:48.976Z",
+//   "updated_at": "2021-09-04T17:52:48.976Z"
+// }
+//
+// Additionally, if rule is not found, 404 is returned (not mentioned in
+// original REST API specification).
+func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request *http.Request) {
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		// everything's handled already
+		return
+	}
+
+	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
+	if err != nil {
+		log.Error().Err(err).Msg(improperRuleSelectorFormat)
+		// server error has been handled already
+		return
+	}
+
+	parameters, err := readJustificationFromBody(writer, request)
+	if err != nil {
+		// everything's handled already
+		return
+	}
+
+	// we seem to have all data -> let's display them
+	logFullRuleSelector(orgID, userID, ruleID, errorKey)
+	log.Info().
+		Str("justification", parameters.Value).
+		Msg("Justification to be set")
+
+	// test if the rule has been acknowledged already
+	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg(readRuleStatusError)
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// if acknowledgement has NOT been found -> return 404 NotFound
+	if !found {
+		writer.WriteHeader(http.StatusCreated)
+		log.Info().Msg("Rule ack can not be found")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// ok, rule has been found, so update it
+	err = server.updateAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, userID, parameters.Value)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to update justification for rule acknowledgement")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Aggregator REST API is source of truth - let's re-read rule status
+	// from it
+	updatedAcknowledgement, _, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)

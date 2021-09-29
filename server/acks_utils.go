@@ -36,6 +36,27 @@ import (
 
 const aggregatorImproperCodeMessage = "Aggregator responded with improper HTTP code: %v"
 
+// readJustificationFromBody function tries to read data
+// structure types.AcknowledgemenJustification from response
+// payload (body)
+func readJustificationFromBody(writer http.ResponseWriter, request *http.Request) (
+	types.AcknowledgementJustification, error) {
+
+	// try to read request body
+	var parameters types.AcknowledgementJustification
+	err := json.NewDecoder(request.Body).Decode(&parameters)
+
+	if err != nil {
+		log.Error().Err(err).Msg("wrong payload (not justification) provided by client")
+		// return HTTP code 400 to client
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return parameters, err
+	}
+
+	// everything seems to be ok
+	return parameters, nil
+}
+
 // readRuleSelectorAndJustificationFromBody function tries to read data
 // structure types.AcknowledgementRuleSelectorJustification from response
 // payload (body)
@@ -127,6 +148,44 @@ func (server *HTTPServer) ackRuleSystemWide(
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK {
 		err := fmt.Errorf(aggregatorImproperCodeMessage, response.StatusCode)
+		return err
+	}
+
+	return nil
+}
+
+// updateAckRuleSystemWide method updates rule ACK via Insights Aggregator REST
+// API
+func (server *HTTPServer) updateAckRuleSystemWide(
+	ruleID types.Component, errorKey types.ErrorKey,
+	orgID types.OrgID, userID types.UserID, justification string) error {
+	var j types.AcknowledgementJustification
+	j.Value = justification
+
+	// try to ack rule via Insights Aggregator REST API
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.UpdateRuleSystemWide,
+		ruleID, errorKey, orgID, userID,
+	)
+
+	// marshal data to be POSTed to Insights Aggregator
+	jsonData, err := json.Marshal(j)
+	if err != nil {
+		return err
+	}
+
+	// do POST request and read response from Insights Aggregator
+	response, err := http.Post(aggregatorURL, appJSON,
+		bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	// check the aggregator response
+	if response.StatusCode != http.StatusOK {
+		err := fmt.Errorf(aggregatorImproperCodeMessage,
+			response.StatusCode)
 		return err
 	}
 
