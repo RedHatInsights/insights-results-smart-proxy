@@ -121,6 +121,57 @@ func AssertAPIRequest(
 		serverConfig = &DefaultServerConfig
 	}
 
+	assertAPIRequest(
+		t,
+		serverConfig,
+		servicesConfig,
+		groupsChannel,
+		serverConfig.APIv1Prefix,
+		request,
+		expectedResponse,
+	)
+}
+
+// AssertAPIv2Request function is exactly the same as AssertAPIResponse, but intended to use
+// with API v2 endpoints
+func AssertAPIv2Request(
+	t testing.TB,
+	serverConfig *server.Configuration,
+	servicesConfig *services.Configuration,
+	groupsChannel chan []groups.Group,
+	request *helpers.APIRequest,
+	expectedResponse *helpers.APIResponse,
+) {
+	// if custom server configuration is not provided, use default one
+	if serverConfig == nil {
+		serverConfig = &DefaultServerConfig
+	}
+
+	assertAPIRequest(
+		t,
+		serverConfig,
+		servicesConfig,
+		groupsChannel,
+		serverConfig.APIv2Prefix,
+		request,
+		expectedResponse,
+	)
+}
+
+func assertAPIRequest(
+	t testing.TB,
+	serverConfig *server.Configuration,
+	servicesConfig *services.Configuration,
+	groupsChannel chan []groups.Group,
+	APIPrefix string,
+	request *helpers.APIRequest,
+	expectedResponse *helpers.APIResponse,
+) {
+	// if custom server configuration is not provided, use default one
+	if serverConfig == nil {
+		serverConfig = &DefaultServerConfig
+	}
+
 	// if custom services configuration is not provided, use default one
 	if servicesConfig == nil {
 		servicesConfig = &DefaultServicesConfig
@@ -137,5 +188,5 @@ func AssertAPIRequest(
 
 	// send the request to newly created REST API server and check its
 	// response (if it matches the provided one)
-	helpers.AssertAPIRequest(t, testServer, serverConfig.APIv1Prefix, request, expectedResponse)
+	helpers.AssertAPIRequest(t, testServer, APIPrefix, request, expectedResponse)
 }

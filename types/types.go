@@ -114,10 +114,4 @@ type RuleWithContent struct {
 }
 
 // RuleRating structure with the rule identifier and the rating
-type RuleRating struct {
-	RuleID types.RuleID `json:"rule"`
-	Rating int16        `json:"rating"`
-}
-
-// RuleRatingArray defines an array of RuleRating as a type
-type RuleRatingArray []RuleRating
+type RuleRating = types.RuleRating

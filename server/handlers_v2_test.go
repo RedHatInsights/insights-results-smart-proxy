@@ -1,3 +1,17 @@
+// Copyright 2021 Red Hat, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package server_test
 
 import (
@@ -12,6 +26,7 @@ import (
 )
 
 func TestHTTPServer_SetRating(t *testing.T) {
+	// log.Info().Msg("Starting SetRating test")
 	defer helpers.CleanAfterGock(t)
 
 	rating := `{"rule": "rule_module|error_key","rating":-1}`
@@ -24,7 +39,7 @@ func TestHTTPServer_SetRating(t *testing.T) {
 		&helpers.APIRequest{
 			Method:       http.MethodPost,
 			Endpoint:     ira_server.Rating,
-			EndpointArgs: []interface{}{testdata.UserID, testdata.OrgID},
+			EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
 			Body:         rating,
 		},
 		&helpers.APIResponse{
@@ -33,15 +48,16 @@ func TestHTTPServer_SetRating(t *testing.T) {
 		},
 	)
 
-	helpers.AssertAPIRequest(
+	helpers.AssertAPIv2Request(
 		t,
-		nil,
+		&serverConfigJWT,
 		nil,
 		nil,
 		&helpers.APIRequest{
-			Method:   http.MethodPost,
-			Endpoint: server.Rating,
-			Body:     rating,
+			Method:             http.MethodPost,
+			Endpoint:           server.Rating,
+			Body:               rating,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       rating,

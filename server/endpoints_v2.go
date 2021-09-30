@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
-	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -115,12 +114,7 @@ func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPref
 	router.HandleFunc(apiPrefix+AckAcknowledgePostEndpoint, server.acknowledgePost).Methods(http.MethodPost)
 	router.HandleFunc(apiPrefix+AckUpdateEndpoint, server.updateAcknowledge).Methods(http.MethodPut)
 	router.HandleFunc(apiPrefix+AckDeleteEndpoint, server.deleteAcknowledge).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+Rating, server.proxyTo(
-		aggregatorBaseEndpoint,
-		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.Rating),
-		}},
-	)).Methods(http.MethodPost)
+	router.HandleFunc(apiPrefix+Rating, server.postRating).Methods(http.MethodPost)
 }
 
 // addV2ContentEndpointsToRouter method registers handlers for endpoints that
