@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
@@ -49,13 +48,6 @@ var (
 		},
 	}
 )
-
-// timeToBreathe make sure the content-servicing goroutine is cleaned up (it
-// would be better to use some form of better synchronization, but it will need
-// code change just for the sake of unit tests).
-func timeToBreathe() {
-	time.Sleep(2 * time.Second)
-}
 
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
