@@ -32,6 +32,7 @@ if ! [ -x "$(command -v gosec)" ]
 then
     echo -e "${BLUE}Installing ${NC}"
     GO111MODULE=off go get github.com/securego/gosec/cmd/gosec
+    # shellcheck disable=SC2181
     if [ $? -eq 0 ]
     then
         echo -e "${BLUE}Installed ${NC}"
