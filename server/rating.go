@@ -27,6 +27,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// postRating handles the POST method for Rating endpoint
 func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.Request) {
 	log.Info().Msg("postRating")
 
@@ -55,6 +56,7 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 	}
 }
 
+// postRatingToAggregator asks aggregator for update the rating for a given rule by the current user/org
 func (server HTTPServer) postRatingToAggregator(
 	orgID types.OrgID, userID types.UserID, request *http.Request, writer http.ResponseWriter,
 ) (*types.RuleRating, bool) {

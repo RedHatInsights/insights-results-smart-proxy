@@ -107,19 +107,3 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 		return
 	}
 }
-
-// setRuleRating update the rating for a list of rule ids in the body of the request
-func (server *HTTPServer) setRuleRating(writer http.ResponseWriter, request *http.Request) {
-	// 	ratings := extractRatingArrayFromBody(request)
-	// 	if len(ratings) == 0 {
-	// 		err := &BadBodyContent{}
-	// 		handleServerError(writer, err)
-	// 		return
-	// 	}
-
-	// 	var ratingsResponse types.RuleRatingArray
-
-	// 	for _, rating := range ratings {
-
-	// 	}
-}
