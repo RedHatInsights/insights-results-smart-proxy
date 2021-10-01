@@ -37,7 +37,8 @@ then
     then
         echo -e "${BLUE}Installed ${NC}"
     else
-        echo -e "${RED_BG}[FAIL]${NC}Installation failure"
+        echo -e "${RED_BG}[FAIL]${NC} Installation failure"
+        exit 2
     fi
 fi
 
