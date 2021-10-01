@@ -32,6 +32,12 @@ if ! [ -x "$(command -v gosec)" ]
 then
     echo -e "${BLUE}Installing ${NC}"
     GO111MODULE=off go get github.com/securego/gosec/cmd/gosec
+    if [ $? -eq 0 ]
+    then
+        echo -e "${BLUE}Installed ${NC}"
+    else
+        echo -e "${RED_BG}[FAIL]${NC}Installation failure"
+    fi
 fi
 
 if ! gosec $GO_SEC_ARGS ./...
