@@ -17,13 +17,18 @@ package server
 // handlers for API V2 endpoints
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
+	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 // getContentForRule retrieves the static content for the given ruleID tied
@@ -69,6 +74,168 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 		handleServerError(writer, err)
 		return
 	}
+}
+
+// getRecommendations retrieves all recommendations with a count of impacted clusters
+// By default returns only those recommendations that currently hit atleast one cluster, but it's
+// possible to show all recommendations by passing a URL parameter `impacting`
+func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request *http.Request) {
+	var recommendationList []stypes.RecommendationListView
+	var impactingOnly = true
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	userID := authToken.AccountNumber
+
+	orgID, successful := httputils.ReadOrganizationID(writer, request, server.Config.Auth)
+	if !successful {
+		// already handled in readOrganizationID ?
+		return
+	}
+
+	// get the list of active clusters if AMS API is available
+	clusterList, err := server.readClusterIDsForOrgID(orgID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	impactingParam, err := readImpactingParam(request)
+	if err != nil {
+		log.Err(err).Msgf("Error parsing `%s` URL parameter. Defaulting to true.", ImpactingParam)
+	} else {
+		impactingOnly = impactingParam
+	}
+
+	impactingRecommendations, err := server.getImpactingRecommendations(writer, orgID, userID, clusterList)
+
+	recommendationList = make([]stypes.RecommendationListView, 0)
+
+	if impactingOnly {
+		// retrieve content only for impacting recommendations
+		for ruleID, impactingClustersCnt := range impactingRecommendations {
+			ruleContent, err := content.GetRecommendationContent(ruleID)
+			if err != nil {
+				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+				continue
+			}
+
+			recommendationList = append(recommendationList, stypes.RecommendationListView{
+				RuleID:              ruleID,
+				Description:         ruleContent.Description,
+				PublishDate:         ruleContent.PublishDate,
+				TotalRisk:           uint8(ruleContent.TotalRisk),
+				Impact:              uint8(ruleContent.Impact),
+				Likelihood:          uint8(ruleContent.Likelihood),
+				Tags:                ruleContent.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        uint8(ruleContent.RiskOfChange),
+				ImpactedClustersCnt: impactingClustersCnt,
+			})
+		}
+	} else {
+		// retrieve content for all external rules and fill in impacted clusters
+		externalRuleIDs := content.GetExternalRuleIDs()
+
+		for _, ruleID := range externalRuleIDs {
+			ruleContent, err := content.GetRecommendationContent(ruleID)
+			if err != nil {
+				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+				continue
+			}
+
+			var impactingClustersCnt types.ImpactedClustersCnt = 0
+
+			if val, ok := impactingRecommendations[ruleID]; ok {
+				impactingClustersCnt = val
+			}
+
+			recommendationList = append(recommendationList, stypes.RecommendationListView{
+				RuleID:              ruleID,
+				Description:         ruleContent.Description,
+				PublishDate:         ruleContent.PublishDate,
+				TotalRisk:           uint8(ruleContent.TotalRisk),
+				Impact:              uint8(ruleContent.Impact),
+				Likelihood:          uint8(ruleContent.Likelihood),
+				Tags:                ruleContent.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        uint8(ruleContent.RiskOfChange),
+				ImpactedClustersCnt: impactingClustersCnt,
+			})
+		}
+
+	}
+
+	// TODO: get all ACKS from aggregator, match recommendations, content and acks into the final sruct
+
+	resp := make(map[string]interface{})
+	resp["status"] = "ok"
+	resp["recommendations"] = recommendationList
+
+	err = responses.SendOK(writer, resp)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getImpactingRecommendations retrieves a list of recommendations from aggregator based on the list of clusters
+func (server HTTPServer) getImpactingRecommendations(
+	writer http.ResponseWriter,
+	orgID types.OrgID,
+	userID types.UserID,
+	clusterList []types.ClusterName,
+) (types.RecommendationImpactedClusters, error) {
+
+	var aggregatorResponse struct {
+		Recommendations types.RecommendationImpactedClusters `json:"recommendations"`
+		Status          string                               `json:"status"`
+	}
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		"recommendations/organizations/{org_id}/users/{user_id}/list", // FIXME
+		orgID,
+		userID,
+	)
+
+	jsonMarshalled, err := json.Marshal(clusterList)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, nil
+	}
+
+	// #nosec G107
+	aggregatorResp, err := http.Post(aggregatorURL, "application/json", bytes.NewBuffer(jsonMarshalled))
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, nil
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, nil
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			handleServerError(writer, err)
+		}
+		return nil, nil
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, nil
+	}
+
+	return aggregatorResponse.Recommendations, nil
 }
 
 // getContent retrieves all the static content tied with groups info

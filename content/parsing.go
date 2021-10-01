@@ -88,6 +88,8 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				Description:     errorProperties.Metadata.Description,
 				TotalRisk:       totalRisk,
 				RiskOfChange:    calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
+				Impact:          impact,
+				Likelihood:      errorProperties.Metadata.Likelihood,
 				PublishDate:     publishDate,
 				Active:          active,
 				Internal:        IsRuleInternal(ruleID),

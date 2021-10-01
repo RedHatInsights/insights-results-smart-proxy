@@ -33,6 +33,13 @@ var (
 	ruleContentDirectory      *types.RuleContentDirectory
 	ruleContentDirectoryReady = sync.NewCond(&sync.Mutex{})
 	stopUpdateContentLoop     = make(chan struct{})
+	rulesWithContentStorage   = RulesWithContentStorage{
+		rules:                      map[types.RuleID]*types.RuleContent{},
+		rulesWithContent:           map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
+		recommendationsWithContent: map[types.RuleID]*local_types.RuleWithContent{},
+		internalRuleIDs:            []types.RuleID{},
+		externalRuleIDs:            []types.RuleID{},
+	}
 )
 
 type ruleIDAndErrorKey struct {
@@ -44,8 +51,13 @@ type ruleIDAndErrorKey struct {
 // It's thread safe
 type RulesWithContentStorage struct {
 	sync.RWMutex
-	rulesWithContent map[ruleIDAndErrorKey]*local_types.RuleWithContent
 	rules            map[types.RuleID]*types.RuleContent
+	rulesWithContent map[ruleIDAndErrorKey]*local_types.RuleWithContent
+	// recommendationsWithContent map has the same contents as rulesWithContent but the keys
+	// are composite of "rule.module|ERROR_KEY" optimized for Insights Advisor
+	recommendationsWithContent map[types.RuleID]*local_types.RuleWithContent
+	internalRuleIDs            []types.RuleID
+	externalRuleIDs            []types.RuleID
 }
 
 // SetRuleContentDirectory is made for easy testing fake rules etc. from other directories
@@ -76,6 +88,17 @@ func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*types.Ru
 	return res, found
 }
 
+// GetRecommendationContent returns content for rule with error key
+func (s *RulesWithContentStorage) GetRecommendationContent(
+	ruleID types.RuleID,
+) (*local_types.RuleWithContent, bool) {
+	s.RLock()
+	defer s.RUnlock()
+
+	res, found := s.recommendationsWithContent[ruleID]
+	return res, found
+}
+
 // GetAllContent returns content for rule
 func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
 	s.RLock()
@@ -93,6 +116,8 @@ func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
 func (s *RulesWithContentStorage) SetRuleWithContent(
 	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *local_types.RuleWithContent,
 ) {
+	compositeRuleID := generateCompositeRuleID(ruleID, errorKey)
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -100,6 +125,15 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 		RuleID:   ruleID,
 		ErrorKey: errorKey,
 	}] = ruleWithContent
+
+	s.recommendationsWithContent[compositeRuleID] = ruleWithContent
+
+	switch ruleWithContent.Internal {
+	case true:
+		s.internalRuleIDs = append(s.internalRuleIDs, compositeRuleID)
+	case false:
+		s.externalRuleIDs = append(s.externalRuleIDs, compositeRuleID)
+	}
 }
 
 // SetRule sets content for rule
@@ -121,7 +155,7 @@ func (s *RulesWithContentStorage) ResetContent() {
 	s.rules = make(map[types.RuleID]*types.RuleContent)
 }
 
-// GetRuleIDs gets rule IDs for rules
+// GetRuleIDs gets rule IDs for rules (rule modules)
 func (s *RulesWithContentStorage) GetRuleIDs() []string {
 	s.Lock()
 	defer s.Unlock()
@@ -135,9 +169,20 @@ func (s *RulesWithContentStorage) GetRuleIDs() []string {
 	return ruleIDs
 }
 
-var rulesWithContentStorage = RulesWithContentStorage{
-	rulesWithContent: map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
-	rules:            map[types.RuleID]*types.RuleContent{},
+// GetInternalRuleIDs returns the composite rule IDs ("| format") of internal rules
+func (s *RulesWithContentStorage) GetInternalRuleIDs() []types.RuleID {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.internalRuleIDs
+}
+
+// GetExternalRuleIDs returns the composite rule IDs ("| format") of external rules
+func (s *RulesWithContentStorage) GetExternalRuleIDs() []types.RuleID {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.externalRuleIDs
 }
 
 // WaitForContentDirectoryToBeReady ensures the rule content directory is safe to read/write
@@ -169,6 +214,21 @@ func GetRuleWithErrorKeyContent(
 	return res, nil
 }
 
+// GetRecommendationContent returns content for rule with provided composite rule ID
+func GetRecommendationContent(
+	ruleID types.RuleID,
+) (*local_types.RuleWithContent, error) {
+
+	WaitForContentDirectoryToBeReady()
+
+	res, found := rulesWithContentStorage.GetRecommendationContent(ruleID)
+	if !found {
+		return nil, &types.ItemNotFoundError{ItemID: fmt.Sprintf("%v", ruleID)}
+	}
+
+	return res, nil
+}
+
 // GetRuleContent returns content for rule with provided `rule id`
 // Caching is done under the hood, don't worry about it.
 func GetRuleContent(ruleID types.RuleID) (*types.RuleContent, error) {
@@ -191,11 +251,25 @@ func ResetContent() {
 	rulesWithContentStorage.ResetContent()
 }
 
-// GetRuleIDs returns a list of rule IDs
+// GetRuleIDs returns a list of rule IDs (rule modules)
 func GetRuleIDs() []string {
 	WaitForContentDirectoryToBeReady()
 
 	return rulesWithContentStorage.GetRuleIDs()
+}
+
+// GetInternalRuleIDs returns a list of composite rule IDs ("| format") of internal rules
+func GetInternalRuleIDs() []types.RuleID {
+	WaitForContentDirectoryToBeReady()
+
+	return rulesWithContentStorage.GetInternalRuleIDs()
+}
+
+// GetExternalRuleIDs returns a list of composite rule IDs ("| format") of external rules
+func GetExternalRuleIDs() []types.RuleID {
+	WaitForContentDirectoryToBeReady()
+
+	return rulesWithContentStorage.GetExternalRuleIDs()
 }
 
 // GetAllContent returns content for all the loaded rules.
@@ -240,6 +314,12 @@ func UpdateContent(servicesConf services.Configuration) {
 	WaitForContentDirectoryToBeReady()
 	ResetContent()
 	LoadRuleContent(ruleContentDirectory)
+}
+
+// generateCompositeRuleID generates a rule ID in the "rule.module|ERROR_KEY" format
+// TODO: rename the input type RuleID to RuleModule or something else, as this is confusing
+func generateCompositeRuleID(ruleID types.RuleID, errorKey types.ErrorKey) types.RuleID {
+	return types.RuleID(strings.Join([]string{string(ruleID), string(errorKey)}, "|"))
 }
 
 // FetchRuleContent - fetching content for particular rule

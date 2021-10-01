@@ -31,6 +31,8 @@ const (
 	OSDEligibleParam = "osd_eligible"
 	// GetDisabledParam parameter
 	GetDisabledParam = "get_disabled"
+	// ImpactingParam parameter used to show/hide recommendations not hitting any clusters
+	ImpactingParam = "impacting"
 )
 
 func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (types.RuleID, types.ErrorKey, error) {
@@ -75,10 +77,10 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 }
 
 // readQueryParam return the value of the parameter in the query. If not found, defaults to false
-func readQueryBoolParam(name string, request *http.Request) (bool, error) {
+func readQueryBoolParam(name string, defaultValue bool, request *http.Request) (bool, error) {
 	value := request.URL.Query().Get(name)
 	if len(value) == 0 {
-		return false, nil
+		return defaultValue, nil
 	}
 	return strconv.ParseBool(value)
 }
@@ -86,11 +88,16 @@ func readQueryBoolParam(name string, request *http.Request) (bool, error) {
 // readGetDisabledParam returns the value of the "get_disabled" parameter in query
 // if available
 func readGetDisabledParam(request *http.Request) (bool, error) {
-	return readQueryBoolParam(GetDisabledParam, request)
+	return readQueryBoolParam(GetDisabledParam, false, request)
 }
 
 // readOSDEligibleParam returns the value of the "osd_eligible" parameter in query
 // if available
 func readOSDEligible(request *http.Request) (bool, error) {
-	return readQueryBoolParam(OSDEligibleParam, request)
+	return readQueryBoolParam(OSDEligibleParam, false, request)
+}
+
+// readImpactingParam returns the value of the "osd_eligible" parameter in query if available
+func readImpactingParam(request *http.Request) (bool, error) {
+	return readQueryBoolParam(ImpactingParam, true, request)
 }
