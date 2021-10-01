@@ -486,7 +486,7 @@ func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
 }
 
-func loadMockRuleContentDir(rulesContent []iou_types.RuleContent) {
+func createRuleContentDirectoryFromRuleContent(rulesContent []iou_types.RuleContent) iou_types.RuleContentDirectory {
 	rules := make(map[string]iou_types.RuleContent)
 
 	for index, rule := range rulesContent {
@@ -499,9 +499,14 @@ func loadMockRuleContentDir(rulesContent []iou_types.RuleContent) {
 		},
 		Rules: rules,
 	}
+	return ruleContentDirectory
+}
 
-	content.LoadRuleContent(&ruleContentDirectory)
+func loadMockRuleContentDir(ruleContentDir iou_types.RuleContentDirectory) {
+	content.SetRuleContentDirectory(&ruleContentDir)
 	content.WaitForContentDirectoryToBeReady()
+	content.ResetContent()
+	content.LoadRuleContent(&ruleContentDir)
 }
 
 func init() {

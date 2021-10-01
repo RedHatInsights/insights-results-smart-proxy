@@ -26,8 +26,6 @@ import (
 )
 
 func TestHTTPServer_SetRating(t *testing.T) {
-	// avoid race condition problems from other tests
-	timeToBreathe()
 	defer helpers.CleanAfterGock(t)
 
 	rating := `{"rule": "rule_module|error_key","rating":-1}`
