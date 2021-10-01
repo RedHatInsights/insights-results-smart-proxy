@@ -31,7 +31,15 @@ echo -e "${BLUE}Security issues detection${NC}"
 if ! [ -x "$(command -v gosec)" ]
 then
     echo -e "${BLUE}Installing ${NC}"
-    GO111MODULE=off go get github.com/securego/gosec/cmd/gosec 2> /dev/null
+    GO111MODULE=off go get github.com/securego/gosec/cmd/gosec
+    # shellcheck disable=SC2181
+    if [ $? -eq 0 ]
+    then
+        echo -e "${BLUE}Installed ${NC}"
+    else
+        echo -e "${RED_BG}[FAIL]${NC} Installation failure"
+        exit 2
+    fi
 fi
 
 if ! gosec $GO_SEC_ARGS ./...
