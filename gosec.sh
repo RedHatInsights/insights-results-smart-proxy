@@ -31,7 +31,7 @@ echo -e "${BLUE}Security issues detection${NC}"
 if ! [ -x "$(command -v gosec)" ]
 then
     echo -e "${BLUE}Installing ${NC}"
-    GO111MODULE=off go get github.com/securego/gosec/cmd/gosec
+    curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b "$(go env GOPATH)/bin" v2.8.1
     # shellcheck disable=SC2181
     if [ $? -eq 0 ]
     then
