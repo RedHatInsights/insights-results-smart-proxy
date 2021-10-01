@@ -87,7 +87,6 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
-	timeToBreathe()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
