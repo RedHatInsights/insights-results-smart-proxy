@@ -38,8 +38,17 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 	log.Info().Int32("org_id", int32(orgID)).Str("user_id", string(userID)).Msg("Extraced user and org")
 
 	rating, succesful := server.postRatingToAggregator(orgID, userID, request, writer)
-	log.Info().Bool("succesful", succesful).Msg(rating.Rule)
+	if !succesful {
+		log.Error().Msg("Unable to get response from aggregator")
+		// All errors already handled
+	}
+
 	bodyContent, err := json.Marshal(rating)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to unmarshall the response from aggregator")
+		handleServerError(writer, err)
+	}
+
 	err = responses.Send(http.StatusOK, writer, bodyContent)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)

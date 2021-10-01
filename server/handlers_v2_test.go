@@ -26,7 +26,8 @@ import (
 )
 
 func TestHTTPServer_SetRating(t *testing.T) {
-	// log.Info().Msg("Starting SetRating test")
+	// avoid race condition problems from other tests
+	timeToBreathe()
 	defer helpers.CleanAfterGock(t)
 
 	rating := `{"rule": "rule_module|error_key","rating":-1}`
