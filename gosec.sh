@@ -31,7 +31,7 @@ echo -e "${BLUE}Security issues detection${NC}"
 if ! [ -x "$(command -v gosec)" ]
 then
     echo -e "${BLUE}Installing ${NC}"
-    GO111MODULE=off go get github.com/securego/gosec/cmd/gosec 2> /dev/null
+    GO111MODULE=off go get github.com/securego/gosec/cmd/gosec
 fi
 
 if ! gosec $GO_SEC_ARGS ./...
