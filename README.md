@@ -29,3 +29,6 @@ Sources are located in [docs](https://github.com/RedHatInsights/insights-results
 Please look into document [CONTRIBUTING.md](CONTRIBUTING.md) that contains all information about how to
 contribute to this project.
 
+## Package manifest
+
+Package manifest is available at [docs/manifest.txt](docs/manifest.txt).
