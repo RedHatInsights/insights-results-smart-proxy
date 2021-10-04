@@ -79,10 +79,7 @@ objects:
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME
               value: ${INSIGHTS_CONTENT_SERVICE_POLL_TIME}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
-              valueFrom:
-                secretKeyRef:
-                  key: internal_rules_organizations.csv
-                  name: ccx-smart-proxy
+              value: /etc/ccx-smart-proxy-secrets/internal_rules_organizations.csv
             - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
               value: ${LOGGING_TO_CLOUD_WATCH_ENABLED}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__DEBUG
@@ -151,6 +148,13 @@ objects:
       app: ccx-smart-proxy
     sessionAffinity: None
     type: ClusterIP
+
+- kind: Secret
+  data:
+    internal_rules_organizations.csv: changeme
+  metadata:
+    name: ccx-smart-proxy
+  type: Opaque
     
 parameters:
 - description: Image name
