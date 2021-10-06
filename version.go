@@ -21,16 +21,16 @@ import (
 
 var (
 	// BuildVersion contains the major.minor version of the CLI client
-	BuildVersion string = "*not set*"
+	BuildVersion = "*not set*"
 
 	// BuildTime contains timestamp when the CLI client has been built
-	BuildTime string = "*not set*"
+	BuildTime = "*not set*"
 
 	// BuildBranch contains Git branch used to build this application
-	BuildBranch string = "*not set*"
+	BuildBranch = "*not set*"
 
 	// BuildCommit contains Git commit used to build this application
-	BuildCommit string = "*not set*"
+	BuildCommit = "*not set*"
 )
 
 func printInfo(msg string, val string) {
