@@ -22,10 +22,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/rs/zerolog/log"
+
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
-	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"

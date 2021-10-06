@@ -185,7 +185,7 @@
                                       "type": "string"
                                     },
                                     "impact": {
-                                      "type": "string"
+                                      "type": "integer"
                                     },
                                     "likelihood": {
                                       "type": "integer"
@@ -492,7 +492,7 @@
                                     "type": "string"
                                   },
                                   "impact": {
-                                    "type": "string"
+                                    "type": "integer"
                                   },
                                   "likelihood": {
                                     "type": "integer"
@@ -572,6 +572,53 @@
         "operationId": "getContentForRule",
         "summary": "Get all static content for the given ruleId",
         "description": "The static content is taken from the cache periodically updated from the content service"
+      }
+    },
+    "/rating": {
+      "post": {
+        "tags": [
+          "prod"
+        ],
+        "requestBody": {
+          "description": "A JSON object with the current rule and its rating.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ratingSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ratingSchema"
+                }
+              }
+            },
+            "description": "The current rating value for the rule"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ratingSchema"
+                }
+              }
+            },
+            "description": "The current rating value for the rule"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some rule identifier doesn't exist"
+          }
+        },
+        "deprecated": false,
+        "operationId": "sendRating",
+        "summary": "Send the new rating for a given rule",
+        "description": "Return the new rating. Any previous rating for this rule by this user is amended to the current value. This does not attempt to delete a rating by this user of thus rule if the rating is zero."
       }
     }
   },
@@ -810,6 +857,18 @@
           "meta": {
             "$ref": "#/components/schemas/reportMeta",
             "description": ""
+          }
+        }
+      },
+      "ratingSchema": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "rule": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer"
           }
         }
       }

@@ -42,15 +42,11 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 		ruleID := types.RuleID(rule.Plugin.PythonModule)
 
 		for errorKey, errorProperties := range rule.ErrorKeys {
-			impact, found := contentDir.Config.Impact[errorProperties.Metadata.Impact]
-			if !found {
-				log.Error().Msgf(`impact "%v" doesn't have integer representation' (skipping)`, impact)
-				continue
-			}
+			impact := errorProperties.Metadata.Impact
 
 			// we allow empty/missing, but not incorrect
 			active, success, missing := getActiveStatus(errorProperties.Metadata.Status)
-			if success != true {
+			if !success {
 				log.Error().Msgf(`rule ID %v with key %v has invalid status attribute`, ruleID, errorKey)
 				continue
 			} else if missing {

@@ -69,6 +69,8 @@ const (
 	// ID. If the ack existed, it is deleted and a 204 is returned.
 	// Otherwise, a 404 is returned.
 	AckDeleteEndpoint = "ack/{rule_id}"
+	// Rating endpoint will get/modify the vote for a rule id by the user
+	Rating = "rating"
 )
 
 // addV2EndpointsToRouter adds API V2 specific endpoints to the router
@@ -118,6 +120,7 @@ func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPref
 	router.HandleFunc(apiPrefix+AckAcknowledgePostEndpoint, server.acknowledgePost).Methods(http.MethodPost)
 	router.HandleFunc(apiPrefix+AckUpdateEndpoint, server.updateAcknowledge).Methods(http.MethodPut)
 	router.HandleFunc(apiPrefix+AckDeleteEndpoint, server.deleteAcknowledge).Methods(http.MethodDelete)
+	router.HandleFunc(apiPrefix+Rating, server.postRating).Methods(http.MethodPost)
 }
 
 // addV2ContentEndpointsToRouter method registers handlers for endpoints that

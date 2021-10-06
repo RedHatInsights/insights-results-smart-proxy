@@ -33,6 +33,12 @@ type ReportResponseMeta = types.ReportResponseMeta
 // Timestamp represents any timestamp in a form gathered from database
 type Timestamp = types.Timestamp
 
+// RuleContent is a rename for types.RuleContent
+type RuleContent = types.RuleContent
+
+// RuleID is a rename for types.RuleID
+type RuleID = types.RuleID
+
 // RuleWithContentResponse represents a single rule in the response of /report endpoint
 type RuleWithContentResponse struct {
 	RuleID          types.RuleID    `json:"rule_id"`
@@ -125,3 +131,6 @@ type RecommendationListView struct {
 	RiskOfChange        uint8                     `json:"risk_of_change"`
 	ImpactedClustersCnt types.ImpactedClustersCnt `json:"impacted_clusters_count"`
 }
+
+// RuleRating structure with the rule identifier and the rating
+type RuleRating = types.RuleRating

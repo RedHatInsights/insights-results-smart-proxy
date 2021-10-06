@@ -66,6 +66,13 @@ func (*NoBodyError) Error() string {
 	return "client didn't provide request body"
 }
 
+// BadBodyContent error meaning that client didn't provide a meaningful body content when it's required
+type BadBodyContent struct{}
+
+func (*BadBodyContent) Error() string {
+	return "client didn't provide a valid request body"
+}
+
 // ContentServiceUnavailableError error is used when the content service cannot be reached
 type ContentServiceUnavailableError struct{}
 
@@ -94,7 +101,7 @@ func handleServerError(writer http.ResponseWriter, err error) {
 	var respErr error
 
 	switch err := err.(type) {
-	case *RouterMissingParamError, *RouterParsingError, *json.SyntaxError, *NoBodyError, *ParamsParsingError:
+	case *RouterMissingParamError, *RouterParsingError, *json.SyntaxError, *NoBodyError, *ParamsParsingError, *BadBodyContent:
 		respErr = responses.SendBadRequest(writer, err.Error())
 	case *json.UnmarshalTypeError:
 		respErr = responses.SendBadRequest(writer, "bad type in json data")
