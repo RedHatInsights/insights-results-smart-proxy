@@ -79,7 +79,7 @@ objects:
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME
               value: ${INSIGHTS_CONTENT_SERVICE_POLL_TIME}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
-              value: /etc/ccx-smart-proxy-secrets/internal_rules_organizations.csv
+              value: "${IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
               value: ${LOGGING_TO_CLOUD_WATCH_ENABLED}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__DEBUG
@@ -119,6 +119,14 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
+          volumes:
+            - name: irsp-secrets
+              secret:
+                secretName: ccx-smart-proxy
+          volumeMounts:
+            - mountPath: ${IRSP_SECRETS_DIR}
+              name: irsp-secrets
+              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -174,6 +182,10 @@ parameters:
   value: "true"
 - name: IRSP_ENABLE_INTERNAL_ORGANIZATIONS
   value: "false"
+- name: IRSP_SECRETS_DIR
+  value: "/etc/ccx-smart-proxy-secrets/"
+- name: IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
+  value: "/etc/ccx-smart-proxy-secrets/internal_rules_organizations.csv"
 - name: INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL
   value: "http://ccx-insights-results-aggregator:10000/api/v1/"
 - name: INSIGHTS_CONTENT_SERVICE_URL

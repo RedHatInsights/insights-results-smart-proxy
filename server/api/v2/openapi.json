@@ -246,6 +246,175 @@
         "description": "The static content is taken from the cache periodically updated from the content service"
       }
     },
+    "/ack": {
+      "get": {
+        "operationId": "AckListEndpoint",
+        "summary": "Lists acks from this account where the rule is active",
+        "description": "Lists acks from this account where the rule is active. Will return empty list if this account has no acks",
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/systemWideRuleDisableList"
+                }
+              }
+            },
+            "description": "List of acked rules"
+          }
+      },
+      "post": {
+        "operationId": "ackRuleSystemWide",
+        "summary": "Acknowledges/hide the rule for given account",
+        "description": "Acknowledges (and therefore hides) a rule from view in an account. If there's already an acknowledgement of this rule by this account, then return that. Othervise, a new ack is created.",
+        "tags": [
+          "prod"
+        ],
+        "requestBody": {
+          "description": "Specification of rule selector (ID+error key) and a justification why rule has been disabled.",
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/overview_response"
+                }
+              }
+            },
+            "description": "Rule has been disabled already"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
+                }
+              }
+            },
+            "description": "Rule has been acked (disabled)"
+          }
+        }
+      }
+    },
+    "/ack/{rule_id}": {
+      "get": {
+        "operationId": "getAckRuleSystemWide",
+        "summary": "AckGetEndpoint read the acknowledgement info about disabled rule",
+        "description": "AckGetEndpoint read the acknowledgement info about disabled rule",
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "description": "Specification of rule selector (ID+error key) and a justification why rule has been disabled.",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module|error_key"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
+                }
+              }
+            },
+            "description": "Rule ack has been found, the metadata is returned in response body"
+          },
+          "404": {
+            "description": "Rule has not been acked (disabled) previously"
+          }
+        }
+      },
+      "put": {
+        "operationId": "UpdateAckRuleSystemWide",
+        "summary": "Updates an acknowledgement for a rule, by rule ID.",
+        "description": "Updates an acknowledgement for a rule, by rule ID. A new justification can be supplied.",
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "description": "Specification of rule selector (ID+error key).",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module|error_key"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "description": "Specification of justification why rule has been disabled.",
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
+                }
+              }
+            },
+            "description": "Rule ack has been found and updated, the metadata is returned in response body"
+          },
+          "404": {
+            "description": "Rule has not been acked (disabled) previously"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteAckRuleSystemWide",
+        "summary": "Deletes an acknowledgement for a rule",
+        "description": "Deletes an acknowledgement for a rule, by its rule ID. If the ack existed, it is deleted and a 204 is returned. Otherwise, a 404 is returned.",
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "description": "Specification of rule selector (ID+error key) and a justification why rule has been disabled.",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module|error_key"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rule ack has been deleted"
+          },
+          "404": {
+            "description": "Rule has not been acked (disabled) previously"
+          }
+        }
+      }
+    },
     "/rule/{ruleId}": {
       "get": {
         "tags": [
@@ -546,6 +715,84 @@
           "status": {
             "description": "",
             "type": "string"
+          }
+        }
+      },
+      "systemWideRuleDisableList": {
+        "description": "List of all system-wide disabled rules",
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rule": {
+                  "type": "string"
+                },
+                "justification": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "systemWideRuleDisable": {
+        "description": "An information about rule that has been disabled for whole account",
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Information about the operation status",
+            "type": "string",
+            "example": "ok"
+          },
+          "rule": {
+            "type": "string",
+            "description": "Rule selector: rule ID + error key",
+            "example": "foo.bar|baz"
+          },
+          "justification": {
+            "type": "string",
+            "description": "Justification (message) provided by user",
+            "example": "I don't like this rule!"
+          },
+          "created_by": {
+            "type": "string",
+            "description": "ID of user (account)",
+            "example": "42"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the rule has been acked/disabled",
+            "example": "2021-09-05T16:29:33+02:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the rule justification has been changed (can be empty)",
+            "example": "2021-09-05T16:29:33+02:00"
           }
         }
       },

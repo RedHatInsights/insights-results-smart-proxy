@@ -18,17 +18,13 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
-	ics_server "github.com/RedHatInsights/insights-content-service/server"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
-	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 )
@@ -53,20 +49,10 @@ var (
 	}
 )
 
-func startUpdateContentLoop(servicesConf services.Configuration) {
-	go content.RunUpdateContentLoop(helpers.DefaultServicesConfig)
-}
-
-// timeToBreathe make sure the content-servicing goroutine is cleaned up (it
-// would be better to use some form of better synchronization, but it will need
-// code change just for the sake of unit tests).
-func timeToBreathe() {
-	time.Sleep(2 * time.Second)
-}
-
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -77,17 +63,6 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
-
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -104,7 +79,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -116,18 +91,6 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report1RuleExpectedResponse,
 		})
-
-		// content-service responses with 3 rules
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -145,8 +108,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
-	timeToBreathe()
-	content.ResetContent()
+	loadMockRuleContentDir(RuleContentDirectoryOnly1Rule)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -158,18 +120,6 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
-
-		// content-service responses with only 1 rule
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnly1Rule),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		// 1 rule returned, but count = 3
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
@@ -186,7 +136,7 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -198,17 +148,6 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
-
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -224,7 +163,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory5Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -256,17 +195,6 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3Rules1DisabledExpectedResponse,
 		})
-
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory5Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -306,8 +234,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing.T) {
-	timeToBreathe()
-	content.ResetContent()
+	loadMockRuleContentDir(RuleContentDirectoryOnlyDisabledRule)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -319,17 +246,6 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3Rules1DisabledExpectedResponse,
 		})
-
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, RuleContentDirectoryOnlyDisabledRule),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -346,7 +262,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -363,17 +279,6 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3SingleRuleExpectedResponse,
 		})
-
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -389,7 +294,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -407,17 +312,6 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 			Body:       testdata.Report3SingleRuleExpectedResponse,
 		})
 
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
-
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
@@ -432,7 +326,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -450,17 +344,6 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 			Body:       testdata.Report3SingleRule2ExpectedResponse,
 		})
 
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
-
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
@@ -476,22 +359,9 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 
 // TestHTTPServer_GetContent
 func TestHTTPServer_GetContent(t *testing.T) {
-	timeToBreathe()
-	content.ResetContent()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		defer helpers.CleanAfterGock(t)
-		// Setup Content
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
-
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.Content,
@@ -506,18 +376,9 @@ func TestHTTPServer_GetContent(t *testing.T) {
 
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
-
-		// prepare content
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
 
 		// prepare list of organizations response
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -539,9 +400,6 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
-
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.OverviewEndpoint,
@@ -555,7 +413,11 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 }
 
 func TestInternalOrganizations(t *testing.T) {
-	loadMockRuleContentDir([]types.RuleContent{RuleContentInternal1})
+	loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{RuleContentInternal1},
+		),
+	)
 
 	for _, testCase := range []struct {
 		TestName           string
@@ -634,8 +496,11 @@ func TestRuleNames(t *testing.T) {
 
 // TestRuleNamesResponse checks the REST API status and response
 func TestRuleNamesResponse(t *testing.T) {
-	content.ResetContent()
-	loadMockRuleContentDir([]types.RuleContent{RuleContentInternal1, testdata.RuleContent1})
+	loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{RuleContentInternal1, testdata.RuleContent1},
+		),
+	)
 
 	expectedBody := `
 		{
@@ -675,18 +540,9 @@ func TestRuleNamesResponse(t *testing.T) {
 
 // TestHTTPServer_OverviewWithClusterIDsEndpoint
 func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
-	timeToBreathe()
+	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
-
-		// prepare content
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-		})
 
 		// prepare reports reponse
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -700,9 +556,6 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 				Body:       helpers.ToJSONString(data.AggregatorReportForClusterList),
 			},
 		)
-
-		startUpdateContentLoop(helpers.DefaultServicesConfig)
-		defer content.StopUpdateContentLoop()
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodPost,
