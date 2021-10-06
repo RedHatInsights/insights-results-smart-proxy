@@ -21,9 +21,9 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-operator-utils/types"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 // getContentForRule retrieves the static content for the given ruleID tied
