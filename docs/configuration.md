@@ -83,6 +83,32 @@ The `groups_poll_time` must be configured as an string that can be parsed by the
 function [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration) from
 Golang standard library.
 
+## AMS client configuration
+
+Smart Proxy is able to retrieve organizations information from the
+[AMS API](https://api.openshift.com/?urls.primaryName=Accounts%20management%20service).
+In order to do that, it needs to be configured with valid API URL and credentials.
+
+```toml
+[amsclient]
+client_id = "Red Hat SSO client ID"
+client_secret = "Corresponding client secret"
+token = "a valid token"
+url = "https://api.openshift.com"
+page_size = 100
+```
+
+* `client_id` and `client_secret` are optionals, but if any of them is defined, the other one should be
+  defined too. They indicate the pair of credentials used by the client to connect to the API
+* `token` is optional. If defined, the client will use that offline token to retrieve valid credentials in
+  order to connect to the AMS API
+* `url` indicates the base URL for the AMS API
+* `page_size` is optional and defaults to 100. Defines the size of every page of results from the API
+
+In order to use the AMS API, the client needs some of the credentials defined above. If both
+`client_id`/`client_secret` and `token` are defined at the same time, `client_id`/`client_secret` pair
+takes precedence over `token`.
+
 ## Setup configuration
 
 TBD

@@ -68,7 +68,12 @@ func init() {
 func TestClientCreationError(t *testing.T) {
 	// define a configuration based on default, but without token
 	config := defaultConfig
+
+	// Expicitely set all authentication configuration to ""
 	config.Token = ""
+	config.ClientID = ""
+	config.ClientSecret = ""
+
 	_, err := amsclient.NewAMSClient(config)
 	assert.NotEqual(t, nil, err)
 }

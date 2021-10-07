@@ -52,11 +52,21 @@ func NewAMSClient(conf Configuration) (*AMSClient, error) {
 
 // NewAMSClientWithTransport creates an AMSClient from the configuration, enabling to use a transport wrapper
 func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) (*AMSClient, error) {
-	conn, err := sdk.NewConnectionBuilder().
+	builder := sdk.NewConnectionBuilder().
 		URL(conf.URL).
-		Tokens(conf.Token).
-		TransportWrapper(func(http.RoundTripper) http.RoundTripper { return transport }).
-		Build()
+		TransportWrapper(func(http.RoundTripper) http.RoundTripper { return transport })
+
+	if conf.ClientID != "" && conf.ClientSecret != "" {
+		builder = builder.Client(conf.ClientID, conf.ClientSecret)
+	} else if conf.Token != "" {
+		builder = builder.Tokens(conf.Token)
+	} else {
+		err := fmt.Errorf("No credentials provided. Cannot create the API client")
+		log.Error().Err(err).Msg("Cannot create the connection builder")
+		return nil, err
+	}
+
+	conn, err := builder.Build()
 
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to build the connection to AMS API")

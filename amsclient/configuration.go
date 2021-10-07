@@ -16,7 +16,9 @@ package amsclient
 
 // Configuration represents the configuration of the AMS API client
 type Configuration struct {
-	Token    string `mapstructure:"token" toml:"token"`
-	URL      string `mapstructure:"url" toml:"url"`
-	PageSize int    `mapstructure:"page_size" toml:"page_size"`
+	Token        string `mapstructure:"token" toml:"token"`
+	ClientID     string `mapstructure:"client_id" toml:"client_id"`
+	ClientSecret string `mapstructure:"client_secret" toml:"client_secret"`
+	URL          string `mapstructure:"url" toml:"url"`
+	PageSize     int    `mapstructure:"page_size" toml:"page_size"`
 }
