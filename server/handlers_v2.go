@@ -28,6 +28,8 @@ import (
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
@@ -84,41 +86,25 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	var recommendationList []stypes.RecommendationListView
 	var impactingOnly = true
 
-	authToken, err := server.GetAuthToken(request)
+	userID, orgID, impactingOnly, err := server.readParamsGetRecommendations(writer, request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
-	userID := authToken.AccountNumber
 
-	orgID, successful := httputils.ReadOrganizationID(writer, request, server.Config.Auth)
-	if !successful {
-		// already handled in readOrganizationID ?
-		return
-	}
-
-	// get the list of active clusters if AMS API is available
+	// get the list of active clusters if AMS API is available, otherwise from our DB
 	clusterList, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
 
-	impactingParam, err := readImpactingParam(request)
-	if err != nil {
-		log.Err(err).Msgf("Error parsing `%s` URL parameter. Defaulting to true.", ImpactingParam)
-	} else {
-		impactingOnly = impactingParam
-	}
-
 	impactingRecommendations, err := server.getImpactingRecommendations(writer, orgID, userID, clusterList)
-
-	recommendationList = make([]stypes.RecommendationListView, 0)
 
 	if impactingOnly {
 		// retrieve content only for impacting recommendations
 		for ruleID, impactingClustersCnt := range impactingRecommendations {
-			ruleContent, err := content.GetRecommendationContent(ruleID)
+			ruleContent, err := content.GetContentForRecommendation(ruleID)
 			if err != nil {
 				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
 				continue
@@ -142,7 +128,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		externalRuleIDs := content.GetExternalRuleIDs()
 
 		for _, ruleID := range externalRuleIDs {
-			ruleContent, err := content.GetRecommendationContent(ruleID)
+			ruleContent, err := content.GetContentForRecommendation(ruleID)
 			if err != nil {
 				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
 				continue
@@ -198,7 +184,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"recommendations/organizations/{org_id}/users/{user_id}/list", // FIXME
+		ira_server.RecommendationsListEndpoint,
 		orgID,
 		userID,
 	)
@@ -210,7 +196,7 @@ func (server HTTPServer) getImpactingRecommendations(
 	}
 
 	// #nosec G107
-	aggregatorResp, err := http.Post(aggregatorURL, "application/json", bytes.NewBuffer(jsonMarshalled))
+	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, nil

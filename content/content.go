@@ -22,6 +22,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/RedHatInsights/insights-operator-utils/generators"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"github.com/rs/zerolog/log"
@@ -88,8 +89,8 @@ func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*types.Ru
 	return res, found
 }
 
-// GetRecommendationContent returns content for rule with error key
-func (s *RulesWithContentStorage) GetRecommendationContent(
+// GetContentForRecommendation returns content for rule with error key
+func (s *RulesWithContentStorage) GetContentForRecommendation(
 	ruleID types.RuleID,
 ) (*local_types.RuleWithContent, bool) {
 	s.RLock()
@@ -116,7 +117,12 @@ func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
 func (s *RulesWithContentStorage) SetRuleWithContent(
 	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *local_types.RuleWithContent,
 ) {
-	compositeRuleID := generateCompositeRuleID(ruleID, errorKey)
+	compositeRuleID, err := generators.GenerateCompositeRuleID(types.RuleFQDN(ruleID), errorKey)
+	if err == nil {
+		s.recommendationsWithContent[compositeRuleID] = ruleWithContent
+	} else {
+		log.Error().Err(err).Msgf("Error generating composite rule ID for [%v] and [%v]", ruleID, errorKey)
+	}
 
 	s.Lock()
 	defer s.Unlock()
@@ -125,8 +131,6 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 		RuleID:   ruleID,
 		ErrorKey: errorKey,
 	}] = ruleWithContent
-
-	s.recommendationsWithContent[compositeRuleID] = ruleWithContent
 
 	switch ruleWithContent.Internal {
 	case true:
@@ -151,8 +155,11 @@ func (s *RulesWithContentStorage) ResetContent() {
 	s.Lock()
 	defer s.Unlock()
 
-	s.rulesWithContent = make(map[ruleIDAndErrorKey]*local_types.RuleWithContent)
 	s.rules = make(map[types.RuleID]*types.RuleContent)
+	s.rulesWithContent = make(map[ruleIDAndErrorKey]*local_types.RuleWithContent)
+	s.recommendationsWithContent = make(map[types.RuleID]*local_types.RuleWithContent)
+	s.internalRuleIDs = make([]types.RuleID, 0)
+	s.externalRuleIDs = make([]types.RuleID, 0)
 }
 
 // GetRuleIDs gets rule IDs for rules (rule modules)
@@ -214,14 +221,14 @@ func GetRuleWithErrorKeyContent(
 	return res, nil
 }
 
-// GetRecommendationContent returns content for rule with provided composite rule ID
-func GetRecommendationContent(
+// GetContentForRecommendation returns content for rule with provided composite rule ID
+func GetContentForRecommendation(
 	ruleID types.RuleID,
 ) (*local_types.RuleWithContent, error) {
 
 	WaitForContentDirectoryToBeReady()
 
-	res, found := rulesWithContentStorage.GetRecommendationContent(ruleID)
+	res, found := rulesWithContentStorage.GetContentForRecommendation(ruleID)
 	if !found {
 		return nil, &types.ItemNotFoundError{ItemID: fmt.Sprintf("%v", ruleID)}
 	}
@@ -314,12 +321,6 @@ func UpdateContent(servicesConf services.Configuration) {
 	WaitForContentDirectoryToBeReady()
 	ResetContent()
 	LoadRuleContent(ruleContentDirectory)
-}
-
-// generateCompositeRuleID generates a rule ID in the "rule.module|ERROR_KEY" format
-// TODO: rename the input type RuleID to RuleModule or something else, as this is confusing
-func generateCompositeRuleID(ruleID types.RuleID, errorKey types.ErrorKey) types.RuleID {
-	return types.RuleID(strings.Join([]string{string(ruleID), string(errorKey)}, "|"))
 }
 
 // FetchRuleContent - fetching content for particular rule

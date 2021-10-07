@@ -76,6 +76,37 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 	return types.RuleID(splitedRuleID[0]), types.ErrorKey(splitedRuleID[1]), nil
 }
 
+func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (
+	userID types.UserID,
+	orgID types.OrgID,
+	impacting bool,
+	err error,
+) {
+	impacting = true
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	userID = authToken.AccountNumber
+
+	orgID, successful := httputils.ReadOrganizationID(writer, request, server.Config.Auth)
+	if !successful {
+		// already handled in readOrganizationID ?
+		return
+	}
+
+	impactingParam, err := readImpactingParam(request)
+	if err != nil {
+		log.Err(err).Msgf("Error parsing `%s` URL parameter. Defaulting to true.", ImpactingParam)
+	} else {
+		impacting = impactingParam
+	}
+
+	return
+}
+
 // readQueryParam return the value of the parameter in the query. If not found, defaults to false
 func readQueryBoolParam(name string, defaultValue bool, request *http.Request) (bool, error) {
 	value := request.URL.Query().Get(name)

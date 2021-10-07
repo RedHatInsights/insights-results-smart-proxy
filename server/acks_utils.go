@@ -138,7 +138,7 @@ func (server *HTTPServer) ackRuleSystemWide(
 		return err
 	}
 
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set(contentTypeHeader, JSONContentType)
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
@@ -177,7 +177,7 @@ func (server *HTTPServer) updateAckRuleSystemWide(
 
 	// do POST request and read response from Insights Aggregator
 	// #nosec G107
-	response, err := http.Post(aggregatorURL, appJSON,
+	response, err := http.Post(aggregatorURL, JSONContentType,
 		bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
@@ -212,7 +212,7 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 		return err
 	}
 
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set(contentTypeHeader, JSONContentType)
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {

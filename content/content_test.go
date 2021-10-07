@@ -15,6 +15,8 @@
 package content_test
 
 import (
+	"fmt"
+	"math/rand"
 	"net/http"
 	"testing"
 	"time"
@@ -32,9 +34,16 @@ import (
 
 const (
 	testTimeout = 10 * time.Second
+	internalStr = "internal"
+	externalStr = "external"
+)
+
+var (
+	random = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
 func TestGetRuleContent(t *testing.T) {
+	defer content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
@@ -56,6 +65,7 @@ func TestGetRuleContent(t *testing.T) {
 }
 
 func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
+	defer content.ResetContent()
 	const N = 10
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
@@ -81,11 +91,11 @@ func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
 }
 
 func TestUpdateContent_CallMultipleTimes(t *testing.T) {
+	defer content.ResetContent()
 	const N = 10
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
-
 		for i := 0; i < N; i++ {
 			helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
 				Method:   http.MethodGet,
@@ -111,6 +121,7 @@ func TestUpdateContent_CallMultipleTimes(t *testing.T) {
 }
 
 func TestUpdateContentBadTime(t *testing.T) {
+	defer content.ResetContent()
 	// using testdata.RuleContent4 because contains datetime in a different format
 	ruleContentDirectory := types.RuleContentDirectory{
 		Config: types.GlobalRuleConfig{
@@ -128,6 +139,7 @@ func TestUpdateContentBadTime(t *testing.T) {
 }
 
 func TestResetContentWhenUpdating(t *testing.T) {
+	defer content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
@@ -156,8 +168,10 @@ func TestResetContentWhenUpdating(t *testing.T) {
 }
 
 func TestResetContent(t *testing.T) {
+	defer content.ResetContent()
+	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
 	ruleIDs := content.GetRuleIDs()
-	assert.NotEqual(t, 0, len(ruleIDs))
+	assert.Equal(t, 3, len(ruleIDs))
 	content.ResetContent()
 
 	ruleIDs = content.GetRuleIDs()
@@ -173,6 +187,7 @@ func TestGetAllContent(t *testing.T) {
 }
 
 func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
+	defer content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
@@ -220,6 +235,7 @@ func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
 }
 
 func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
+	defer content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
@@ -267,6 +283,7 @@ func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
 }
 
 func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
+	defer content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
@@ -298,6 +315,7 @@ func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
 }
 
 func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
+	defer content.ResetContent()
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
@@ -417,4 +435,135 @@ func TestUpdateContentMissingPublishDate(t *testing.T) {
 
 	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
 	helpers.FailOnError(t, err)
+}
+
+func TestGetContentForRecommendationOK(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent1
+	//ek := ruleContent.ErrorKeys[testdata.ErrorKey1]
+	//ek.Metadata.Status = "foo"
+	//ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc1": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetContentForRecommendation(testdata.Rule1CompositeID)
+	helpers.FailOnError(t, err)
+}
+
+func TestGetContentForRecommendationNotFound(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc1": testdata.RuleContent1,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	// GetContentForRecommendation doesn't care about proper ID format
+	_, err := content.GetContentForRecommendation("not found")
+	assert.NotNil(t, err)
+}
+
+func TestGetContentForRecommendationBadID(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent1
+	ruleContent.Plugin.PythonModule = ""
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc1": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	// rule doesn't even get loaded because of improper PythonModule
+	_, err := content.GetContentForRecommendation(testdata.Rule1CompositeID)
+	assert.NotNil(t, err)
+}
+
+// TestGetInternalRuleIDs tests if storage.internalRuleIDs is filled correctly
+func TestGetInternalRuleIDs(t *testing.T) {
+	defer content.ResetContent()
+
+	internalRule1, internalRule2, externalRule1 := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	fakeRuleAsInternal(&internalRule1)
+	fakeRuleAsInternal(&internalRule2)
+	fakeRuleAsExternal(&externalRule1)
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc1": internalRule1,
+			"rc2": internalRule2,
+			"rc3": externalRule1,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	internalRuleIDs := content.GetInternalRuleIDs()
+	assert.Equal(t, 2, len(internalRuleIDs))
+}
+
+// TestGetExternalRuleIDs tests if storage.externalRuleIDs is filled correctly
+func TestGetExternalRuleIDs(t *testing.T) {
+	defer content.ResetContent()
+
+	externalRule1, externalRule2, externalRule3 := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsExternal(&externalRule2)
+	fakeRuleAsExternal(&externalRule3)
+
+	ruleContentDirectory := types.RuleContentDirectory{
+		Config: types.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]types.RuleContent{
+			"rc1": externalRule1,
+			"rc2": externalRule2,
+			"rc3": externalRule3,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	externalRuleIDs := content.GetExternalRuleIDs()
+	t.Logf("%v", externalRuleIDs)
+	assert.Equal(t, 3, len(externalRuleIDs))
+}
+
+func fakeRuleAsInternal(ruleContent *types.RuleContent) {
+	modifyPluginPythonModule(ruleContent, internalStr)
+}
+
+func fakeRuleAsExternal(ruleContent *types.RuleContent) {
+	modifyPluginPythonModule(ruleContent, externalStr)
+}
+
+func modifyPluginPythonModule(ruleContent *types.RuleContent, injectStr string) {
+	copy := ruleContent
+	copy.Plugin.PythonModule = fmt.Sprintf("testcontent.%v.%v.rule", injectStr, random.Int())
+	*ruleContent = *copy
 }
