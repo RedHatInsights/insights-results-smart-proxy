@@ -1,4 +1,4 @@
 # Global allowlist
 [allowlist]
     description = "Files containing keys used only for testing"
-    files = ["amsclient/utils_test.go", "packages/amsclient/utils_test.html"]
+    paths = ["amsclient/utils_test.go", "packages/amsclient/utils_test.html"]
