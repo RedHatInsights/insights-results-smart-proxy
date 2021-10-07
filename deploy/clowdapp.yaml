@@ -119,14 +119,6 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
-          volumes:
-            - name: irsp-secrets
-              secret:
-                secretName: ccx-smart-proxy
-          volumeMounts:
-            - mountPath: ${IRSP_SECRETS_DIR}
-              name: irsp-secrets
-              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -182,8 +174,6 @@ parameters:
   value: "true"
 - name: IRSP_ENABLE_INTERNAL_ORGANIZATIONS
   value: "false"
-- name: IRSP_SECRETS_DIR
-  value: "/etc/ccx-smart-proxy-secrets/"
 - name: IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
   value: "/etc/ccx-smart-proxy-secrets/internal_rules_organizations.csv"
 - name: INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL
