@@ -84,16 +84,9 @@ func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter
 ) {
 	impacting = true
 
-	authToken, err := server.GetAuthToken(request)
+	orgID, userID, err = server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
-		handleServerError(writer, err)
-		return
-	}
-	userID = authToken.AccountNumber
-
-	orgID, successful := httputils.ReadOrganizationID(writer, request, server.Config.Auth)
-	if !successful {
-		// already handled in readOrganizationID ?
+		log.Err(err).Msg("error retrieving orgID and userID from auth token")
 		return
 	}
 

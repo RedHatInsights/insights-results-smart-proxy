@@ -15,6 +15,7 @@
 package server_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -24,6 +25,7 @@ import (
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
@@ -51,6 +53,7 @@ var (
 
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
@@ -79,6 +82,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -108,6 +112,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(RuleContentDirectoryOnly1Rule)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -136,6 +141,7 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -163,6 +169,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory5Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -234,6 +241,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(RuleContentDirectoryOnlyDisabledRule)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -262,6 +270,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -294,6 +303,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -326,6 +336,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -359,6 +370,7 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 
 // TestHTTPServer_GetContent
 func TestHTTPServer_GetContent(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
@@ -376,6 +388,7 @@ func TestHTTPServer_GetContent(t *testing.T) {
 
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -413,6 +426,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 }
 
 func TestInternalOrganizations(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{RuleContentInternal1},
@@ -496,6 +510,7 @@ func TestRuleNames(t *testing.T) {
 
 // TestRuleNamesResponse checks the REST API status and response
 func TestRuleNamesResponse(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{RuleContentInternal1, testdata.RuleContent1},
@@ -540,6 +555,7 @@ func TestRuleNamesResponse(t *testing.T) {
 
 // TestHTTPServer_OverviewWithClusterIDsEndpoint
 func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
+	defer content.ResetContent()
 	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -565,6 +581,288 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(OverviewResponsePostEndpoint),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint2Rules
+func TestHTTPServer_RecommendationsListEndpoint2Rules(t *testing.T) {
+	defer content.ResetContent()
+	loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
+		),
+	)
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
+		respBody = fmt.Sprintf(respBody,
+			testdata.Rule1CompositeID, 2,
+			testdata.Rule2CompositeID, 1,
+		)
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint2Rules
+func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.T) {
+	defer content.ResetContent()
+	loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1},
+		),
+	)
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
+		respBody = fmt.Sprintf(respBody,
+			testdata.Rule1CompositeID, 2,
+			testdata.Rule2CompositeID, 1,
+		)
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(GetRecommendationsResponse1Rule2Cluster),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint_NoRuleContent
+func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{"%v":%v,"%v":%v,"%v":%v},"status":"ok"}`
+		respBody = fmt.Sprintf(respBody,
+			testdata.Rule1CompositeID, 2,
+			testdata.Rule2CompositeID, 2,
+			testdata.Rule3CompositeID, 1,
+		)
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(GetRecommendationsResponse0Rules),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingTrue
+func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingTrue(t *testing.T) {
+	defer content.ResetContent()
+	loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
+		),
+	)
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{},"status":"ok"}`
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(GetRecommendationsResponse0Rules),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse
+func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse(t *testing.T) {
+	defer content.ResetContent()
+	loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
+		),
+	)
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{},"status":"ok"}`
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(GetRecommendationsResponse2Rules0Clusters),
 		})
 	}, testTimeout)
 }

@@ -479,6 +479,101 @@ var (
 	}{
 		Status: "Rule was not found",
 	}
+
+	GetRecommendationsResponse1Rule2Cluster = struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}{
+		Status: "ok",
+		Recommendations: []types.RecommendationListView{
+			{
+				RuleID:              testdata.Rule1CompositeID,
+				Description:         testdata.RuleErrorKey1.Description,
+				PublishDate:         testdata.RuleErrorKey1.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey1.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey1.Likelihood),
+				Tags:                testdata.RuleErrorKey1.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 2,
+			},
+		},
+	}
+
+	GetRecommendationsResponse2Rules0Clusters = struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}{
+		Status: "ok",
+		Recommendations: []types.RecommendationListView{
+			{
+				RuleID:              testdata.Rule1CompositeID,
+				Description:         testdata.RuleErrorKey1.Description,
+				PublishDate:         testdata.RuleErrorKey1.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey1.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey1.Likelihood),
+				Tags:                testdata.RuleErrorKey1.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 0,
+			},
+			{
+				RuleID:              testdata.Rule2CompositeID,
+				Description:         testdata.RuleErrorKey2.Description,
+				PublishDate:         testdata.RuleErrorKey2.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey2.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey2.Likelihood),
+				Tags:                testdata.RuleErrorKey2.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 0,
+			},
+		},
+	}
+
+	GetRecommendationsResponse2Rules2Clusters = struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}{
+		Status: "ok",
+		Recommendations: []types.RecommendationListView{
+			{
+				RuleID:              testdata.Rule1CompositeID,
+				Description:         testdata.RuleErrorKey1.Description,
+				PublishDate:         testdata.RuleErrorKey1.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey1.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey1.Likelihood),
+				Tags:                testdata.RuleErrorKey1.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 2,
+			},
+			{
+				RuleID:              testdata.Rule2CompositeID,
+				Description:         testdata.RuleErrorKey2.Description,
+				PublishDate:         testdata.RuleErrorKey2.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey2.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey2.Likelihood),
+				Tags:                testdata.RuleErrorKey2.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 1,
+			},
+		},
+	}
+
+	GetRecommendationsResponse0Rules = struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}{
+		Status:          "ok",
+		Recommendations: []types.RecommendationListView{},
+	}
 )
 
 // TODO: move to utils

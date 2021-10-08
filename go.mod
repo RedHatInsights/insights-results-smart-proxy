@@ -6,8 +6,8 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20210614100534-366b353ab4be
 	github.com/RedHatInsights/insights-operator-utils v1.21.0
-	github.com/RedHatInsights/insights-results-aggregator v1.1.6
-	github.com/RedHatInsights/insights-results-aggregator-data v1.1.2
+	github.com/RedHatInsights/insights-results-aggregator v1.1.7
+	github.com/RedHatInsights/insights-results-aggregator-data v1.3.0
 	github.com/aws/aws-sdk-go v1.38.9 // indirect
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

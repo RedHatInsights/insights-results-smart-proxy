@@ -441,9 +441,6 @@ func TestGetContentForRecommendationOK(t *testing.T) {
 	defer content.ResetContent()
 
 	ruleContent := testdata.RuleContent1
-	//ek := ruleContent.ErrorKeys[testdata.ErrorKey1]
-	//ek.Metadata.Status = "foo"
-	//ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
 
 	ruleContentDirectory := types.RuleContentDirectory{
 		Config: types.GlobalRuleConfig{

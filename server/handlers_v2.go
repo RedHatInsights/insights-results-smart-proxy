@@ -84,10 +84,10 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 // possible to show all recommendations by passing a URL parameter `impacting`
 func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request *http.Request) {
 	var recommendationList []stypes.RecommendationListView
-	var impactingOnly = true
 
 	userID, orgID, impactingOnly, err := server.readParamsGetRecommendations(writer, request)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem reading necessary params from request")
 		handleServerError(writer, err)
 		return
 	}
@@ -95,66 +95,24 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	// get the list of active clusters if AMS API is available, otherwise from our DB
 	clusterList, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
+		log.Error().Err(err).Int("orgID", int(orgID)).Msgf("problem reading cluster list for org")
 		handleServerError(writer, err)
 		return
 	}
 
 	impactingRecommendations, err := server.getImpactingRecommendations(writer, orgID, userID, clusterList)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Int("orgID", int(orgID)).
+			Str("userID", string(userID)).
+			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterList)
 
-	if impactingOnly {
-		// retrieve content only for impacting recommendations
-		for ruleID, impactingClustersCnt := range impactingRecommendations {
-			ruleContent, err := content.GetContentForRecommendation(ruleID)
-			if err != nil {
-				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
-				continue
-			}
-
-			recommendationList = append(recommendationList, stypes.RecommendationListView{
-				RuleID:              ruleID,
-				Description:         ruleContent.Description,
-				PublishDate:         ruleContent.PublishDate,
-				TotalRisk:           uint8(ruleContent.TotalRisk),
-				Impact:              uint8(ruleContent.Impact),
-				Likelihood:          uint8(ruleContent.Likelihood),
-				Tags:                ruleContent.Tags,
-				RuleStatus:          "",
-				RiskOfChange:        uint8(ruleContent.RiskOfChange),
-				ImpactedClustersCnt: impactingClustersCnt,
-			})
-		}
-	} else {
-		// retrieve content for all external rules and fill in impacted clusters
-		externalRuleIDs := content.GetExternalRuleIDs()
-
-		for _, ruleID := range externalRuleIDs {
-			ruleContent, err := content.GetContentForRecommendation(ruleID)
-			if err != nil {
-				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
-				continue
-			}
-
-			var impactingClustersCnt types.ImpactedClustersCnt = 0
-
-			if val, ok := impactingRecommendations[ruleID]; ok {
-				impactingClustersCnt = val
-			}
-
-			recommendationList = append(recommendationList, stypes.RecommendationListView{
-				RuleID:              ruleID,
-				Description:         ruleContent.Description,
-				PublishDate:         ruleContent.PublishDate,
-				TotalRisk:           uint8(ruleContent.TotalRisk),
-				Impact:              uint8(ruleContent.Impact),
-				Likelihood:          uint8(ruleContent.Likelihood),
-				Tags:                ruleContent.Tags,
-				RuleStatus:          "",
-				RiskOfChange:        uint8(ruleContent.RiskOfChange),
-				ImpactedClustersCnt: impactingClustersCnt,
-			})
-		}
-
+		handleServerError(writer, err)
+		return
 	}
+
+	recommendationList = getRecommendationsFillImpacted(impactingRecommendations, impactingOnly)
 
 	// TODO: get all ACKS from aggregator, match recommendations, content and acks into the final sruct
 
@@ -167,6 +125,62 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		handleServerError(writer, err)
 		return
 	}
+}
+
+func getRecommendationsFillImpacted(
+	impactingRecommendations types.RecommendationImpactedClusters,
+	impactingOnly bool,
+) (
+	recommendationList []stypes.RecommendationListView,
+) {
+	var ruleIDList []types.RuleID
+
+	if impactingOnly {
+		// retrieve content only for impacting rules
+		ruleIDList = make([]types.RuleID, len(impactingRecommendations))
+		i := 0
+		for ruleID := range impactingRecommendations {
+			ruleIDList[i] = ruleID
+			i++
+		}
+	} else {
+		// retrieve content for all external rules
+		ruleIDList = content.GetExternalRuleIDs()
+	}
+
+	// we cannot make the list for len(ruleIDList) because if we go by impacting rules, we
+	// might be missing content for some of them
+	recommendationList = make([]stypes.RecommendationListView, 0)
+
+	for _, ruleID := range ruleIDList {
+		ruleContent, err := content.GetContentForRecommendation(ruleID)
+		if err != nil {
+			// simply omit the rule as we can't display anything
+			log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+			continue
+		}
+
+		var impactingClustersCnt types.ImpactedClustersCnt = 0
+
+		if val, ok := impactingRecommendations[ruleID]; ok {
+			impactingClustersCnt = val
+		}
+
+		recommendationList = append(recommendationList, stypes.RecommendationListView{
+			RuleID:              ruleID,
+			Description:         ruleContent.Description,
+			PublishDate:         ruleContent.PublishDate,
+			TotalRisk:           uint8(ruleContent.TotalRisk),
+			Impact:              uint8(ruleContent.Impact),
+			Likelihood:          uint8(ruleContent.Likelihood),
+			Tags:                ruleContent.Tags,
+			RuleStatus:          "",
+			RiskOfChange:        uint8(ruleContent.RiskOfChange),
+			ImpactedClustersCnt: impactingClustersCnt,
+		})
+	}
+
+	return
 }
 
 // getImpactingRecommendations retrieves a list of recommendations from aggregator based on the list of clusters
