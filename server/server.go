@@ -121,7 +121,8 @@ func (server *HTTPServer) Initialize() http.Handler {
 	apiPrefix := server.Config.APIv1Prefix
 
 	metricsURL := apiPrefix + MetricsEndpoint
-	openAPIURL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
+	openAPIv1URL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
+	openAPIv2URL := apiPrefix + filepath.Base(server.Config.APIv2SpecFile)
 
 	// enable authentication, but only if it is setup in configuration
 	if server.Config.Auth {
@@ -132,9 +133,11 @@ func (server *HTTPServer) Initialize() http.Handler {
 		// middleware which is not optimal
 		noAuthURLs := []string{
 			metricsURL,
-			openAPIURL,
-			metricsURL + "?", // to be able to test using Frisby
-			openAPIURL + "?", // to be able to test using Frisby
+			openAPIv1URL,
+			openAPIv2URL,
+			metricsURL + "?",   // to be able to test using Frisby
+			openAPIv1URL + "?", // to be able to test using Frisby
+			openAPIv2URL + "?", // to be able to test using Frisby
 		}
 		router.Use(func(next http.Handler) http.Handler { return server.Authentication(next, noAuthURLs) })
 	}
