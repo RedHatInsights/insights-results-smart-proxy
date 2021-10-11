@@ -288,7 +288,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/overview_response"
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
                 }
               }
             },
@@ -893,6 +893,7 @@
               "service_availability"
             ],
             "risk_of_change": 0,
+            "rule_status": "enabled",
             "impacted_clusters_count": 42
           }
         }

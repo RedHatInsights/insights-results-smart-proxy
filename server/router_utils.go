@@ -93,6 +93,10 @@ func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter
 	impactingParam, err := readImpactingParam(request)
 	if err != nil {
 		log.Err(err).Msgf("Error parsing `%s` URL parameter. Defaulting to true.", ImpactingParam)
+		handleServerError(writer, &RouterParsingError{
+			paramName: ImpactingParam,
+			errString: "Unparsable boolean value",
+		})
 	} else {
 		impacting = impactingParam
 	}
@@ -121,7 +125,7 @@ func readOSDEligible(request *http.Request) (bool, error) {
 	return readQueryBoolParam(OSDEligibleParam, false, request)
 }
 
-// readImpactingParam returns the value of the "osd_eligible" parameter in query if available
+// readImpactingParam returns the value of the "impacting" parameter in query if available
 func readImpactingParam(request *http.Request) (bool, error) {
 	return readQueryBoolParam(ImpactingParam, true, request)
 }

@@ -866,3 +866,33 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 		})
 	}, testTimeout)
 }
+
+// previously returned duplicate response, making the response JSON invalid
+func TestHTTPServer_RecommendationsListEndpoint_BadToken(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: badJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusBadRequest,
+		})
+	}, testTimeout)
+}
+
+// previously returned the error from strconv.Bool == 500
+func TestHTTPServer_RecommendationsListEndpoint_BadImpactingParam(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=badbool",
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusBadRequest,
+		})
+	}, testTimeout)
+}

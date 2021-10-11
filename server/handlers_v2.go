@@ -87,8 +87,8 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	userID, orgID, impactingOnly, err := server.readParamsGetRecommendations(writer, request)
 	if err != nil {
+		// everything handled
 		log.Error().Err(err).Msgf("problem reading necessary params from request")
-		handleServerError(writer, err)
 		return
 	}
 
@@ -108,7 +108,6 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 			Str("userID", string(userID)).
 			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterList)
 
-		handleServerError(writer, err)
 		return
 	}
 
@@ -206,20 +205,20 @@ func (server HTTPServer) getImpactingRecommendations(
 	jsonMarshalled, err := json.Marshal(clusterList)
 	if err != nil {
 		handleServerError(writer, err)
-		return nil, nil
+		return nil, err
 	}
 
 	// #nosec G107
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
 		handleServerError(writer, err)
-		return nil, nil
+		return nil, err
 	}
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		handleServerError(writer, err)
-		return nil, nil
+		return nil, err
 	}
 
 	if aggregatorResp.StatusCode != http.StatusOK {
@@ -227,13 +226,13 @@ func (server HTTPServer) getImpactingRecommendations(
 		if err != nil {
 			handleServerError(writer, err)
 		}
-		return nil, nil
+		return nil, err
 	}
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
 		handleServerError(writer, err)
-		return nil, nil
+		return nil, err
 	}
 
 	return aggregatorResponse.Recommendations, nil
