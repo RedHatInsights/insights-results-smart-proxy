@@ -38,8 +38,6 @@ var (
 		rules:                      map[types.RuleID]*types.RuleContent{},
 		rulesWithContent:           map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
 		recommendationsWithContent: map[types.RuleID]*local_types.RuleWithContent{},
-		internalRuleIDs:            []types.RuleID{},
-		externalRuleIDs:            []types.RuleID{},
 	}
 )
 
@@ -132,10 +130,9 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 		ErrorKey: errorKey,
 	}] = ruleWithContent
 
-	switch ruleWithContent.Internal {
-	case true:
+	if ruleWithContent.Internal {
 		s.internalRuleIDs = append(s.internalRuleIDs, compositeRuleID)
-	case false:
+	} else {
 		s.externalRuleIDs = append(s.externalRuleIDs, compositeRuleID)
 	}
 }
