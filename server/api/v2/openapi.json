@@ -265,6 +265,7 @@
             },
             "description": "List of acked rules"
           }
+        }
       },
       "post": {
         "operationId": "ackRuleSystemWide",
