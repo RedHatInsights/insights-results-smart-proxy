@@ -877,7 +877,7 @@ func TestHTTPServer_RecommendationsListEndpoint_BadToken(t *testing.T) {
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: badJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusBadRequest,
+			StatusCode: http.StatusInternalServerError,
 		})
 	}, testTimeout)
 }
