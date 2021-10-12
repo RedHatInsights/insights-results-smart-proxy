@@ -88,7 +88,6 @@ func (server *HTTPServer) readOrgIDAndUserIDFromToken(writer http.ResponseWriter
 		handleServerError(writer, err)
 		return types.OrgID(0), types.UserID(""), err
 	}
-
 	// Organization ID and user ID are to be provided in the token
 	orgID := authToken.Internal.OrgID
 	userID := authToken.AccountNumber

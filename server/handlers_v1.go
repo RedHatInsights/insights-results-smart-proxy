@@ -17,6 +17,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
@@ -80,7 +81,14 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 // getContent retrieves all the static content
 func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Request) {
 	// Generate an array of RuleContent
-	allRules := content.GetAllContent()
+	allRules, err := content.GetAllContent()
+
+	if err != nil {
+		log.Error().Err(err)
+		handleServerError(writer, err)
+		return
+	}
+
 	var rules []types.RuleContent
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
@@ -93,7 +101,7 @@ func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Re
 		rules = allRules
 	}
 
-	err := responses.SendOK(writer, responses.BuildOkResponseWithData("content", rules))
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("content", rules))
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -115,7 +123,14 @@ func (server HTTPServer) getClustersForOrg(writer http.ResponseWriter, request *
 
 // getRuleIDs returns a list of the names of the rules
 func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Request) {
-	allRuleIDs := content.GetRuleIDs()
+	allRuleIDs, err := content.GetRuleIDs()
+
+	if err != nil {
+		log.Error().Err(err)
+		handleServerError(writer, err)
+		return
+	}
+
 	var ruleIDs []string
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
@@ -144,13 +159,14 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 		return
 	}
 
-	clustersHits := 0
-	hitsByTotalRisk := make(map[int]int)
-	hitsByTags := make(map[string]int)
-
 	clusters, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
-		handleServerError(writer, err)
+		if _, ok := err.(*url.Error); ok {
+			log.Error().Err(err).Msg("Aggregator service is unavailable")
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
 		return
 	}
 	log.Info().Msgf("Retrieving overview for org_id %v and its clusters: %v", orgID, clusters)
@@ -161,9 +177,30 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 	// The missing ones (clusters registered in the list but no report available)
 	// The available ones with the whole report
 
+	r, err := server.getOverviewForClusters(writer, clusters, authToken)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getOverviewForClusters gets the overview for all clusters
+func (server HTTPServer) getOverviewForClusters(writer http.ResponseWriter, clusters []types.ClusterName, authToken *types.Identity) (sptypes.OrgOverviewResponse, error) {
+	clustersHits := 0
+	hitsByTotalRisk := make(map[int]int)
+	hitsByTags := make(map[string]int)
+
 	for _, clusterID := range clusters {
 		overview, err := server.getOverviewPerCluster(clusterID, authToken, writer)
 		if err != nil {
+			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+				return sptypes.OrgOverviewResponse{}, err
+			}
 			log.Error().Err(err).Msgf("Problem handling report for cluster %s.", clusterID)
 			continue
 		}
@@ -188,11 +225,7 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 		ClustersHitByTotalRisk: hitsByTotalRisk,
 		ClustersHitByTag:       hitsByTags,
 	}
-
-	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
-		handleServerError(writer, err)
-		return
-	}
+	return r, nil
 }
 
 // overviewEndpointWithClusterIDs returns a map with an overview of number of clusters hit by rules
@@ -205,16 +238,21 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 		return
 	}
 
-	r := generateOrgOverview(aggregatorResponse)
+	r, err := generateOrgOverview(aggregatorResponse)
 
-	if err := responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
 		handleServerError(writer, err)
 		return
 	}
 }
 
 // generateOrgOverview generates an OrgOverviewResponse from the aggregator's response
-func generateOrgOverview(aggregatorReport *types.ClusterReports) sptypes.OrgOverviewResponse {
+func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOverviewResponse, error) {
 	clustersHits := 0
 	hitsByTotalRisk := make(map[int]int)
 	hitsByTags := make(map[string]int)
@@ -242,6 +280,9 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) sptypes.OrgOver
 			errorKey := rule.ErrorKey
 			ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
 			if err != nil {
+				if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+					return sptypes.OrgOverviewResponse{}, err
+				}
 				log.Error().Err(err).Msgf("Unable to retrieve content for rule %s", ruleID)
 				continue
 			}
@@ -259,5 +300,5 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) sptypes.OrgOver
 		ClustersHit:            clustersHits,
 		ClustersHitByTotalRisk: hitsByTotalRisk,
 		ClustersHitByTag:       hitsByTags,
-	}
+	}, nil
 }

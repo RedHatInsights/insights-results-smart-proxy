@@ -48,6 +48,8 @@ func TestEnableEndpoint(t *testing.T) {
 			&serverConfigJWT,
 			&helpers.DefaultServicesConfig,
 			nil,
+			nil,
+			nil,
 			&helpers.APIRequest{
 				Method:             http.MethodPut,
 				Endpoint:           server.EnableRuleForClusterEndpoint,
@@ -85,6 +87,8 @@ func TestDisableEndpoint(t *testing.T) {
 			t,
 			&serverConfigJWT,
 			&helpers.DefaultServicesConfig,
+			nil,
+			nil,
 			nil,
 			&helpers.APIRequest{
 				Method:             http.MethodPut,

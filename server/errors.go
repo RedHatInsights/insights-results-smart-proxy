@@ -17,6 +17,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"net/http"
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
@@ -84,7 +85,7 @@ func (*ContentServiceUnavailableError) Error() string {
 type AggregatorServiceUnavailableError struct{}
 
 func (*AggregatorServiceUnavailableError) Error() string {
-	return "Aggregator service us unrechable"
+	return "Aggregator service is unreachable"
 }
 
 // ParamsParsingError error meaning that the cluster name cannot be handled
@@ -109,7 +110,7 @@ func handleServerError(writer http.ResponseWriter, err error) {
 		respErr = responses.SendNotFound(writer, err.Error())
 	case *AuthenticationError:
 		respErr = responses.SendForbidden(writer, err.Error())
-	case *ContentServiceUnavailableError:
+	case *ContentServiceUnavailableError, *AggregatorServiceUnavailableError, *content.RuleContentDirectoryTimeoutError:
 		respErr = responses.SendServiceUnavailable(writer, err.Error())
 	default:
 		respErr = responses.SendInternalServerError(writer, "Internal Server Error")

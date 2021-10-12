@@ -17,6 +17,8 @@ package server_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 
@@ -54,7 +56,8 @@ var (
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -67,7 +70,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -80,10 +83,46 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
+func TestHTTPServer_ReportEndpoint_UnavailableContentService(t *testing.T) {
+	var emptyResponse *types.RuleContentDirectory
+	err := loadMockRuleContentDir(emptyResponse)
+	assert.NotNil(t, err)
+
+	expectedBody := `
+		{
+		   "status" : "Content directory cache has been empty for too long time; timeout triggered"
+		}
+	`
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusServiceUnavailable,
+			Body:       expectedBody,
+		})
+	}, testTimeout)
+}
+
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -97,7 +136,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 		})
 
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -113,7 +152,9 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(RuleContentDirectoryOnly1Rule)
+	err := loadMockRuleContentDir(&RuleContentDirectoryOnly1Rule)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -127,7 +168,7 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 		})
 
 		// 1 rule returned, but count = 3
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -142,7 +183,9 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 
 func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -155,7 +198,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint + "?" + server.OSDEligibleParam + "=true",
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -170,7 +213,9 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory5Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -203,7 +248,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 			Body:       testdata.Report3Rules1DisabledExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=false",
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -215,7 +260,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 		})
 
 		// Not using the parameter gets the same result as using with =false
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -227,7 +272,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 		})
 
 		// Enabling the parameter
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=true",
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -242,7 +287,9 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(RuleContentDirectoryOnlyDisabledRule)
+	err := loadMockRuleContentDir(&RuleContentDirectoryOnlyDisabledRule)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -255,7 +302,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 			Body:       testdata.Report3Rules1DisabledExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
 			EndpointArgs: []interface{}{testdata.ClusterName},
@@ -271,7 +318,9 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -289,7 +338,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 			Body:       testdata.Report3SingleRuleExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.SingleRuleEndpoint,
 			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
@@ -302,9 +351,51 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
+func TestHTTPServer_RuleEndpoint_UnavailableContentService(t *testing.T) {
+	var emptyResponse *types.RuleContentDirectory
+	err := loadMockRuleContentDir(emptyResponse)
+	assert.NotNil(t, err)
+
+	expectedBody := `
+		{
+		   "status" : "Content directory cache has been empty for too long time; timeout triggered"
+		}
+	`
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ira_server.RuleEndpoint,
+			EndpointArgs: []interface{}{
+				testdata.OrgID,
+				testdata.ClusterName,
+				testdata.UserID,
+				fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey),
+			},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3SingleRuleExpectedResponse,
+		})
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.SingleRuleEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusServiceUnavailable,
+			Body:       expectedBody,
+		})
+	}, testTimeout)
+}
+
 func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -322,7 +413,7 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 			Body:       testdata.Report3SingleRuleExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
 			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
@@ -337,7 +428,9 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 
 func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -355,7 +448,7 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 			Body:       testdata.Report3SingleRule2ExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
 			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey2.RuleModule, testdata.RuleErrorKey2.ErrorKey)},
@@ -371,10 +464,11 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 // TestHTTPServer_GetContent
 func TestHTTPServer_GetContent(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.Content,
 		}, &helpers.APIResponse{
@@ -389,7 +483,9 @@ func TestHTTPServer_GetContent(t *testing.T) {
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -413,7 +509,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.OverviewEndpoint,
 			OrgID:    testdata.OrgID,
@@ -425,13 +521,60 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
+func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
+	var emptyResponse *types.RuleContentDirectory
+	err := loadMockRuleContentDir(emptyResponse)
+	assert.NotNil(t, err)
+
+	expectedBody := `
+		{
+		   "status" : "Content directory cache has been empty for too long time; timeout triggered"
+		}
+	`
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare list of organizations response
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
+		})
+
+		// prepare report for cluster
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: server.OverviewEndpoint,
+			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusServiceUnavailable,
+			Body:       expectedBody,
+		})
+	}, testTimeout)
+}
+
 func TestInternalOrganizations(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(
+	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{RuleContentInternal1},
 		),
 	)
+	assert.Nil(t, err)
 
 	for _, testCase := range []struct {
 		TestName           string
@@ -460,7 +603,7 @@ func TestInternalOrganizations(t *testing.T) {
 	} {
 		t.Run(testCase.TestName, func(t *testing.T) {
 			helpers.RunTestWithTimeout(t, func(t testing.TB) {
-				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
+				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
 					Method:             http.MethodGet,
 					Endpoint:           server.RuleContent,
 					EndpointArgs:       []interface{}{internalTestRuleModule},
@@ -496,7 +639,7 @@ func TestRuleNames(t *testing.T) {
 	} {
 		t.Run(testCase.TestName, func(t *testing.T) {
 			helpers.RunTestWithTimeout(t, func(t testing.TB) {
-				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, &helpers.APIRequest{
+				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
 					Method:             http.MethodGet,
 					Endpoint:           server.RuleIDs,
 					AuthorizationToken: testCase.MockAuthToken,
@@ -511,11 +654,12 @@ func TestRuleNames(t *testing.T) {
 // TestRuleNamesResponse checks the REST API status and response
 func TestRuleNamesResponse(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(
+	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{RuleContentInternal1, testdata.RuleContent1},
 		),
 	)
+	assert.Nil(t, err)
 
 	expectedBody := `
 		{
@@ -524,7 +668,7 @@ func TestRuleNamesResponse(t *testing.T) {
 		}
 	`
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations1, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations1, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RuleIDs,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -541,7 +685,7 @@ func TestRuleNamesResponse(t *testing.T) {
 			"status": "ok"
 		}`
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations2, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations2, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RuleIDs,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -556,7 +700,9 @@ func TestRuleNamesResponse(t *testing.T) {
 // TestHTTPServer_OverviewWithClusterIDsEndpoint
 func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -573,7 +719,7 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 			},
 		)
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodPost,
 			Endpoint: server.OverviewEndpoint,
 			OrgID:    testdata.OrgID,
@@ -585,14 +731,55 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
+// TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService
+func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *testing.T) {
+	var emptyResponse *types.RuleContentDirectory
+	err := loadMockRuleContentDir(emptyResponse)
+	assert.NotNil(t, err)
+
+	expectedBody := `
+		{
+		   "status" : "Content directory cache has been empty for too long time; timeout triggered"
+		}`
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare reports reponse
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ReportForListOfClustersPayloadEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(data.AggregatorReportForClusterList),
+			},
+		)
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodPost,
+			Endpoint: server.OverviewEndpoint,
+			OrgID:    testdata.OrgID,
+			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusServiceUnavailable,
+			Body:       expectedBody,
+		})
+	}, testTimeout)
+}
+
 // TestHTTPServer_RecommendationsListEndpoint2Rules
 func TestHTTPServer_RecommendationsListEndpoint2Rules(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(
+	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
 		),
 	)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -633,7 +820,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules(t *testing.T) {
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -647,11 +834,13 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules(t *testing.T) {
 // TestHTTPServer_RecommendationsListEndpoint2Rules
 func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(
+	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{testdata.RuleContent1},
 		),
 	)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -692,7 +881,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -746,7 +935,7 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -760,11 +949,13 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 // TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingTrue
 func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingTrue(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(
+	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
 		),
 	)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -801,7 +992,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -815,11 +1006,13 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 // TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse
 func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse(t *testing.T) {
 	defer content.ResetContent()
-	loadMockRuleContentDir(
+	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
 		),
 	)
+	assert.Nil(t, err)
+
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -856,7 +1049,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
 			AuthorizationToken: goodJWTAuthBearer,
@@ -872,7 +1065,7 @@ func TestHTTPServer_RecommendationsListEndpoint_BadToken(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: badJWTAuthBearer,
@@ -887,12 +1080,69 @@ func TestHTTPServer_RecommendationsListEndpoint_BadImpactingParam(t *testing.T) 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=badbool",
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusBadRequest,
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_GroupsEndpoint(t *testing.T) {
+	groupsChannel := make(chan []groups.Group)
+	errorFoundChannel := make(chan bool)
+	errorChannel := make(chan error)
+
+	records := make([]groups.Group, 1)
+	go func() { groupsChannel <- records }()
+	go func() { errorFoundChannel <- false }()
+
+	expectedBody := `
+		{
+			"groups": [
+				{
+					"description": "",
+					"tags": null,
+					"title":""
+				}
+			],
+			"status": "ok"
+		}`
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		helpers.AssertAPIRequest(t, nil, nil, groupsChannel, errorFoundChannel, errorChannel, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: server.RuleGroupsEndpoint,
+			OrgID:    testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       expectedBody,
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
+	groupsChannel := make(chan []groups.Group)
+	errorFoundChannel := make(chan bool)
+	errorChannel := make(chan error)
+
+	go func() { errorFoundChannel <- true }()
+	go func() { errorChannel <- &content.RuleContentDirectoryTimeoutError{} }()
+
+	expectedBody := `
+		{
+			"status" : "Content directory cache has been empty for too long time; timeout triggered"
+		}`
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		helpers.AssertAPIRequest(t, nil, nil, groupsChannel, errorFoundChannel, errorChannel, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: server.RuleGroupsEndpoint,
+			OrgID:    testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusServiceUnavailable,
+			Body:       expectedBody,
 		})
 	}, testTimeout)
 }

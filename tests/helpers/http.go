@@ -15,6 +15,7 @@
 package helpers
 
 import (
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"testing"
 	"time"
 
@@ -98,21 +99,24 @@ var (
 	// DefaultServicesConfig is data structure that represents default
 	// services configuration
 	DefaultServicesConfig = services.Configuration{
-		AggregatorBaseEndpoint: "http://localhost:8080/",
-		ContentBaseEndpoint:    "http://localhost:8082/",
-		GroupsPollingTime:      1 * time.Minute,
+		AggregatorBaseEndpoint:  "http://localhost:8080/",
+		ContentBaseEndpoint:     "http://localhost:8082/",
+		GroupsPollingTime:       1 * time.Minute,
+		ContentDirectoryTimeout: 100 * time.Millisecond,
 	}
 )
 
 // AssertAPIRequest function creates new server with provided
 // serverConfig, servicesConfig (you can leave them nil to use the default ones),
-// groupsChannel and contentChannel (can be set to nil as well)
+// groupsChannel and errorChannel (can be set to nil as well)
 // sends api request and checks api response (see docs for APIRequest and APIResponse)
 func AssertAPIRequest(
 	t testing.TB,
 	serverConfig *server.Configuration,
 	servicesConfig *services.Configuration,
 	groupsChannel chan []groups.Group,
+	errorFoundChannel chan bool,
+	errorChannel chan error,
 	request *helpers.APIRequest,
 	expectedResponse *helpers.APIResponse,
 ) {
@@ -126,6 +130,8 @@ func AssertAPIRequest(
 		serverConfig,
 		servicesConfig,
 		groupsChannel,
+		errorFoundChannel,
+		errorChannel,
 		serverConfig.APIv1Prefix,
 		request,
 		expectedResponse,
@@ -139,6 +145,8 @@ func AssertAPIv2Request(
 	serverConfig *server.Configuration,
 	servicesConfig *services.Configuration,
 	groupsChannel chan []groups.Group,
+	errorFoundChannel chan bool,
+	errorChannel chan error,
 	request *helpers.APIRequest,
 	expectedResponse *helpers.APIResponse,
 ) {
@@ -152,6 +160,8 @@ func AssertAPIv2Request(
 		serverConfig,
 		servicesConfig,
 		groupsChannel,
+		errorFoundChannel,
+		errorChannel,
 		serverConfig.APIv2Prefix,
 		request,
 		expectedResponse,
@@ -163,6 +173,8 @@ func assertAPIRequest(
 	serverConfig *server.Configuration,
 	servicesConfig *services.Configuration,
 	groupsChannel chan []groups.Group,
+	errorFoundChannel chan bool,
+	errorChannel chan error,
 	APIPrefix string,
 	request *helpers.APIRequest,
 	expectedResponse *helpers.APIResponse,
@@ -184,7 +196,11 @@ func assertAPIRequest(
 		*servicesConfig,
 		amsclient.Configuration{},
 		groupsChannel,
+		errorFoundChannel,
+		errorChannel,
 	)
+
+	content.SetContentDirectoryTimeout(servicesConfig.ContentDirectoryTimeout)
 
 	// send the request to newly created REST API server and check its
 	// response (if it matches the provided one)

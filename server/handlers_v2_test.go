@@ -51,6 +51,8 @@ func TestHTTPServer_SetRating(t *testing.T) {
 		&serverConfigJWT,
 		nil,
 		nil,
+		nil,
+		nil,
 		&helpers.APIRequest{
 			Method:             http.MethodPost,
 			Endpoint:           server.Rating,
