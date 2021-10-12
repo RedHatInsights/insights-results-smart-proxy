@@ -31,7 +31,6 @@ func TestHTTPServer_SetRating(t *testing.T) {
 	rating := `{"rule": "rule_module|error_key","rating":-1}`
 	aggregatorResponse := fmt.Sprintf(`{"status":"ok", "ratings":%s}`, rating)
 
-	// prepare content
 	helpers.GockExpectAPIRequest(
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,

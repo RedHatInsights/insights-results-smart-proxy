@@ -288,7 +288,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/overview_response"
+                  "$ref": "#/components/schemas/systemWideRuleDisable"
                 }
               }
             },
@@ -575,6 +575,40 @@
         "description": "The static content is taken from the cache periodically updated from the content service"
       }
     },
+    "/rule": {
+      "get": {
+        "operationId": "getRecommendations",
+        "summary": "Returns a list recommendations and the number of clusters they're currently impacting.",
+        "description": "The affected clusters are based on the requester's organization. If the AMS API is available, the clusters are pulled from there, otherwise we retrieve the clusters from our database.",
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "impacting",
+            "description": "If set to false, endpoint will return all available rules including those that don't hit any clusters at the moment.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/recommendationListResponse"
+                }
+              }
+            },
+            "description": "Returns a list recommendations and the number of clusters they're currently impacting. Default behaviour is to return only the rules that affect atleast one cluster. This can be changed by passing impacting parameter"
+          }
+        }
+      }
+    },
     "/rating": {
       "post": {
         "tags": [
@@ -762,6 +796,118 @@
           },
           "status": {
             "description": "",
+            "type": "string"
+          }
+        }
+      },
+      "recommendationList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rule_id": {
+              "type": "string",
+              "description": "The rule ID in the | format.",
+              "example": "rule.module|ERROR_KEY"
+            },
+            "description": {
+              "description": "The title of the rule, a short description.",
+              "type": "string"
+            },
+            "publish_date": {
+              "description": "The date the rule was published. 'Added at' field in UI",
+              "format": "date-time",
+              "type": "string"
+            },
+            "total_risk": {
+              "description": "Total risk - calculated from rule impact and likelihood.",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ],
+              "type": "integer"
+            },
+            "impact": {
+              "type": "integer",
+              "description": "How much of an impact this rule has on a cluster.",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            "likelihood": {
+              "type": "integer",
+              "description": "How likely is this rule to hit.",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            "tags": {
+              "description": "List of tags that the rule contains",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "rule_status": {
+              "description": "Whether the rule has been disabled/acked or not.",
+              "type": "string",
+              "example": "disabled"
+            },
+            "risk_of_change": {
+              "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ],
+              "type": "integer"
+            },
+            "impacted_clusters_count": {
+              "type": "int",
+              "description": "The number of clusters impacted by this rule.",
+              "example": 42
+            }
+          },
+          "example": {
+            "rule_id": "ccx_rules_ocp.external.bug_rules.bug_1821905|BUGZILLA_BUG_1821905",
+            "description": "Introducing Insights for Red Hat OpenShift Container Platform",
+            "publish_date": "2020-04-08T00:42:00Z",
+            "total_risk": 3,
+            "impact": 2,
+            "likelihood": 4,
+            "tags": [
+              "openshift",
+              "service_availability"
+            ],
+            "risk_of_change": 0,
+            "rule_status": "enabled",
+            "impacted_clusters_count": 42
+          }
+        }
+      },
+      "recommendationListResponse": {
+        "description": "Response data type for GET /rule endpoint",
+        "type": "object",
+        "properties": {
+          "recommendations": {
+            "$ref": "#/components/schemas/recommendationList",
+            "description": "List of recommendations and number of impacting clusters"
+          },
+          "status": {
+            "description": "Request response status",
             "type": "string"
           }
         }

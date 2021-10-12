@@ -28,9 +28,6 @@ import (
 
 // HTTP response-related constants
 const (
-	contentType = "Content-Type"
-	appJSON     = "application/json; charset=utf-8"
-
 	authTokenFormatError       = "unable to read orgID and userID from auth. token!"
 	improperRuleSelectorFormat = "improper rule selector format"
 	readRuleStatusError        = "read rule status error"
@@ -112,7 +109,7 @@ func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.
 //   "updated_at": "2021-09-04T17:52:48.976Z"
 // }
 func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *http.Request) {
-	writer.Header().Set(contentType, appJSON)
+	writer.Header().Set(contentTypeHeader, JSONContentType)
 
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
@@ -175,7 +172,7 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 // HTTP/1.1 200 OK is returned if rule has been already acked
 // HTTP/1.1 201 Created is returned if rule has been acked by this call
 func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *http.Request) {
-	writer.Header().Set(contentType, appJSON)
+	writer.Header().Set(contentTypeHeader, JSONContentType)
 
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {

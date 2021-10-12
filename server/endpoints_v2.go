@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
+
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -29,6 +30,9 @@ const (
 
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
 	ClustersDetail = "rule/{rule_id}/clusters_detail/"
+
+	// RecommendationsListEndpoint lists all recommendations with a number of impacted clusters.
+	RecommendationsListEndpoint = "rule/"
 
 	// RuleContentV2 https://issues.redhat.com/browse/CCXDEV-5094
 	// additionally group info is added too
@@ -101,6 +105,8 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 // return cluster report or reports to client
 func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+ReportEndpointV2, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
+
+	router.HandleFunc(apiPrefix+RecommendationsListEndpoint, server.getRecommendations).Methods(http.MethodGet)
 }
 
 // addV2RuleEndpointsToRouter method registers handlers for endpoints that handle

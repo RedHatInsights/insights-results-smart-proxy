@@ -58,6 +58,14 @@ import (
 	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
+const (
+	// contentTypeHeader represents Content-Type header name
+	contentTypeHeader = "Content-Type"
+
+	// JSONContentType represents the application/json content type
+	JSONContentType = "application/json; charset=utf-8"
+)
+
 // HTTPServer is an implementation of Server interface
 type HTTPServer struct {
 	Config         Configuration
@@ -459,7 +467,7 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 		return nil, false
 	}
 	// #nosec G107
-	aggregatorResp, err := http.Post(aggregatorURL, "application/json", bytes.NewBuffer(body))
+	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false

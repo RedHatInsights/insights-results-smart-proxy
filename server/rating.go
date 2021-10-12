@@ -73,7 +73,7 @@ func (server HTTPServer) postRatingToAggregator(
 		return nil, false
 	}
 	// #nosec G107
-	aggregatorResp, err := http.Post(aggregatorURL, "application/json", bytes.NewBuffer(body))
+	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false

@@ -105,12 +105,31 @@ type RuleWithContent struct {
 	Description     string         `json:"description"`
 	TotalRisk       int            `json:"total_risk"`
 	RiskOfChange    int            `json:"risk_of_change"`
+	Impact          int            `json:"impact"`
+	Likelihood      int            `json:"likelihood"`
 	PublishDate     time.Time      `json:"publish_date"`
 	Active          bool           `json:"active"`
 	Internal        bool           `json:"internal"`
 	Generic         string         `json:"generic"`
 	Tags            []string       `json:"tags"`
 	NotRequireAdmin bool
+}
+
+// RecommendationListView represents the API response for Advisor /rule/ related endpoints
+// RuleStatus is based on acknowledgment table (enabled/disabled)
+// RiskOfChange == resolution risk, currently missing from rule content
+type RecommendationListView struct {
+	// RuleID is in "|" format
+	RuleID              types.RuleID              `json:"rule_id"`
+	Description         string                    `json:"description"`
+	PublishDate         time.Time                 `json:"publish_date"`
+	TotalRisk           uint8                     `json:"total_risk"`
+	Impact              uint8                     `json:"impact"`
+	Likelihood          uint8                     `json:"likelihood"`
+	Tags                []string                  `json:"tags"`
+	RuleStatus          string                    `json:"rule_status"`
+	RiskOfChange        uint8                     `json:"risk_of_change"`
+	ImpactedClustersCnt types.ImpactedClustersCnt `json:"impacted_clusters_count"`
 }
 
 // RuleRating structure with the rule identifier and the rating

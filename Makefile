@@ -70,7 +70,7 @@ cover: test
 license: install_addlicense
 	addlicense -c "Red Hat, Inc" -l "apache" -v ./
 
-before_commit: style test integration_tests license
+before_commit: style test integration_tests license openapi-check
 	./check_coverage.sh
 
 help: ## Show this help screen

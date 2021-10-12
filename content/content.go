@@ -22,6 +22,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/RedHatInsights/insights-operator-utils/generators"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"github.com/rs/zerolog/log"
@@ -33,6 +34,11 @@ var (
 	ruleContentDirectory      *types.RuleContentDirectory
 	ruleContentDirectoryReady = sync.NewCond(&sync.Mutex{})
 	stopUpdateContentLoop     = make(chan struct{})
+	rulesWithContentStorage   = RulesWithContentStorage{
+		rules:                      map[types.RuleID]*types.RuleContent{},
+		rulesWithContent:           map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
+		recommendationsWithContent: map[types.RuleID]*local_types.RuleWithContent{},
+	}
 )
 
 type ruleIDAndErrorKey struct {
@@ -44,8 +50,13 @@ type ruleIDAndErrorKey struct {
 // It's thread safe
 type RulesWithContentStorage struct {
 	sync.RWMutex
-	rulesWithContent map[ruleIDAndErrorKey]*local_types.RuleWithContent
 	rules            map[types.RuleID]*types.RuleContent
+	rulesWithContent map[ruleIDAndErrorKey]*local_types.RuleWithContent
+	// recommendationsWithContent map has the same contents as rulesWithContent but the keys
+	// are composite of "rule.module|ERROR_KEY" optimized for Insights Advisor
+	recommendationsWithContent map[types.RuleID]*local_types.RuleWithContent
+	internalRuleIDs            []types.RuleID
+	externalRuleIDs            []types.RuleID
 }
 
 // SetRuleContentDirectory is made for easy testing fake rules etc. from other directories
@@ -76,6 +87,17 @@ func (s *RulesWithContentStorage) GetRuleContent(ruleID types.RuleID) (*types.Ru
 	return res, found
 }
 
+// GetContentForRecommendation returns content for rule with error key
+func (s *RulesWithContentStorage) GetContentForRecommendation(
+	ruleID types.RuleID,
+) (*local_types.RuleWithContent, bool) {
+	s.RLock()
+	defer s.RUnlock()
+
+	res, found := s.recommendationsWithContent[ruleID]
+	return res, found
+}
+
 // GetAllContent returns content for rule
 func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
 	s.RLock()
@@ -93,6 +115,13 @@ func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
 func (s *RulesWithContentStorage) SetRuleWithContent(
 	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *local_types.RuleWithContent,
 ) {
+	compositeRuleID, err := generators.GenerateCompositeRuleID(types.RuleFQDN(ruleID), errorKey)
+	if err == nil {
+		s.recommendationsWithContent[compositeRuleID] = ruleWithContent
+	} else {
+		log.Error().Err(err).Msgf("Error generating composite rule ID for [%v] and [%v]", ruleID, errorKey)
+	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -100,6 +129,12 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 		RuleID:   ruleID,
 		ErrorKey: errorKey,
 	}] = ruleWithContent
+
+	if ruleWithContent.Internal {
+		s.internalRuleIDs = append(s.internalRuleIDs, compositeRuleID)
+	} else {
+		s.externalRuleIDs = append(s.externalRuleIDs, compositeRuleID)
+	}
 }
 
 // SetRule sets content for rule
@@ -117,11 +152,14 @@ func (s *RulesWithContentStorage) ResetContent() {
 	s.Lock()
 	defer s.Unlock()
 
-	s.rulesWithContent = make(map[ruleIDAndErrorKey]*local_types.RuleWithContent)
 	s.rules = make(map[types.RuleID]*types.RuleContent)
+	s.rulesWithContent = make(map[ruleIDAndErrorKey]*local_types.RuleWithContent)
+	s.recommendationsWithContent = make(map[types.RuleID]*local_types.RuleWithContent)
+	s.internalRuleIDs = make([]types.RuleID, 0)
+	s.externalRuleIDs = make([]types.RuleID, 0)
 }
 
-// GetRuleIDs gets rule IDs for rules
+// GetRuleIDs gets rule IDs for rules (rule modules)
 func (s *RulesWithContentStorage) GetRuleIDs() []string {
 	s.Lock()
 	defer s.Unlock()
@@ -135,9 +173,20 @@ func (s *RulesWithContentStorage) GetRuleIDs() []string {
 	return ruleIDs
 }
 
-var rulesWithContentStorage = RulesWithContentStorage{
-	rulesWithContent: map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
-	rules:            map[types.RuleID]*types.RuleContent{},
+// GetInternalRuleIDs returns the composite rule IDs ("| format") of internal rules
+func (s *RulesWithContentStorage) GetInternalRuleIDs() []types.RuleID {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.internalRuleIDs
+}
+
+// GetExternalRuleIDs returns the composite rule IDs ("| format") of external rules
+func (s *RulesWithContentStorage) GetExternalRuleIDs() []types.RuleID {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.externalRuleIDs
 }
 
 // WaitForContentDirectoryToBeReady ensures the rule content directory is safe to read/write
@@ -169,6 +218,21 @@ func GetRuleWithErrorKeyContent(
 	return res, nil
 }
 
+// GetContentForRecommendation returns content for rule with provided composite rule ID
+func GetContentForRecommendation(
+	ruleID types.RuleID,
+) (*local_types.RuleWithContent, error) {
+
+	WaitForContentDirectoryToBeReady()
+
+	res, found := rulesWithContentStorage.GetContentForRecommendation(ruleID)
+	if !found {
+		return nil, &types.ItemNotFoundError{ItemID: fmt.Sprintf("%v", ruleID)}
+	}
+
+	return res, nil
+}
+
 // GetRuleContent returns content for rule with provided `rule id`
 // Caching is done under the hood, don't worry about it.
 func GetRuleContent(ruleID types.RuleID) (*types.RuleContent, error) {
@@ -191,11 +255,25 @@ func ResetContent() {
 	rulesWithContentStorage.ResetContent()
 }
 
-// GetRuleIDs returns a list of rule IDs
+// GetRuleIDs returns a list of rule IDs (rule modules)
 func GetRuleIDs() []string {
 	WaitForContentDirectoryToBeReady()
 
 	return rulesWithContentStorage.GetRuleIDs()
+}
+
+// GetInternalRuleIDs returns a list of composite rule IDs ("| format") of internal rules
+func GetInternalRuleIDs() []types.RuleID {
+	WaitForContentDirectoryToBeReady()
+
+	return rulesWithContentStorage.GetInternalRuleIDs()
+}
+
+// GetExternalRuleIDs returns a list of composite rule IDs ("| format") of external rules
+func GetExternalRuleIDs() []types.RuleID {
+	WaitForContentDirectoryToBeReady()
+
+	return rulesWithContentStorage.GetExternalRuleIDs()
 }
 
 // GetAllContent returns content for all the loaded rules.
