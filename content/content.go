@@ -30,6 +30,9 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
 
+// CompositeRuleIDDelimiter represents the delimiter used in composite rule ID (rule.module|ERROR_KEY)
+const CompositeRuleIDDelimiter = "|"
+
 var (
 	ruleContentDirectory      *types.RuleContentDirectory
 	ruleContentDirectoryReady = sync.NewCond(&sync.Mutex{})

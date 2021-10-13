@@ -76,6 +76,37 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 	return types.RuleID(splitedRuleID[0]), types.ErrorKey(splitedRuleID[1]), nil
 }
 
+func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
+	ruleID types.RuleID,
+	successful bool,
+) {
+	ruleIDParam, err := httputils.GetRouterParam(request, "rule_id")
+	if err != nil {
+		const message = "unable to get rule id"
+		log.Error().Err(err).Msg(message)
+		handleServerError(writer, err)
+		return
+	}
+
+	compositeRuleIDValidator := regexp.MustCompile(`^([a-zA-Z_0-9.]+)[|]([a-zA-Z_0-9.]+)$`)
+	isCompositeRuleIDValid := compositeRuleIDValidator.MatchString(ruleIDParam)
+
+	if !isCompositeRuleIDValid {
+		err = fmt.Errorf("invalid composite rule ID. Must be in the format 'rule.plugin.module|ERROR_KEY'")
+		log.Error().Err(err)
+		handleServerError(writer, &RouterParsingError{
+			paramName:  "rule_id",
+			paramValue: ruleIDParam,
+			errString:  err.Error(),
+		})
+		return
+	}
+
+	ruleID = types.RuleID(ruleIDParam)
+	successful = true
+	return
+}
+
 func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (
 	userID types.UserID,
 	orgID types.OrgID,
