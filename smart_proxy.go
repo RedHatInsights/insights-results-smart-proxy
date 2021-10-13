@@ -20,8 +20,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -110,13 +112,17 @@ func startServer() ExitCode {
 	servicesCfg := conf.GetServicesConfiguration()
 	amsConfig := conf.GetAMSClientConfiguration()
 	groupsChannel := make(chan []groups.Group)
+	errorFoundChannel := make(chan bool)
+	errorChannel := make(chan error)
 
 	if metricsCfg.Namespace != "" {
 		metrics.AddAPIMetricsWithNamespace(metricsCfg.Namespace)
 	}
-	serverInstance = server.New(serverCfg, servicesCfg, amsConfig, groupsChannel)
 
-	go updateGroupInfo(servicesCfg, groupsChannel)
+	serverInstance = server.New(serverCfg, servicesCfg, amsConfig, groupsChannel, errorFoundChannel, errorChannel)
+
+	proxy_content.SetContentDirectoryTimeout(servicesCfg.ContentDirectoryTimeout)
+	go updateGroupInfo(servicesCfg, groupsChannel, errorFoundChannel, errorChannel)
 	go proxy_content.RunUpdateContentLoop(servicesCfg)
 
 	err := serverInstance.Start()
@@ -131,14 +137,27 @@ func startServer() ExitCode {
 // updateGroupInfo function is run in a goroutine. It runs forever, waiting for 1 of 2 events: a Ticker or a channel
 // * If ticker comes first, the groups configuration is updated, doing a request to the content-service
 // * If the channel comes first, the latest valid groups configuration is send through the channel
-func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []groups.Group) {
+func updateGroupInfo(servicesConf services.Configuration,
+	groupsChannel chan []groups.Group,
+	errorFoundChannel chan bool,
+	errorChannel chan error) {
 	var currentGroups []groups.Group
+	var currentError error
+	var currentErrorFound bool
+	retrievedGroups, err := services.GetGroups(servicesConf)
 
-	groups, err := services.GetGroups(servicesConf)
 	if err != nil {
 		log.Error().Err(err).Msg("Error retrieving groups")
+		currentErrorFound = true
+		var e *url.Error
+		if errors.As(err, &e) {
+			currentError = &server.ContentServiceUnavailableError{}
+		} else {
+			currentError = err
+		}
 	} else {
-		currentGroups = groups
+		currentErrorFound = false
+		currentGroups = retrievedGroups
 	}
 
 	uptimeTicker := time.NewTicker(servicesConf.GroupsPollingTime)
@@ -147,15 +166,28 @@ func updateGroupInfo(servicesConf services.Configuration, groupsChannel chan []g
 	for {
 		select {
 		case <-uptimeTicker.C:
-			groups, err = services.GetGroups(servicesConf)
-			if err != nil {
-				log.Error().Err(err).Msg("Error retrieving groups")
-			} else {
-				currentGroups = groups
-			}
+			retrievedGroups, err = services.GetGroups(servicesConf)
+			currentGroups, currentErrorFound, currentError = handleGroupError(err, currentGroups, retrievedGroups)
+		case errorFoundChannel <- currentErrorFound:
+		case errorChannel <- currentError:
 		case groupsChannel <- currentGroups:
 		}
 	}
+}
+
+// handleGroupError handles error after retrieving groups info in updateGroupInfo
+func handleGroupError(err error,
+	currentGroups []groups.Group,
+	newGroups []groups.Group) ([]groups.Group, bool, error) {
+	if err != nil {
+		log.Error().Err(err).Msg("Error retrieving groups")
+		var e *url.Error
+		if errors.As(err, &e) {
+			return currentGroups, true, &server.ContentServiceUnavailableError{}
+		}
+		return currentGroups, true, err
+	}
+	return newGroups, false, nil
 }
 
 // handleCommand select the function to be called depending on command argument

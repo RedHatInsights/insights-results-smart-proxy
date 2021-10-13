@@ -18,6 +18,7 @@ log_auth_token = true
 aggregator = "http://localhost:8080/api/insights-results-aggregator/v1/"
 content = "http://localhost:8082/api/v1/"
 groups_poll_time = "60s"
+content_directory_timeout = "1s"
 
 [setup]
 internal_rules_organizations_csv_file = ""

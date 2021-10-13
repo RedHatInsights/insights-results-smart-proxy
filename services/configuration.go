@@ -22,7 +22,8 @@ import (
 
 // Configuration represents configuration of REST API HTTP server
 type Configuration struct {
-	AggregatorBaseEndpoint string        `mapstructure:"aggregator" toml:"aggregator"`
-	ContentBaseEndpoint    string        `mapstructure:"content" toml:"content"`
-	GroupsPollingTime      time.Duration `mapstructure:"groups_poll_time" toml:"groups_poll_time"`
+	AggregatorBaseEndpoint  string        `mapstructure:"aggregator" toml:"aggregator"`
+	ContentBaseEndpoint     string        `mapstructure:"content" toml:"content"`
+	GroupsPollingTime       time.Duration `mapstructure:"groups_poll_time" toml:"groups_poll_time"`
+	ContentDirectoryTimeout time.Duration `mapstructure:"content_directory_timeout" toml:"content_directory_timeout"`
 }

@@ -39,6 +39,7 @@ var (
 		rulesWithContent:           map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
 		recommendationsWithContent: map[types.RuleID]*local_types.RuleWithContent{},
 	}
+	contentDirectoryTimeout = 5 * time.Second
 )
 
 type ruleIDAndErrorKey struct {
@@ -189,15 +190,38 @@ func (s *RulesWithContentStorage) GetExternalRuleIDs() []types.RuleID {
 	return s.externalRuleIDs
 }
 
+// RuleContentDirectoryTimeoutError is used, when the content directory is empty for too long time
+type RuleContentDirectoryTimeoutError struct{}
+
+func (e *RuleContentDirectoryTimeoutError) Error() string {
+	return "Content directory cache has been empty for too long time; timeout triggered"
+}
+
 // WaitForContentDirectoryToBeReady ensures the rule content directory is safe to read/write
-func WaitForContentDirectoryToBeReady() {
+func WaitForContentDirectoryToBeReady() error {
 	// according to the example in the official dock,
 	// lock is required here
 	if ruleContentDirectory == nil {
 		ruleContentDirectoryReady.L.Lock()
-		ruleContentDirectoryReady.Wait()
+
+		done := make(chan struct{})
+		go func() {
+			ruleContentDirectoryReady.Wait()
+			close(done)
+		}()
+
+		select {
+		case <-done:
+		case <-time.After(contentDirectoryTimeout):
+			err := &RuleContentDirectoryTimeoutError{}
+			log.Error().Err(err).Msg("Cannot retrieve content")
+			return err
+		}
+
 		ruleContentDirectoryReady.L.Unlock()
 	}
+
+	return nil
 }
 
 // GetRuleWithErrorKeyContent returns content for rule with provided `rule id` and `error key`.
@@ -206,7 +230,11 @@ func GetRuleWithErrorKeyContent(
 	ruleID types.RuleID, errorKey types.ErrorKey,
 ) (*local_types.RuleWithContent, error) {
 	// to be sure the data is there
-	WaitForContentDirectoryToBeReady()
+	err := WaitForContentDirectoryToBeReady()
+
+	if err != nil {
+		return nil, err
+	}
 
 	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
@@ -223,7 +251,11 @@ func GetContentForRecommendation(
 	ruleID types.RuleID,
 ) (*local_types.RuleWithContent, error) {
 
-	WaitForContentDirectoryToBeReady()
+	err := WaitForContentDirectoryToBeReady()
+
+	if err != nil {
+		return nil, err
+	}
 
 	res, found := rulesWithContentStorage.GetContentForRecommendation(ruleID)
 	if !found {
@@ -237,7 +269,11 @@ func GetContentForRecommendation(
 // Caching is done under the hood, don't worry about it.
 func GetRuleContent(ruleID types.RuleID) (*types.RuleContent, error) {
 	// to be sure the data is there
-	WaitForContentDirectoryToBeReady()
+	err := WaitForContentDirectoryToBeReady()
+
+	if err != nil {
+		return nil, err
+	}
 
 	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), ".report"))
 
@@ -251,37 +287,53 @@ func GetRuleContent(ruleID types.RuleID) (*types.RuleContent, error) {
 
 // ResetContent clear all the content cached
 func ResetContent() {
-	WaitForContentDirectoryToBeReady()
 	rulesWithContentStorage.ResetContent()
 }
 
 // GetRuleIDs returns a list of rule IDs (rule modules)
-func GetRuleIDs() []string {
-	WaitForContentDirectoryToBeReady()
+func GetRuleIDs() ([]string, error) {
+	err := WaitForContentDirectoryToBeReady()
 
-	return rulesWithContentStorage.GetRuleIDs()
+	if err != nil {
+		return nil, err
+	}
+
+	return rulesWithContentStorage.GetRuleIDs(), nil
 }
 
 // GetInternalRuleIDs returns a list of composite rule IDs ("| format") of internal rules
-func GetInternalRuleIDs() []types.RuleID {
-	WaitForContentDirectoryToBeReady()
+func GetInternalRuleIDs() ([]types.RuleID, error) {
+	err := WaitForContentDirectoryToBeReady()
 
-	return rulesWithContentStorage.GetInternalRuleIDs()
+	if err != nil {
+		return nil, err
+	}
+
+	return rulesWithContentStorage.GetInternalRuleIDs(), nil
 }
 
 // GetExternalRuleIDs returns a list of composite rule IDs ("| format") of external rules
-func GetExternalRuleIDs() []types.RuleID {
-	WaitForContentDirectoryToBeReady()
+func GetExternalRuleIDs() ([]types.RuleID, error) {
+	err := WaitForContentDirectoryToBeReady()
 
-	return rulesWithContentStorage.GetExternalRuleIDs()
+	if err != nil {
+		return nil, err
+	}
+
+	return rulesWithContentStorage.GetExternalRuleIDs(), nil
 }
 
 // GetAllContent returns content for all the loaded rules.
 // Caching is done under the hood, don't worry about it.
-func GetAllContent() []types.RuleContent {
+func GetAllContent() ([]types.RuleContent, error) {
 	// to be sure the data is there
-	WaitForContentDirectoryToBeReady()
-	return rulesWithContentStorage.GetAllContent()
+	err := WaitForContentDirectoryToBeReady()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return rulesWithContentStorage.GetAllContent(), nil
 }
 
 // RunUpdateContentLoop runs loop which updates rules content by ticker
@@ -297,6 +349,12 @@ func RunUpdateContentLoop(servicesConf services.Configuration) {
 			break
 		}
 	}
+}
+
+// SetContentDirectoryTimeout sets the maximum duration for which
+// the smart proxy waits if the content directory is empty
+func SetContentDirectoryTimeout(timeout time.Duration) {
+	contentDirectoryTimeout = timeout
 }
 
 // StopUpdateContentLoop stops the loop
@@ -315,7 +373,10 @@ func UpdateContent(servicesConf services.Configuration) {
 	}
 
 	SetRuleContentDirectory(contentServiceDirectory)
-	WaitForContentDirectoryToBeReady()
+	err = WaitForContentDirectoryToBeReady()
+	if err != nil {
+		return
+	}
 	ResetContent()
 	LoadRuleContent(ruleContentDirectory)
 }
@@ -323,18 +384,17 @@ func UpdateContent(servicesConf services.Configuration) {
 // FetchRuleContent - fetching content for particular rule
 // Return values:
 //   - Structure with rules and content
-//   - return true if fetching content was successful, including filtering
 //   - return true if the rule has been filtered by OSDElegible field. False otherwise
+//   - return error if the one occurred during retrieval
 func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
 	ruleWithContentResponse *local_types.RuleWithContentResponse,
-	success bool,
 	osdFiltered bool,
+	err error,
 ) {
 	ruleID := rule.Module
 	errorKey := rule.ErrorKey
 
 	ruleWithContentResponse = nil
-	success = false
 	osdFiltered = false
 
 	ruleWithContent, err := GetRuleWithErrorKeyContent(ruleID, errorKey)
@@ -349,6 +409,7 @@ func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
 		osdFiltered = true
 		return
 	}
+	log.Info().Msg("Ahoj!")
 
 	ruleWithContentResponse = &local_types.RuleWithContentResponse{
 		CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
@@ -369,6 +430,5 @@ func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
 		DisabledAt:      rule.DisabledAt,
 		Internal:        ruleWithContent.Internal,
 	}
-	success = true
 	return
 }
