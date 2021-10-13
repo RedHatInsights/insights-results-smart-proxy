@@ -132,7 +132,11 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		return
 	}
 
-	recommendationList = getRecommendationsFillImpacted(impactingRecommendations, impactingOnly)
+	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingOnly)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
 
 	// TODO: get all ACKS from aggregator, match recommendations, content and acks into the final sruct
 
@@ -152,6 +156,7 @@ func getRecommendationsFillImpacted(
 	impactingOnly bool,
 ) (
 	recommendationList []stypes.RecommendationListView,
+	err error,
 ) {
 	var ruleIDList []types.RuleID
 
@@ -165,7 +170,11 @@ func getRecommendationsFillImpacted(
 		}
 	} else {
 		// retrieve content for all external rules
-		ruleIDList = content.GetExternalRuleIDs()
+		ruleIDList, err = content.GetExternalRuleIDs()
+		if err != nil {
+			log.Error().Err(err).Msg("unable to retrieve external rule ids from content directory")
+			return
+		}
 	}
 
 	// we cannot make the list for len(ruleIDList) because if we go by impacting rules, we
@@ -262,7 +271,12 @@ func (server HTTPServer) getImpactingRecommendations(
 // getContent retrieves all the static content tied with groups info
 func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, request *http.Request) {
 	// Generate an array of RuleContent
-	allRules := content.GetAllContent()
+	allRules, err := content.GetAllContent()
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
 	var rules []types.RuleContent
 
 	if err := server.checkInternalRulePermissions(request); err != nil {

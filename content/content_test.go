@@ -162,7 +162,8 @@ func TestResetContentWhenUpdating(t *testing.T) {
 
 		content.UpdateContent(helpers.DefaultServicesConfig)
 
-		ruleIDs := content.GetRuleIDs()
+		ruleIDs, err := content.GetRuleIDs()
+		assert.Nil(t, err)
 		assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(ruleIDs))
 	}, testTimeout)
 }
@@ -170,11 +171,14 @@ func TestResetContentWhenUpdating(t *testing.T) {
 func TestResetContent(t *testing.T) {
 	defer content.ResetContent()
 	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
-	ruleIDs := content.GetRuleIDs()
+	ruleIDs, err := content.GetRuleIDs()
+	assert.Nil(t, err)
 	assert.Equal(t, 3, len(ruleIDs))
+
 	content.ResetContent()
 
-	ruleIDs = content.GetRuleIDs()
+	ruleIDs, err = content.GetRuleIDs()
+	assert.Nil(t, err)
 	assert.Equal(t, 0, len(ruleIDs))
 }
 
@@ -182,7 +186,8 @@ func TestGetAllContent(t *testing.T) {
 	defer content.ResetContent()
 
 	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
-	rules := content.GetAllContent()
+	rules, err := content.GetAllContent()
+	assert.Nil(t, err)
 	assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
 }
 
@@ -201,10 +206,10 @@ func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
 		content.UpdateContent(helpers.DefaultServicesConfig)
 
 		rule := testdata.RuleOnReport1
-		ruleContent, success, osdFiltered := content.FetchRuleContent(rule, true)
-		assert.True(t, success)
+		ruleContent, osdFiltered, err := content.FetchRuleContent(rule, true)
 		assert.False(t, osdFiltered)
 		assert.NotNil(t, ruleContent)
+		assert.Nil(t, err)
 
 		ruleID := testdata.RuleOnReport1.Module
 		errorKey := testdata.RuleOnReport1.ErrorKey
@@ -249,10 +254,10 @@ func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
 		content.UpdateContent(helpers.DefaultServicesConfig)
 
 		rule := testdata.RuleOnReport1
-		ruleContent, success, osdFiltered := content.FetchRuleContent(rule, false)
-		assert.True(t, success)
+		ruleContent, osdFiltered, err := content.FetchRuleContent(rule, false)
 		assert.False(t, osdFiltered)
 		assert.NotNil(t, ruleContent)
+		assert.Nil(t, err)
 
 		ruleID := testdata.RuleOnReport1.Module
 		errorKey := testdata.RuleOnReport1.ErrorKey
@@ -306,10 +311,10 @@ func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
 			TemplateData:    testdata.Rule1ExtraData,
 		}
 
-		ruleContent, success, osdFiltered := content.FetchRuleContent(rule, false)
-		assert.True(t, success)
+		ruleContent, osdFiltered, err := content.FetchRuleContent(rule, false)
 		assert.False(t, osdFiltered)
 		assert.NotNil(t, ruleContent)
+		assert.Nil(t, err)
 
 	}, testTimeout)
 }
@@ -338,9 +343,9 @@ func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
 			TemplateData:    nil,
 		}
 
-		ruleContent, success, _ := content.FetchRuleContent(rule, false)
-		assert.False(t, success)
+		ruleContent, _, err := content.FetchRuleContent(rule, false)
 		assert.Nil(t, ruleContent)
+		assert.NotNil(t, err)
 
 	}, testTimeout)
 }
@@ -520,7 +525,8 @@ func TestGetInternalRuleIDs(t *testing.T) {
 
 	content.LoadRuleContent(&ruleContentDirectory)
 
-	internalRuleIDs := content.GetInternalRuleIDs()
+	internalRuleIDs, err := content.GetInternalRuleIDs()
+	assert.Nil(t, err)
 	assert.Equal(t, 2, len(internalRuleIDs))
 }
 
@@ -546,7 +552,8 @@ func TestGetExternalRuleIDs(t *testing.T) {
 
 	content.LoadRuleContent(&ruleContentDirectory)
 
-	externalRuleIDs := content.GetExternalRuleIDs()
+	externalRuleIDs, err := content.GetExternalRuleIDs()
+	assert.Nil(t, err)
 	t.Logf("%v", externalRuleIDs)
 	assert.Equal(t, 3, len(externalRuleIDs))
 }

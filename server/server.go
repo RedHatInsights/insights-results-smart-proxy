@@ -68,11 +68,13 @@ const (
 
 // HTTPServer is an implementation of Server interface
 type HTTPServer struct {
-	Config         Configuration
-	ServicesConfig services.Configuration
-	GroupsChannel  chan []groups.Group
-	amsClient      *amsclient.AMSClient
-	Serv           *http.Server
+	Config            Configuration
+	ServicesConfig    services.Configuration
+	amsClient         *amsclient.AMSClient
+	GroupsChannel     chan []groups.Group
+	ErrorFoundChannel chan bool
+	ErrorChannel      chan error
+	Serv              *http.Server
 }
 
 // RequestModifier is a type of function which modifies request when proxying
@@ -89,11 +91,12 @@ type ProxyOptions struct {
 }
 
 // New function constructs new implementation of Server interface.
-func New(
-	config Configuration,
+func New(config Configuration,
 	servicesConfig services.Configuration,
 	amsConfig amsclient.Configuration,
 	groupsChannel chan []groups.Group,
+	errorFoundChannel chan bool,
+	errorChannel chan error,
 ) *HTTPServer {
 
 	amsClient, err := amsclient.NewAMSClient(amsConfig)
@@ -103,10 +106,12 @@ func New(
 	}
 
 	return &HTTPServer{
-		Config:         config,
-		ServicesConfig: servicesConfig,
-		amsClient:      amsClient,
-		GroupsChannel:  groupsChannel,
+		Config:            config,
+		ServicesConfig:    servicesConfig,
+		amsClient:         amsClient,
+		GroupsChannel:     groupsChannel,
+		ErrorFoundChannel: errorFoundChannel,
+		ErrorChannel:      errorChannel,
 	}
 }
 
@@ -130,7 +135,7 @@ func (server *HTTPServer) Initialize() http.Handler {
 
 	metricsURL := apiPrefix + MetricsEndpoint
 	openAPIv1URL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
-	openAPIv2URL := apiPrefix + filepath.Base(server.Config.APIv2SpecFile)
+	openAPIv2URL := server.Config.APIv2Prefix + filepath.Base(server.Config.APIv2SpecFile)
 
 	// enable authentication, but only if it is setup in configuration
 	if server.Config.Auth {
@@ -271,8 +276,9 @@ func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(htt
 
 		copyHeader(request.Header, req.Header)
 
-		response, body, successful := server.sendRequest(client, req, options, writer)
-		if !successful {
+		response, body, err := server.sendRequest(client, req, options, writer)
+		if err != nil {
+			server.evaluateProxyError(writer, err, baseURL)
 			return
 		}
 
@@ -286,34 +292,49 @@ func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(htt
 	}
 }
 
+// evaluateProxyError handles detected error in proxyTo
+// according to its type and the requested baseURL
+func (server HTTPServer) evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) {
+	if _, ok := err.(*url.Error); ok {
+		switch baseURL {
+		case server.ServicesConfig.AggregatorBaseEndpoint:
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		case server.ServicesConfig.ContentBaseEndpoint:
+			handleServerError(writer, &ContentServiceUnavailableError{})
+		default:
+			handleServerError(writer, err)
+		}
+	} else {
+		handleServerError(writer, err)
+	}
+	return
+}
+
 func (server HTTPServer) sendRequest(
 	client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter,
-) (*http.Response, []byte, bool) {
-	log.Debug().Msgf("Connecting to %s", req.RequestURI)
+) (*http.Response, []byte, error) {
+	log.Debug().Msgf("Connecting to %s", req.URL.RequestURI())
 	response, err := client.Do(req)
 	if err != nil {
-		log.Error().Err(err).Msgf("Error during retrieve of %s", req.RequestURI)
-		handleServerError(writer, err)
-		return nil, nil, false
+		log.Error().Err(err).Msgf("Error during retrieve of %s", req.URL.RequestURI())
+		return nil, nil, err
 	}
 
 	if options != nil {
 		var err error
 		response, err = modifyResponse(options.ResponseModifiers, response)
 		if err != nil {
-			handleServerError(writer, err)
-			return nil, nil, false
+			return nil, nil, err
 		}
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error while retrieving content from request to %s", req.RequestURI)
-		handleServerError(writer, err)
-		return nil, nil, false
+		return nil, nil, err
 	}
 
-	return response, body, true
+	return response, body, nil
 }
 
 func (server HTTPServer) composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error) {
@@ -378,7 +399,11 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	// #nosec G107
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
-		handleServerError(writer, err)
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
 		return nil, false
 	}
 
@@ -423,7 +448,11 @@ func (server HTTPServer) readAggregatorReportForClusterList(
 	// #nosec G107
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
-		handleServerError(writer, err)
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
 		return nil, false
 	}
 
@@ -469,7 +498,11 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 	// #nosec G107
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
 	if err != nil {
-		handleServerError(writer, err)
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
 		return nil, false
 	}
 
@@ -523,7 +556,11 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 	// #nosec G107
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
-		handleServerError(writer, err)
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
 		return nil, false
 	}
 
@@ -650,17 +687,16 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
 
-	visibleRules, noContentRulesCnt, disabledRulesCnt := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
+	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
 
-	totalRuleCnt := len(visibleRules) + noContentRulesCnt
-
-	// Edge case where rules are hitting, but we don't have content for any of them.
-	// This case should appear as "No issues found" in customer-facing applications, because the only
-	// thing we could show is rule module + error key, which have no informational value to customers.
-	if len(visibleRules) == 0 && noContentRulesCnt > 0 && disabledRulesCnt == 0 {
-		log.Error().Msgf("Cluster ID: %v; Rules are hitting, but we don't have content for any of them.", clusterID)
-		totalRuleCnt = 0
+	if err != nil {
+		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+			handleServerError(writer, err)
+			return
+		}
 	}
+
+	totalRuleCnt := server.getRuleCount(visibleRules, noContentRulesCnt, disabledRulesCnt, clusterID)
 
 	// Meta.Count is only used to perform checks for special cases
 	report := proxy_types.SmartProxyReport{
@@ -675,6 +711,24 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
+}
+
+// getRuleCount returns the number of visible rules without those that do not have content
+func (server HTTPServer) getRuleCount(visibleRules []proxy_types.RuleWithContentResponse,
+	noContentRulesCnt int,
+	disabledRulesCnt int,
+	clusterID types.ClusterName,
+) int {
+	totalRuleCnt := len(visibleRules) + noContentRulesCnt
+
+	// Edge case where rules are hitting, but we don't have content for any of them.
+	// This case should appear as "No issues found" in customer-facing applications, because the only
+	// thing we could show is rule module + error key, which have no informational value to customers.
+	if len(visibleRules) == 0 && noContentRulesCnt > 0 && disabledRulesCnt == 0 {
+		log.Error().Msgf("Cluster ID: %v; Rules are hitting, but we don't have content for any of them.", clusterID)
+		totalRuleCnt = 0
+	}
+	return totalRuleCnt
 }
 
 // reportForListOfClustersEndpoint is a handler that returns reports for
@@ -745,6 +799,7 @@ func (server HTTPServer) fetchAggregatorReportRule(
 
 func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
 	var rule *proxy_types.RuleWithContentResponse
+	var filtered bool
 	var err error
 
 	aggregatorResponse, successful := server.fetchAggregatorReportRule(writer, request)
@@ -757,14 +812,10 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	if err != nil {
 		log.Err(err).Msgf("Got error while parsing `%s` value", OSDEligibleParam)
 	}
-	rule, successful, _ = content.FetchRuleContent(*aggregatorResponse, osdFlag)
+	rule, filtered, err = content.FetchRuleContent(*aggregatorResponse, osdFlag)
 
-	if !successful {
-		err := responses.SendNotFound(writer, "Rule was not found")
-		if err != nil {
-			handleServerError(writer, err)
-			return
-		}
+	if err != nil || filtered {
+		handleFetchRuleContentError(writer, err, filtered)
 		return
 	}
 
@@ -779,6 +830,21 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", *rule))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+func handleFetchRuleContentError(writer http.ResponseWriter, err error, filtered bool) {
+	if err != nil {
+		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+			log.Error().Err(err)
+			handleServerError(writer, err)
+			return
+		}
+	}
+	err = responses.SendNotFound(writer, "Rule was not found")
+	if err != nil {
+		handleServerError(writer, err)
+		return
 	}
 }
 
@@ -837,6 +903,17 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 // getGroupsConfig retrieves the groups configuration from a channel to get the
 // latest valid one
 func (server HTTPServer) getGroupsConfig() ([]groups.Group, error) {
+	errorFound := <-server.ErrorFoundChannel
+	var err error
+	if errorFound {
+		err = <-server.ErrorChannel
+		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+			log.Error().Err(err)
+		}
+		log.Error().Err(err).Msg("Error occurred during groups retrieval from content service")
+		return nil, err
+	}
+
 	groupsConfig := <-server.GroupsChannel
 	if groupsConfig == nil {
 		err := errors.New("no groups retrieved")
@@ -873,6 +950,10 @@ func (server HTTPServer) getOverviewPerCluster(
 		errorKey := rule.ErrorKey
 		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
 		if err != nil {
+			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+				log.Error().Err(err)
+				return nil, err
+			}
 			log.Error().Err(err).Msgf("Unable to retrieve content for rule %v|%v", ruleID, errorKey)
 			// this rule is not visible in OCM UI either, so we can continue calculating to be consistent
 			continue
@@ -899,6 +980,7 @@ func filterRulesInResponse(aggregatorReport []types.RuleOnReport, filterOSD, get
 	okRules []proxy_types.RuleWithContentResponse,
 	noContentRulesCnt int,
 	disabledRulesCnt int,
+	contentError error,
 ) {
 	log.Debug().Bool(GetDisabledParam, getDisabled).Bool(OSDEligibleParam, filterOSD).Msg("Filtering rules in report")
 	okRules = []proxy_types.RuleWithContentResponse{}
@@ -910,11 +992,20 @@ func filterRulesInResponse(aggregatorReport []types.RuleOnReport, filterOSD, get
 			continue
 		}
 
-		rule, successful, filtered := content.FetchRuleContent(aggregatorRule, filterOSD)
-		if !successful {
+		rule, filtered, err := content.FetchRuleContent(aggregatorRule, filterOSD)
+		if err != nil {
 			if !filtered {
 				noContentRulesCnt++
 			}
+			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+				log.Error().Err(err)
+				contentError = err
+				return
+			}
+			continue
+		}
+
+		if filtered {
 			continue
 		}
 

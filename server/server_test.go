@@ -581,7 +581,7 @@ func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
 }
 
-func createRuleContentDirectoryFromRuleContent(rulesContent []iou_types.RuleContent) iou_types.RuleContentDirectory {
+func createRuleContentDirectoryFromRuleContent(rulesContent []iou_types.RuleContent) *iou_types.RuleContentDirectory {
 	rules := make(map[string]iou_types.RuleContent)
 
 	for index, rule := range rulesContent {
@@ -594,14 +594,18 @@ func createRuleContentDirectoryFromRuleContent(rulesContent []iou_types.RuleCont
 		},
 		Rules: rules,
 	}
-	return ruleContentDirectory
+	return &ruleContentDirectory
 }
 
-func loadMockRuleContentDir(ruleContentDir iou_types.RuleContentDirectory) {
-	content.SetRuleContentDirectory(&ruleContentDir)
-	content.WaitForContentDirectoryToBeReady()
+func loadMockRuleContentDir(ruleContentDir *iou_types.RuleContentDirectory) error {
+	content.SetRuleContentDirectory(ruleContentDir)
+	err := content.WaitForContentDirectoryToBeReady()
+	if err != nil {
+		return err
+	}
 	content.ResetContent()
-	content.LoadRuleContent(&ruleContentDir)
+	content.LoadRuleContent(ruleContentDir)
+	return nil
 }
 
 func init() {
@@ -620,6 +624,8 @@ func TestServerStartError(t *testing.T) {
 	},
 		amsclient.Configuration{},
 		nil,
+		nil,
+		nil,
 	)
 
 	err := testServer.Start()
@@ -627,7 +633,7 @@ func TestServerStartError(t *testing.T) {
 }
 
 func TestAddCORSHeaders(t *testing.T) {
-	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigCORS, &helpers.DefaultServicesConfig, nil, &helpers.APIRequest{
+	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigCORS, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
 		Method:   http.MethodOptions,
 		Endpoint: server.RuleGroupsEndpoint,
 		ExtraHeaders: http.Header{
