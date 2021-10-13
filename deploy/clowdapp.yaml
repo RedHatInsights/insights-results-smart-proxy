@@ -88,6 +88,20 @@ objects:
               value: ${IRSP_LOG_STREAM}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__CREATE_STREAM_IF_NOT_EXISTS
               value: ${CREATE_STREAM_IF_NOT_EXISTS}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__URL
+              value: ${AMS_API_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: amsclient_auth
+                  key: amsclient_id
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: amsclient_auth
+                  key: amsclient_secret
+                  optional: true
             - name: HABERDASHER_EMITTER
               value: ${HABERDASHER_EMITTER}
             - name: HABERDASHER_KAFKA_BOOTSTRAP
@@ -216,3 +230,5 @@ parameters:
   value: $HOSTNAME
 - name: CREATE_STREAM_IF_NOT_EXISTS
   value: "true"
+- name: AMS_API_URL
+  value: "https://api.stage.openshift.com"

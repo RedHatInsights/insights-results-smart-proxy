@@ -23,6 +23,12 @@ content_directory_timeout = "5s"
 [setup]
 internal_rules_organizations_csv_file = ""
 
+[amsclient]
+url = "https://api.openshift.com"
+client_id = "theclient"
+client_secret = "thesecret"
+page_size = 100
+
 [metrics]
 namespace = "smart_proxy"
 
@@ -34,4 +40,3 @@ broker = ""
 topic = ""
 cert_path = ""
 level = ""
-
