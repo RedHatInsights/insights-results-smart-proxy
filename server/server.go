@@ -33,6 +33,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
@@ -134,7 +135,7 @@ func (server *HTTPServer) Initialize() http.Handler {
 
 	metricsURL := apiPrefix + MetricsEndpoint
 	openAPIv1URL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
-	openAPIv2URL := apiPrefix + filepath.Base(server.Config.APIv2SpecFile)
+	openAPIv2URL := server.Config.APIv2Prefix + filepath.Base(server.Config.APIv2SpecFile)
 
 	// enable authentication, but only if it is setup in configuration
 	if server.Config.Auth {
