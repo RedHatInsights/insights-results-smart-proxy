@@ -60,6 +60,28 @@ type RuleWithContentResponse struct {
 	Tags            []string        `json:"tags"`
 }
 
+// RecommendationWithContent is a rule content struct used for Insights Advisor
+// (because of other Advisor-related functionality, such as rule acknowledging, rating, etc)
+type RecommendationWithContent struct {
+	// RuleID in rule.module|ERROR_KEY format
+	RuleID       types.RuleID   `json:"rule_id"`
+	Description  string         `json:"description"`
+	Generic      string         `json:"generic"`
+	Reason       string         `json:"reason"`
+	Resolution   string         `json:"resolution"`
+	MoreInfo     string         `json:"more_info"`
+	TotalRisk    uint8          `json:"total_risk"`
+	RiskOfChange uint8          `json:"risk_of_change"`
+	Impact       uint8          `json:"impact"`
+	Likelihood   uint8          `json:"likelihood"`
+	PublishDate  time.Time      `json:"publish_date"`
+	Active       bool           `json:"active"`
+	RuleStatus   string         `json:"rule_status"`
+	Rating       types.UserVote `json:"rating"`
+	AckedCount   uint32         `json:"hosts_acked_count"`
+	Tags         []string       `json:"tags"`
+}
+
 // SmartProxyReport represents the response of /report endpoint for smart proxy
 type SmartProxyReport struct {
 	Meta types.ReportResponseMeta  `json:"meta"`

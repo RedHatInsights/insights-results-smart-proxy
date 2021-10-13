@@ -35,15 +35,15 @@ import (
 )
 
 // getContentForRule retrieves the static content for the given ruleID tied
-// with groups info
+// with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
 func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter, request *http.Request) {
-	ruleID, successful := httputils.ReadRuleID(writer, request)
+	ruleID, successful := readCompositeRuleID(writer, request)
 	if !successful {
-		// already handled in readRuleID
+		log.Error().Msgf("error retrieving rule ID from request")
 		return
 	}
 
-	ruleContent, err := content.GetRuleContent(ruleID)
+	ruleContent, err := content.GetContentForRecommendation(ruleID)
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -65,11 +65,32 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 		return
 	}
 
+	// fill in user rating and other DB stuff
+	contentResponse := stypes.RecommendationWithContent{
+		// RuleID in rule.module|ERROR_KEY format
+		RuleID:       ruleID,
+		Description:  ruleContent.Description,
+		Generic:      ruleContent.Generic,
+		Reason:       ruleContent.Reason,
+		Resolution:   ruleContent.Resolution,
+		MoreInfo:     ruleContent.MoreInfo,
+		TotalRisk:    uint8(ruleContent.TotalRisk),
+		RiskOfChange: uint8(ruleContent.RiskOfChange),
+		Impact:       uint8(ruleContent.Impact),
+		Likelihood:   uint8(ruleContent.Likelihood),
+		PublishDate:  ruleContent.PublishDate,
+		Active:       ruleContent.Active,
+		RuleStatus:   "",
+		Rating:       0,
+		AckedCount:   0,
+		Tags:         ruleContent.Tags,
+	}
+
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
 	responseContent["status"] = "ok"
 	responseContent["groups"] = groupsConfig
-	responseContent["content"] = ruleContent
+	responseContent["content"] = contentResponse
 
 	// send response to client
 	err = responses.SendOK(writer, responseContent)
