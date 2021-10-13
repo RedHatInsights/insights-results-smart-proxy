@@ -93,13 +93,13 @@ objects:
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: amsclient_auth
+                  name: ams-client-auth
                   key: amsclient_id
                   optional: true
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: amsclient_auth
+                  name: ams-client-auth
                   key: amsclient_secret
                   optional: true
             - name: HABERDASHER_EMITTER
