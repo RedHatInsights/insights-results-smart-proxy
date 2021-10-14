@@ -409,7 +409,6 @@ func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
 		osdFiltered = true
 		return
 	}
-	log.Info().Msg("Ahoj!")
 
 	ruleWithContentResponse = &local_types.RuleWithContentResponse{
 		CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
