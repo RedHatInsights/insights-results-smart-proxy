@@ -814,6 +814,10 @@
               "description": "The title of the rule, a short description.",
               "type": "string"
             },
+            "generic": {
+              "description": "More specific, cluster-independent description of the rule",
+              "type": "string"
+            },
             "publish_date": {
               "description": "The date the rule was published. 'Added at' field in UI",
               "format": "date-time",
