@@ -52,9 +52,12 @@ func NewAMSClient(conf Configuration) (*AMSClient, error) {
 
 // NewAMSClientWithTransport creates an AMSClient from the configuration, enabling to use a transport wrapper
 func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) (*AMSClient, error) {
-	builder := sdk.NewConnectionBuilder().
-		URL(conf.URL).
-		TransportWrapper(func(http.RoundTripper) http.RoundTripper { return transport })
+	log.Info().Msg("Creating amsclient...")
+	builder := sdk.NewConnectionBuilder().URL(conf.URL)
+
+	if transport != nil {
+		builder.TransportWrapper(func(http.RoundTripper) http.RoundTripper { return transport })
+	}
 
 	if conf.ClientID != "" && conf.ClientSecret != "" {
 		builder = builder.Client(conf.ClientID, conf.ClientSecret)
@@ -86,6 +89,7 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 // GetClustersForOrganization retrieves the clusters for a given organization using the default client
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
 func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) []types.ClusterName {
+	log.Debug().Uint32("orgID", uint32(orgID)).Msg("Looking cluster for the organization")
 	var retval []types.ClusterName = []types.ClusterName{}
 
 	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
@@ -133,6 +137,9 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 
 // GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API
 func (c *AMSClient) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
+	log.Debug().Uint32("orgID", uint32(orgID)).Msg(
+		"Looking for the internal organization ID for an external one",
+	)
 	orgsListRequest := c.connection.AccountsMgmt().V1().Organizations().List()
 	response, err := orgsListRequest.
 		Search(fmt.Sprintf("external_id = %d", orgID)).

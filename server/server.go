@@ -103,6 +103,8 @@ func New(config Configuration,
 	if err != nil {
 		log.Error().Err(err).Msg("Cannot init the AMSClient, using old approach")
 		amsClient = nil
+	} else {
+		log.Info().Msg("AMSClient succesfully created")
 	}
 
 	return &HTTPServer{
