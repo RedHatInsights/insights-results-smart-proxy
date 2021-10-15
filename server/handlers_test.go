@@ -17,11 +17,12 @@ package server_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
+	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
@@ -825,8 +826,9 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules(t *testing.T) {
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters),
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters),
+			BodyChecker: recommendationInResponseChecker,
 		})
 	}, testTimeout)
 }
@@ -1054,8 +1056,9 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(GetRecommendationsResponse2Rules0Clusters),
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules0Clusters),
+			BodyChecker: recommendationInResponseChecker,
 		})
 	}, testTimeout)
 }

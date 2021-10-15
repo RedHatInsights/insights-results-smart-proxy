@@ -698,3 +698,24 @@ func ruleInContentChecker(t testing.TB, expected, got []byte) {
 
 	assert.ElementsMatch(t, expectedResp.Content, gotResp.Content)
 }
+
+func recommendationInResponseChecker(t testing.TB, expected, got []byte) {
+	type Response struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}
+
+	var expectedResp, gotResp Response
+
+	if err := json.Unmarshal(expected, &expectedResp); err != nil {
+		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
+		helpers.FailOnError(t, err)
+	}
+
+	if err := json.Unmarshal(got, &gotResp); err != nil {
+		err = fmt.Errorf(`"got" is not JSON. value = "%v", err = "%v"`, got, err)
+		helpers.FailOnError(t, err)
+	}
+
+	assert.ElementsMatch(t, expectedResp.Recommendations, gotResp.Recommendations)
+}
