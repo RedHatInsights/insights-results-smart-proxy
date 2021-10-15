@@ -489,6 +489,7 @@ var (
 			{
 				RuleID:              testdata.Rule1CompositeID,
 				Description:         testdata.RuleErrorKey1.Description,
+				Generic:             testdata.RuleErrorKey1.Generic,
 				PublishDate:         testdata.RuleErrorKey1.PublishDate,
 				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
 				Impact:              uint8(testdata.RuleErrorKey1.Impact),
@@ -510,6 +511,7 @@ var (
 			{
 				RuleID:              testdata.Rule1CompositeID,
 				Description:         testdata.RuleErrorKey1.Description,
+				Generic:             testdata.RuleErrorKey1.Generic,
 				PublishDate:         testdata.RuleErrorKey1.PublishDate,
 				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
 				Impact:              uint8(testdata.RuleErrorKey1.Impact),
@@ -522,6 +524,7 @@ var (
 			{
 				RuleID:              testdata.Rule2CompositeID,
 				Description:         testdata.RuleErrorKey2.Description,
+				Generic:             testdata.RuleErrorKey2.Generic,
 				PublishDate:         testdata.RuleErrorKey2.PublishDate,
 				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood)),
 				Impact:              uint8(testdata.RuleErrorKey2.Impact),
@@ -543,6 +546,7 @@ var (
 			{
 				RuleID:              testdata.Rule1CompositeID,
 				Description:         testdata.RuleErrorKey1.Description,
+				Generic:             testdata.RuleErrorKey1.Generic,
 				PublishDate:         testdata.RuleErrorKey1.PublishDate,
 				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
 				Impact:              uint8(testdata.RuleErrorKey1.Impact),
@@ -555,6 +559,7 @@ var (
 			{
 				RuleID:              testdata.Rule2CompositeID,
 				Description:         testdata.RuleErrorKey2.Description,
+				Generic:             testdata.RuleErrorKey2.Generic,
 				PublishDate:         testdata.RuleErrorKey2.PublishDate,
 				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood)),
 				Impact:              uint8(testdata.RuleErrorKey2.Impact),

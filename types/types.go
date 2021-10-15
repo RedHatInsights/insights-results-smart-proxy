@@ -122,6 +122,7 @@ type RecommendationListView struct {
 	// RuleID is in "|" format
 	RuleID              types.RuleID              `json:"rule_id"`
 	Description         string                    `json:"description"`
+	Generic             string                    `json:"generic"`
 	PublishDate         time.Time                 `json:"publish_date"`
 	TotalRisk           uint8                     `json:"total_risk"`
 	Impact              uint8                     `json:"impact"`

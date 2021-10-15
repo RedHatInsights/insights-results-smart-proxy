@@ -177,6 +177,7 @@ func getRecommendationsFillImpacted(
 		recommendationList = append(recommendationList, stypes.RecommendationListView{
 			RuleID:              ruleID,
 			Description:         ruleContent.Description,
+			Generic:             ruleContent.Generic,
 			PublishDate:         ruleContent.PublishDate,
 			TotalRisk:           uint8(ruleContent.TotalRisk),
 			Impact:              uint8(ruleContent.Impact),
