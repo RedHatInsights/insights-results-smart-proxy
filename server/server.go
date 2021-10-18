@@ -64,6 +64,9 @@ const (
 
 	// JSONContentType represents the application/json content type
 	JSONContentType = "application/json; charset=utf-8"
+
+	// orgIDTag represent the tags for print orgID in the logs
+	orgIDTag = "orgID"
 )
 
 // HTTPServer is an implementation of Server interface

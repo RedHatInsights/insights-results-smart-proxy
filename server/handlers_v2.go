@@ -95,7 +95,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	// get the list of active clusters if AMS API is available, otherwise from our DB
 	clusterList, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int("orgID", int(orgID)).Msgf("problem reading cluster list for org")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msgf("problem reading cluster list for org")
 		handleServerError(writer, err)
 		return
 	}
@@ -104,7 +104,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	if err != nil {
 		log.Error().
 			Err(err).
-			Int("orgID", int(orgID)).
+			Int(orgIDTag, int(orgID)).
 			Str("userID", string(userID)).
 			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterList)
 
