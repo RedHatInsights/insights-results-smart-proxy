@@ -64,6 +64,9 @@ const (
 
 	// JSONContentType represents the application/json content type
 	JSONContentType = "application/json; charset=utf-8"
+
+	// orgIDTag represent the tags for print orgID in the logs
+	orgIDTag = "orgID"
 )
 
 // HTTPServer is an implementation of Server interface
@@ -103,6 +106,8 @@ func New(config Configuration,
 	if err != nil {
 		log.Error().Err(err).Msg("Cannot init the AMSClient, using old approach")
 		amsClient = nil
+	} else {
+		log.Info().Msg("AMSClient succesfully created")
 	}
 
 	return &HTTPServer{
