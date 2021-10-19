@@ -136,6 +136,7 @@ type RecommendationListView struct {
 // RuleRating structure with the rule identifier and the rating
 type RuleRating = types.RuleRating
 
+// RuleContentV1 version 1 of RuleConted provided by smart proxy
 type RuleContentV1 struct {
 	Plugin     types.RulePluginInfo             `json:"plugin"`
 	ErrorKeys  map[string]RuleErrorKeyContentV1 `json:"error_keys"`
@@ -147,6 +148,7 @@ type RuleContentV1 struct {
 	HasReason  bool
 }
 
+// RuleErrorKeyContentV1 is in RuleContentV1
 type RuleErrorKeyContentV1 struct {
 	Metadata   ErrorKeyMetadataV1 `json:"metadata"`
 	TotalRisk  int                `json:"total_risk"`
@@ -158,6 +160,8 @@ type RuleErrorKeyContentV1 struct {
 	// DONTFIX has_reason until CCXDEV-5021
 	HasReason bool
 }
+
+// ErrorKeyMetadataV1 is in RuleErrorKeyContentV1
 type ErrorKeyMetadataV1 struct {
 	Description string   `yaml:"description" json:"description"`
 	Impact      string   `yaml:"impact" json:"impact"`
@@ -167,6 +171,7 @@ type ErrorKeyMetadataV1 struct {
 	Tags        []string `yaml:"tags" json:"tags"`
 }
 
+// RuleContentV2 version 2 of RuleContent provided by smart proxy
 type RuleContentV2 struct {
 	Plugin     types.RulePluginInfo             `json:"plugin"`
 	ErrorKeys  map[string]RuleErrorKeyContentV2 `json:"error_keys"`
@@ -178,6 +183,7 @@ type RuleContentV2 struct {
 	HasReason  bool
 }
 
+// RuleErrorKeyContentV2 is in RuleContentV2
 type RuleErrorKeyContentV2 struct {
 	Metadata   ErrorKeyMetadataV2 `json:"metadata"`
 	TotalRisk  int                `json:"total_risk"`
@@ -190,6 +196,7 @@ type RuleErrorKeyContentV2 struct {
 	HasReason bool
 }
 
+// ErrorKeyMetadataV2 is in RuleErrorKeyContentV2
 type ErrorKeyMetadataV2 struct {
 	Description string   `yaml:"description" json:"description"`
 	Impact      int      `yaml:"impact" json:"impact"`

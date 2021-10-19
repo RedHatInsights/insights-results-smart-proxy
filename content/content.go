@@ -99,7 +99,7 @@ func (s *RulesWithContentStorage) GetContentForRecommendation(
 	return res, found
 }
 
-// GetAllContent returns content for rule
+// GetAllContentV1 returns content for rule for api v1
 func (s *RulesWithContentStorage) GetAllContentV1() []local_types.RuleContentV1 {
 	s.RLock()
 	defer s.RUnlock()
@@ -142,6 +142,7 @@ func (s *RulesWithContentStorage) GetAllContentV1() []local_types.RuleContentV1 
 	return res
 }
 
+// GetAllContentV2 returns content for api/v2
 func (s *RulesWithContentStorage) GetAllContentV2() []local_types.RuleContentV2 {
 	s.RLock()
 	defer s.RUnlock()
@@ -395,8 +396,7 @@ func GetExternalRuleIDs() ([]types.RuleID, error) {
 	return rulesWithContentStorage.GetExternalRuleIDs(), nil
 }
 
-// GetAllContent returns content for all the loaded rules.
-// Caching is done under the hood, don't worry about it.
+// GetAllContentV1 returns content for all the loaded rules.
 func GetAllContentV1() ([]local_types.RuleContentV1, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
@@ -408,6 +408,7 @@ func GetAllContentV1() ([]local_types.RuleContentV1, error) {
 	return rulesWithContentStorage.GetAllContentV1(), nil
 }
 
+// GetAllContentV2 returns content for api v2
 func GetAllContentV2() ([]local_types.RuleContentV2, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
