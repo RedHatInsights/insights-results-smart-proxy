@@ -191,5 +191,5 @@ func (server HTTPServer) addV1ContentEndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+RuleContent, server.getContentForRule).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RuleIDs, server.getRuleIDs).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+Content, server.getContent).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+Content, server.getContentV1).Methods(http.MethodGet)
 }
