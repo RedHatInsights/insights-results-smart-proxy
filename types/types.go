@@ -39,6 +39,9 @@ type RuleContent = types.RuleContent
 // RuleID is a rename for types.RuleID
 type RuleID = types.RuleID
 
+// ImpactingFlag controls the behaviour of 'impacting' param on GET /rule/
+type ImpactingFlag int
+
 // RuleWithContentResponse represents a single rule in the response of /report endpoint
 type RuleWithContentResponse struct {
 	RuleID          types.RuleID    `json:"rule_id"`

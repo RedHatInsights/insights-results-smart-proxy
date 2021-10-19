@@ -31,7 +31,17 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
+)
+
+const (
+	// OnlyImpacting flag to only return impacting recommendations on GET /rule/
+	OnlyImpacting = iota
+	// IncludingImpacting flag to return all recommendations including impacting ones on GET /rule/
+	IncludingImpacting
+	// ExcludingImpacting flag to return all recommendations excluding impacting ones on GET /rule/
+	ExcludingImpacting
 )
 
 // getContentForRule retrieves the static content for the given ruleID tied
@@ -85,13 +95,12 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request *http.Request) {
 	var recommendationList []stypes.RecommendationListView
 
-	userID, orgID, impactingOnly, err := server.readParamsGetRecommendations(writer, request)
+	userID, orgID, impactingFlag, err := server.readParamsGetRecommendations(writer, request)
 	if err != nil {
 		// everything handled
 		log.Error().Err(err).Msgf("problem reading necessary params from request")
 		return
 	}
-
 	// get the list of active clusters if AMS API is available, otherwise from our DB
 	clusterList, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
@@ -111,7 +120,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		return
 	}
 
-	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingOnly)
+	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingFlag)
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -132,14 +141,14 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 func getRecommendationsFillImpacted(
 	impactingRecommendations types.RecommendationImpactedClusters,
-	impactingOnly bool,
+	impactingFlag sptypes.ImpactingFlag,
 ) (
 	recommendationList []stypes.RecommendationListView,
 	err error,
 ) {
 	var ruleIDList []types.RuleID
 
-	if impactingOnly {
+	if impactingFlag == OnlyImpacting {
 		// retrieve content only for impacting rules
 		ruleIDList = make([]types.RuleID, len(impactingRecommendations))
 		i := 0
@@ -148,7 +157,7 @@ func getRecommendationsFillImpacted(
 			i++
 		}
 	} else {
-		// retrieve content for all external rules
+		// retrieve content for all external rules and decide whether exclude impacting in loop
 		ruleIDList, err = content.GetExternalRuleIDs()
 		if err != nil {
 			log.Error().Err(err).Msg("unable to retrieve external rule ids from content directory")
@@ -156,22 +165,23 @@ func getRecommendationsFillImpacted(
 		}
 	}
 
-	// we cannot make the list for len(ruleIDList) because if we go by impacting rules, we
-	// might be missing content for some of them
 	recommendationList = make([]stypes.RecommendationListView, 0)
 
 	for _, ruleID := range ruleIDList {
-		ruleContent, err := content.GetContentForRecommendation(ruleID)
-		if err != nil {
-			// simply omit the rule as we can't display anything
-			log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+		impactingClustersCnt, found := impactingRecommendations[ruleID]
+		if found && impactingFlag == ExcludingImpacting {
+			// rule is impacting, but requester doesn't want them
 			continue
 		}
 
-		var impactingClustersCnt types.ImpactedClustersCnt = 0
-
-		if val, ok := impactingRecommendations[ruleID]; ok {
-			impactingClustersCnt = val
+		ruleContent, err := content.GetContentForRecommendation(ruleID)
+		if err != nil {
+			if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+				return recommendationList, err
+			}
+			// simply omit the rule as we can't display anything
+			log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+			continue
 		}
 
 		recommendationList = append(recommendationList, stypes.RecommendationListView{
