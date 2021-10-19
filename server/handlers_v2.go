@@ -251,13 +251,13 @@ func (server HTTPServer) getImpactingRecommendations(
 // getContent retrieves all the static content tied with groups info
 func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, request *http.Request) {
 	// Generate an array of RuleContent
-	allRules, err := content.GetAllContent()
+	allRules, err := content.GetAllContentV2()
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
 
-	var rules []types.RuleContent
+	var rules []stypes.RuleContentV2
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRules {

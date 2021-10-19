@@ -79,9 +79,9 @@ func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *
 }
 
 // getContent retrieves all the static content
-func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Request) {
+func (server HTTPServer) getContentV1(writer http.ResponseWriter, request *http.Request) {
 	// Generate an array of RuleContent
-	allRules, err := content.GetAllContent()
+	allRules, err := content.GetAllContentV1()
 
 	if err != nil {
 		log.Error().Err(err)
@@ -89,7 +89,7 @@ func (server HTTPServer) getContent(writer http.ResponseWriter, request *http.Re
 		return
 	}
 
-	var rules []types.RuleContent
+	var rules []sptypes.RuleContentV1
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRules {

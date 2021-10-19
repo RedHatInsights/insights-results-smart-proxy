@@ -62,7 +62,7 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				log.Warn().Msgf(`rule ID %v with key %v has missing publish_date attribute`, ruleID, errorKey)
 			}
 
-			totalRisk := calculateTotalRisk(impact, errorProperties.Metadata.Likelihood)
+			totalRisk := calculateTotalRisk(impact.Impact, errorProperties.Metadata.Likelihood)
 
 			ruleTmp := contentDir.Rules[i]
 			if ruleTmpErrorKey, ok := ruleTmp.ErrorKeys[errorKey]; ok {
@@ -83,8 +83,8 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				ErrorKey:        types.ErrorKey(errorKey),
 				Description:     errorProperties.Metadata.Description,
 				TotalRisk:       totalRisk,
-				RiskOfChange:    calculateRiskOfChange(impact, errorProperties.Metadata.Likelihood),
-				Impact:          impact,
+				RiskOfChange:    calculateRiskOfChange(impact.Impact, errorProperties.Metadata.Likelihood),
+				Impact:          impact.Impact,
 				Likelihood:      errorProperties.Metadata.Likelihood,
 				PublishDate:     publishDate,
 				Active:          active,

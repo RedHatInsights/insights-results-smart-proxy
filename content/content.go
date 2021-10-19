@@ -99,14 +99,87 @@ func (s *RulesWithContentStorage) GetContentForRecommendation(
 	return res, found
 }
 
-// GetAllContent returns content for rule
-func (s *RulesWithContentStorage) GetAllContent() []types.RuleContent {
+// GetAllContentV1 returns content for rule for api v1
+func (s *RulesWithContentStorage) GetAllContentV1() []local_types.RuleContentV1 {
 	s.RLock()
 	defer s.RUnlock()
 
-	res := make([]types.RuleContent, 0, len(s.rules))
+	res := make([]local_types.RuleContentV1, 0, len(s.rules))
 	for _, rule := range s.rules {
-		res = append(res, *rule)
+		ruleV1 := local_types.RuleContentV1{
+			Plugin:     rule.Plugin,
+			ErrorKeys:  map[string]local_types.RuleErrorKeyContentV1{},
+			Generic:    rule.Generic,
+			Summary:    rule.Summary,
+			Resolution: rule.Resolution,
+			MoreInfo:   rule.MoreInfo,
+			Reason:     rule.Reason,
+			HasReason:  rule.HasReason,
+		}
+		for k, elem := range rule.ErrorKeys {
+			ruleV1.ErrorKeys[k] = local_types.RuleErrorKeyContentV1{
+				Metadata: local_types.ErrorKeyMetadataV1{
+					Description: elem.Metadata.Description,
+					Impact:      elem.Metadata.Impact.Name,
+					Likelihood:  elem.Metadata.Likelihood,
+					PublishDate: elem.Metadata.PublishDate,
+					Status:      elem.Metadata.Status,
+					Tags:        elem.Metadata.Tags,
+				},
+				TotalRisk:  elem.TotalRisk,
+				Generic:    elem.Generic,
+				Summary:    elem.Summary,
+				Resolution: elem.Resolution,
+				MoreInfo:   elem.MoreInfo,
+				Reason:     elem.Reason,
+				HasReason:  elem.HasReason,
+			}
+		}
+
+		res = append(res, ruleV1)
+	}
+
+	return res
+}
+
+// GetAllContentV2 returns content for api/v2
+func (s *RulesWithContentStorage) GetAllContentV2() []local_types.RuleContentV2 {
+	s.RLock()
+	defer s.RUnlock()
+
+	res := make([]local_types.RuleContentV2, 0, len(s.rules))
+	for _, rule := range s.rules {
+		ruleV2 := local_types.RuleContentV2{
+			Plugin:     rule.Plugin,
+			ErrorKeys:  map[string]local_types.RuleErrorKeyContentV2{},
+			Generic:    rule.Generic,
+			Summary:    rule.Summary,
+			Resolution: rule.Resolution,
+			MoreInfo:   rule.MoreInfo,
+			Reason:     rule.Reason,
+			HasReason:  rule.HasReason,
+		}
+		for k, elem := range rule.ErrorKeys {
+			ruleV2.ErrorKeys[k] = local_types.RuleErrorKeyContentV2{
+				Metadata: local_types.ErrorKeyMetadataV2{
+					Description: elem.Metadata.Description,
+					Impact:      elem.Metadata.Impact.Impact,
+					Likelihood:  elem.Metadata.Likelihood,
+					PublishDate: elem.Metadata.PublishDate,
+					Status:      elem.Metadata.Status,
+					Tags:        elem.Metadata.Tags,
+				},
+				TotalRisk:  elem.TotalRisk,
+				Generic:    elem.Generic,
+				Summary:    elem.Summary,
+				Resolution: elem.Resolution,
+				MoreInfo:   elem.MoreInfo,
+				Reason:     elem.Reason,
+				HasReason:  elem.HasReason,
+			}
+		}
+
+		res = append(res, ruleV2)
 	}
 
 	return res
@@ -323,9 +396,8 @@ func GetExternalRuleIDs() ([]types.RuleID, error) {
 	return rulesWithContentStorage.GetExternalRuleIDs(), nil
 }
 
-// GetAllContent returns content for all the loaded rules.
-// Caching is done under the hood, don't worry about it.
-func GetAllContent() ([]types.RuleContent, error) {
+// GetAllContentV1 returns content for all the loaded rules.
+func GetAllContentV1() ([]local_types.RuleContentV1, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
 
@@ -333,7 +405,19 @@ func GetAllContent() ([]types.RuleContent, error) {
 		return nil, err
 	}
 
-	return rulesWithContentStorage.GetAllContent(), nil
+	return rulesWithContentStorage.GetAllContentV1(), nil
+}
+
+// GetAllContentV2 returns content for api v2
+func GetAllContentV2() ([]local_types.RuleContentV2, error) {
+	// to be sure the data is there
+	err := WaitForContentDirectoryToBeReady()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return rulesWithContentStorage.GetAllContentV2(), nil
 }
 
 // RunUpdateContentLoop runs loop which updates rules content by ticker

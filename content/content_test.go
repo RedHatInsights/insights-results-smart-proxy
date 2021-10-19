@@ -186,7 +186,7 @@ func TestGetAllContent(t *testing.T) {
 	defer content.ResetContent()
 
 	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
-	rules, err := content.GetAllContent()
+	rules, err := content.GetAllContentV2()
 	assert.Nil(t, err)
 	assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
 }
