@@ -49,14 +49,14 @@ func (server *HTTPServer) getGroups(writer http.ResponseWriter, _ *http.Request)
 }
 
 // getContentForRule retrieves the static content for the given ruleID
-func (server HTTPServer) getContentForRule(writer http.ResponseWriter, request *http.Request) {
+func (server HTTPServer) getContentForRuleV1(writer http.ResponseWriter, request *http.Request) {
 	ruleID, successful := httputils.ReadRuleID(writer, request)
 	if !successful {
 		// already handled in readRuleID
 		return
 	}
 
-	ruleContent, err := content.GetRuleContent(ruleID)
+	ruleContent, err := content.GetRuleContentV1(ruleID)
 	if err != nil {
 		handleServerError(writer, err)
 		return

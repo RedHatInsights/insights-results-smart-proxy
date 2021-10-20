@@ -43,7 +43,7 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 		return
 	}
 
-	ruleContent, err := content.GetRuleContent(ruleID)
+	ruleContent, err := content.GetRuleContentV2(ruleID)
 	if err != nil {
 		handleServerError(writer, err)
 		return
