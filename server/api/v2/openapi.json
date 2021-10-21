@@ -586,7 +586,7 @@
         "parameters": [
           {
             "name": "impacting",
-            "description": "If param is missing, endpoint will return all available rules including those that don't hit any clusters at the moment. If set to true, only returns impacting rules. If false, only returns those that aren't imapcting.",
+            "description": "If param is missing, endpoint will return all available rules including those that don't hit any clusters at the moment. If set to true, only returns impacting rules. If false, only returns those that aren't impacting.",
             "in": "query",
             "schema": {
               "type": "boolean"
