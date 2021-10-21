@@ -31,7 +31,6 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
-	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
@@ -141,7 +140,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 func getRecommendationsFillImpacted(
 	impactingRecommendations types.RecommendationImpactedClusters,
-	impactingFlag sptypes.ImpactingFlag,
+	impactingFlag stypes.ImpactingFlag,
 ) (
 	recommendationList []stypes.RecommendationListView,
 	err error,
