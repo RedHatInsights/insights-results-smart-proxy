@@ -21,9 +21,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/RedHatInsights/insights-content-service/groups"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
@@ -43,39 +45,137 @@ const (
 	ExcludingImpacting
 )
 
-// getContentForRule retrieves the static content for the given ruleID tied
-// with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
-func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter, request *http.Request) {
-	ruleID, successful := readCompositeRuleID(writer, request)
-	if !successful {
-		log.Error().Msgf("error retrieving rule ID from request")
-		return
-	}
-
-	ruleContent, err := content.GetContentForRecommendation(ruleID)
+// getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
+// checks if user has permissions to access it.
+func (server HTTPServer) getContentCheckInternal(ruleID types.RuleID, request *http.Request) (
+	ruleContent *stypes.RuleWithContent,
+	err error,
+) {
+	ruleContent, err = content.GetContentForRecommendation(ruleID)
 	if err != nil {
-		handleServerError(writer, err)
 		return
 	}
 
 	// check for internal rule permissions
 	if internal := content.IsRuleInternal(ruleID); internal == true {
-		err := server.checkInternalRulePermissions(request)
+		err = server.checkInternalRulePermissions(request)
 		if err != nil {
-			handleServerError(writer, err)
 			return
 		}
 	}
 
-	// retrieve the latest groups configuration
-	groupsConfig, err := server.getGroupsConfig()
+	return
+}
+
+// getRuleWithGroups retrieves static content for the given ruleID along with rule groups
+func (server HTTPServer) getRuleWithGroups(
+	writer http.ResponseWriter,
+	request *http.Request,
+	ruleID types.RuleID,
+) (
+	ruleContent *stypes.RuleWithContent,
+	ruleGroups []groups.Group,
+	err error,
+) {
+	ruleContent, err = server.getContentCheckInternal(ruleID, request)
 	if err != nil {
+		log.Error().Msgf("error retrieving rule content for rule ID %v", ruleID)
+		return
+	}
+
+	// retrieve the latest groups configuration
+	ruleGroups, err = server.getGroupsConfig()
+	if err != nil {
+		log.Error().Msgf("error retrieving rule groups")
+		return
+	}
+
+	return
+}
+
+// getRecommendationContent retrieves the static content for the given ruleID tied
+// with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
+func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, request *http.Request) {
+	ruleID, err := readCompositeRuleID(writer, request)
+	if err != nil {
+		log.Error().Msgf("error retrieving rule ID from request")
 		handleServerError(writer, err)
 		return
 	}
 
-	// fill in user rating and other DB stuff
-	contentResponse := stypes.RecommendationWithContent{
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	if err != nil {
+		log.Error().Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		handleServerError(writer, err)
+		return
+	}
+
+	contentResponse := stypes.RecommendationContent{
+		// RuleID in rule.module|ERROR_KEY format
+		RuleID:       ruleID,
+		Description:  ruleContent.Description,
+		Generic:      ruleContent.Generic,
+		Reason:       ruleContent.Reason,
+		Resolution:   ruleContent.Resolution,
+		MoreInfo:     ruleContent.MoreInfo,
+		TotalRisk:    uint8(ruleContent.TotalRisk),
+		RiskOfChange: uint8(ruleContent.RiskOfChange),
+		Impact:       uint8(ruleContent.Impact),
+		Likelihood:   uint8(ruleContent.Likelihood),
+		PublishDate:  ruleContent.PublishDate,
+		Tags:         ruleContent.Tags,
+	}
+
+	// prepare data structure for building response
+	responseContent := make(map[string]interface{})
+	responseContent["status"] = "ok"
+	responseContent["groups"] = ruleGroups
+	responseContent["content"] = contentResponse
+
+	// send response to client
+	err = responses.SendOK(writer, responseContent)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getRecommendationContent retrieves the static content for the given ruleID tied
+// with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
+func (server HTTPServer) getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) {
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Err(err).Msg("error retrieving orgID and userID from auth token")
+		return
+	}
+
+	ruleID, err := readCompositeRuleID(writer, request)
+	if err != nil {
+		log.Error().Msgf("error retrieving rule ID from request")
+		handleServerError(writer, err)
+		return
+	}
+
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	if err != nil {
+		log.Error().Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		handleServerError(writer, err)
+		return
+	}
+
+	rating, err := server.getRatingForRecommendation(writer, orgID, userID, ruleID)
+	if err != nil {
+		if _, ok := err.(*url.Error); ok {
+			log.Error().Msgf("aggregator is not responding")
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
+		return
+	}
+
+	// fill in user rating and other DB stuff from aggregator
+	contentResponse := stypes.RecommendationContentUserData{
 		// RuleID in rule.module|ERROR_KEY format
 		RuleID:       ruleID,
 		Description:  ruleContent.Description,
@@ -89,7 +189,7 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 		Likelihood:   uint8(ruleContent.Likelihood),
 		PublishDate:  ruleContent.PublishDate,
 		RuleStatus:   "",
-		Rating:       0,
+		Rating:       rating.Rating,
 		AckedCount:   0,
 		Tags:         ruleContent.Tags,
 	}
@@ -97,7 +197,7 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
 	responseContent["status"] = "ok"
-	responseContent["groups"] = groupsConfig
+	responseContent["groups"] = ruleGroups
 	responseContent["content"] = contentResponse
 
 	// send response to client

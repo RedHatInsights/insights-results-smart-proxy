@@ -92,3 +92,63 @@ func (server HTTPServer) postRatingToAggregator(
 
 	return &aggregatorResponse.Rating, true
 }
+
+// getRatingForRecommendation retrieves user rating for recommendation from aggregator
+func (server HTTPServer) getRatingForRecommendation(
+	writer http.ResponseWriter,
+	orgID types.OrgID,
+	userID types.UserID,
+	ruleID types.RuleID,
+) (
+	ruleRating types.RuleRating,
+	err error,
+) {
+
+	var aggregatorResponse struct {
+		Rating types.RuleRating `json:"rating"`
+		Status string           `json:"status"`
+	}
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		"rules/{rule_selector}/organizations/{org_id}/users/{user_id}/rating", // TOOD
+		ruleID,
+		orgID,
+		userID,
+	)
+
+	// #nosec G107
+	aggregatorResp, err := http.Get(aggregatorURL)
+	if err != nil {
+		log.Error().Msgf("problem getting URL %v from aggregator", aggregatorURL)
+		return
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		log.Error().Msgf("problem reading response from URL %v from aggregator", aggregatorURL)
+		return
+	}
+
+	if aggregatorResp.StatusCode == http.StatusNotFound {
+		log.Info().Msgf("rule rating for rule %v and user %v not found", ruleID, userID)
+		ruleRating.Rule = string(ruleID)
+		ruleRating.Rating = 0
+		return ruleRating, nil
+
+	} else if aggregatorResp.StatusCode != http.StatusOK {
+		err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Msgf("problem sending response")
+		}
+		return
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		log.Error().Msg("problem unmarshalling aggregator response")
+		return
+	}
+
+	return aggregatorResponse.Rating, nil
+}

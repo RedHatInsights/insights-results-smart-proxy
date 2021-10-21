@@ -80,13 +80,12 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 
 func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
 	ruleID types.RuleID,
-	successful bool,
+	err error,
 ) {
 	ruleIDParam, err := httputils.GetRouterParam(request, "rule_id")
 	if err != nil {
 		const message = "unable to get rule id"
 		log.Error().Err(err).Msg(message)
-		handleServerError(writer, err)
 		return
 	}
 
@@ -94,18 +93,17 @@ func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
 	isCompositeRuleIDValid := compositeRuleIDValidator.MatchString(ruleIDParam)
 
 	if !isCompositeRuleIDValid {
-		err = fmt.Errorf("invalid composite rule ID. Must be in the format 'rule.plugin.module|ERROR_KEY'")
-		log.Error().Err(err)
-		handleServerError(writer, &RouterParsingError{
+		msg := fmt.Errorf("invalid composite rule ID. Must be in the format 'rule.plugin.module|ERROR_KEY'")
+		err = &RouterParsingError{
 			paramName:  "rule_id",
 			paramValue: ruleIDParam,
-			errString:  err.Error(),
-		})
+			errString:  msg.Error(),
+		}
+		log.Error().Err(err)
 		return
 	}
 
 	ruleID = types.RuleID(ruleIDParam)
-	successful = true
 	return
 }
 
