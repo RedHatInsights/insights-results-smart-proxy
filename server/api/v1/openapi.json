@@ -511,7 +511,7 @@
                                     "type": "string"
                                   },
                                   "impact": {
-                                    "type": "integer"
+                                    "type": "string"
                                   },
                                   "likelihood": {
                                     "type": "integer"
@@ -639,7 +639,7 @@
                                       "type": "string"
                                     },
                                     "impact": {
-                                      "type": "integer"
+                                      "type": "string"
                                     },
                                     "likelihood": {
                                       "type": "integer"

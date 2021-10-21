@@ -17,11 +17,12 @@ package server_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
+	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
@@ -770,8 +771,8 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *
 	}, testTimeout)
 }
 
-// TestHTTPServer_RecommendationsListEndpoint2Rules
-func TestHTTPServer_RecommendationsListEndpoint2Rules(t *testing.T) {
+// TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing
+func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
@@ -825,8 +826,9 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules(t *testing.T) {
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters),
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters),
+			BodyChecker: recommendationInResponseChecker,
 		})
 	}, testTimeout)
 }
@@ -994,7 +996,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 
 		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
+			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=true",
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -1054,8 +1056,136 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules0Clusters),
+			BodyChecker: recommendationInResponseChecker,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse
+func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_ImpactingMissing(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1, RuleContentInternal1},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
+		respBody = fmt.Sprintf(respBody,
+			testdata.Rule1CompositeID, 2,
+		)
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(GetRecommendationsResponse2Rules0Clusters),
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(GetRecommendationsResponse1Rule2Cluster),
+			BodyChecker: recommendationInResponseChecker,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse
+func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_ImpactingMissing(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{
+				testdata.RuleContent1,
+				testdata.RuleContent2,
+				testdata.RuleContent3,
+				RuleContentInternal1,
+			},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
+		respBody = fmt.Sprintf(respBody,
+			testdata.Rule1CompositeID, 1,
+		)
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(GetRecommendationsResponse3Rules1Cluster),
+			BodyChecker: recommendationInResponseChecker,
 		})
 	}, testTimeout)
 }

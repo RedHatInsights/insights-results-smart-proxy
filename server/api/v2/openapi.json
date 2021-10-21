@@ -608,11 +608,10 @@
         "parameters": [
           {
             "name": "impacting",
-            "description": "If set to false, endpoint will return all available rules including those that don't hit any clusters at the moment.",
+            "description": "If param is missing, endpoint will return all available rules including those that don't hit any clusters at the moment. If set to true, only returns impacting rules. If false, only returns those that aren't impacting.",
             "in": "query",
             "schema": {
-              "type": "boolean",
-              "default": true
+              "type": "boolean"
             },
             "required": false
           }
@@ -834,6 +833,10 @@
             },
             "description": {
               "description": "The title of the rule, a short description.",
+              "type": "string"
+            },
+            "generic": {
+              "description": "More specific, cluster-independent description of the rule",
               "type": "string"
             },
             "publish_date": {

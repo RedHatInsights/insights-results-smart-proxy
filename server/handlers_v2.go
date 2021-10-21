@@ -34,6 +34,15 @@ import (
 	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
+const (
+	// OnlyImpacting flag to only return impacting recommendations on GET /rule/
+	OnlyImpacting = iota
+	// IncludingImpacting flag to return all recommendations including impacting ones on GET /rule/
+	IncludingImpacting
+	// ExcludingImpacting flag to return all recommendations excluding impacting ones on GET /rule/
+	ExcludingImpacting
+)
+
 // getContentForRule retrieves the static content for the given ruleID tied
 // with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
 func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter, request *http.Request) {
@@ -105,17 +114,16 @@ func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter,
 func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request *http.Request) {
 	var recommendationList []stypes.RecommendationListView
 
-	userID, orgID, impactingOnly, err := server.readParamsGetRecommendations(writer, request)
+	userID, orgID, impactingFlag, err := server.readParamsGetRecommendations(writer, request)
 	if err != nil {
 		// everything handled
 		log.Error().Err(err).Msgf("problem reading necessary params from request")
 		return
 	}
-
 	// get the list of active clusters if AMS API is available, otherwise from our DB
 	clusterList, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int("orgID", int(orgID)).Msgf("problem reading cluster list for org")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msgf("problem reading cluster list for org")
 		handleServerError(writer, err)
 		return
 	}
@@ -124,14 +132,14 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	if err != nil {
 		log.Error().
 			Err(err).
-			Int("orgID", int(orgID)).
+			Int(orgIDTag, int(orgID)).
 			Str("userID", string(userID)).
 			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterList)
 
 		return
 	}
 
-	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingOnly)
+	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingFlag)
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -152,14 +160,14 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 func getRecommendationsFillImpacted(
 	impactingRecommendations types.RecommendationImpactedClusters,
-	impactingOnly bool,
+	impactingFlag stypes.ImpactingFlag,
 ) (
 	recommendationList []stypes.RecommendationListView,
 	err error,
 ) {
 	var ruleIDList []types.RuleID
 
-	if impactingOnly {
+	if impactingFlag == OnlyImpacting {
 		// retrieve content only for impacting rules
 		ruleIDList = make([]types.RuleID, len(impactingRecommendations))
 		i := 0
@@ -168,7 +176,7 @@ func getRecommendationsFillImpacted(
 			i++
 		}
 	} else {
-		// retrieve content for all external rules
+		// retrieve content for all external rules and decide whether exclude impacting in loop
 		ruleIDList, err = content.GetExternalRuleIDs()
 		if err != nil {
 			log.Error().Err(err).Msg("unable to retrieve external rule ids from content directory")
@@ -176,27 +184,29 @@ func getRecommendationsFillImpacted(
 		}
 	}
 
-	// we cannot make the list for len(ruleIDList) because if we go by impacting rules, we
-	// might be missing content for some of them
 	recommendationList = make([]stypes.RecommendationListView, 0)
 
 	for _, ruleID := range ruleIDList {
+		impactingClustersCnt, found := impactingRecommendations[ruleID]
+		if found && impactingFlag == ExcludingImpacting {
+			// rule is impacting, but requester doesn't want them
+			continue
+		}
+
 		ruleContent, err := content.GetContentForRecommendation(ruleID)
 		if err != nil {
+			if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+				return recommendationList, err
+			}
 			// simply omit the rule as we can't display anything
 			log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
 			continue
 		}
 
-		var impactingClustersCnt types.ImpactedClustersCnt = 0
-
-		if val, ok := impactingRecommendations[ruleID]; ok {
-			impactingClustersCnt = val
-		}
-
 		recommendationList = append(recommendationList, stypes.RecommendationListView{
 			RuleID:              ruleID,
 			Description:         ruleContent.Description,
+			Generic:             ruleContent.Generic,
 			PublishDate:         ruleContent.PublishDate,
 			TotalRisk:           uint8(ruleContent.TotalRisk),
 			Impact:              uint8(ruleContent.Impact),
@@ -270,13 +280,13 @@ func (server HTTPServer) getImpactingRecommendations(
 // getContent retrieves all the static content tied with groups info
 func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, request *http.Request) {
 	// Generate an array of RuleContent
-	allRules, err := content.GetAllContent()
+	allRules, err := content.GetAllContentV2()
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
 
-	var rules []types.RuleContent
+	var rules []stypes.RuleContentV2
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRules {

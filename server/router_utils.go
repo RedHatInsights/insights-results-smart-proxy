@@ -24,6 +24,8 @@ import (
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
+
+	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -110,10 +112,9 @@ func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
 func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (
 	userID types.UserID,
 	orgID types.OrgID,
-	impacting bool,
+	impactingFlag sptypes.ImpactingFlag,
 	err error,
 ) {
-	impacting = true
 
 	orgID, userID, err = server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
@@ -121,15 +122,29 @@ func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter
 		return
 	}
 
-	impactingParam, err := readImpactingParam(request)
+	impactingParam := request.URL.Query().Get(ImpactingParam)
+	if len(impactingParam) == 0 {
+		// impacting control flag is missing, display all recommendations
+		impactingFlag = IncludingImpacting
+		return
+	}
+
+	impactingParamBool, err := readImpactingParam(request)
 	if err != nil {
-		log.Err(err).Msgf("Error parsing `%s` URL parameter. Defaulting to true.", ImpactingParam)
+		log.Err(err).Msgf("Error parsing `%s` URL parameter.", ImpactingParam)
 		handleServerError(writer, &RouterParsingError{
 			paramName: ImpactingParam,
 			errString: "Unparsable boolean value",
 		})
+		return
+	}
+
+	if impactingParamBool {
+		// param impacting=true means to only include impacting recommendations
+		impactingFlag = OnlyImpacting
 	} else {
-		impacting = impactingParam
+		// param impacting=false means to return all rules that aren't impacting any clusters
+		impactingFlag = ExcludingImpacting
 	}
 
 	return
