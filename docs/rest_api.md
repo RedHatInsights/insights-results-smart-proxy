@@ -6,7 +6,7 @@ nav_order: 3
 
 The API is currently split into two versions, see the [corresponding README](https://github.com/RedHatInsights/insights-results-smart-proxy/blob/master/server/api/README.md) for more info.
 Aggregator service provides information about its REST API schema via endpoint
-`api/v1/openapi.json` and `api/v1/openapi.json` respectively.
+`api/v1/openapi.json` and `api/v2/openapi.json` respectively.
 OpenAPI 3.0 is used to describe the schema; it can be read by human and consumed
 by computers.
 

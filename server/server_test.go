@@ -575,6 +575,54 @@ var (
 		},
 	}
 
+	GetRecommendationsResponse3Rules1Cluster = struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}{
+		Status: "ok",
+		Recommendations: []types.RecommendationListView{
+			{
+				RuleID:              testdata.Rule1CompositeID,
+				Description:         testdata.RuleErrorKey1.Description,
+				Generic:             testdata.RuleErrorKey1.Generic,
+				PublishDate:         testdata.RuleErrorKey1.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey1.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey1.Likelihood),
+				Tags:                testdata.RuleErrorKey1.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 1,
+			},
+			{
+				RuleID:              testdata.Rule2CompositeID,
+				Description:         testdata.RuleErrorKey2.Description,
+				Generic:             testdata.RuleErrorKey2.Generic,
+				PublishDate:         testdata.RuleErrorKey2.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey2.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey2.Likelihood),
+				Tags:                testdata.RuleErrorKey2.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 0,
+			},
+			{
+				RuleID:              testdata.Rule3CompositeID,
+				Description:         testdata.RuleErrorKey3.Description,
+				Generic:             testdata.RuleErrorKey3.Generic,
+				PublishDate:         testdata.RuleErrorKey3.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey3.Impact, testdata.RuleErrorKey3.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey3.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey3.Likelihood),
+				Tags:                testdata.RuleErrorKey3.Tags,
+				RuleStatus:          "",
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 0,
+			},
+		},
+	}
+
 	GetRecommendationsResponse0Rules = struct {
 		Status          string                         `json:"status"`
 		Recommendations []types.RecommendationListView `json:"recommendations"`
