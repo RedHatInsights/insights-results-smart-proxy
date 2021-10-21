@@ -94,6 +94,7 @@ func (s *RulesWithContentStorage) GetRuleContentV1(ruleID types.RuleID) (*local_
 		resV1.Resolution = res.Resolution
 		resV1.MoreInfo = res.MoreInfo
 		resV1.Reason = res.Reason
+		resV1.HasReason = res.HasReason
 		resV1.ErrorKeys = map[string]local_types.RuleErrorKeyContentV1{}
 		for k, elem := range res.ErrorKeys {
 			resV1.ErrorKeys[k] = local_types.RuleErrorKeyContentV1{
@@ -132,6 +133,7 @@ func (s *RulesWithContentStorage) GetRuleContentV2(ruleID types.RuleID) (*local_
 		resV2.Resolution = res.Resolution
 		resV2.MoreInfo = res.MoreInfo
 		resV2.Reason = res.Reason
+		resV2.HasReason = res.HasReason
 		resV2.ErrorKeys = map[string]local_types.RuleErrorKeyContentV2{}
 		for k, elem := range res.ErrorKeys {
 			resV2.ErrorKeys[k] = local_types.RuleErrorKeyContentV2{
