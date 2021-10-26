@@ -319,7 +319,7 @@ func (server HTTPServer) getImpactedClusters(
 
 	var aggregatorResp *http.Response = nil
 
-	if len(activeClusters) <= 0 {
+	if len(activeClusters) < 0 {
 		var err error
 		// #nosec G107
 		aggregatorResp, err = http.Get(aggregatorURL)
