@@ -208,7 +208,7 @@ func GetAMSClientConfiguration() amsclient.Configuration {
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
 // otherwise it returns corresponding error
 func checkIfFileExists(path string) error {
-	if len(path) == 0 {
+	if path == "" {
 		return fmt.Errorf("empty path provided")
 	}
 	fileInfo, err := os.Stat(path)
@@ -231,7 +231,7 @@ func getInternalRulesOrganizations() []types.OrgID {
 		return nil
 	}
 
-	if len(Config.SetupConf.InternalRulesOrganizationsCSVFile) == 0 {
+	if Config.SetupConf.InternalRulesOrganizationsCSVFile == "" {
 		log.Fatal().Msgf("Internal organizations enabled, but none supplied")
 	}
 
