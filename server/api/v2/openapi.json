@@ -575,7 +575,7 @@
         "description": "The static content is taken from the cache periodically updated from the content service"
       }
     },
-    "/rules/{rule_selector}/clusters_detail": {
+    "/rule/{rule_selector}/clusters_detail": {
       "get": {
         "summary": "Returns a list of cluster where the given rule is active.",
         "description": "Provided a correct rule selector and a valid organization ID, this method will query the DB for all the organization's clusters being currently affected by the rule, if any.",

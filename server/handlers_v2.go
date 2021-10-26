@@ -381,7 +381,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	}
 
 	activeClusters := make([]types.ClusterName, 0)
-	//Get list of active clusters if AMS client is available
+	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
 		activeClusters = server.amsClient.GetClustersForOrganization(
 			orgID,
