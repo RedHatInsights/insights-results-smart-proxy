@@ -206,7 +206,7 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 	)
 
 	// call PUT method
-	req, err := http.NewRequest(http.MethodPut, aggregatorURL, nil)
+	req, err := http.NewRequest(http.MethodPut, aggregatorURL, http.NoBody)
 	if err != nil {
 		return err
 	}
