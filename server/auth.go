@@ -73,7 +73,8 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		if server.Config.AuthType == "jwt" {
 			jwtPayload := &types.JWTPayload{}
 			err = json.Unmarshal(decoded, jwtPayload)
-			if err != nil { //Malformed token, returns with http code 403 as usual
+			if err != nil {
+				// malformed token, returns with HTTP code 403 as usual
 				log.Error().Err(err).Msg(malformedTokenMessage)
 				handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
 				return
@@ -88,7 +89,8 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		} else {
 			err = json.Unmarshal(decoded, tk)
 
-			if err != nil { //Malformed token, returns with http code 403 as usual
+			if err != nil {
+				// malformed token, returns with HTTP code 403 as usual
 				log.Error().Err(err).Msg(malformedTokenMessage)
 				handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
 				return
@@ -139,8 +141,8 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 	var tokenHeader string
 	// In case of testing on local machine we don't take x-rh-identity header, but instead Authorization with JWT token in it
 	if server.Config.AuthType == "jwt" {
-		tokenHeader = r.Header.Get("Authorization") //Grab the token from the header
-		splitted := strings.Split(tokenHeader, " ") //The token normally comes in format `Bearer {token-body}`, we check if the retrieved token matched this requirement
+		tokenHeader = r.Header.Get("Authorization") // Grab the token from the header
+		splitted := strings.Split(tokenHeader, " ") // The token normally comes in format `Bearer {token-body}`, we check if the retrieved token matched this requirement
 		if len(splitted) != 2 {
 			const message = "Invalid/Malformed auth token"
 			log.Error().Msg(message)
@@ -152,7 +154,7 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 		splitted = strings.Split(splitted[1], ".")
 		tokenHeader = splitted[1]
 	} else {
-		tokenHeader = r.Header.Get("x-rh-identity") //Grab the token from the header
+		tokenHeader = r.Header.Get("x-rh-identity") // Grab the token from the header
 	}
 
 	if tokenHeader == "" {

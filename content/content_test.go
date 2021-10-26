@@ -60,7 +60,7 @@ func TestGetRuleContent(t *testing.T) {
 		helpers.FailOnError(t, err)
 		assert.NotNil(t, ruleContent)
 
-		//assert.Equal(t, testdata.RuleContent1, *ruleContent) TODO
+		// assert.Equal(t, testdata.RuleContent1, *ruleContent) TODO
 	}, testTimeout)
 }
 
@@ -85,7 +85,7 @@ func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
 			helpers.FailOnError(t, err)
 			assert.NotNil(t, ruleContent)
 
-			//assert.Equal(t, testdata.RuleContent1, *ruleContent) TODO
+			// assert.Equal(t, testdata.RuleContent1, *ruleContent) TODO
 		}
 	}, testTimeout)
 }
@@ -115,7 +115,7 @@ func TestUpdateContent_CallMultipleTimes(t *testing.T) {
 			helpers.FailOnError(t, err)
 			assert.NotNil(t, ruleContent)
 
-			//assert.Equal(t, testdata.RuleContent1, *ruleContent) TODO
+			// assert.Equal(t, testdata.RuleContent1, *ruleContent) TODO
 		}
 	}, testTimeout)
 }
