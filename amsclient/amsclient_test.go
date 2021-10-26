@@ -30,17 +30,20 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 )
 
+const (
+	organizationsSearchEndpoint = "api/accounts_mgmt/v1/organizations?fields=id%%2Cexternal_id&search=external_id+%%3D+{orgID}"
+	subscriptionsSearchEndpoint = "api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id&page={pageNum}&search=organization_id+is+%%27{orgID}%%27&size={pageSize}"
+
+	subscriptionsSearchEndpointWithFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id&page={pageNum}&" +
+		"search=organization_id+is+%%27{orgID}%%27+and+status+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%29&size={pageSize}")
+)
+
 var (
 	// Public and private key that will be used to sign and verify tokens in the tests:
 	jwtPublicKey  *rsa.PublicKey
 	jwtPrivateKey *rsa.PrivateKey
 
 	defaultConfig amsclient.Configuration
-)
-
-const (
-	organizationsSearchEndpoint = "api/accounts_mgmt/v1/organizations?fields=id%%2Cexternal_id&search=external_id+%%3D+{orgID}"
-	subscriptionsSearchEndpoint = "api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id&page={pageNum}&search=organization_id+is+%%27{orgID}%%27&size={pageSize}"
 )
 
 func init() {
@@ -183,5 +186,56 @@ func TestClusterForOrganization(t *testing.T) {
 	})
 
 	clusterList := c.GetClustersForOrganization(testdata.ExternalOrgID, nil, nil)
+	assert.Equal(t, 2, len(clusterList))
+}
+
+func TestClusterForOrganizationWithFiltering(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponse),
+	})
+
+	// prepare cluster list requests
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     subscriptionsSearchEndpointWithFilter,
+		EndpointArgs: []interface{}{1, testdata.InternalOrgID, amsclient.StatusArchived, amsclient.StatusDeprovisioned, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponse),
+	})
+	// second and more requests will be done until the last one returns an empty response (0 sized)
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     subscriptionsSearchEndpointWithFilter,
+		EndpointArgs: []interface{}{2, testdata.InternalOrgID, amsclient.StatusArchived, amsclient.StatusDeprovisioned, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterList := c.GetClustersForOrganization(
+		testdata.ExternalOrgID,
+		[]string{amsclient.StatusArchived, amsclient.StatusDeprovisioned},
+		nil,
+	)
 	assert.Equal(t, 2, len(clusterList))
 }

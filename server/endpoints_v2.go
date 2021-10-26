@@ -106,7 +106,7 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 
 // addV2ReportsEndpointsToRouter method registers handlers for endpoints that
 // return cluster report or reports to client
-func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
+func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+ReportEndpointV2, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+RecommendationsListEndpoint, server.getRecommendations).Methods(http.MethodGet)
@@ -114,7 +114,7 @@ func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiP
 
 // addV2RuleEndpointsToRouter method registers handlers for endpoints that handle
 // rule-related operations (voting etc.)
-func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) {
+func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseEndpoint string) {
 	// Acknowledgement-related endpoints. Please look into acks_handlers.go
 	// and acks_utils.go for more information about these endpoints
 	// prepared to be compatible with RHEL Insights Advisor.

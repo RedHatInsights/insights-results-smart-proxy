@@ -24,13 +24,13 @@ func generateSearchParameter(orgID string, allowedStatuses, disallowedStatuses [
 	searchQuery := fmt.Sprintf("organization_id is '%s'", orgID)
 
 	if len(allowedStatuses) > 0 {
-		clusterIDQuery := " and status in ('" + strings.Join(allowedStatuses, "',") + "')"
-		searchQuery = searchQuery + clusterIDQuery
+		clusterIDQuery := " and status in ('" + strings.Join(allowedStatuses, "','") + "')"
+		searchQuery += clusterIDQuery
 	}
 
 	if len(disallowedStatuses) > 0 {
-		clusterIDQuery := " and status not in ('" + strings.Join(disallowedStatuses, "',") + "')"
-		searchQuery = searchQuery + clusterIDQuery
+		clusterIDQuery := " and status not in ('" + strings.Join(disallowedStatuses, "','") + "')"
+		searchQuery += clusterIDQuery
 	}
 
 	return searchQuery

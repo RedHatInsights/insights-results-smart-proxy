@@ -110,7 +110,7 @@ func calculateRiskOfChange(impact, likelihood int) int {
 // TODO: move to utils
 func commaSeparatedStrToTags(str string) []string {
 	str = strings.TrimSpace(str)
-	if len(str) == 0 {
+	if str == "" {
 		return []string{}
 	}
 
