@@ -114,7 +114,7 @@ func (server *HTTPServer) addV1EndpointsToRouter(router *mux.Router) {
 
 // addV1ReportsEndpointsToRouter method registers handlers for endpoints that
 // return cluster report or reports to client
-func (server *HTTPServer) addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
+func (server *HTTPServer) addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersEndpoint, server.reportForListOfClustersEndpoint).Methods(http.MethodGet)
@@ -122,7 +122,7 @@ func (server *HTTPServer) addV1ReportsEndpointsToRouter(router *mux.Router, apiP
 }
 
 // addV1DebugEndpointsToRouter method registers handlers for all debug endpoints
-func (server *HTTPServer) addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) {
+func (server *HTTPServer) addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+OrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+DeleteOrganizationsEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodDelete)
 	router.HandleFunc(apiPrefix+DeleteClustersEndpoint, server.proxyTo(aggregatorBaseURL, nil)).Methods(http.MethodDelete)
@@ -137,7 +137,7 @@ func (server *HTTPServer) addV1DebugEndpointsToRouter(router *mux.Router, apiPre
 
 // addV1RuleEndpointsToRouter method registers handlers for endpoints that handle
 // rule-related operations (voting etc.)
-func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) {
+func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseEndpoint string) {
 	router.HandleFunc(apiPrefix+SingleRuleEndpoint, server.singleRuleEndpoint).Methods(http.MethodGet, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(

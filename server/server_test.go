@@ -753,7 +753,7 @@ func ruleInContentChecker(t testing.TB, expected, got []byte) {
 		helpers.FailOnError(t, err)
 	}
 
-	//assert.ElementsMatch(t, expectedResp.Content, gotResp.Content) TODO
+	// assert.ElementsMatch(t, expectedResp.Content, gotResp.Content) TODO
 }
 
 func recommendationInResponseChecker(t testing.TB, expected, got []byte) {
