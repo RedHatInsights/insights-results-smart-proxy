@@ -358,16 +358,7 @@ func (server HTTPServer) getImpactedClusters(
 		return err
 	}
 
-	var data map[string]interface{}
-	err = json.Unmarshal(responseBytes, &data)
-	if err != nil {
-		// TODO: If somehow we receive no data from aggregator, handleServerError
-		// will produce a 400 bad request. Should I handle it?
-		handleServerError(writer, err)
-		return err
-	}
-
-	err = responses.Send(aggregatorResp.StatusCode, writer, data)
+	err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 	if err != nil {
 		handleServerError(writer, err)
 		return err
