@@ -616,48 +616,48 @@
                               "description": "The rule selector retrieved in the URL.",
                               "example": "some.python.module|SOME_ERROR_KEY"
                             }
-                        },
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "cluster": {
-                                "type": "string",
-                                "minLength": 36,
-                                "maxLength": 36,
-                                "format": "uuid"
+                          },
+                          "data": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "cluster": {
+                                  "type": "string",
+                                  "minLength": 36,
+                                  "maxLength": 36,
+                                  "format": "uuid"
+                                }
                               }
                             }
                           }
                         }
+                      },
+                      "status": {
+                        "type": "string",
+                        "example": "ok"
                       }
-                    },
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
                     }
                   }
                 }
               }
+            },
+            "400": {
+              "description": "Request body could not be parsed, so the query is not processed"
+            },
+            "404": {
+              "description": "Resource not found, usually caused when some rule selector, organization or user doesn't exist"
+            },
+            "500": {
+              "description": "Internal server error, should only be returned if unexpected error happened when querying from the DB"
             }
           },
-          "400": {
-            "description": "Request body could not be parsed, so the query is not processed"
-          },
-          "404": {
-            "description": "Resource not found, usually caused when some rule selector, organization or user doesn't exist"
-          },
-          "500": {
-            "description": "Internal server error, should only be returned if unexpected error happened when querying from the DB"
-          }
-        },
-        "tags": [
-          "rule",
-          "prod"
-        ]
+          "tags": [
+            "rule",
+            "prod"
+          ]
+        }
       }
-    }
     },
     "/rule": {
       "get": {
