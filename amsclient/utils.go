@@ -25,12 +25,12 @@ func generateSearchParameter(orgID string, allowedStatuses, disallowedStatuses [
 
 	if len(allowedStatuses) > 0 {
 		clusterIDQuery := " and status in ('" + strings.Join(allowedStatuses, "','") + "')"
-		searchQuery = searchQuery + clusterIDQuery
+		searchQuery += clusterIDQuery
 	}
 
 	if len(disallowedStatuses) > 0 {
 		clusterIDQuery := " and status not in ('" + strings.Join(disallowedStatuses, "','") + "')"
-		searchQuery = searchQuery + clusterIDQuery
+		searchQuery += clusterIDQuery
 	}
 
 	return searchQuery
