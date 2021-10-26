@@ -165,13 +165,17 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 
 	rating, err := server.getRatingForRecommendation(writer, orgID, userID, ruleID)
 	if err != nil {
-		if _, ok := err.(*url.Error); ok {
+		switch err.(type) {
+		case *types.ItemNotFoundError:
+			break
+		case *url.Error:
 			log.Error().Msgf("aggregator is not responding")
 			handleServerError(writer, &AggregatorServiceUnavailableError{})
-		} else {
+			return
+		default:
 			handleServerError(writer, err)
+			return
 		}
-		return
 	}
 
 	// fill in user rating and other DB stuff from aggregator
@@ -399,16 +403,15 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 	}
 
 	// retrieve the latest groups configuration
-	groupsConfig, err := server.getGroupsConfig()
+	ruleGroups, err := server.getGroupsConfig()
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
-
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
 	responseContent["status"] = "ok"
-	responseContent["groups"] = groupsConfig
+	responseContent["groups"] = ruleGroups
 	responseContent["content"] = rules
 
 	// send response to client

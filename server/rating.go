@@ -17,6 +17,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -103,6 +104,8 @@ func (server HTTPServer) getRatingForRecommendation(
 	ruleRating types.RuleRating,
 	err error,
 ) {
+	ruleRating.Rule = string(ruleID)
+	ruleRating.Rating = 0
 
 	var aggregatorResponse struct {
 		Rating types.RuleRating `json:"rating"`
@@ -111,7 +114,7 @@ func (server HTTPServer) getRatingForRecommendation(
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"rules/{rule_selector}/organizations/{org_id}/users/{user_id}/rating", // TOOD
+		ira_server.GetRating,
 		ruleID,
 		orgID,
 		userID,
@@ -132,15 +135,17 @@ func (server HTTPServer) getRatingForRecommendation(
 
 	if aggregatorResp.StatusCode == http.StatusNotFound {
 		log.Info().Msgf("rule rating for rule %v and user %v not found", ruleID, userID)
-		ruleRating.Rule = string(ruleID)
-		ruleRating.Rating = 0
-		return ruleRating, nil
+		return ruleRating, &types.ItemNotFoundError{}
+	}
 
-	} else if aggregatorResp.StatusCode != http.StatusOK {
-		err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
-		if err != nil {
-			log.Error().Msgf("problem sending response")
-		}
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err = fmt.Errorf(
+			"problem retrieving rating from aggregator for rule %v and user %v. Status code: %v",
+			ruleID,
+			userID,
+			aggregatorResp.StatusCode,
+		)
+		log.Error().Err(err)
 		return
 	}
 

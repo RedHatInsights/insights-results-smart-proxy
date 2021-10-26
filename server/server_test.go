@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/RedHatInsights/insights-content-service/groups"
 	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	"github.com/rs/zerolog"
@@ -39,6 +40,7 @@ import (
 const (
 	testTimeout            = 10 * time.Second
 	internalTestRuleModule = "foo.rules.internal.bar"
+	internalRuleID         = internalTestRuleModule + "|" + testdata.ErrorKey1
 )
 
 // TODO: consider moving to data repo
@@ -629,6 +631,107 @@ var (
 	}{
 		Status:          "ok",
 		Recommendations: []types.RecommendationListView{},
+	}
+
+	GetRuleContentRecommendationContent1 = struct {
+		Content types.RecommendationContent `json:"content"`
+		Groups  []groups.Group              `json:"groups"`
+		Status  string                      `json:"status"`
+	}{
+		Content: types.RecommendationContent{
+			RuleID:       testdata.Rule1CompositeID,
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.RuleErrorKey1.Reason,
+			Resolution:   testdata.RuleErrorKey1.Resolution,
+			MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
+			TotalRisk:    uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+			RiskOfChange: 0,
+			Impact:       uint8(testdata.RuleErrorKey1.Impact),
+			Likelihood:   uint8(testdata.RuleErrorKey1.Likelihood),
+			PublishDate:  testdata.RuleErrorKey1.PublishDate,
+			Tags:         testdata.RuleErrorKey1.Tags,
+		},
+		Groups: []groups.Group{},
+		Status: "ok",
+	}
+
+	GetRuleContentRecommendationContentWithUserData1 = struct {
+		Content types.RecommendationContentUserData `json:"content"`
+		Groups  []groups.Group                      `json:"groups"`
+		Status  string                              `json:"status"`
+	}{
+		Content: types.RecommendationContentUserData{
+			RuleID:       testdata.Rule1CompositeID,
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.RuleErrorKey1.Reason,
+			Resolution:   testdata.RuleErrorKey1.Resolution,
+			MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
+			TotalRisk:    uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+			RiskOfChange: 0,
+			Impact:       uint8(testdata.RuleErrorKey1.Impact),
+			Likelihood:   uint8(testdata.RuleErrorKey1.Likelihood),
+			PublishDate:  testdata.RuleErrorKey1.PublishDate,
+			RuleStatus:   "",
+			Rating:       types.UserVoteNone,
+			AckedCount:   0,
+			Tags:         testdata.RuleErrorKey1.Tags,
+		},
+		Groups: []groups.Group{},
+		Status: "ok",
+	}
+
+	GetRuleContentRecommendationContentWithUserData2RatingLike = struct {
+		Content types.RecommendationContentUserData `json:"content"`
+		Groups  []groups.Group                      `json:"groups"`
+		Status  string                              `json:"status"`
+	}{
+		Content: types.RecommendationContentUserData{
+			RuleID:       testdata.Rule1CompositeID,
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.RuleErrorKey1.Reason,
+			Resolution:   testdata.RuleErrorKey1.Resolution,
+			MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
+			TotalRisk:    uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+			RiskOfChange: 0,
+			Impact:       uint8(testdata.RuleErrorKey1.Impact),
+			Likelihood:   uint8(testdata.RuleErrorKey1.Likelihood),
+			PublishDate:  testdata.RuleErrorKey1.PublishDate,
+			RuleStatus:   "",
+			Rating:       types.UserVoteLike,
+			AckedCount:   0,
+			Tags:         testdata.RuleErrorKey1.Tags,
+		},
+		Groups: []groups.Group{},
+		Status: "ok",
+	}
+
+	GetRuleContentRecommendationContentWithUserData3RatingDislike = struct {
+		Content types.RecommendationContentUserData `json:"content"`
+		Groups  []groups.Group                      `json:"groups"`
+		Status  string                              `json:"status"`
+	}{
+		Content: types.RecommendationContentUserData{
+			RuleID:       testdata.Rule1CompositeID,
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.RuleErrorKey1.Reason,
+			Resolution:   testdata.RuleErrorKey1.Resolution,
+			MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
+			TotalRisk:    uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+			RiskOfChange: 0,
+			Impact:       uint8(testdata.RuleErrorKey1.Impact),
+			Likelihood:   uint8(testdata.RuleErrorKey1.Likelihood),
+			PublishDate:  testdata.RuleErrorKey1.PublishDate,
+			RuleStatus:   "",
+			Rating:       types.UserVoteDislike,
+			AckedCount:   0,
+			Tags:         testdata.RuleErrorKey1.Tags,
+		},
+		Groups: []groups.Group{},
+		Status: "ok",
 	}
 )
 
