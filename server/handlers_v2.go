@@ -19,6 +19,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"io/ioutil"
 	"net/http"
 
@@ -295,6 +296,109 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 	err = responses.SendOK(writer, responseContent)
 	if err != nil {
 		handleServerError(writer, err)
+		return
+	}
+}
+
+// getImpactedClusters retrieves a list of clusters affected by the given recommendation from aggregator
+func (server HTTPServer) getImpactedClusters(
+	writer http.ResponseWriter,
+	orgID types.OrgID,
+	userID types.UserID,
+	selector types.RuleSelector,
+	activeClusters []types.ClusterName,
+) error {
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.RuleClusterDetailEndpoint,
+		selector,
+		orgID,
+		userID,
+	)
+
+	var aggregatorResp *http.Response = nil
+
+	if len(activeClusters) < 0 {
+		var err error
+		// #nosec G107
+		aggregatorResp, err = http.Get(aggregatorURL)
+		// if http.Get fails for whatever reason
+		if err != nil {
+			handleServerError(writer, err)
+			return err
+		}
+	} else {
+		// generate JSON payload of the format "clusters": []clusters
+		jsonBody, err := json.Marshal(
+			map[string][]types.ClusterName{"clusters": activeClusters})
+		if err != nil {
+			return err
+		}
+
+		// GET method with list of active clusters in payload to avoid possible URL length problems
+		req, err := http.NewRequest(http.MethodGet, aggregatorURL, bytes.NewBuffer(jsonBody))
+		if err != nil {
+			return err
+		}
+
+		req.Header.Set(contentTypeHeader, JSONContentType)
+		client := &http.Client{}
+		aggregatorResp, err = client.Do(req)
+		// if http.Get fails for whatever reason
+		if err != nil {
+			handleServerError(writer, err)
+			return err
+		}
+	}
+
+	//Proxy the response as it comes, since aggregator handles all the use cases
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		return err
+	}
+
+	err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+	if err != nil {
+		handleServerError(writer, err)
+		return err
+	}
+	return nil
+}
+
+// getClustersDetailForRule retrieves all the clusters affected by the recommendation
+// By default returns only those recommendations that currently hit at least one cluster, but it's
+// possible to show all recommendations by passing a URL parameter `impacting`
+func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, request *http.Request) {
+	selector, successful := httputils.ReadRuleSelector(writer, request)
+	if !successful {
+		return
+	}
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Err(err).Msg("error retrieving orgID and userID from auth token")
+		return
+	}
+
+	activeClusters := make([]types.ClusterName, 0)
+	// Get list of active clusters if AMS client is available
+	if server.amsClient != nil {
+		activeClusters = server.amsClient.GetClustersForOrganization(
+			orgID,
+			nil,
+			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
+		)
+	}
+
+	// get the list of clusters affected by given rule from aggregator and send to client
+	err = server.getImpactedClusters(writer, orgID, userID, selector, activeClusters)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Int("orgID", int(orgID)).
+			Str("userID", string(userID)).
+			Str("selector", string(selector)).
+			Msg("Couldn't get impacted clusters for given rule selector")
 		return
 	}
 }
