@@ -100,14 +100,14 @@ func (server HTTPServer) getRuleWithGroups(
 func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, request *http.Request) {
 	ruleID, err := readCompositeRuleID(writer, request)
 	if err != nil {
-		log.Error().Msgf("error retrieving rule ID from request")
+		log.Error().Err(err).Msgf("error retrieving rule ID from request")
 		handleServerError(writer, err)
 		return
 	}
 
 	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
 	if err != nil {
-		log.Error().Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
 		handleServerError(writer, err)
 		return
 	}
@@ -153,14 +153,14 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 
 	ruleID, err := readCompositeRuleID(writer, request)
 	if err != nil {
-		log.Error().Msgf("error retrieving rule ID from request")
+		log.Error().Err(err).Msgf("error retrieving rule ID from request")
 		handleServerError(writer, err)
 		return
 	}
 
 	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
 	if err != nil {
-		log.Error().Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
 		handleServerError(writer, err)
 		return
 	}
@@ -171,7 +171,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		case *types.ItemNotFoundError:
 			break
 		case *url.Error:
-			log.Error().Msgf("aggregator is not responding")
+			log.Error().Err(err).Msgf("aggregator is not responding")
 			handleServerError(writer, &AggregatorServiceUnavailableError{})
 			return
 		default:
@@ -209,6 +209,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 	// send response to client
 	err = responses.SendOK(writer, responseContent)
 	if err != nil {
+		log.Error().Err(err).Msgf(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -247,6 +248,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingFlag)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem getting recommendation content")
 		handleServerError(writer, err)
 		return
 	}
@@ -259,6 +261,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	err = responses.SendOK(writer, resp)
 	if err != nil {
+		log.Error().Err(err).Msgf(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -349,6 +352,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	jsonMarshalled, err := json.Marshal(clusterList)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem unmarshalling cluster list")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -356,12 +360,14 @@ func (server HTTPServer) getImpactingRecommendations(
 	// #nosec G107
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
+		log.Error().Err(err).Msgf("problem getting response from aggregator")
 		handleServerError(writer, err)
 		return nil, err
 	}
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem reading response body")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -369,6 +375,7 @@ func (server HTTPServer) getImpactingRecommendations(
 	if aggregatorResp.StatusCode != http.StatusOK {
 		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 		if err != nil {
+			log.Error().Err(err).Msgf(problemSendingResponseError)
 			handleServerError(writer, err)
 		}
 		return nil, err
@@ -376,6 +383,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem unmarshalling JSON response")
 		handleServerError(writer, err)
 		return nil, err
 	}

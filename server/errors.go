@@ -30,7 +30,8 @@ const (
 	// responseDataError is used as the error message when the responses functions return an error
 	responseDataError = "Unexpected error during response data encoding"
 
-	orgIDTokenError = "error retrieving orgID and userID from auth token"
+	orgIDTokenError             = "error retrieving orgID and userID from auth token"
+	problemSendingResponseError = "problem sending response"
 )
 
 // RouterMissingParamError missing parameter in request

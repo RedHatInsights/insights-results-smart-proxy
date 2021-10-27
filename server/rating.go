@@ -151,7 +151,7 @@ func (server HTTPServer) getRatingForRecommendation(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
-		log.Error().Msg("problem unmarshalling aggregator response")
+		log.Error().Err(err).Msg("problem unmarshalling aggregator response")
 		return
 	}
 
