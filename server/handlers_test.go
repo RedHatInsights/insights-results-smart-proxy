@@ -1063,7 +1063,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 	}, testTimeout)
 }
 
-// TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse
+// TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_ImpactingMissing
 func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_ImpactingMissing(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
@@ -1124,7 +1124,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 	}, testTimeout)
 }
 
-// TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse
+// TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_ImpactingMissing
 func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_ImpactingMissing(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
@@ -1218,6 +1218,201 @@ func TestHTTPServer_RecommendationsListEndpoint_BadImpactingParam(t *testing.T) 
 			StatusCode: http.StatusBadRequest,
 		})
 	}, testTimeout)
+}
+
+// TestHTTPServer_GetRecommendationContent
+func TestHTTPServer_GetRecommendationContent(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1, RuleContentInternal1},
+		),
+	)
+	assert.Nil(t, err)
+
+	for _, testCase := range []struct {
+		TestName           string
+		ServerConfig       *server.Configuration
+		RuleID             types.RuleID
+		ExpectedStatusCode int
+		ExpectedResponse   interface{}
+	}{
+		{
+			"ok",
+			&serverConfigJWT,
+			testdata.Rule1CompositeID,
+			http.StatusOK,
+			GetRuleContentRecommendationContent1,
+		},
+		{
+			"internal OK",
+			&serverConfigInternalOrganizations1,
+			internalRuleID,
+			http.StatusOK,
+			nil,
+		},
+		{
+			"internal forbidden",
+			&serverConfigInternalOrganizations2,
+			internalRuleID,
+			http.StatusForbidden,
+			nil,
+		},
+		{
+			"not found",
+			&serverConfigJWT,
+			testdata.Rule5CompositeID,
+			http.StatusNotFound,
+			nil,
+		},
+		{
+			"invalid rule ID",
+			&serverConfigJWT,
+			"invalid rule id",
+			http.StatusBadRequest,
+			nil,
+		},
+	} {
+		t.Run(testCase.TestName, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				var response helpers.APIResponse
+				if testCase.ExpectedResponse == nil {
+					response = helpers.APIResponse{
+						StatusCode: testCase.ExpectedStatusCode,
+					}
+				} else {
+					response = helpers.APIResponse{
+						StatusCode: testCase.ExpectedStatusCode,
+						Body:       helpers.ToJSONString(testCase.ExpectedResponse),
+					}
+				}
+
+				helpers.AssertAPIv2Request(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
+					Method:             http.MethodGet,
+					Endpoint:           server.RuleContentV2,
+					EndpointArgs:       []interface{}{testCase.RuleID},
+					AuthorizationToken: goodJWTAuthBearer,
+				}, &response)
+			}, testTimeout)
+		})
+	}
+}
+
+// TestHTTPServer_GetRecommendationContentWithUserData
+func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1, RuleContentInternal1},
+		),
+	)
+	assert.Nil(t, err)
+
+	for _, testCase := range []struct {
+		TestName           string
+		ServerConfig       *server.Configuration
+		UserVote           types.UserVote
+		RuleID             types.RuleID
+		ExpectedStatusCode int
+		ExpectedResponse   interface{}
+	}{
+		{
+			"no vote",
+			&serverConfigJWT,
+			types.UserVoteNone,
+			testdata.Rule1CompositeID,
+			http.StatusOK,
+			GetRuleContentRecommendationContentWithUserData1,
+		},
+		{
+			"with rule like",
+			&serverConfigJWT,
+			types.UserVoteLike,
+			testdata.Rule1CompositeID,
+			http.StatusOK,
+			GetRuleContentRecommendationContentWithUserData2RatingLike,
+		},
+		{
+			"with rule dislike",
+			&serverConfigJWT,
+			types.UserVoteDislike,
+			testdata.Rule1CompositeID,
+			http.StatusOK,
+			GetRuleContentRecommendationContentWithUserData3RatingDislike,
+		},
+		{
+			"internal OK",
+			&serverConfigInternalOrganizations1,
+			types.UserVoteDislike,
+			internalRuleID,
+			http.StatusOK,
+			nil,
+		},
+		{
+			"internal forbidden",
+			&serverConfigInternalOrganizations2,
+			types.UserVoteDislike,
+			internalRuleID,
+			http.StatusForbidden,
+			nil,
+		},
+		{
+			"not found",
+			&serverConfigJWT,
+			types.UserVoteDislike,
+			testdata.Rule5CompositeID,
+			http.StatusNotFound,
+			nil,
+		},
+		{
+			"invalid rule ID",
+			&serverConfigJWT,
+			types.UserVoteDislike,
+			"invalid rule id",
+			http.StatusBadRequest,
+			nil,
+		},
+	} {
+		t.Run(testCase.TestName, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+				rating := fmt.Sprintf(`{"rule":"%v","rating":%v}`, testCase.RuleID, testCase.UserVote)
+				aggregatorResponse := fmt.Sprintf(`{"rating":%s}`, rating)
+
+				// prepare response from aggregator for recommendations
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+					&helpers.APIRequest{
+						Method:       http.MethodGet,
+						Endpoint:     ira_server.GetRating,
+						EndpointArgs: []interface{}{testCase.RuleID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+					},
+					&helpers.APIResponse{
+						StatusCode: http.StatusOK,
+						Body:       aggregatorResponse,
+					},
+				)
+
+				var response helpers.APIResponse
+				if testCase.ExpectedResponse == nil {
+					response = helpers.APIResponse{
+						StatusCode: testCase.ExpectedStatusCode,
+					}
+				} else {
+					response = helpers.APIResponse{
+						StatusCode: testCase.ExpectedStatusCode,
+						Body:       helpers.ToJSONString(testCase.ExpectedResponse),
+					}
+				}
+
+				helpers.AssertAPIv2Request(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
+					Method:             http.MethodGet,
+					Endpoint:           server.RuleContentWithUserData,
+					EndpointArgs:       []interface{}{testCase.RuleID},
+					AuthorizationToken: goodJWTAuthBearer,
+				}, &response)
+			}, testTimeout)
+		})
+	}
 }
 
 func TestHTTPServer_GroupsEndpoint(t *testing.T) {

@@ -78,6 +78,35 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 	return types.RuleID(splitedRuleID[0]), types.ErrorKey(splitedRuleID[1]), nil
 }
 
+func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
+	ruleID types.RuleID,
+	err error,
+) {
+	ruleIDParam, err := httputils.GetRouterParam(request, "rule_id")
+	if err != nil {
+		const message = "unable to get rule id"
+		log.Error().Err(err).Msg(message)
+		return
+	}
+
+	compositeRuleIDValidator := regexp.MustCompile(`^([a-zA-Z_0-9.]+)[|]([a-zA-Z_0-9.]+)$`)
+	isCompositeRuleIDValid := compositeRuleIDValidator.MatchString(ruleIDParam)
+
+	if !isCompositeRuleIDValid {
+		msg := fmt.Errorf("invalid composite rule ID. Must be in the format 'rule.plugin.module|ERROR_KEY'")
+		err = &RouterParsingError{
+			paramName:  "rule_id",
+			paramValue: ruleIDParam,
+			errString:  msg.Error(),
+		}
+		log.Error().Err(err)
+		return
+	}
+
+	ruleID = types.RuleID(ruleIDParam)
+	return
+}
+
 func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (
 	userID types.UserID,
 	orgID types.OrgID,
@@ -87,7 +116,7 @@ func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter
 
 	orgID, userID, err = server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
-		log.Err(err).Msg("error retrieving orgID and userID from auth token")
+		log.Err(err).Msg(orgIDTokenError)
 		return
 	}
 

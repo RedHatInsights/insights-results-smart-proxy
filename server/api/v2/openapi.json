@@ -416,7 +416,7 @@
         }
       }
     },
-    "/rule/{ruleId}": {
+    "/rule/{ruleId}/content": {
       "get": {
         "tags": [
           "prod"
@@ -424,10 +424,10 @@
         "parameters": [
           {
             "name": "ruleId",
-            "description": "ID of the rule which content is required",
+            "description": "ID of the rule for which content is required",
             "schema": {
               "type": "string",
-              "example": "some.python.module"
+              "example": "some.python.module|ERROR_KEY_NAME"
             },
             "in": "path",
             "required": true
@@ -443,76 +443,82 @@
                     "content": {
                       "type": "object",
                       "properties": {
-                        "summary": {
+                        "rule_id": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "description": "The title of the rule, a short description.",
+                          "type": "string"
+                        },
+                        "generic": {
+                          "description": "More specific, cluster-independent description of the rule",
                           "type": "string"
                         },
                         "reason": {
+                          "description": "Reason for the issue, giving the user more accurate description of the cause.",
                           "type": "string"
                         },
                         "resolution": {
+                          "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base.",
                           "type": "string"
                         },
                         "more_info": {
                           "type": "string"
                         },
-                        "plugin": {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "node_id": {
-                              "type": "string"
-                            },
-                            "product_code": {
-                              "type": "string"
-                            },
-                            "python_module": {
-                              "type": "string"
-                            }
-                          }
+                        "total_risk": {
+                          "description": "Total risk - calculated from rule impact and likelihood.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ],
+                          "type": "integer"
                         },
-                        "error_keys": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                              "reason": {
-                                "type": "string"
-                              },
-                              "generic": {
-                                "type": "string"
-                              },
-                              "metadata": {
-                                "type": "object",
-                                "properties": {
-                                  "condition": {
-                                    "type": "string"
-                                  },
-                                  "description": {
-                                    "type": "string"
-                                  },
-                                  "impact": {
-                                    "type": "integer"
-                                  },
-                                  "likelihood": {
-                                    "type": "integer"
-                                  },
-                                  "publish_date": {
-                                    "type": "string"
-                                  },
-                                  "status": {
-                                    "type": "string"
-                                  },
-                                  "tags": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "string"
-                                    }
-                                  }
-                                }
-                              }
-                            }
+                        "risk_of_change": {
+                          "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ],
+                          "type": "integer"
+                        },
+                        "impact": {
+                          "type": "integer",
+                          "description": "How much of an impact this rule has on a cluster.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ]
+                        },
+                        "likelihood": {
+                          "type": "integer",
+                          "description": "How likely is this rule to hit.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ]
+                        },
+                        "publish_date": {
+                          "description": "The date the rule was published. 'Added at' field in UI",
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "tags": {
+                          "description": "List of tags that the rule contains",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
                           }
                         }
                       }
@@ -565,14 +571,217 @@
           },
           "503": {
             "content": {
-              "text/plain": {}
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Item not found in the storage"
+                    }
+                  }
+                }
+              }
             },
-            "description": "Content service is unavailable"
+            "description": "Content service is unavailable."
           }
         },
         "operationId": "getContentForRule",
-        "summary": "Get all static content for the given ruleId",
-        "description": "The static content is taken from the cache periodically updated from the content service"
+        "summary": "Get all static content for the given ruleId.",
+        "description": "The static content is taken from the cache periodically updated from the content service."
+      }
+    },
+    "/rule/{ruleId}": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "ruleId",
+            "description": "ID of the rule for which content is required",
+            "schema": {
+              "type": "string",
+              "example": "some.python.module|ERROR_KEY_NAME"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content": {
+                      "type": "object",
+                      "properties": {
+                        "rule_id": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "description": "The title of the rule, a short description.",
+                          "type": "string"
+                        },
+                        "generic": {
+                          "description": "More specific, cluster-independent description of the rule",
+                          "type": "string"
+                        },
+                        "reason": {
+                          "description": "Reason for the issue, giving the user more accurate description of the cause.",
+                          "type": "string"
+                        },
+                        "resolution": {
+                          "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base.",
+                          "type": "string"
+                        },
+                        "more_info": {
+                          "type": "string"
+                        },
+                        "total_risk": {
+                          "description": "Total risk - calculated from rule impact and likelihood.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ],
+                          "type": "integer"
+                        },
+                        "risk_of_change": {
+                          "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ],
+                          "type": "integer"
+                        },
+                        "impact": {
+                          "type": "integer",
+                          "description": "How much of an impact this rule has on a cluster.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ]
+                        },
+                        "likelihood": {
+                          "type": "integer",
+                          "description": "How likely is this rule to hit.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ]
+                        },
+                        "publish_date": {
+                          "description": "The date the rule was published. 'Added at' field in UI",
+                          "format": "date-time",
+                          "type": "string"
+                        },
+
+                        "rule_status": {
+                          "description": "Whether the rule has been disabled/acked or not.",
+                          "type": "string",
+                          "example": "disabled"
+                        },
+                        "rating": {
+                          "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
+                          "enum": [
+                            "-1",
+                            "0",
+                            "1"
+                          ],
+                          "type": "integer"
+                        },
+                        "hosts_acked_count": {
+                          "type": "integer"
+                        },
+                        "tags": {
+                          "description": "List of tags that the rule contains",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "groups": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "tags": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON object with the content."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Item not found in the storage"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Rule ID is not available"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Item not found in the storage"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Content service or aggregator service is unavailable. Specified in the status field."
+          }
+        },
+        "operationId": "getContentForRule",
+        "summary": "Get content for the given ruleId, along with user-specific data such as rule rating, disabling, etc.",
+        "description": "The static content is taken from the cache periodically updated from the content service. The user specific parts need trips to the aggregator service."
       }
     },
     "/rule/{rule_selector}/clusters_detail": {

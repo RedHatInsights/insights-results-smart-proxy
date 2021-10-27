@@ -907,9 +907,25 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 
 // getGroupsConfig retrieves the groups configuration from a channel to get the
 // latest valid one
-func (server HTTPServer) getGroupsConfig() ([]groups.Group, error) {
-	errorFound := <-server.ErrorFoundChannel
-	var err error
+func (server HTTPServer) getGroupsConfig() (
+	ruleGroups []groups.Group,
+	err error,
+) {
+	var errorFound bool
+	ruleGroups = []groups.Group{}
+
+	select {
+	case val, ok := <-server.ErrorFoundChannel:
+		if !ok {
+			log.Error().Msgf("errorFound channel is closed")
+			return
+		}
+		errorFound = val
+	default:
+		fmt.Println("errorFound channel is empty")
+		return
+	}
+
 	if errorFound {
 		err = <-server.ErrorChannel
 		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {

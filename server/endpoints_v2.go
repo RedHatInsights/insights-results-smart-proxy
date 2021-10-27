@@ -37,7 +37,10 @@ const (
 	// RuleContentV2 https://issues.redhat.com/browse/CCXDEV-5094
 	// additionally group info is added too
 	// https://github.com/RedHatInsights/insights-results-smart-proxy/pull/604
-	RuleContentV2 = "rule/{rule_id}"
+	RuleContentV2 = "rule/{rule_id}/content"
+
+	// RuleContentWithUserData returns same as RuleContentV2, but includes user-specific data
+	RuleContentWithUserData = "rule/{rule_id}"
 
 	// ContentV2 returns all the static content avaiable for the user
 	ContentV2 = "content"
@@ -128,6 +131,7 @@ func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPref
 // addV2ContentEndpointsToRouter method registers handlers for endpoints that
 // returns content to clients
 func (server HTTPServer) addV2ContentEndpointsToRouter(router *mux.Router, apiPrefix string) {
-	router.HandleFunc(apiPrefix+RuleContentV2, server.getContentWithGroupsForRule).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+RuleContentV2, server.getRecommendationContent).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+RuleContentWithUserData, server.getRecommendationContentWithUserData).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ContentV2, server.getContentWithGroups).Methods(http.MethodGet)
 }

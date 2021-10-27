@@ -19,12 +19,15 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/RedHatInsights/insights-content-service/groups"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
@@ -44,46 +47,169 @@ const (
 	ExcludingImpacting
 )
 
-// getContentForRule retrieves the static content for the given ruleID tied
-// with groups info
-func (server HTTPServer) getContentWithGroupsForRule(writer http.ResponseWriter, request *http.Request) {
-	ruleID, successful := httputils.ReadRuleID(writer, request)
-	if !successful {
-		// already handled in readRuleID
-		return
-	}
-
-	ruleContent, err := content.GetRuleContentV2(ruleID)
+// getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
+// checks if user has permissions to access it.
+func (server HTTPServer) getContentCheckInternal(ruleID types.RuleID, request *http.Request) (
+	ruleContent *stypes.RuleWithContent,
+	err error,
+) {
+	ruleContent, err = content.GetContentForRecommendation(ruleID)
 	if err != nil {
-		handleServerError(writer, err)
 		return
 	}
 
 	// check for internal rule permissions
 	if internal := content.IsRuleInternal(ruleID); internal == true {
-		err := server.checkInternalRulePermissions(request)
+		err = server.checkInternalRulePermissions(request)
 		if err != nil {
-			handleServerError(writer, err)
 			return
 		}
 	}
 
-	// retrieve the latest groups configuration
-	groupsConfig, err := server.getGroupsConfig()
+	return
+}
+
+// getRuleWithGroups retrieves static content for the given ruleID along with rule groups
+func (server HTTPServer) getRuleWithGroups(
+	writer http.ResponseWriter,
+	request *http.Request,
+	ruleID types.RuleID,
+) (
+	ruleContent *stypes.RuleWithContent,
+	ruleGroups []groups.Group,
+	err error,
+) {
+	ruleContent, err = server.getContentCheckInternal(ruleID, request)
 	if err != nil {
+		log.Error().Msgf("error retrieving rule content for rule ID %v", ruleID)
+		return
+	}
+
+	// retrieve the latest groups configuration
+	ruleGroups, err = server.getGroupsConfig()
+	if err != nil {
+		log.Error().Msgf("error retrieving rule groups")
+		return
+	}
+
+	return
+}
+
+// getRecommendationContent retrieves the static content for the given ruleID tied
+// with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
+func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, request *http.Request) {
+	ruleID, err := readCompositeRuleID(writer, request)
+	if err != nil {
+		log.Error().Err(err).Msgf("error retrieving rule ID from request")
 		handleServerError(writer, err)
 		return
+	}
+
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	if err != nil {
+		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		handleServerError(writer, err)
+		return
+	}
+
+	contentResponse := stypes.RecommendationContent{
+		// RuleID in rule.module|ERROR_KEY format
+		RuleSelector: types.RuleSelector(ruleID),
+		Description:  ruleContent.Description,
+		Generic:      ruleContent.Generic,
+		Reason:       ruleContent.Reason,
+		Resolution:   ruleContent.Resolution,
+		MoreInfo:     ruleContent.MoreInfo,
+		TotalRisk:    uint8(ruleContent.TotalRisk),
+		RiskOfChange: uint8(ruleContent.RiskOfChange),
+		Impact:       uint8(ruleContent.Impact),
+		Likelihood:   uint8(ruleContent.Likelihood),
+		PublishDate:  ruleContent.PublishDate,
+		Tags:         ruleContent.Tags,
 	}
 
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
 	responseContent["status"] = "ok"
-	responseContent["groups"] = groupsConfig
-	responseContent["content"] = ruleContent
+	responseContent["groups"] = ruleGroups
+	responseContent["content"] = contentResponse
 
 	// send response to client
 	err = responses.SendOK(writer, responseContent)
 	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getRecommendationContent retrieves the static content for the given ruleID tied
+// with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
+func (server HTTPServer) getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) {
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Err(err).Msg(orgIDTokenError)
+		return
+	}
+
+	ruleID, err := readCompositeRuleID(writer, request)
+	if err != nil {
+		log.Error().Err(err).Msgf("error retrieving rule ID from request")
+		handleServerError(writer, err)
+		return
+	}
+
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	if err != nil {
+		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		handleServerError(writer, err)
+		return
+	}
+
+	rating, err := server.getRatingForRecommendation(writer, orgID, userID, ruleID)
+	if err != nil {
+		switch err.(type) {
+		case *types.ItemNotFoundError:
+			break
+		case *url.Error:
+			log.Error().Err(err).Msgf("aggregator is not responding")
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+			return
+		default:
+			handleServerError(writer, err)
+			return
+		}
+	}
+
+	// fill in user rating and other DB stuff from aggregator
+	contentResponse := stypes.RecommendationContentUserData{
+		// RuleID in rule.module|ERROR_KEY format
+		RuleSelector: types.RuleSelector(ruleID),
+		Description:  ruleContent.Description,
+		Generic:      ruleContent.Generic,
+		Reason:       ruleContent.Reason,
+		Resolution:   ruleContent.Resolution,
+		MoreInfo:     ruleContent.MoreInfo,
+		TotalRisk:    uint8(ruleContent.TotalRisk),
+		RiskOfChange: uint8(ruleContent.RiskOfChange),
+		Impact:       uint8(ruleContent.Impact),
+		Likelihood:   uint8(ruleContent.Likelihood),
+		PublishDate:  ruleContent.PublishDate,
+		RuleStatus:   "",
+		Rating:       rating.Rating,
+		AckedCount:   0,
+		Tags:         ruleContent.Tags,
+	}
+
+	// prepare data structure for building response
+	responseContent := make(map[string]interface{})
+	responseContent["status"] = "ok"
+	responseContent["groups"] = ruleGroups
+	responseContent["content"] = contentResponse
+
+	// send response to client
+	err = responses.SendOK(writer, responseContent)
+	if err != nil {
+		log.Error().Err(err).Msgf(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -122,6 +248,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingFlag)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem getting recommendation content")
 		handleServerError(writer, err)
 		return
 	}
@@ -134,6 +261,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	err = responses.SendOK(writer, resp)
 	if err != nil {
+		log.Error().Err(err).Msgf(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -224,6 +352,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	jsonMarshalled, err := json.Marshal(clusterList)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem unmarshalling cluster list")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -231,12 +360,14 @@ func (server HTTPServer) getImpactingRecommendations(
 	// #nosec G107
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
+		log.Error().Err(err).Msgf("problem getting response from aggregator")
 		handleServerError(writer, err)
 		return nil, err
 	}
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem reading response body")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -244,6 +375,7 @@ func (server HTTPServer) getImpactingRecommendations(
 	if aggregatorResp.StatusCode != http.StatusOK {
 		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 		if err != nil {
+			log.Error().Err(err).Msgf(problemSendingResponseError)
 			handleServerError(writer, err)
 		}
 		return nil, err
@@ -251,6 +383,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem unmarshalling JSON response")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -280,16 +413,15 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 	}
 
 	// retrieve the latest groups configuration
-	groupsConfig, err := server.getGroupsConfig()
+	ruleGroups, err := server.getGroupsConfig()
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
-
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
 	responseContent["status"] = "ok"
-	responseContent["groups"] = groupsConfig
+	responseContent["groups"] = ruleGroups
 	responseContent["content"] = rules
 
 	// send response to client
@@ -376,7 +508,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	}
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
-		log.Err(err).Msg("error retrieving orgID and userID from auth token")
+		log.Err(err).Msg(orgIDTokenError)
 		return
 	}
 
