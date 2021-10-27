@@ -123,13 +123,13 @@ func (server HTTPServer) getRatingForRecommendation(
 	// #nosec G107
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
-		log.Error().Msgf("problem getting URL %v from aggregator", aggregatorURL)
+		log.Error().Err(err).Msgf("problem getting URL %v from aggregator", aggregatorURL)
 		return
 	}
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
-		log.Error().Msgf("problem reading response from URL %v from aggregator", aggregatorURL)
+		log.Error().Err(err).Msgf("problem reading response from URL %v from aggregator", aggregatorURL)
 		return
 	}
 
