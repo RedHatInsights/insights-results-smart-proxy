@@ -17,16 +17,21 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"net/http"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/rs/zerolog/log"
 )
 
-// responseDataError is used as the error message when the responses functions return an error
-const responseDataError = "Unexpected error during response data encoding"
+const (
+	// responseDataError is used as the error message when the responses functions return an error
+	responseDataError = "Unexpected error during response data encoding"
+
+	orgIDTokenError = "error retrieving orgID and userID from auth token"
+)
 
 // RouterMissingParamError missing parameter in request
 type RouterMissingParamError struct {

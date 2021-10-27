@@ -147,7 +147,7 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 func (server HTTPServer) getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) {
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
-		log.Err(err).Msg("error retrieving orgID and userID from auth token")
+		log.Err(err).Msg(orgIDTokenError)
 		return
 	}
 
@@ -500,7 +500,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	}
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
-		log.Err(err).Msg("error retrieving orgID and userID from auth token")
+		log.Err(err).Msg(orgIDTokenError)
 		return
 	}
 
