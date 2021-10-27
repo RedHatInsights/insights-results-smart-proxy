@@ -19,10 +19,11 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 
 	"github.com/rs/zerolog/log"
 
@@ -113,7 +114,7 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 
 	contentResponse := stypes.RecommendationContent{
 		// RuleID in rule.module|ERROR_KEY format
-		RuleID:       ruleID,
+		RuleSelector: types.RuleSelector(ruleID),
 		Description:  ruleContent.Description,
 		Generic:      ruleContent.Generic,
 		Reason:       ruleContent.Reason,
@@ -182,7 +183,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 	// fill in user rating and other DB stuff from aggregator
 	contentResponse := stypes.RecommendationContentUserData{
 		// RuleID in rule.module|ERROR_KEY format
-		RuleID:       ruleID,
+		RuleSelector: types.RuleSelector(ruleID),
 		Description:  ruleContent.Description,
 		Generic:      ruleContent.Generic,
 		Reason:       ruleContent.Reason,

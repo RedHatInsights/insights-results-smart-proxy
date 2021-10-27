@@ -639,7 +639,7 @@ var (
 		Status  string                      `json:"status"`
 	}{
 		Content: types.RecommendationContent{
-			RuleID:       testdata.Rule1CompositeID,
+			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,
@@ -662,7 +662,7 @@ var (
 		Status  string                              `json:"status"`
 	}{
 		Content: types.RecommendationContentUserData{
-			RuleID:       testdata.Rule1CompositeID,
+			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,
@@ -688,7 +688,7 @@ var (
 		Status  string                              `json:"status"`
 	}{
 		Content: types.RecommendationContentUserData{
-			RuleID:       testdata.Rule1CompositeID,
+			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,
@@ -714,7 +714,7 @@ var (
 		Status  string                              `json:"status"`
 	}{
 		Content: types.RecommendationContentUserData{
-			RuleID:       testdata.Rule1CompositeID,
+			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,

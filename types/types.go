@@ -65,40 +65,40 @@ type RuleWithContentResponse struct {
 
 // RecommendationContent is a rule content struct used for Insights Advisor,
 type RecommendationContent struct {
-	// RuleID in rule.module|ERROR_KEY format
-	RuleID       types.RuleID `json:"rule_id"`
-	Description  string       `json:"description"`
-	Generic      string       `json:"generic"`
-	Reason       string       `json:"reason"`
-	Resolution   string       `json:"resolution"`
-	MoreInfo     string       `json:"more_info"`
-	TotalRisk    uint8        `json:"total_risk"`
-	RiskOfChange uint8        `json:"risk_of_change"`
-	Impact       uint8        `json:"impact"`
-	Likelihood   uint8        `json:"likelihood"`
-	PublishDate  time.Time    `json:"publish_date"`
-	Tags         []string     `json:"tags"`
+	// RuleSelector = rule.module|ERROR_KEY format
+	RuleSelector types.RuleSelector `json:"rule_id"`
+	Description  string             `json:"description"`
+	Generic      string             `json:"generic"`
+	Reason       string             `json:"reason"`
+	Resolution   string             `json:"resolution"`
+	MoreInfo     string             `json:"more_info"`
+	TotalRisk    uint8              `json:"total_risk"`
+	RiskOfChange uint8              `json:"risk_of_change"`
+	Impact       uint8              `json:"impact"`
+	Likelihood   uint8              `json:"likelihood"`
+	PublishDate  time.Time          `json:"publish_date"`
+	Tags         []string           `json:"tags"`
 }
 
 // RecommendationContentUserData is a rule content struct with additional Insights Advisor
 // related user data, such as rule acknowledging or rating, which requires access to DB/aggregator
 type RecommendationContentUserData struct {
-	// RuleID in rule.module|ERROR_KEY format
-	RuleID       types.RuleID   `json:"rule_id"`
-	Description  string         `json:"description"`
-	Generic      string         `json:"generic"`
-	Reason       string         `json:"reason"`
-	Resolution   string         `json:"resolution"`
-	MoreInfo     string         `json:"more_info"`
-	TotalRisk    uint8          `json:"total_risk"`
-	RiskOfChange uint8          `json:"risk_of_change"`
-	Impact       uint8          `json:"impact"`
-	Likelihood   uint8          `json:"likelihood"`
-	PublishDate  time.Time      `json:"publish_date"`
-	Tags         []string       `json:"tags"`
-	RuleStatus   string         `json:"rule_status"`
-	Rating       types.UserVote `json:"rating"`
-	AckedCount   uint32         `json:"hosts_acked_count"`
+	// RuleSelector = rule.module|ERROR_KEY format
+	RuleSelector types.RuleSelector `json:"rule_id"`
+	Description  string             `json:"description"`
+	Generic      string             `json:"generic"`
+	Reason       string             `json:"reason"`
+	Resolution   string             `json:"resolution"`
+	MoreInfo     string             `json:"more_info"`
+	TotalRisk    uint8              `json:"total_risk"`
+	RiskOfChange uint8              `json:"risk_of_change"`
+	Impact       uint8              `json:"impact"`
+	Likelihood   uint8              `json:"likelihood"`
+	PublishDate  time.Time          `json:"publish_date"`
+	Tags         []string           `json:"tags"`
+	RuleStatus   string             `json:"rule_status"`
+	Rating       types.UserVote     `json:"rating"`
+	AckedCount   uint32             `json:"hosts_acked_count"`
 }
 
 // SmartProxyReport represents the response of /report endpoint for smart proxy
