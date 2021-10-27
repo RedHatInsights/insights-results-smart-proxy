@@ -81,7 +81,7 @@ func (*ContentServiceUnavailableError) Error() string {
 	return "Content service is unreachable"
 }
 
-// AggregatorServiceUnavailableError error is ised when the aggregator service cannot be reached
+// AggregatorServiceUnavailableError error is used when the aggregator service cannot be reached
 type AggregatorServiceUnavailableError struct{}
 
 func (*AggregatorServiceUnavailableError) Error() string {

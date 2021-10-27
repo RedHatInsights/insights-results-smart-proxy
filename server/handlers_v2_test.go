@@ -64,3 +64,175 @@ func TestHTTPServer_SetRating(t *testing.T) {
 		},
 	)
 }
+
+// TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk verifies that
+// the 200 OK and the response body from aggregator are correctly
+// forwarded to the client
+func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+
+	aggregatorResponse := `
+	{
+		"data":[{"cluster":"5d5892d3-1f74-4ccf-91af-548dfc9767bb"}],
+		"meta":{
+			"count":1,
+			"rule_selector":"ccx_rules_ocp.external.rules.container_max_root_partition_size|ek1"
+		},
+		"status":"ok"
+	}
+	`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.RuleClusterDetailEndpoint,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       aggregatorResponse,
+		},
+	)
+
+	helpers.AssertAPIv2Request(
+		t,
+		&serverConfigJWT,
+		nil,
+		nil,
+		nil,
+		nil,
+		&helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersDetail,
+			EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       aggregatorResponse,
+		},
+	)
+}
+
+// TestHTTPServer_ClustersDetailEndpointAggregatorResponse400 verifies that
+// the 400 Bad Request and the response body from aggregator are correctly
+// forwarded to the client
+func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+
+	aggregatorResponse := `{"status":"Error during parsing param 'rule_selector' with value X"}`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.RuleClusterDetailEndpoint,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       aggregatorResponse,
+		},
+	)
+
+	helpers.AssertAPIv2Request(
+		t,
+		&serverConfigJWT,
+		nil,
+		nil,
+		nil,
+		nil,
+		&helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersDetail,
+			EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       aggregatorResponse,
+		},
+	)
+}
+
+// TestHTTPServer_ClustersDetailEndpointAggregatorResponse404 verifies that
+// the 404 Not Found and the response body from aggregator are correctly
+// forwarded to the client
+func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+
+	aggregatorResponse := `{"status":"Item with ID plugin.1|EK_1 was not found in the storage"}`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.RuleClusterDetailEndpoint,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       aggregatorResponse,
+		},
+	)
+
+	helpers.AssertAPIv2Request(
+		t,
+		&serverConfigJWT,
+		nil,
+		nil,
+		nil,
+		nil,
+		&helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersDetail,
+			EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       aggregatorResponse,
+		},
+	)
+}
+
+// TestHTTPServer_ClustersDetailEndpointAggregatorResponse500 verifies that
+// the 500 Internal Error and the response body from aggregator are correctly
+// forwarded to the client
+func TestHTTPServer_ClustersDetailEndpointAggregatorResponse500(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+
+	aggregatorResponse := `{"status": "Internal Server Error"}`
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.RuleClusterDetailEndpoint,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       aggregatorResponse,
+		},
+	)
+
+	helpers.AssertAPIv2Request(
+		t,
+		&serverConfigJWT,
+		nil,
+		nil,
+		nil,
+		nil,
+		&helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersDetail,
+			EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       aggregatorResponse,
+		},
+	)
+}

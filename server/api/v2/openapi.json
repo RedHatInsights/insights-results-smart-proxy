@@ -784,6 +784,90 @@
         "description": "The static content is taken from the cache periodically updated from the content service. The user specific parts need trips to the aggregator service."
       }
     },
+    "/rule/{rule_selector}/clusters_detail": {
+      "get": {
+        "summary": "Returns a list of cluster where the given rule is active.",
+        "description": "Provided a correct rule selector and a valid organization ID, this method will query the DB for all the organization's clusters being currently affected by the rule, if any.",
+        "operationId": "getClustersForRecommendation",
+        "parameters": [
+          {
+            "name": "rule_selector",
+            "in": "path",
+            "required": true,
+            "description": "Recommendation identifier, in the plugin_name|error_key format",
+            "schema": {
+              "type": "string"
+            },
+            "example": "existing.plugin.name|ERROR_KEY"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of cluster data for provided rule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "report": {
+                      "type": "object",
+                      "properties": {
+                        "meta": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer",
+                              "description": "Number of clusters affected by the received rule.",
+                              "example": "1"
+                            },
+                            "rule_selector": {
+                              "type": "string",
+                              "description": "The rule selector retrieved in the URL.",
+                              "example": "some.python.module|SOME_ERROR_KEY"
+                            }
+                          },
+                          "data": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "cluster": {
+                                  "type": "string",
+                                  "minLength": 36,
+                                  "maxLength": 36,
+                                  "format": "uuid"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "status": {
+                        "type": "string",
+                        "example": "ok"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Request body could not be parsed, so the query is not processed"
+            },
+            "404": {
+              "description": "Resource not found, usually caused when some rule selector, organization or user doesn't exist"
+            },
+            "500": {
+              "description": "Internal server error, should only be returned if unexpected error happened when querying from the DB"
+            }
+          },
+          "tags": [
+            "rule",
+            "prod"
+          ]
+        }
+      }
+    },
     "/rule": {
       "get": {
         "operationId": "getRecommendations",
