@@ -76,7 +76,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		"data":[{"cluster":"5d5892d3-1f74-4ccf-91af-548dfc9767bb"}],
 		"meta":{
 			"count":1,
-			"rule_selector":"ccx_rules_ocp.external.rules.container_max_root_partition_size|ek1"
+			"rule_id":"ccx_rules_ocp.external.rules.container_max_root_partition_size|ek1"
 		},
 		"status":"ok"
 	}
