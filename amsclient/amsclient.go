@@ -88,13 +88,16 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 
 // GetClustersForOrganization retrieves the clusters for a given organization using the default client
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
-func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) []types.ClusterName {
+func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) (
+	[]types.ClusterName,
+	error,
+) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking cluster for the organization")
 	var retval []types.ClusterName = []types.ClusterName{}
 
 	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
 	if err != nil {
-		return retval
+		return retval, err
 	}
 
 	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter)
@@ -109,7 +112,7 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 			Send()
 
 		if err != nil {
-			return retval
+			return retval, err
 		}
 
 		// When an empty page is returned, then exit the loop
@@ -132,7 +135,7 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 		}
 	}
 
-	return retval
+	return retval, nil
 }
 
 // GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API

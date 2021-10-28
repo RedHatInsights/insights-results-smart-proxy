@@ -515,11 +515,15 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	activeClusters := make([]types.ClusterName, 0)
 	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
-		activeClusters = server.amsClient.GetClustersForOrganization(
+		activeClusters, err = server.amsClient.GetClustersForOrganization(
 			orgID,
 			nil,
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
 		)
+
+		if err != nil {
+			log.Error().Err(err).Msg("amsclient was unable to retrieve the active clusters")
+		}
 	}
 
 	// get the list of clusters affected by given rule from aggregator and send to client

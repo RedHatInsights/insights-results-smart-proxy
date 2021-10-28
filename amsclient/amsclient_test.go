@@ -185,7 +185,8 @@ func TestClusterForOrganization(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
 	})
 
-	clusterList := c.GetClustersForOrganization(testdata.ExternalOrgID, nil, nil)
+	clusterList, err := c.GetClustersForOrganization(testdata.ExternalOrgID, nil, nil)
+	helpers.FailOnError(t, err)
 	assert.Equal(t, 2, len(clusterList))
 }
 
@@ -232,10 +233,23 @@ func TestClusterForOrganizationWithFiltering(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
 	})
 
-	clusterList := c.GetClustersForOrganization(
+	clusterList, err := c.GetClustersForOrganization(
 		testdata.ExternalOrgID,
 		[]string{amsclient.StatusArchived, amsclient.StatusDeprovisioned},
 		nil,
 	)
+
+	helpers.FailOnError(t, err)
 	assert.Equal(t, 2, len(clusterList))
+}
+
+func TestGetClustersForOrganizationOnError(t *testing.T) {
+	client, err := amsclient.NewAMSClient(defaultConfig)
+	helpers.FailOnError(t, err) // Doesn't fail because ocm-sdk doesn't perform any checks
+
+	clusters, err := client.GetClustersForOrganization(testdata.ExternalOrgID, nil, nil)
+	if err == nil {
+		t.Fail()
+	}
+	assert.Equal(t, 0, len(clusters))
 }
