@@ -779,7 +779,7 @@
             "description": "Content service or aggregator service is unavailable. Specified in the status field."
           }
         },
-        "operationId": "getContentForRule",
+        "operationId": "getContentAndGroupsForRule",
         "summary": "Get content for the given ruleId, along with user-specific data such as rule rating, disabling, etc.",
         "description": "The static content is taken from the cache periodically updated from the content service. The user specific parts need trips to the aggregator service."
       }
@@ -825,47 +825,47 @@
                               "description": "The rule selector retrieved in the URL.",
                               "example": "some.python.module|SOME_ERROR_KEY"
                             }
-                          },
-                          "data": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "cluster": {
-                                  "type": "string",
-                                  "minLength": 36,
-                                  "maxLength": 36,
-                                  "format": "uuid"
-                                }
+                          }
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "cluster": {
+                                "type": "string",
+                                "minLength": 36,
+                                "maxLength": 36,
+                                "format": "uuid"
                               }
                             }
                           }
                         }
-                      },
-                      "status": {
-                        "type": "string",
-                        "example": "ok"
                       }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
                     }
                   }
                 }
               }
-            },
-            "400": {
-              "description": "Request body could not be parsed, so the query is not processed"
-            },
-            "404": {
-              "description": "Resource not found, usually caused when some rule selector, organization or user doesn't exist"
-            },
-            "500": {
-              "description": "Internal server error, should only be returned if unexpected error happened when querying from the DB"
             }
           },
-          "tags": [
-            "rule",
-            "prod"
-          ]
-        }
+          "400": {
+            "description": "Request body could not be parsed, so the query is not processed"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when some rule selector, organization or user doesn't exist"
+          },
+          "500": {
+            "description": "Internal server error, should only be returned if unexpected error happened when querying from the DB"
+          }
+        },
+        "tags": [
+          "rule",
+          "prod"
+        ]
       }
     },
     "/rule": {
