@@ -31,6 +31,10 @@ var (
 
 	// BuildCommit contains Git commit used to build this application
 	BuildCommit = "*not set*"
+
+	// UtilsVersion contains currently used version of
+	// github.com/RedHatInsights/insights-operator-utils package
+	UtilsVersion = "*not set*"
 )
 
 func printInfo(msg, val string) {
@@ -42,4 +46,5 @@ func printVersionInfo() {
 	printInfo("Build time:", BuildTime)
 	printInfo("Branch:", BuildBranch)
 	printInfo("Commit:", BuildCommit)
+	printInfo("Utils version:", UtilsVersion)
 }
