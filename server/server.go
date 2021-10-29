@@ -359,11 +359,16 @@ func copyHeader(srcHeaders, dstHeaders http.Header) {
 // organization from aggregator
 func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.ClusterName, error) {
 	if server.amsClient != nil {
-		return server.amsClient.GetClustersForOrganization(
+		clusters, err := server.amsClient.GetClustersForOrganization(
 			orgID,
 			nil,
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
-		), nil
+		)
+		if err == nil {
+			return clusters, err
+		}
+
+		log.Warn().Err(err).Msg("amsclient is not able to retrieve cluster list. Using fallback method")
 	}
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
