@@ -527,6 +527,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 
 		if err != nil {
 			log.Error().Err(err).Msg("amsclient was unable to retrieve the active clusters")
+			activeClusters = make([]types.ClusterName, 0)
 		}
 	}
 
