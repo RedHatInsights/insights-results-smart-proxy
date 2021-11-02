@@ -17,6 +17,8 @@ package server
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -30,6 +32,13 @@ import (
 )
 
 const filledIn = "ok"
+
+// infoEndpointStruct represent response for /info endpoint from Insights
+// Results Aggregator or from Content Service
+type infoEndpointStruct struct {
+	Status string            `json:"status"`
+	Info   map[string]string `json:"info"`
+}
 
 // getGroups sends the latest valid groups configuration to the client in
 // standard HTTP response
@@ -309,10 +318,14 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOve
 // infoMap returns map of additional information about this service, Insights
 // Results Aggregator, and Smart Proxy
 func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Request) {
+	// prepare response data structure
+	response := sptypes.InfoResponse{
+		SmartProxy:     server.fillInSmartProxyInfoParams(),
+		ContentService: server.fillInContentServiceInfoParams(),
+		Aggregator:     server.fillInAggregatorInfoParams(),
+	}
 
-	var response sptypes.InfoResponse
-	response.SmartProxy = server.fillInSmartProxyInfoParams()
-
+	// try to send the response to client
 	err := responses.SendOK(writer, responses.BuildOkResponseWithData("info", response))
 	if err != nil {
 		log.Error().Err(err)
@@ -321,6 +334,8 @@ func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Requ
 	}
 }
 
+// fillInSmartProxyInfoParams method fills-in info parameters needed for /info
+// REST API endpoint for the Smart Proxy itself
 func (server *HTTPServer) fillInSmartProxyInfoParams() map[string]string {
 	// fill-in info params for Smart Proxy
 	if server.InfoParams == nil {
@@ -338,4 +353,81 @@ func (server *HTTPServer) fillInSmartProxyInfoParams() map[string]string {
 	m := server.InfoParams
 	m["status"] = filledIn
 	return m
+}
+
+// fillInContentServiceInfoParams method fills-in info parameters needed for
+// /info REST API endpoint for the Content Service
+func (server *HTTPServer) fillInContentServiceInfoParams() map[string]string {
+	// try to access Content Service
+	url := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.ContentBaseEndpoint,
+		"info")
+	return infoFromService(url)
+}
+
+// fillInAggregatorInfoParams method fills-in info parameters needed for /info
+// REST API endpoint for the Insights Results Aggregator
+func (server *HTTPServer) fillInAggregatorInfoParams() map[string]string {
+	// try to access Insights Results Aggregator
+	url := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		"info")
+	return infoFromService(url)
+}
+
+// infoFromService retrieves info parameters through /info endpoint and make a
+// map from it
+func infoFromService(url string) map[string]string {
+	log.Info().Str("URL to service endpoint", url).Msg("Getting info from service")
+	m, err := readInfoAPIEndpoint(url)
+
+	// service access was not ok
+	if err != nil {
+		log.Error().Err(err).Msg("Error retrieving info from service")
+		m := make(map[string]string)
+		m["status"] = err.Error()
+		return m
+	}
+
+	// service access was ok, so let's just add a status field into the map
+	m["status"] = filledIn
+	return m
+}
+
+// readInfoAPIEndpoint function performs REST API request and parse the
+// returned response
+func readInfoAPIEndpoint(url string) (map[string]string, error) {
+	// perform GET request to given service
+	response, err := http.Get(url)
+
+	// error happening during GET request
+	if err != nil {
+		return nil, err
+	}
+
+	// check the status code
+	if response.StatusCode != http.StatusOK {
+		err = fmt.Errorf("Improper status code %d", response.StatusCode)
+		return nil, err
+	}
+
+	// try to read response body
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		err = errors.New("Problem reading response from /info endpoint")
+		return nil, err
+	}
+
+	// try to unmarshal response body
+	var decoded infoEndpointStruct
+
+	err = json.Unmarshal(body, &decoded)
+	if err != nil {
+		err = errors.New("Problem unmarshalling JSON response from /info endpoint")
+		return nil, err
+	}
+
+	// unmarshalling was ok, return the Info part (whatever it contains)
+	return decoded.Info, nil
 }
