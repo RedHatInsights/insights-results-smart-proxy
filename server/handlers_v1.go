@@ -32,6 +32,7 @@ import (
 )
 
 const filledIn = "ok"
+const infoEndpoint = "info"
 
 // infoEndpointStruct represent response for /info endpoint from Insights
 // Results Aggregator or from Content Service
@@ -361,7 +362,7 @@ func (server *HTTPServer) fillInContentServiceInfoParams() map[string]string {
 	// try to access Content Service
 	url := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.ContentBaseEndpoint,
-		"info")
+		infoEndpoint)
 	return infoFromService(url)
 }
 
@@ -371,7 +372,7 @@ func (server *HTTPServer) fillInAggregatorInfoParams() map[string]string {
 	// try to access Insights Results Aggregator
 	url := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"info")
+		infoEndpoint)
 	return infoFromService(url)
 }
 
