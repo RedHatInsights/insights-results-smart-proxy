@@ -304,16 +304,27 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOve
 	}, nil
 }
 
-// infoMap returns map of additional information about this service
+// infoMap returns map of additional information about this service, Insights
+// Results Aggregator, and Smart Proxy
 func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Request) {
+	const filledIn = "ok"
+
+	var response sptypes.InfoResponse
+
 	if server.InfoParams == nil {
-		err := errors.New("InfoParams is empty")
+		const msg = "InfoParams is empty"
+		err := errors.New(msg)
 		log.Error().Err(err)
-		handleServerError(writer, err)
-		return
+
+		// don't fail, just fill in the field
+		response.SmartProxy = make(map[string]string)
+		response.SmartProxy["status"] = msg
+	} else {
+		response.SmartProxy = server.InfoParams
+		response.SmartProxy["status"] = filledIn
 	}
 
-	err := responses.SendOK(writer, responses.BuildOkResponseWithData("info", server.InfoParams))
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("info", response))
 	if err != nil {
 		log.Error().Err(err)
 		handleServerError(writer, err)
