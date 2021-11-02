@@ -29,7 +29,7 @@ const (
 	ReportEndpointV2 = "cluster/{cluster}/reports"
 
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
-	ClustersDetail = "rule/{rule_selector}/clusters_detail/"
+	ClustersDetail = "rule/{rule_selector}/clusters_detail"
 
 	// RecommendationsListEndpoint lists all recommendations with a number of impacted clusters.
 	RecommendationsListEndpoint = "rule/"
