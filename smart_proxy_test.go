@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 Red Hat, Inc.
+Copyright © 2020, 2021 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/bmizerany/assert"
+	testify "github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/insights-results-smart-proxy"
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
@@ -90,4 +91,26 @@ func TestPrintConfig(t *testing.T) {
 // TODO: add check for actual messages that are printed to standard output
 func TestPrintEnv(t *testing.T) {
 	assert.Equal(t, main.ExitStatusOK, int(main.PrintEnv()))
+}
+
+// TestFillInInfoParams test the behaviour of function fillInInfoParams
+func TestFillInInfoParams(t *testing.T) {
+	// map to be used by this unit test
+	m := make(map[string]string)
+
+	// preliminary test if Go Universe is still ok
+	testify.Empty(t, m, "Map should be empty at the beginning")
+
+	// try to fill-in all info params
+	main.FillInInfoParams(m)
+
+	// preliminary test if Go Universe is still ok
+	testify.Len(t, m, 5, "Map should contains exactly five items")
+
+	// does the map contain all expected keys?
+	testify.Contains(t, m, "BuildVersion")
+	testify.Contains(t, m, "BuildTime")
+	testify.Contains(t, m, "BuildBranch")
+	testify.Contains(t, m, "BuildCommit")
+	testify.Contains(t, m, "UtilsVersion")
 }
