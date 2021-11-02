@@ -104,6 +104,7 @@ func (server HTTPServer) getContentV1(writer http.ResponseWriter, request *http.
 
 	var rules []sptypes.RuleContentV1
 
+	// #nosec G107
 	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRules {
 			if !content.IsRuleInternal(types.RuleID(rule.Plugin.PythonModule)) {
