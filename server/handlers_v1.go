@@ -1,4 +1,4 @@
-// Copyright 2020 Red Hat, Inc
+// Copyright 2020, 2021 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -301,4 +302,21 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOve
 		ClustersHitByTotalRisk: hitsByTotalRisk,
 		ClustersHitByTag:       hitsByTags,
 	}, nil
+}
+
+// infoMap returns map of additional information about this service
+func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Request) {
+	if server.InfoParams == nil {
+		err := errors.New("InfoParams is empty")
+		log.Error().Err(err)
+		handleServerError(writer, err)
+		return
+	}
+
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("info", server.InfoParams))
+	if err != nil {
+		log.Error().Err(err)
+		handleServerError(writer, err)
+		return
+	}
 }

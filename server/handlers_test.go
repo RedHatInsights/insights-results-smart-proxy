@@ -1471,3 +1471,13 @@ func TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
 		})
 	}, testTimeout)
 }
+
+// TestServeInfoMap checks the REST API server behaviour for info endpoint
+func TestServeInfoMap(t *testing.T) {
+	helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: "info",
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+	})
+}
