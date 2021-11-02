@@ -51,12 +51,12 @@
     },
     "/info": {
       "get": {
-        "summary": "Returns basic information about Smart Proxy.",
-        "description": "InfoEndpoint returns basic information about Smart Proxy version, utils repository version, commit hash etc.",
+        "summary": "Returns basic information about Smart Proxy, Insights Results Aggregator, and Content Service.",
+        "description": "InfoEndpoint returns basic information about Smart Proxy, Insights Results Aggregator, and Content Service version, utils repository version, commit hash etc.",
         "operationId": "InfoEndpoint",
         "responses": {
           "200": {
-            "description": "A map containing information about Smart Proxy.",
+            "description": "An object containing information about Smart Proxy, Insights Results Aggregator, and Content Service.",
             "content": {
               "application/json": {
                 "schema": {
@@ -64,8 +64,25 @@
                   "properties": {
                     "info": {
                       "type": "object",
-                      "additionalProperties": {
-                         "type": "string"
+                      "properties": {
+                        "SmartProxy": {
+                          "type": "object",
+                          "additionalProperties": {
+                             "type": "string"
+                          }
+                        },
+                        "Aggregator": {
+                          "type": "object",
+                          "additionalProperties": {
+                             "type": "string"
+                          }
+                        },
+                        "ContentService": {
+                          "type": "object",
+                          "additionalProperties": {
+                             "type": "string"
+                          }
+                        }
                       }
                     },
                     "status": {
