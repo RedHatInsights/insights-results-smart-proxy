@@ -104,7 +104,6 @@ func (server HTTPServer) getContentV1(writer http.ResponseWriter, request *http.
 
 	var rules []sptypes.RuleContentV1
 
-	// #nosec G107
 	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRules {
 			if !content.IsRuleInternal(types.RuleID(rule.Plugin.PythonModule)) {
@@ -400,6 +399,7 @@ func infoFromService(url string) map[string]string {
 // returned response
 func readInfoAPIEndpoint(url string) (map[string]string, error) {
 	// perform GET request to given service
+	// #nosec G107
 	response, err := http.Get(url)
 
 	// error happening during GET request
