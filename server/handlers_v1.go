@@ -29,6 +29,8 @@ import (
 	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
+const filledIn = "ok"
+
 // getGroups sends the latest valid groups configuration to the client in
 // standard HTTP response
 func (server *HTTPServer) getGroups(writer http.ResponseWriter, _ *http.Request) {
@@ -307,22 +309,9 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOve
 // infoMap returns map of additional information about this service, Insights
 // Results Aggregator, and Smart Proxy
 func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Request) {
-	const filledIn = "ok"
 
 	var response sptypes.InfoResponse
-
-	if server.InfoParams == nil {
-		const msg = "InfoParams is empty"
-		err := errors.New(msg)
-		log.Error().Err(err)
-
-		// don't fail, just fill in the field
-		response.SmartProxy = make(map[string]string)
-		response.SmartProxy["status"] = msg
-	} else {
-		response.SmartProxy = server.InfoParams
-		response.SmartProxy["status"] = filledIn
-	}
+	response.SmartProxy = server.fillInSmartProxyInfoParams()
 
 	err := responses.SendOK(writer, responses.BuildOkResponseWithData("info", response))
 	if err != nil {
@@ -330,4 +319,23 @@ func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Requ
 		handleServerError(writer, err)
 		return
 	}
+}
+
+func (server *HTTPServer) fillInSmartProxyInfoParams() map[string]string {
+	// fill-in info params for Smart Proxy
+	if server.InfoParams == nil {
+		const msg = "InfoParams is empty"
+		err := errors.New(msg)
+		log.Error().Err(err)
+
+		// don't fail, just fill in the field
+		m := make(map[string]string)
+		m["status"] = msg
+		return m
+	}
+
+	// info params for Smart Proxy is filled-in properly
+	m := server.InfoParams
+	m["status"] = filledIn
+	return m
 }
