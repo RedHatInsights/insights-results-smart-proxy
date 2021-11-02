@@ -374,7 +374,9 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 			return clusters, err
 		}
 
-		log.Warn().Err(err).Msg("amsclient is not able to retrieve cluster list. Using fallback method")
+		log.Warn().Err(err).Msg("amsclient is initialized, but the cluster list cannot be retrieved. Using fallback method")
+	} else {
+		log.Info().Msg("amsclient not initialized, retrieving cluster list from aggregator database")
 	}
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
