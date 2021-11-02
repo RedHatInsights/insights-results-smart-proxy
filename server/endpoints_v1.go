@@ -74,6 +74,10 @@ const (
 	DeleteOrganizationsEndpoint = ira_server.DeleteOrganizationsEndpoint
 	// DeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
 	DeleteClustersEndpoint = ira_server.DeleteClustersEndpoint
+
+	// InfoEndpoint returns basic information about content service
+	// version, utils repository version, commit hash etc.
+	InfoEndpoint = "info"
 )
 
 // addV1EndpointsToRouter adds API V1 specific endpoints to the router
@@ -92,6 +96,7 @@ func (server *HTTPServer) addV1EndpointsToRouter(router *mux.Router) {
 	router.HandleFunc(apiPrefix+ClustersForOrganizationEndpoint, server.getClustersForOrg).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+OverviewEndpoint, server.overviewEndpoint).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+OverviewEndpoint, server.overviewEndpointWithClusterIDs).Methods(http.MethodPost)
+	router.HandleFunc(apiPrefix+InfoEndpoint, server.infoMap).Methods(http.MethodGet, http.MethodOptions)
 
 	// Reports endpoints
 	server.addV1ReportsEndpointsToRouter(router, apiPrefix, aggregatorBaseEndpoint)
