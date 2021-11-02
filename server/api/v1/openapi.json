@@ -49,6 +49,37 @@
         "description": "The OpenAPI specification of this REST API service that is represented in formatted and human-readable JSON is available under this endpoint."
       }
     },
+    "/info": {
+      "get": {
+        "summary": "Returns basic information about Smart Proxy.",
+        "description": "InfoEndpoint returns basic information about Smart Proxy version, utils repository version, commit hash etc.",
+        "operationId": "InfoEndpoint",
+        "responses": {
+          "200": {
+            "description": "A map containing information about Smart Proxy.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "info": {
+                      "type": "object",
+                      "additionalProperties": {
+                         "type": "string"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/metrics": {
       "get": {
         "responses": {
