@@ -246,3 +246,10 @@ type ErrorKeyMetadataV2 struct {
 	Status      string   `yaml:"status" json:"status"`
 	Tags        []string `yaml:"tags" json:"tags"`
 }
+
+// InfoResponse is a data structure returned by /info REST API endpoint
+type InfoResponse struct {
+	SmartProxy     map[string]string `json:"SmartProxy"`
+	Aggregator     map[string]string `json:"Aggregator"`
+	ContentService map[string]string `json:"ContentService"`
+}
