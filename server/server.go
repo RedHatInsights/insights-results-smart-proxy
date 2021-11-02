@@ -67,6 +67,9 @@ const (
 
 	// orgIDTag represent the tags for print orgID in the logs
 	orgIDTag = "orgID"
+
+	// userIDTag represent the tags for print user ID (account number) in the logs
+	userIDTag = "userID"
 )
 
 // HTTPServer is an implementation of Server interface
@@ -365,6 +368,7 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
 		)
 		if err == nil {
+			log.Info().Msgf("Number of clusters retrieved from the AMS API: %v", len(clusters))
 			return clusters, err
 		}
 
