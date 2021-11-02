@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 Red Hat, Inc.
+Copyright © 2020, 2021 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -121,6 +121,9 @@ func startServer() ExitCode {
 
 	serverInstance = server.New(serverCfg, servicesCfg, amsConfig, groupsChannel, errorFoundChannel, errorChannel)
 
+	// fill-in additional info used by /info endpoint handler
+	fillInInfoParams(serverInstance.InfoParams)
+
 	proxy_content.SetContentDirectoryTimeout(servicesCfg.ContentDirectoryTimeout)
 	go updateGroupInfo(servicesCfg, groupsChannel, errorFoundChannel, errorChannel)
 	go proxy_content.RunUpdateContentLoop(servicesCfg)
@@ -132,6 +135,16 @@ func startServer() ExitCode {
 	}
 
 	return ExitStatusOK
+}
+
+// fillInInfoParams function fills-in additional info used by /info endpoint
+// handler
+func fillInInfoParams(params map[string]string) {
+	params["BuildVersion"] = BuildVersion
+	params["BuildTime"] = BuildTime
+	params["BuildBranch"] = BuildBranch
+	params["BuildCommit"] = BuildCommit
+	params["UtilsVersion"] = UtilsVersion
 }
 
 // updateGroupInfo function is run in a goroutine. It runs forever, waiting for 1 of 2 events: a Ticker or a channel

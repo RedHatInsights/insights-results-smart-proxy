@@ -72,6 +72,7 @@ const (
 // HTTPServer is an implementation of Server interface
 type HTTPServer struct {
 	Config            Configuration
+	InfoParams        map[string]string
 	ServicesConfig    services.Configuration
 	amsClient         *amsclient.AMSClient
 	GroupsChannel     chan []groups.Group
@@ -112,6 +113,7 @@ func New(config Configuration,
 
 	return &HTTPServer{
 		Config:            config,
+		InfoParams:        make(map[string]string),
 		ServicesConfig:    servicesConfig,
 		amsClient:         amsClient,
 		GroupsChannel:     groupsChannel,

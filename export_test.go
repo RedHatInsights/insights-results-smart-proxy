@@ -33,4 +33,5 @@ var (
 	PrintConfig      = printConfig
 	PrintEnv         = printEnv
 	Main             = main
+	FillInInfoParams = fillInInfoParams
 )
