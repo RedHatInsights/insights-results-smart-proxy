@@ -240,7 +240,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		log.Error().
 			Err(err).
 			Int(orgIDTag, int(orgID)).
-			Str("userID", string(userID)).
+			Str(userIDTag, string(userID)).
 			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterList)
 
 		return
@@ -252,6 +252,10 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		handleServerError(writer, err)
 		return
 	}
+	log.Info().
+		Int(orgIDTag, int(orgID)).
+		Str(userIDTag, string(userID)).
+		Msgf("recommendation list and impacting clusters: %v", recommendationList)
 
 	// TODO: get all ACKS from aggregator, match recommendations, content and acks into the final sruct
 
@@ -532,7 +536,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		log.Error().
 			Err(err).
 			Int("orgID", int(orgID)).
-			Str("userID", string(userID)).
+			Str(userIDTag, string(userID)).
 			Str("selector", string(selector)).
 			Msg("Couldn't get impacted clusters for given rule selector")
 		return
