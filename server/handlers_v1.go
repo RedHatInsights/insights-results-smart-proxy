@@ -412,7 +412,13 @@ func readInfoAPIEndpoint(url string) (map[string]string, error) {
 	}
 
 	// try to read response body
-	defer response.Body.Close()
+	defer func() {
+		err = response.Body.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("Closing response body failed")
+		}
+	}()
+
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		err = errors.New("Problem reading response from /info endpoint")
