@@ -14,8 +14,7 @@
 
 language: go
 go:
-- "1.15"
-
+- "1.16"
 jobs:
   include:
     - stage: style
