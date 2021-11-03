@@ -15,8 +15,18 @@
 language: go
 go:
 - "1.16"
+
 jobs:
   include:
+    - name: "Build 1.15"
+      stage: build
+      go: "1.15"
+      script:
+        - make
+    - name: "Build 1.16"
+      stage: build
+      script:
+        - make
     - stage: style
       script:
         - make style
@@ -41,6 +51,7 @@ jobs:
         - make integration_tests
 
 stages:
+  - build
   - style
   - unit tests
   - openapi-checks
