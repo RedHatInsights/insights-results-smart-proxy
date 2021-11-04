@@ -248,7 +248,7 @@ parameters:
   value: "true"
   required: true
 - name: CLOUDWATCH_DEBUG
-  value: "true"
+  value: "false"
   required: true
 - name: IRSP_LOG_STREAM
   value: $HOSTNAME
