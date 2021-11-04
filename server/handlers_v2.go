@@ -454,9 +454,9 @@ func (server HTTPServer) getImpactedClusters(
 	)
 
 	var aggregatorResp *http.Response = nil
+	var err error
 
 	if len(activeClusters) < 0 {
-		var err error
 		// #nosec G107
 		aggregatorResp, err = http.Get(aggregatorURL)
 		// if http.Get fails for whatever reason
@@ -466,17 +466,17 @@ func (server HTTPServer) getImpactedClusters(
 		}
 	} else {
 		// generate JSON payload of the format "clusters": []clusters
-		jsonBody, err := json.Marshal(
+		jsonBody, e := json.Marshal(
 			map[string][]types.ClusterName{"clusters": activeClusters})
-		if err != nil {
-			log.Err(err).Msg("Couldn't encode list of active clusters to valid JSON, aborting")
-			return err
+		if e != nil {
+			log.Err(e).Msg("Couldn't encode list of active clusters to valid JSON, aborting")
+			return e
 		}
 
 		// GET method with list of active clusters in payload to avoid possible URL length problems
-		req, err := http.NewRequest(http.MethodGet, aggregatorURL, bytes.NewBuffer(jsonBody))
-		if err != nil {
-			return err
+		req, e := http.NewRequest(http.MethodGet, aggregatorURL, bytes.NewBuffer(jsonBody))
+		if e != nil {
+			return e
 		}
 
 		req.Header.Set(contentTypeHeader, JSONContentType)
@@ -498,21 +498,15 @@ func (server HTTPServer) getImpactedClusters(
 			Selector: selector,
 		}
 		resp["data"] = []types.HittingClustersData{}
-		err := responses.SendOK(writer, resp)
-		if err != nil {
-			log.Error().Err(err).Msgf(problemSendingResponseError)
-			handleServerError(writer, err)
-			return err
+		err = responses.SendOK(writer, resp)
+	} else {
+		//Proxy the other responses as they came
+		responseBytes, e := ioutil.ReadAll(aggregatorResp.Body)
+		if e != nil {
+			return e
 		}
-		return nil
+		err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 	}
-	//Proxy the other responses as they came
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
-	if err != nil {
-		return err
-	}
-
-	err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 	if err != nil {
 		log.Error().Err(err).Msgf(problemSendingResponseError)
 		handleServerError(writer, err)
