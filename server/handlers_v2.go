@@ -469,6 +469,7 @@ func (server HTTPServer) getImpactedClusters(
 		jsonBody, err := json.Marshal(
 			map[string][]types.ClusterName{"clusters": activeClusters})
 		if err != nil {
+			log.Err(err).Msg("Couldn't encode list of active clusters to valid JSON, aborting")
 			return err
 		}
 
@@ -488,7 +489,24 @@ func (server HTTPServer) getImpactedClusters(
 		}
 	}
 
-	//Proxy the response as it comes, since aggregator handles all the use cases
+	// If we received a 404 - no entries found for given orgID+selector in DB
+	// We return an empty list and a 200 OK
+	if aggregatorResp.StatusCode == http.StatusNotFound {
+		resp := responses.BuildOkResponse()
+		resp["meta"] = types.HittingClustersMetadata{
+			Count:    0,
+			Selector: selector,
+		}
+		resp["data"] = []types.HittingClustersData{}
+		err := responses.SendOK(writer, resp)
+		if err != nil {
+			log.Error().Err(err).Msgf(problemSendingResponseError)
+			handleServerError(writer, err)
+			return err
+		}
+		return nil
+	}
+	//Proxy the other responses as they came
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		return err
@@ -496,6 +514,7 @@ func (server HTTPServer) getImpactedClusters(
 
 	err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 	if err != nil {
+		log.Error().Err(err).Msgf(problemSendingResponseError)
 		handleServerError(writer, err)
 		return err
 	}
@@ -516,6 +535,11 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		return
 	}
 
+	if _, err = content.GetContentForRecommendation(types.RuleID(selector)); err != nil {
+		//The given rule selector does not exit
+		handleServerError(writer, err)
+		return
+	}
 	activeClusters := make([]types.ClusterName, 0)
 	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
@@ -526,7 +550,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		)
 
 		if err != nil {
-			log.Error().Err(err).Msg("amsclient was unable to retrieve the active clusters")
+			log.Error().Err(err).Msg("amsclient was unable to retrieve the list of active clusters")
 			activeClusters = make([]types.ClusterName, 0)
 		}
 	}
