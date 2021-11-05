@@ -110,7 +110,7 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 			Fields("external_cluster_id").
 			Search(searchQuery)
 
-		log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("Sending following request to AMS API: %v", subscriptionListRequest)
+		log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("Sending following request to AMS API: %v", subscriptionListRequest)
 		response, err := subscriptionListRequest.Send()
 
 		if err != nil {

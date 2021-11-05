@@ -821,6 +821,20 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 			},
 		)
 
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
+
 		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -828,6 +842,107 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters),
+			BodyChecker: recommendationInResponseChecker,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisabled
+func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisabled(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterList := make([]types.ClusterName, 2)
+		for i := range clusterList {
+			clusterList[i] = testdata.GetRandomClusterID()
+		}
+
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
+		respBody = fmt.Sprintf(respBody,
+			testdata.Rule1CompositeID, 0,
+			testdata.Rule2CompositeID, 0,
+		)
+
+		// prepare response from aggregator for list of clusters
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		})
+
+		// prepare response from aggregator for recommendations
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.RecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		/*
+			ruleAcksBody := `{
+				"disabledRules":[
+					{
+						"org_id": 1,
+						"user_id": "1",
+						"rule_id": "%v",
+						"error_key": "%v",
+						"justification": "justification",
+						"created_at": %v,
+						"updated_at": %v
+					}
+				],
+				"status":"ok"
+			}`
+		*/
+		ruleAcksBody := `{
+			"disabledRules":[
+				{
+					"rule_id": "%v",
+					"error_key": "%v"
+				}
+			],
+			"status":"ok"
+		}`
+		ruleAcksBody = fmt.Sprintf(ruleAcksBody, testdata.Rule1ID, testdata.ErrorKey1)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
+
+		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.RecommendationsListEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules1Disabled0Clusters),
 			BodyChecker: recommendationInResponseChecker,
 		})
 	}, testTimeout)
@@ -883,6 +998,20 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 			},
 		)
 
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
+
 		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -934,6 +1063,20 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       respBody,
+			},
+		)
+
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
 			},
 		)
 
@@ -994,6 +1137,20 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
+
 		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=true",
@@ -1048,6 +1205,20 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       respBody,
+			},
+		)
+
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
 			},
 		)
 
@@ -1109,6 +1280,20 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       respBody,
+			},
+		)
+
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
 			},
 		)
 
@@ -1175,6 +1360,20 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       respBody,
+			},
+		)
+
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
 			},
 		)
 

@@ -169,7 +169,7 @@ type RecommendationListView struct {
 	Impact              uint8                     `json:"impact"`
 	Likelihood          uint8                     `json:"likelihood"`
 	Tags                []string                  `json:"tags"`
-	RuleStatus          string                    `json:"rule_status"`
+	Disabled            bool                      `json:"disabled"`
 	RiskOfChange        uint8                     `json:"risk_of_change"`
 	ImpactedClustersCnt types.ImpactedClustersCnt `json:"impacted_clusters_count"`
 }
