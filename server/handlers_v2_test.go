@@ -16,6 +16,8 @@ package server_test
 
 import (
 	"fmt"
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 
@@ -70,6 +72,10 @@ func TestHTTPServer_SetRating(t *testing.T) {
 // forwarded to the client
 func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
 
 	aggregatorResponse := `
 	{
@@ -120,6 +126,10 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 // forwarded to the client
 func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
 
 	aggregatorResponse := `{"status":"Error during parsing param 'rule_selector' with value X"}`
 
@@ -161,8 +171,22 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
 // forwarded to the client
 func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
 
 	aggregatorResponse := `{"status":"Item with ID plugin.1|EK_1 was not found in the storage"}`
+	proxyResponse := `
+	{
+		"data":[],
+		"meta":{
+			"count":0,
+			"rule_id":"ccx_rules_ocp.external.rules.node_installer_degraded|ek1"
+		},
+		"status":"ok"
+	}
+	`
 
 	helpers.GockExpectAPIRequest(
 		t,
@@ -191,8 +215,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 			EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusNotFound,
-			Body:       aggregatorResponse,
+			StatusCode: http.StatusOK,
+			Body:       proxyResponse,
 		},
 	)
 }
@@ -202,6 +226,10 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 // forwarded to the client
 func TestHTTPServer_ClustersDetailEndpointAggregatorResponse500(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
 
 	aggregatorResponse := `{"status": "Internal Server Error"}`
 	helpers.GockExpectAPIRequest(
