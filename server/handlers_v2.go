@@ -257,14 +257,14 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	recommendationList, err = getRecommendationsFillUserData(impactingRecommendations, impactingFlag, acks)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem getting recommendation content")
+		log.Error().Err(err).Msg("problem getting recommendation content")
 		handleServerError(writer, err)
 		return
 	}
 	log.Info().
 		Int(orgIDTag, int(orgID)).
 		Str(userIDTag, string(userID)).
-		Msgf("number of final recommendations: %v", len(recommendationList))
+		Msgf("number of final recommendations: %d", len(recommendationList))
 
 	resp := make(map[string]interface{})
 	resp["status"] = "ok"
@@ -326,14 +326,11 @@ func getRecommendationsFillUserData(
 		}
 	}
 
-	var ruleDisabled bool
 	recommendationList = make([]stypes.RecommendationListView, 0)
 
 	for _, ruleID := range ruleIDList {
-		ruleDisabled = false
-		if _, found := ruleAcksMap[ruleID]; found {
-			ruleDisabled = true
-		}
+		// rule is disabled if found in the ack map
+		_, ruleDisabled := ruleAcksMap[ruleID]
 
 		impactingClustersCnt, found := impactingRecommendations[ruleID]
 		if found && impactingFlag == ExcludingImpacting {
