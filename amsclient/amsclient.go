@@ -17,6 +17,7 @@ package amsclient
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	sdk "github.com/openshift-online/ocm-sdk-go"
 	"github.com/rs/zerolog/log"
@@ -26,7 +27,7 @@ import (
 
 const (
 	// defaultPageSize is the page size used when it is not defined in the configuration
-	defaultPageSize = 100
+	defaultPageSize = 500
 
 	// strings for logging and errors
 	orgNoInternalID     = "Organization doesn't have proper internal ID"
@@ -93,6 +94,9 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 	error,
 ) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking cluster for the organization")
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
+
+	tStart := time.Now()
 	var retval []types.ClusterName = []types.ClusterName{}
 
 	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
@@ -137,6 +141,7 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 		}
 	}
 
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization took %s", time.Since(tStart))
 	return retval, nil
 }
 

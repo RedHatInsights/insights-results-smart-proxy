@@ -126,6 +126,8 @@ objects:
                   name: ams-client-auth
                   key: amsclient_secret
                   optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__PAGE_SIZE
+              value: ${AMS_API_PAGESIZE}
             - name: HABERDASHER_EMITTER
               value: ${HABERDASHER_EMITTER}
             - name: HABERDASHER_KAFKA_BOOTSTRAP
@@ -256,3 +258,5 @@ parameters:
   value: "true"
 - name: AMS_API_URL
   value: "https://api.stage.openshift.com"
+- name: AMS_API_PAGESIZE
+  value: 500
