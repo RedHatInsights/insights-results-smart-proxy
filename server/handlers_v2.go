@@ -28,6 +28,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/generators"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	"github.com/RedHatInsights/insights-operator-utils/types"
@@ -246,18 +247,24 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		return
 	}
 
-	recommendationList, err = getRecommendationsFillImpacted(impactingRecommendations, impactingFlag)
+	// retrieve rule acknowledgements (disable/enable)
+	acks, err := server.readListOfAckedRules(orgID, userID)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem getting recommendation content")
+		log.Error().Err(err).Msg("Unable to retrieve list of acked rules")
+		// server error has been handled already
+		return
+	}
+
+	recommendationList, err = getRecommendationsFillUserData(impactingRecommendations, impactingFlag, acks)
+	if err != nil {
+		log.Error().Err(err).Msg("problem getting recommendation content")
 		handleServerError(writer, err)
 		return
 	}
 	log.Info().
 		Int(orgIDTag, int(orgID)).
 		Str(userIDTag, string(userID)).
-		Msgf("recommendation list and impacting clusters: %v", recommendationList)
-
-	// TODO: get all ACKS from aggregator, match recommendations, content and acks into the final sruct
+		Msgf("number of final recommendations: %d", len(recommendationList))
 
 	resp := make(map[string]interface{})
 	resp["status"] = "ok"
@@ -271,23 +278,45 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 }
 
-func getRecommendationsFillImpacted(
+func generateRuleAckMap(acks []types.SystemWideRuleDisable) (ruleAcksMap map[types.RuleID]bool) {
+	ruleAcksMap = make(map[types.RuleID]bool)
+	for i := range acks {
+		ack := &acks[i]
+		compositeRuleID, err := generators.GenerateCompositeRuleID(types.RuleFQDN(ack.RuleID), ack.ErrorKey)
+		if err == nil {
+			ruleAcksMap[compositeRuleID] = true
+		} else {
+			log.Error().Err(err).Msgf("Error generating composite rule ID for [%v] and [%v]", ack.RuleID, ack.ErrorKey)
+		}
+	}
+	return
+}
+
+func generateImpactingRuleIDList(impactingRecommendations types.RecommendationImpactedClusters) (ruleIDList []types.RuleID) {
+	ruleIDList = make([]types.RuleID, len(impactingRecommendations))
+	i := 0
+	for ruleID := range impactingRecommendations {
+		ruleIDList[i] = ruleID
+		i++
+	}
+	return
+}
+
+func getRecommendationsFillUserData(
 	impactingRecommendations types.RecommendationImpactedClusters,
 	impactingFlag stypes.ImpactingFlag,
+	acks []types.SystemWideRuleDisable,
 ) (
 	recommendationList []stypes.RecommendationListView,
 	err error,
 ) {
 	var ruleIDList []types.RuleID
+	// put rule acks in a map so we only iterate over them once
+	ruleAcksMap := generateRuleAckMap(acks)
 
 	if impactingFlag == OnlyImpacting {
 		// retrieve content only for impacting rules
-		ruleIDList = make([]types.RuleID, len(impactingRecommendations))
-		i := 0
-		for ruleID := range impactingRecommendations {
-			ruleIDList[i] = ruleID
-			i++
-		}
+		ruleIDList = generateImpactingRuleIDList(impactingRecommendations)
 	} else {
 		// retrieve content for all external rules and decide whether exclude impacting in loop
 		ruleIDList, err = content.GetExternalRuleIDs()
@@ -300,6 +329,9 @@ func getRecommendationsFillImpacted(
 	recommendationList = make([]stypes.RecommendationListView, 0)
 
 	for _, ruleID := range ruleIDList {
+		// rule is disabled if found in the ack map
+		_, ruleDisabled := ruleAcksMap[ruleID]
+
 		impactingClustersCnt, found := impactingRecommendations[ruleID]
 		if found && impactingFlag == ExcludingImpacting {
 			// rule is impacting, but requester doesn't want them
@@ -325,7 +357,7 @@ func getRecommendationsFillImpacted(
 			Impact:              uint8(ruleContent.Impact),
 			Likelihood:          uint8(ruleContent.Likelihood),
 			Tags:                ruleContent.Tags,
-			RuleStatus:          "",
+			Disabled:            ruleDisabled,
 			RiskOfChange:        uint8(ruleContent.RiskOfChange),
 			ImpactedClustersCnt: impactingClustersCnt,
 		})

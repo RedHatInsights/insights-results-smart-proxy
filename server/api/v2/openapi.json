@@ -1155,10 +1155,10 @@
                 "type": "string"
               }
             },
-            "rule_status": {
-              "description": "Whether the rule has been disabled/acked or not.",
-              "type": "string",
-              "example": "disabled"
+            "disabled": {
+              "description": "Whether the rule has been disabled/acked for all clusters or not.",
+              "type": "boolean",
+              "example": true
             },
             "risk_of_change": {
               "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
@@ -1189,7 +1189,7 @@
               "service_availability"
             ],
             "risk_of_change": 0,
-            "rule_status": "enabled",
+            "disabled": false,
             "impacted_clusters_count": 42
           }
         }
