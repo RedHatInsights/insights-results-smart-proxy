@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 
@@ -221,6 +222,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 // possible to show all recommendations by passing a URL parameter `impacting`
 func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request *http.Request) {
 	var recommendationList []stypes.RecommendationListView
+	tStart := time.Now()
 
 	userID, orgID, impactingFlag, err := server.readParamsGetRecommendations(writer, request)
 	if err != nil {
@@ -228,6 +230,8 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		log.Error().Err(err).Msgf("problem reading necessary params from request")
 		return
 	}
+	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getRecommendations start")
+
 	// get the list of active clusters if AMS API is available, otherwise from our DB
 	clusterList, err := server.readClusterIDsForOrgID(orgID)
 	if err != nil {
@@ -236,6 +240,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		return
 	}
 
+	tStartImpacting := time.Now()
 	impactingRecommendations, err := server.getImpactingRecommendations(writer, orgID, userID, clusterList)
 	if err != nil {
 		log.Error().
@@ -246,6 +251,9 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 		return
 	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+		"getRecommendations get impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
+	)
 
 	// retrieve rule acknowledgements (disable/enable)
 	acks, err := server.readListOfAckedRules(orgID, userID)
@@ -270,6 +278,9 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	resp["status"] = "ok"
 	resp["recommendations"] = recommendationList
 
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+		"getRecommendations took %s", time.Since(tStart),
+	)
 	err = responses.SendOK(writer, resp)
 	if err != nil {
 		log.Error().Err(err).Msgf(problemSendingResponseError)
