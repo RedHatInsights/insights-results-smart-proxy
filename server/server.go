@@ -77,7 +77,7 @@ type HTTPServer struct {
 	Config            Configuration
 	InfoParams        map[string]string
 	ServicesConfig    services.Configuration
-	amsClient         *amsclient.AMSClient
+	amsClient         amsclient.AMSClient
 	GroupsChannel     chan []groups.Group
 	ErrorFoundChannel chan bool
 	ErrorChannel      chan error
@@ -100,19 +100,11 @@ type ProxyOptions struct {
 // New function constructs new implementation of Server interface.
 func New(config Configuration,
 	servicesConfig services.Configuration,
-	amsConfig amsclient.Configuration,
+	amsClient amsclient.AMSClient,
 	groupsChannel chan []groups.Group,
 	errorFoundChannel chan bool,
 	errorChannel chan error,
 ) *HTTPServer {
-
-	amsClient, err := amsclient.NewAMSClient(amsConfig)
-	if err != nil {
-		log.Error().Err(err).Msg("Cannot init the AMSClient, using old approach")
-		amsClient = nil
-	} else {
-		log.Info().Msg("AMSClient succesfully created")
-	}
 
 	return &HTTPServer{
 		Config:            config,
@@ -374,30 +366,13 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 			return clusters, err
 		}
 
-		log.Warn().Err(err).Msg("amsclient is initialized, but the cluster list cannot be retrieved. Using fallback method")
-	} else {
-		log.Info().Msg("amsclient not initialized, retrieving cluster list from aggregator database")
-	}
-
-	aggregatorURL := httputils.MakeURLToEndpoint(
-		server.ServicesConfig.AggregatorBaseEndpoint,
-		ira_server.ClustersForOrganizationEndpoint,
-		orgID,
-	)
-
-	// #nosec G107
-	response, err := http.Get(aggregatorURL)
-	if err != nil {
+		log.Error().Err(err).Msg("Error accessing amsclient")
 		return nil, err
 	}
 
-	var recvMsg struct {
-		Status   string              `json:"status"`
-		Clusters []types.ClusterName `json:"clusters"`
-	}
-
-	err = json.NewDecoder(response.Body).Decode(&recvMsg)
-	return recvMsg.Clusters, err
+	err := fmt.Errorf("amsclient not initialized")
+	log.Error().Err(err).Msg("")
+	return nil, err
 }
 
 // readAggregatorReportForClusterID reads report from aggregator,

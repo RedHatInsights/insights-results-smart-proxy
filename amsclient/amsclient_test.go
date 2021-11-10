@@ -81,67 +81,6 @@ func TestClientCreationError(t *testing.T) {
 	assert.NotEqual(t, nil, err)
 }
 
-func TestGetOrganization(t *testing.T) {
-	defer helpers.CleanAfterGock(t)
-	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
-	helpers.FailOnError(t, err)
-
-	// prepare organizations response
-	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
-		Method:       http.MethodGet,
-		Endpoint:     organizationsSearchEndpoint,
-		EndpointArgs: []interface{}{testdata.ExternalOrgID},
-	}, &helpers.APIResponse{
-		StatusCode: http.StatusOK,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-		Body: helpers.ToJSONString(testdata.OrganizationResponse),
-	})
-
-	orgID, err := c.GetInternalOrgIDFromExternal(testdata.ExternalOrgID)
-	helpers.FailOnError(t, err)
-	assert.Equal(t, testdata.InternalOrgID, orgID)
-}
-
-func TestOrganizationBadResponses(t *testing.T) {
-	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
-	helpers.FailOnError(t, err)
-	defer helpers.CleanAfterGock(t)
-
-	// prepare 3 responses that will cause different errors
-	// response OK, but unexpected data
-	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
-		Method:       http.MethodGet,
-		Endpoint:     organizationsSearchEndpoint,
-		EndpointArgs: []interface{}{testdata.ExternalOrgID},
-	}, &helpers.APIResponse{
-		StatusCode: http.StatusOK,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-		Body: helpers.ToJSONString(testdata.OrganizationResponse2IDs),
-	})
-
-	// response Error
-	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
-		Method:       http.MethodGet,
-		Endpoint:     organizationsSearchEndpoint,
-		EndpointArgs: []interface{}{testdata.ExternalOrgID},
-	}, &helpers.APIResponse{
-		StatusCode: http.StatusNotFound,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-	})
-
-	_, err = c.GetInternalOrgIDFromExternal(testdata.ExternalOrgID)
-	assert.NotEqual(t, nil, err)
-
-	_, err = c.GetInternalOrgIDFromExternal(testdata.ExternalOrgID)
-	assert.NotEqual(t, nil, err)
-}
-
 func TestClusterForOrganization(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
 	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)

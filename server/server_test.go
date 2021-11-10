@@ -29,7 +29,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
@@ -816,7 +815,7 @@ func TestServerStartError(t *testing.T) {
 		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
 		// GroupsPollingTime:      2 * time.Minute,
 	},
-		amsclient.Configuration{},
+		nil,
 		nil,
 		nil,
 		nil,

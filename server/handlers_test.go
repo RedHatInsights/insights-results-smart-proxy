@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-operator-utils/responses"
+	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
@@ -491,14 +491,10 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 		defer helpers.CleanAfterGock(t)
 
 		// prepare list of organizations response
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
-		})
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			[]types.ClusterName{testdata.ClusterName},
+		)
 
 		// prepare report for cluster
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -510,18 +506,24 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: server.OverviewEndpoint,
-			OrgID:    testdata.OrgID,
-			UserID:   testdata.UserID,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(OverviewResponse),
-		})
+		testServer := helpers.CreateHTTPServer(nil, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			helpers.DefaultServerConfig.APIv1Prefix,
+			&helpers.APIRequest{
+				Method:   http.MethodGet,
+				Endpoint: server.OverviewEndpoint,
+				OrgID:    testdata.OrgID,
+				UserID:   testdata.UserID,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(OverviewResponse),
+			})
 	}, testTimeout)
 }
 
+// TestHTTPServer_OverviewEndpoint_UnavailableContentService
 func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 	var emptyResponse *types.RuleContentDirectory
 	err := loadMockRuleContentDir(emptyResponse)
@@ -536,15 +538,11 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		// prepare list of organizations response
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			[]types.ClusterName{testdata.ClusterName},
+		)
 
 		// prepare report for cluster
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -556,7 +554,8 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
-		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(nil, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, helpers.DefaultServerConfig.APIv1Prefix, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.OverviewEndpoint,
 			OrgID:    testdata.OrgID,
@@ -797,15 +796,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 			testdata.Rule2CompositeID, 1,
 		)
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -835,7 +830,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -873,15 +869,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 			testdata.Rule2CompositeID, 0,
 		)
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -920,7 +912,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -932,7 +925,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 	}, testTimeout)
 }
 
-// TestHTTPServer_RecommendationsListEndpoint2Rules
+// TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent
 func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
@@ -958,15 +951,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 			testdata.Rule2CompositeID, 1,
 		)
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -996,7 +985,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -1026,15 +1016,11 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 			testdata.Rule3CompositeID, 1,
 		)
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -1064,7 +1050,8 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -1097,15 +1084,11 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 
 		respBody := `{"recommendations":{},"status":"ok"}`
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsClient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -1135,7 +1118,8 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=true",
 			AuthorizationToken: goodJWTAuthBearer,
@@ -1168,15 +1152,11 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 
 		respBody := `{"recommendations":{},"status":"ok"}`
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -1206,7 +1186,8 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
 			AuthorizationToken: goodJWTAuthBearer,
@@ -1243,15 +1224,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 			testdata.Rule1CompositeID, 2,
 		)
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -1281,7 +1258,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -1323,15 +1301,11 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 			testdata.Rule1CompositeID, 1,
 		)
 
-		// prepare response from aggregator for list of clusters
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
-		})
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterList,
+		)
 
 		// prepare response from aggregator for recommendations
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -1361,7 +1335,8 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 			},
 		)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: goodJWTAuthBearer,
