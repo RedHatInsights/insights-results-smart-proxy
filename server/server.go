@@ -317,7 +317,6 @@ func (server HTTPServer) evaluateProxyError(writer http.ResponseWriter, err erro
 	} else {
 		handleServerError(writer, err)
 	}
-	return
 }
 
 func (server HTTPServer) sendRequest(
@@ -449,6 +448,7 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 		handleServerError(writer, err)
 		return nil, false
 	}
+	logClusterInfos(orgID, clusterID, aggregatorResponse.Report.Report)
 
 	return aggregatorResponse.Report, true
 }
@@ -495,6 +495,7 @@ func (server HTTPServer) readAggregatorReportForClusterList(
 		handleServerError(writer, err)
 		return nil, false
 	}
+	logClustersReport(orgID, aggregatorResponse.Reports)
 
 	return &aggregatorResponse, true
 }
@@ -524,7 +525,11 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 		return nil, false
 	}
 
-	return handleReportsResponse(aggregatorResp, writer)
+	if reportResponse, ok := handleReportsResponse(aggregatorResp, writer); ok {
+		logClustersReport(orgID, reportResponse.Reports)
+		return reportResponse, true
+	}
+	return nil, false
 }
 
 // handleReportsResponse analyses the aggregator's response and
@@ -606,6 +611,7 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 		handleServerError(writer, err)
 		return nil, false
 	}
+	logClusterInfo(orgID, clusterID, aggregatorResponse.Report)
 
 	return aggregatorResponse.Report, true
 }
@@ -995,9 +1001,7 @@ func (server HTTPServer) getOverviewPerCluster(
 
 		totalRisks = append(totalRisks, ruleWithContent.TotalRisk)
 
-		for _, tag := range ruleWithContent.Tags {
-			tags = append(tags, tag)
-		}
+		tags = append(tags, ruleWithContent.Tags...)
 	}
 
 	return &proxy_types.ClusterOverview{
