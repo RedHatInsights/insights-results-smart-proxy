@@ -74,14 +74,15 @@ const (
 
 // HTTPServer is an implementation of Server interface
 type HTTPServer struct {
-	Config            Configuration
-	InfoParams        map[string]string
-	ServicesConfig    services.Configuration
-	amsClient         amsclient.AMSClient
-	GroupsChannel     chan []groups.Group
-	ErrorFoundChannel chan bool
-	ErrorChannel      chan error
-	Serv              *http.Server
+	Config                 Configuration
+	InfoParams             map[string]string
+	ServicesConfig         services.Configuration
+	amsClient              amsclient.AMSClient
+	GroupsChannel          chan []groups.Group
+	ErrorFoundChannel      chan bool
+	ErrorChannel           chan error
+	useOrgClustersFallback bool
+	Serv                   *http.Server
 }
 
 // RequestModifier is a type of function which modifies request when proxying
@@ -107,13 +108,14 @@ func New(config Configuration,
 ) *HTTPServer {
 
 	return &HTTPServer{
-		Config:            config,
-		InfoParams:        make(map[string]string),
-		ServicesConfig:    servicesConfig,
-		amsClient:         amsClient,
-		GroupsChannel:     groupsChannel,
-		ErrorFoundChannel: errorFoundChannel,
-		ErrorChannel:      errorChannel,
+		Config:                 config,
+		InfoParams:             make(map[string]string),
+		ServicesConfig:         servicesConfig,
+		amsClient:              amsClient,
+		GroupsChannel:          groupsChannel,
+		ErrorFoundChannel:      errorFoundChannel,
+		ErrorChannel:           errorChannel,
+		useOrgClustersFallback: config.UseOrgClustersFallback,
 	}
 }
 
@@ -370,9 +372,33 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 		return nil, err
 	}
 
-	err := fmt.Errorf("amsclient not initialized")
-	log.Error().Err(err).Msg("")
-	return nil, err
+	if !server.useOrgClustersFallback {
+		err := fmt.Errorf("amsclient not initialized")
+		log.Error().Err(err).Msg("")
+		return nil, err
+	}
+
+	log.Info().Msg("amsclient not initialized. Using fallback mechanism")
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ClustersForOrganizationEndpoint,
+		orgID,
+	)
+
+	// #nosec G107
+	response, err := http.Get(aggregatorURL)
+	if err != nil {
+		return nil, err
+	}
+
+	var recvMsg struct {
+		Status   string              `json:"status"`
+		Clusters []types.ClusterName `json:"clusters"`
+	}
+
+	err = json.NewDecoder(response.Body).Decode(&recvMsg)
+	return recvMsg.Clusters, err
 }
 
 // readAggregatorReportForClusterID reads report from aggregator,
