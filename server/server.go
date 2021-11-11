@@ -74,15 +74,14 @@ const (
 
 // HTTPServer is an implementation of Server interface
 type HTTPServer struct {
-	Config                 Configuration
-	InfoParams             map[string]string
-	ServicesConfig         services.Configuration
-	amsClient              amsclient.AMSClient
-	GroupsChannel          chan []groups.Group
-	ErrorFoundChannel      chan bool
-	ErrorChannel           chan error
-	useOrgClustersFallback bool
-	Serv                   *http.Server
+	Config            Configuration
+	InfoParams        map[string]string
+	ServicesConfig    services.Configuration
+	amsClient         amsclient.AMSClient
+	GroupsChannel     chan []groups.Group
+	ErrorFoundChannel chan bool
+	ErrorChannel      chan error
+	Serv              *http.Server
 }
 
 // RequestModifier is a type of function which modifies request when proxying
@@ -108,14 +107,13 @@ func New(config Configuration,
 ) *HTTPServer {
 
 	return &HTTPServer{
-		Config:                 config,
-		InfoParams:             make(map[string]string),
-		ServicesConfig:         servicesConfig,
-		amsClient:              amsClient,
-		GroupsChannel:          groupsChannel,
-		ErrorFoundChannel:      errorFoundChannel,
-		ErrorChannel:           errorChannel,
-		useOrgClustersFallback: config.UseOrgClustersFallback,
+		Config:            config,
+		InfoParams:        make(map[string]string),
+		ServicesConfig:    servicesConfig,
+		amsClient:         amsClient,
+		GroupsChannel:     groupsChannel,
+		ErrorFoundChannel: errorFoundChannel,
+		ErrorChannel:      errorChannel,
 	}
 }
 
@@ -369,10 +367,9 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 		}
 
 		log.Error().Err(err).Msg("Error accessing amsclient")
-		return nil, err
 	}
 
-	if !server.useOrgClustersFallback {
+	if !server.Config.UseOrgClustersFallback {
 		err := fmt.Errorf("amsclient not initialized")
 		log.Error().Err(err).Msg("")
 		return nil, err
