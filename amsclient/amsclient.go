@@ -41,18 +41,23 @@ const (
 )
 
 // AMSClient allow us to interact the AMS API
-type AMSClient struct {
+type AMSClient interface {
+	GetClustersForOrganization(types.OrgID, []string, []string) ([]types.ClusterName, error)
+}
+
+// amsClientImpl is an implementation of the AMSClient interface
+type amsClientImpl struct {
 	connection *sdk.Connection
 	pageSize   int
 }
 
 // NewAMSClient create an AMSClient from the configuration
-func NewAMSClient(conf Configuration) (*AMSClient, error) {
+func NewAMSClient(conf Configuration) (AMSClient, error) {
 	return NewAMSClientWithTransport(conf, nil)
 }
 
 // NewAMSClientWithTransport creates an AMSClient from the configuration, enabling to use a transport wrapper
-func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) (*AMSClient, error) {
+func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) (AMSClient, error) {
 	log.Info().Msg("Creating amsclient...")
 	builder := sdk.NewConnectionBuilder().URL(conf.URL)
 
@@ -81,7 +86,7 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 		conf.PageSize = defaultPageSize
 	}
 
-	return &AMSClient{
+	return &amsClientImpl{
 		connection: conn,
 		pageSize:   conf.PageSize,
 	}, nil
@@ -89,7 +94,7 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 
 // GetClustersForOrganization retrieves the clusters for a given organization using the default client
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
-func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) (
+func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) (
 	[]types.ClusterName,
 	error,
 ) {
@@ -146,7 +151,7 @@ func (c *AMSClient) GetClustersForOrganization(orgID types.OrgID, statusFilter, 
 }
 
 // GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API
-func (c *AMSClient) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
+func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg(
 		"Looking for the internal organization ID for an external one",
 	)

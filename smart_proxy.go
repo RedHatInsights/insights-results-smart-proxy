@@ -33,6 +33,7 @@ import (
 	"github.com/RedHatInsights/insights-operator-utils/metrics"
 	"github.com/rs/zerolog/log"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
@@ -119,7 +120,15 @@ func startServer() ExitCode {
 		metrics.AddAPIMetricsWithNamespace(metricsCfg.Namespace)
 	}
 
-	serverInstance = server.New(serverCfg, servicesCfg, amsConfig, groupsChannel, errorFoundChannel, errorChannel)
+	amsClient, err := amsclient.NewAMSClient(amsConfig)
+	if err != nil {
+		log.Error().Err(err).Msg("Cannot init the AMSClient, using old approach")
+		amsClient = nil
+	} else {
+		log.Info().Msg("AMSClient succesfully created")
+	}
+
+	serverInstance = server.New(serverCfg, servicesCfg, amsClient, groupsChannel, errorFoundChannel, errorChannel)
 
 	// fill-in additional info used by /info endpoint handler
 	fillInInfoParams(serverInstance.InfoParams)
@@ -128,7 +137,7 @@ func startServer() ExitCode {
 	go updateGroupInfo(servicesCfg, groupsChannel, errorFoundChannel, errorChannel)
 	go proxy_content.RunUpdateContentLoop(servicesCfg)
 
-	err := serverInstance.Start()
+	err = serverInstance.Start()
 	if err != nil {
 		log.Error().Err(err).Msg("HTTP(s) start error")
 		return ExitStatusServerError

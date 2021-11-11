@@ -36,4 +36,5 @@ type Configuration struct {
 	EnableInternalRulesOrganizations bool          `mapstructure:"enable_internal_rules_organizations" toml:"enable_internal_rules_organizations"`
 	InternalRulesOrganizations       []types.OrgID `mapstructure:"internal_rules_organizations" toml:"internal_rules_organizations"`
 	LogAuthToken                     bool          `mapstructure:"log_auth_token" toml:"log_auth_token"`
+	UseOrgClustersFallback           bool          `mapstructure:"org_clusters_fallback" toml:"org_clusters_fallback"`
 }

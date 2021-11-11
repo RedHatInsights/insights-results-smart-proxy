@@ -15,14 +15,15 @@
 package helpers
 
 import (
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"testing"
 	"time"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 )
@@ -106,6 +107,17 @@ var (
 	}
 )
 
+// AssertAPIRequestWithServer function uses the server argument, sends API request
+// and checks the API response (see docs for APIRequest and APIResponse)
+func AssertAPIRequestWithServer(
+	t testing.TB,
+	server *server.HTTPServer,
+	request *helpers.APIRequest,
+	expectedResponse *helpers.APIResponse,
+) {
+
+}
+
 // AssertAPIRequest function creates new server with provided
 // serverConfig, servicesConfig (you can leave them nil to use the default ones),
 // groupsChannel and errorChannel (can be set to nil as well)
@@ -179,6 +191,32 @@ func assertAPIRequest(
 	request *helpers.APIRequest,
 	expectedResponse *helpers.APIResponse,
 ) {
+	// create an instance of new REST API server with provided or default
+	// configuration
+	testServer := CreateHTTPServer(
+		serverConfig,
+		servicesConfig,
+		nil,
+		groupsChannel,
+		errorFoundChannel,
+		errorChannel,
+	)
+
+	// send the request to newly created REST API server and check its
+	// response (if it matches the provided one)
+	helpers.AssertAPIRequest(t, testServer, APIPrefix, request, expectedResponse)
+}
+
+// CreateHTTPServer creates an instance of the REST API server with provided or
+// default configuration
+func CreateHTTPServer(
+	serverConfig *server.Configuration,
+	servicesConfig *services.Configuration,
+	amsClient amsclient.AMSClient,
+	groupsChannel chan []groups.Group,
+	errorFoundChannel chan bool,
+	errorChannel chan error,
+) *server.HTTPServer {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
 		serverConfig = &DefaultServerConfig
@@ -189,20 +227,16 @@ func assertAPIRequest(
 		servicesConfig = &DefaultServicesConfig
 	}
 
+	content.SetContentDirectoryTimeout(servicesConfig.ContentDirectoryTimeout)
+
 	// create an instance of new REST API server with provided or default
 	// configuration
-	testServer := server.New(
+	return server.New(
 		*serverConfig,
 		*servicesConfig,
-		amsclient.Configuration{},
+		amsClient,
 		groupsChannel,
 		errorFoundChannel,
 		errorChannel,
 	)
-
-	content.SetContentDirectoryTimeout(servicesConfig.ContentDirectoryTimeout)
-
-	// send the request to newly created REST API server and check its
-	// response (if it matches the provided one)
-	helpers.AssertAPIRequest(t, testServer, APIPrefix, request, expectedResponse)
 }

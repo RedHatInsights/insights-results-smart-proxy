@@ -24,12 +24,14 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/responses"
+	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
@@ -816,7 +818,7 @@ func TestServerStartError(t *testing.T) {
 		ContentBaseEndpoint:    "http://localhost:8082/api/v1/",
 		// GroupsPollingTime:      2 * time.Minute,
 	},
-		amsclient.Configuration{},
+		nil,
 		nil,
 		nil,
 		nil,
@@ -844,6 +846,55 @@ func TestAddCORSHeaders(t *testing.T) {
 			"Access-Control-Allow-Headers":     "X-Csrf-Token,Content-Type,Content-Length",
 		},
 	})
+}
+
+//
+// TestHTTPServer_OverviewEndpointWithFallback
+func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare list of organizations response
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
+		})
+
+		// prepare report for cluster
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		config := helpers.DefaultServerConfig
+		config.UseOrgClustersFallback = true
+		testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			helpers.DefaultServerConfig.APIv1Prefix,
+			&helpers.APIRequest{
+				Method:   http.MethodGet,
+				Endpoint: server.OverviewEndpoint,
+				OrgID:    testdata.OrgID,
+				UserID:   testdata.UserID,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(OverviewResponse),
+			})
+	}, testTimeout)
 }
 
 func ruleIDsChecker(t testing.TB, expected, got []byte) {
