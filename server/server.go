@@ -362,7 +362,8 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 		)
 		if err == nil {
 			log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of clusters retrieved from the AMS API: %v", len(clusters))
-			return clusters, err
+			clusterNames := proxy_types.GetClusterNames(clusters)
+			return clusterNames, err
 		}
 
 		log.Error().Err(err).Msg("Error accessing amsclient")

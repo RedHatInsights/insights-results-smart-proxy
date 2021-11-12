@@ -20,13 +20,20 @@ import (
 
 	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+
+	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
 	ClusterName1 = "00000000-bbbb-cccc-dddd-eeeeeeeeeeee"
 	ClusterName2 = "11111111-bbbb-cccc-dddd-eeeeeeeeeeee"
 	ClusterName3 = "22222222-bbbb-cccc-dddd-eeeeeeeeeeee"
-	GeneratedAt  = "2020-03-06T12:00:00Z"
+
+	ClusterDisplayName1 = "Cluster 1"
+	ClusterDisplayName2 = "Cluster 2"
+	ClusterDisplayName3 = "Cluster 3"
+
+	GeneratedAt = "2020-03-06T12:00:00Z"
 )
 
 var (
@@ -73,7 +80,24 @@ var (
 		GeneratedAt: GeneratedAt,
 		Status:      "ok",
 	}
+
+	ClusterInfoResult = []stypes.ClusterInfo{
+		stypes.ClusterInfo{
+			ID:          testdata.ClusterName,
+			DisplayName: ClusterDisplayName1,
+		},
+	}
 )
+
+// GetRandomClusterInfo function returns a ClusterInfo with random ID
+// and using the same ID as DisplayName
+func GetRandomClusterInfo() stypes.ClusterInfo {
+	clusterID := testdata.GetRandomClusterID()
+	return stypes.ClusterInfo{
+		ID:          clusterID,
+		DisplayName: string(clusterID),
+	}
+}
 
 func whateverToJSONRawMessage(obj interface{}) json.RawMessage {
 	var result json.RawMessage

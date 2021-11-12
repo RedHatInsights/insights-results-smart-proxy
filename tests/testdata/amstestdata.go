@@ -77,10 +77,12 @@ var (
 		"total": 2,
 		"items": []map[string]interface{}{
 			{
+				"display_name":        ClusterDisplayName1,
 				"external_cluster_id": ClusterName1,
 				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
 			},
 			{
+				"display_name":        ClusterDisplayName2,
 				"external_cluster_id": ClusterName2,
 				"id":                  "1YfQLCOCZZOEXgOp8uIbqe5i5z2",
 			},

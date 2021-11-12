@@ -22,7 +22,7 @@ import (
 	sdk "github.com/openshift-online/ocm-sdk-go"
 	"github.com/rs/zerolog/log"
 
-	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -42,7 +42,7 @@ const (
 
 // AMSClient allow us to interact the AMS API
 type AMSClient interface {
-	GetClustersForOrganization(types.OrgID, []string, []string) ([]types.ClusterName, error)
+	GetClustersForOrganization(types.OrgID, []string, []string) ([]types.ClusterInfo, error)
 }
 
 // amsClientImpl is an implementation of the AMSClient interface
@@ -95,14 +95,14 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 // GetClustersForOrganization retrieves the clusters for a given organization using the default client
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
 func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) (
-	[]types.ClusterName,
+	[]types.ClusterInfo,
 	error,
 ) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking cluster for the organization")
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
 
 	tStart := time.Now()
-	var retval []types.ClusterName = []types.ClusterName{}
+	var retval []types.ClusterInfo = []types.ClusterInfo{}
 
 	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
 	if err != nil {
@@ -116,7 +116,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 		subscriptionListRequest = subscriptionListRequest.
 			Size(c.pageSize).
 			Page(pageNum).
-			Fields("external_cluster_id").
+			Fields("external_cluster_id,display_name").
 			Search(searchQuery)
 
 		log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("Sending following request to AMS API: %v", subscriptionListRequest)
@@ -142,7 +142,15 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 
 				continue
 			}
-			retval = append(retval, types.ClusterName(clusterID))
+
+			displayName, ok := item.GetDisplayName()
+			if !ok {
+				displayName = string(clusterID)
+			}
+			retval = append(retval, types.ClusterInfo{
+				ID:          types.ClusterName(clusterID),
+				DisplayName: displayName,
+			})
 		}
 	}
 
