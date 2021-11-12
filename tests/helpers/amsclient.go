@@ -17,18 +17,18 @@ package helpers
 import (
 	"fmt"
 
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 type mockAMSClient struct {
-	clustersPerOrg map[types.OrgID][]types.ClusterName
+	clustersPerOrg map[types.OrgID][]types.ClusterInfo
 }
 
 func (m *mockAMSClient) GetClustersForOrganization(
 	orgID types.OrgID,
 	unused1, unused2 []string,
-) ([]types.ClusterName, error) {
+) ([]types.ClusterInfo, error) {
 
 	clusters, ok := m.clustersPerOrg[orgID]
 	if !ok {
@@ -40,9 +40,9 @@ func (m *mockAMSClient) GetClustersForOrganization(
 
 // AMSClientWithOrgResults creates a mock of AMSClient interface that returns the results
 // defined by orgID and clusters parameters
-func AMSClientWithOrgResults(orgID types.OrgID, clusters []types.ClusterName) amsclient.AMSClient {
+func AMSClientWithOrgResults(orgID types.OrgID, clusters []types.ClusterInfo) amsclient.AMSClient {
 	return &mockAMSClient{
-		clustersPerOrg: map[types.OrgID][]types.ClusterName{
+		clustersPerOrg: map[types.OrgID][]types.ClusterInfo{
 			orgID: clusters,
 		},
 	}

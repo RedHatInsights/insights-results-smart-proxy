@@ -24,8 +24,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
-
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
@@ -36,6 +34,7 @@ import (
 
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
@@ -593,7 +592,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	activeClusters := make([]types.ClusterName, 0)
 	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
-		activeClusters, err = server.amsClient.GetClustersForOrganization(
+		activeClustersInfo, err := server.amsClient.GetClustersForOrganization(
 			orgID,
 			nil,
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
@@ -602,6 +601,8 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		if err != nil {
 			log.Error().Err(err).Msg("amsclient was unable to retrieve the list of active clusters")
 			activeClusters = make([]types.ClusterName, 0)
+		} else {
+			activeClusters = stypes.GetClusterNames(activeClustersInfo)
 		}
 	}
 

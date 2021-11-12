@@ -32,6 +32,7 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
+	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 var (
@@ -493,7 +494,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 		// prepare list of organizations response
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			[]types.ClusterName{testdata.ClusterName},
+			data.ClusterInfoResult,
 		)
 
 		// prepare report for cluster
@@ -541,7 +542,7 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			[]types.ClusterName{testdata.ClusterName},
+			data.ClusterInfoResult,
 		)
 
 		// prepare report for cluster
@@ -783,11 +784,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
@@ -799,7 +801,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations
@@ -856,11 +858,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
@@ -872,7 +875,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations
@@ -938,11 +941,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
@@ -954,7 +958,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations
@@ -1002,11 +1006,12 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v,"%v":%v},"status":"ok"}`
@@ -1019,7 +1024,7 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations
@@ -1075,11 +1080,12 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{},"status":"ok"}`
@@ -1087,7 +1093,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 		// prepare response from amsClient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations
@@ -1143,11 +1149,12 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{},"status":"ok"}`
@@ -1155,7 +1162,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations
@@ -1212,11 +1219,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
@@ -1227,7 +1235,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations
@@ -1289,11 +1297,12 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterList := make([]types.ClusterName, 2)
-		for i := range clusterList {
-			clusterList[i] = testdata.GetRandomClusterID()
+		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
+		clusterList := stypes.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
@@ -1304,7 +1313,7 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			clusterList,
+			clusterInfoList,
 		)
 
 		// prepare response from aggregator for recommendations

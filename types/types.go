@@ -39,6 +39,12 @@ type RuleContent = types.RuleContent
 // RuleID is a rename for types.RuleID
 type RuleID = types.RuleID
 
+// ClusterName is a rename for types.ClusterName
+type ClusterName = types.ClusterName
+
+// OrgID is a rename for types.OrgID
+type OrgID = types.OrgID
+
 // ImpactingFlag controls the behaviour of 'impacting' param on GET /rule/
 type ImpactingFlag int
 
@@ -252,4 +258,10 @@ type InfoResponse struct {
 	SmartProxy     map[string]string `json:"SmartProxy"`
 	Aggregator     map[string]string `json:"Aggregator"`
 	ContentService map[string]string `json:"ContentService"`
+}
+
+// ClusterInfo is a data structure containing some relevant cluster information
+type ClusterInfo struct {
+	ID          ClusterName
+	DisplayName string
 }
