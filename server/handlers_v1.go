@@ -24,7 +24,7 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"

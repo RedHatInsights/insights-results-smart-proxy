@@ -21,7 +21,7 @@ package types
 import (
 	"time"
 
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 // UserID represents type for user id

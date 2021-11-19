@@ -24,12 +24,13 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	types "github.com/RedHatInsights/insights-results-types"
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
-	"github.com/rs/zerolog"
-	"github.com/stretchr/testify/assert"
 )
 
 func init() {

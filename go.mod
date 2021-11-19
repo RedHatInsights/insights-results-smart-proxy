@@ -1,13 +1,14 @@
 module github.com/RedHatInsights/insights-results-smart-proxy
 
-go 1.15
+go 1.16
 
 require (
 	github.com/BurntSushi/toml v0.4.1
-	github.com/RedHatInsights/insights-content-service v0.0.0-20211019165101-b56df7efd84f
-	github.com/RedHatInsights/insights-operator-utils v1.21.5
-	github.com/RedHatInsights/insights-results-aggregator v1.1.11
-	github.com/RedHatInsights/insights-results-aggregator-data v1.3.2
+	github.com/RedHatInsights/insights-content-service v0.0.0-20211119142943-71a7a9be7bb8
+	github.com/RedHatInsights/insights-operator-utils v1.22.0
+	github.com/RedHatInsights/insights-results-aggregator v1.1.12
+	github.com/RedHatInsights/insights-results-aggregator-data v1.3.3
+	github.com/RedHatInsights/insights-results-types v1.2.0
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/handlers v1.5.1

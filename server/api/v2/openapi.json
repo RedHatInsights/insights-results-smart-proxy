@@ -837,6 +837,11 @@
                                 "minLength": 36,
                                 "maxLength": 36,
                                 "format": "uuid"
+                              },
+                              "cluster_name": {
+                                "type": "string",
+                                "description": "An human-readable name for the cluster",
+                                "example": "Production cluster 1"
                               }
                             }
                           }

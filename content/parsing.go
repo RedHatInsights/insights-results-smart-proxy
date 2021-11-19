@@ -20,9 +20,10 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/collections"
-	"github.com/RedHatInsights/insights-operator-utils/types"
-	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const internalRuleStr = "internal"
@@ -37,9 +38,9 @@ var (
 // TODO: consider moving parsing to content service
 
 // LoadRuleContent loads the parsed rule content into the storage
-func LoadRuleContent(contentDir *types.RuleContentDirectory) {
+func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 	for i, rule := range contentDir.Rules {
-		ruleID := types.RuleID(rule.Plugin.PythonModule)
+		ruleID := ctypes.RuleID(rule.Plugin.PythonModule)
 
 		for errorKey, errorProperties := range rule.ErrorKeys {
 			impact := errorProperties.Metadata.Impact
@@ -72,7 +73,7 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 			// sets "plugin" level, containing usual fields + list of error keys
 			rulesWithContentStorage.SetRule(ruleID, ruleTmp)
 
-			rulesWithContentStorage.SetRuleWithContent(ruleID, types.ErrorKey(errorKey), &local_types.RuleWithContent{
+			rulesWithContentStorage.SetRuleWithContent(ruleID, ctypes.ErrorKey(errorKey), &types.RuleWithContent{
 				Module:          ruleID,
 				Name:            rule.Plugin.Name,
 				Generic:         errorProperties.Generic,
@@ -80,7 +81,7 @@ func LoadRuleContent(contentDir *types.RuleContentDirectory) {
 				Reason:          errorProperties.Reason,
 				Resolution:      errorProperties.Resolution,
 				MoreInfo:        errorProperties.MoreInfo,
-				ErrorKey:        types.ErrorKey(errorKey),
+				ErrorKey:        ctypes.ErrorKey(errorKey),
 				Description:     errorProperties.Metadata.Description,
 				TotalRisk:       totalRisk,
 				RiskOfChange:    calculateRiskOfChange(impact.Impact, errorProperties.Metadata.Likelihood),
@@ -173,7 +174,7 @@ func getActiveStatus(status string) (active, success, missing bool) {
 // IsRuleInternal tries to look for the word "internal" in the ruleID / rule module,
 // because it's currently not specified anywhere on it's own
 // TODO: add field indicating restricted/internal status to one of Rule structs in content-service
-func IsRuleInternal(ruleID types.RuleID) bool {
+func IsRuleInternal(ruleID ctypes.RuleID) bool {
 	splitRuleID := strings.Split(string(ruleID), ".")
 	for _, ruleIDPart := range splitRuleID {
 		if ruleIDPart == internalRuleStr {

@@ -24,32 +24,32 @@ import (
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
-	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 var (
-	RuleContentDirectoryOnly1Rule = types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	RuleContentDirectoryOnly1Rule = ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc1": testdata.RuleContent1,
 		},
 	}
 
-	RuleContentDirectoryOnlyDisabledRule = types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	RuleContentDirectoryOnlyDisabledRule = ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc5": testdata.RuleContent5,
 		},
 	}
@@ -86,7 +86,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_UnavailableContentService(t *testing.T) {
-	var emptyResponse *types.RuleContentDirectory
+	var emptyResponse *ctypes.RuleContentDirectory
 	err := loadMockRuleContentDir(emptyResponse)
 	assert.NotNil(t, err)
 
@@ -354,7 +354,7 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_UnavailableContentService(t *testing.T) {
-	var emptyResponse *types.RuleContentDirectory
+	var emptyResponse *ctypes.RuleContentDirectory
 	err := loadMockRuleContentDir(emptyResponse)
 	assert.NotNil(t, err)
 
@@ -526,7 +526,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 
 // TestHTTPServer_OverviewEndpoint_UnavailableContentService
 func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
-	var emptyResponse *types.RuleContentDirectory
+	var emptyResponse *ctypes.RuleContentDirectory
 	err := loadMockRuleContentDir(emptyResponse)
 	assert.NotNil(t, err)
 
@@ -572,7 +572,7 @@ func TestInternalOrganizations(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{RuleContentInternal1},
+			[]ctypes.RuleContent{RuleContentInternal1},
 		),
 	)
 	assert.Nil(t, err)
@@ -657,7 +657,7 @@ func TestRuleNamesResponse(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{RuleContentInternal1, testdata.RuleContent1},
+			[]ctypes.RuleContent{RuleContentInternal1, testdata.RuleContent1},
 		),
 	)
 	assert.Nil(t, err)
@@ -734,7 +734,7 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 
 // TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService
 func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *testing.T) {
-	var emptyResponse *types.RuleContentDirectory
+	var emptyResponse *ctypes.RuleContentDirectory
 	err := loadMockRuleContentDir(emptyResponse)
 	assert.NotNil(t, err)
 
@@ -776,7 +776,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
+			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
 		),
 	)
 	assert.Nil(t, err)
@@ -784,12 +784,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
@@ -850,7 +850,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
+			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
 		),
 	)
 	assert.Nil(t, err)
@@ -858,12 +858,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
@@ -933,7 +933,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1},
+			[]ctypes.RuleContent{testdata.RuleContent1},
 		),
 	)
 	assert.Nil(t, err)
@@ -941,12 +941,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
@@ -1006,12 +1006,12 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v,"%v":%v,"%v":%v},"status":"ok"}`
@@ -1072,7 +1072,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
+			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
 		),
 	)
 	assert.Nil(t, err)
@@ -1080,12 +1080,12 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{},"status":"ok"}`
@@ -1141,7 +1141,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
+			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
 		),
 	)
 	assert.Nil(t, err)
@@ -1149,12 +1149,12 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{},"status":"ok"}`
@@ -1211,7 +1211,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1, RuleContentInternal1},
+			[]ctypes.RuleContent{testdata.RuleContent1, RuleContentInternal1},
 		),
 	)
 	assert.Nil(t, err)
@@ -1219,12 +1219,12 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
@@ -1284,7 +1284,7 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{
+			[]ctypes.RuleContent{
 				testdata.RuleContent1,
 				testdata.RuleContent2,
 				testdata.RuleContent3,
@@ -1297,12 +1297,12 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]stypes.ClusterInfo, 2)
+		clusterInfoList := make([]types.ClusterInfo, 2)
 		for i := range clusterInfoList {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 		}
 
-		clusterList := stypes.GetClusterNames(clusterInfoList)
+		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
 		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
@@ -1392,7 +1392,7 @@ func TestHTTPServer_GetRecommendationContent(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1, RuleContentInternal1},
+			[]ctypes.RuleContent{testdata.RuleContent1, RuleContentInternal1},
 		),
 	)
 	assert.Nil(t, err)
@@ -1400,7 +1400,7 @@ func TestHTTPServer_GetRecommendationContent(t *testing.T) {
 	for _, testCase := range []struct {
 		TestName           string
 		ServerConfig       *server.Configuration
-		RuleID             types.RuleID
+		RuleID             ctypes.RuleID
 		ExpectedStatusCode int
 		ExpectedResponse   interface{}
 	}{
@@ -1470,7 +1470,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
-			[]types.RuleContent{testdata.RuleContent1, RuleContentInternal1},
+			[]ctypes.RuleContent{testdata.RuleContent1, RuleContentInternal1},
 		),
 	)
 	assert.Nil(t, err)
@@ -1478,15 +1478,15 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 	for _, testCase := range []struct {
 		TestName           string
 		ServerConfig       *server.Configuration
-		UserVote           types.UserVote
-		RuleID             types.RuleID
+		UserVote           ctypes.UserVote
+		RuleID             ctypes.RuleID
 		ExpectedStatusCode int
 		ExpectedResponse   interface{}
 	}{
 		{
 			"no vote",
 			&serverConfigJWT,
-			types.UserVoteNone,
+			ctypes.UserVoteNone,
 			testdata.Rule1CompositeID,
 			http.StatusOK,
 			GetRuleContentRecommendationContentWithUserData1,
@@ -1494,7 +1494,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		{
 			"with rule like",
 			&serverConfigJWT,
-			types.UserVoteLike,
+			ctypes.UserVoteLike,
 			testdata.Rule1CompositeID,
 			http.StatusOK,
 			GetRuleContentRecommendationContentWithUserData2RatingLike,
@@ -1502,7 +1502,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		{
 			"with rule dislike",
 			&serverConfigJWT,
-			types.UserVoteDislike,
+			ctypes.UserVoteDislike,
 			testdata.Rule1CompositeID,
 			http.StatusOK,
 			GetRuleContentRecommendationContentWithUserData3RatingDislike,
@@ -1510,7 +1510,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		{
 			"internal OK",
 			&serverConfigInternalOrganizations1,
-			types.UserVoteDislike,
+			ctypes.UserVoteDislike,
 			internalRuleID,
 			http.StatusOK,
 			nil,
@@ -1518,7 +1518,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		{
 			"internal forbidden",
 			&serverConfigInternalOrganizations2,
-			types.UserVoteDislike,
+			ctypes.UserVoteDislike,
 			internalRuleID,
 			http.StatusForbidden,
 			nil,
@@ -1526,7 +1526,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		{
 			"not found",
 			&serverConfigJWT,
-			types.UserVoteDislike,
+			ctypes.UserVoteDislike,
 			testdata.Rule5CompositeID,
 			http.StatusNotFound,
 			nil,
@@ -1534,7 +1534,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		{
 			"invalid rule ID",
 			&serverConfigJWT,
-			types.UserVoteDislike,
+			ctypes.UserVoteDislike,
 			"invalid rule id",
 			http.StatusBadRequest,
 			nil,

@@ -30,13 +30,14 @@ import (
 	"github.com/RedHatInsights/insights-operator-utils/generators"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
-	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -50,8 +51,8 @@ const (
 
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
 // checks if user has permissions to access it.
-func (server HTTPServer) getContentCheckInternal(ruleID types.RuleID, request *http.Request) (
-	ruleContent *stypes.RuleWithContent,
+func (server HTTPServer) getContentCheckInternal(ruleID ctypes.RuleID, request *http.Request) (
+	ruleContent *types.RuleWithContent,
 	err error,
 ) {
 	ruleContent, err = content.GetContentForRecommendation(ruleID)
@@ -74,9 +75,9 @@ func (server HTTPServer) getContentCheckInternal(ruleID types.RuleID, request *h
 func (server HTTPServer) getRuleWithGroups(
 	writer http.ResponseWriter,
 	request *http.Request,
-	ruleID types.RuleID,
+	ruleID ctypes.RuleID,
 ) (
-	ruleContent *stypes.RuleWithContent,
+	ruleContent *types.RuleWithContent,
 	ruleGroups []groups.Group,
 	err error,
 ) {
@@ -113,9 +114,9 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 		return
 	}
 
-	contentResponse := stypes.RecommendationContent{
+	contentResponse := types.RecommendationContent{
 		// RuleID in rule.module|ERROR_KEY format
-		RuleSelector: types.RuleSelector(ruleID),
+		RuleSelector: ctypes.RuleSelector(ruleID),
 		Description:  ruleContent.Description,
 		Generic:      ruleContent.Generic,
 		Reason:       ruleContent.Reason,
@@ -169,7 +170,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 	rating, err := server.getRatingForRecommendation(writer, orgID, userID, ruleID)
 	if err != nil {
 		switch err.(type) {
-		case *types.ItemNotFoundError:
+		case *utypes.ItemNotFoundError:
 			break
 		case *url.Error:
 			log.Error().Err(err).Msgf("aggregator is not responding")
@@ -182,9 +183,9 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 	}
 
 	// fill in user rating and other DB stuff from aggregator
-	contentResponse := stypes.RecommendationContentUserData{
+	contentResponse := types.RecommendationContentUserData{
 		// RuleID in rule.module|ERROR_KEY format
-		RuleSelector: types.RuleSelector(ruleID),
+		RuleSelector: ctypes.RuleSelector(ruleID),
 		Description:  ruleContent.Description,
 		Generic:      ruleContent.Generic,
 		Reason:       ruleContent.Reason,
@@ -220,7 +221,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 // By default returns only those recommendations that currently hit atleast one cluster, but it's
 // possible to show all recommendations by passing a URL parameter `impacting`
 func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request *http.Request) {
-	var recommendationList []stypes.RecommendationListView
+	var recommendationList []types.RecommendationListView
 	tStart := time.Now()
 
 	userID, orgID, impactingFlag, err := server.readParamsGetRecommendations(writer, request)
@@ -288,11 +289,11 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 }
 
-func generateRuleAckMap(acks []types.SystemWideRuleDisable) (ruleAcksMap map[types.RuleID]bool) {
-	ruleAcksMap = make(map[types.RuleID]bool)
+func generateRuleAckMap(acks []ctypes.SystemWideRuleDisable) (ruleAcksMap map[ctypes.RuleID]bool) {
+	ruleAcksMap = make(map[ctypes.RuleID]bool)
 	for i := range acks {
 		ack := &acks[i]
-		compositeRuleID, err := generators.GenerateCompositeRuleID(types.RuleFQDN(ack.RuleID), ack.ErrorKey)
+		compositeRuleID, err := generators.GenerateCompositeRuleID(ctypes.RuleFQDN(ack.RuleID), ack.ErrorKey)
 		if err == nil {
 			ruleAcksMap[compositeRuleID] = true
 		} else {
@@ -302,8 +303,8 @@ func generateRuleAckMap(acks []types.SystemWideRuleDisable) (ruleAcksMap map[typ
 	return
 }
 
-func generateImpactingRuleIDList(impactingRecommendations types.RecommendationImpactedClusters) (ruleIDList []types.RuleID) {
-	ruleIDList = make([]types.RuleID, len(impactingRecommendations))
+func generateImpactingRuleIDList(impactingRecommendations ctypes.RecommendationImpactedClusters) (ruleIDList []ctypes.RuleID) {
+	ruleIDList = make([]ctypes.RuleID, len(impactingRecommendations))
 	i := 0
 	for ruleID := range impactingRecommendations {
 		ruleIDList[i] = ruleID
@@ -313,14 +314,14 @@ func generateImpactingRuleIDList(impactingRecommendations types.RecommendationIm
 }
 
 func getRecommendationsFillUserData(
-	impactingRecommendations types.RecommendationImpactedClusters,
-	impactingFlag stypes.ImpactingFlag,
-	acks []types.SystemWideRuleDisable,
+	impactingRecommendations ctypes.RecommendationImpactedClusters,
+	impactingFlag types.ImpactingFlag,
+	acks []ctypes.SystemWideRuleDisable,
 ) (
-	recommendationList []stypes.RecommendationListView,
+	recommendationList []types.RecommendationListView,
 	err error,
 ) {
-	var ruleIDList []types.RuleID
+	var ruleIDList []ctypes.RuleID
 	// put rule acks in a map so we only iterate over them once
 	ruleAcksMap := generateRuleAckMap(acks)
 
@@ -336,7 +337,7 @@ func getRecommendationsFillUserData(
 		}
 	}
 
-	recommendationList = make([]stypes.RecommendationListView, 0)
+	recommendationList = make([]types.RecommendationListView, 0)
 
 	for _, ruleID := range ruleIDList {
 		// rule is disabled if found in the ack map
@@ -358,7 +359,7 @@ func getRecommendationsFillUserData(
 			continue
 		}
 
-		recommendationList = append(recommendationList, stypes.RecommendationListView{
+		recommendationList = append(recommendationList, types.RecommendationListView{
 			RuleID:              ruleID,
 			Description:         ruleContent.Description,
 			Generic:             ruleContent.Generic,
@@ -379,14 +380,14 @@ func getRecommendationsFillUserData(
 // getImpactingRecommendations retrieves a list of recommendations from aggregator based on the list of clusters
 func (server HTTPServer) getImpactingRecommendations(
 	writer http.ResponseWriter,
-	orgID types.OrgID,
-	userID types.UserID,
-	clusterList []types.ClusterName,
-) (types.RecommendationImpactedClusters, error) {
+	orgID ctypes.OrgID,
+	userID ctypes.UserID,
+	clusterList []ctypes.ClusterName,
+) (ctypes.RecommendationImpactedClusters, error) {
 
 	var aggregatorResponse struct {
-		Recommendations types.RecommendationImpactedClusters `json:"recommendations"`
-		Status          string                               `json:"status"`
+		Recommendations ctypes.RecommendationImpactedClusters `json:"recommendations"`
+		Status          string                                `json:"status"`
 	}
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
@@ -446,11 +447,11 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 		return
 	}
 
-	var rules []stypes.RuleContentV2
+	var rules []types.RuleContentV2
 
 	if err := server.checkInternalRulePermissions(request); err != nil {
 		for _, rule := range allRules {
-			if !content.IsRuleInternal(types.RuleID(rule.Plugin.PythonModule)) {
+			if !content.IsRuleInternal(ctypes.RuleID(rule.Plugin.PythonModule)) {
 				rules = append(rules, rule)
 			}
 		}
@@ -482,7 +483,7 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 // depending on the list of active clusters provided by the AMS client.
 func getImpactedClustersFromAggregator(
 	url string,
-	activeClusters []types.ClusterName,
+	activeClusters []ctypes.ClusterName,
 ) (resp *http.Response, err error) {
 	if len(activeClusters) < 0 {
 		// #nosec G107
@@ -493,7 +494,7 @@ func getImpactedClustersFromAggregator(
 	// generate JSON payload of the format "clusters": []clusters
 	var jsonBody []byte
 	jsonBody, err = json.Marshal(
-		map[string][]types.ClusterName{"clusters": activeClusters})
+		map[string][]ctypes.ClusterName{"clusters": activeClusters})
 	if err != nil {
 		log.Err(err).Msg("Couldn't encode list of active clusters to valid JSON, aborting")
 		return
@@ -516,18 +517,18 @@ func getImpactedClustersFromAggregator(
 // recommendation to the client, if any.
 func proxyImpactedClusters(
 	writer http.ResponseWriter,
-	selector types.RuleSelector,
+	selector ctypes.RuleSelector,
 	aggregatorResp *http.Response,
 ) error {
 	// If we received a 404 - no entries found for given orgID+selector in DB
 	// We return an empty list and a 200 OK
 	if aggregatorResp.StatusCode == http.StatusNotFound {
 		resp := responses.BuildOkResponse()
-		resp["meta"] = types.HittingClustersMetadata{
+		resp["meta"] = ctypes.HittingClustersMetadata{
 			Count:    0,
 			Selector: selector,
 		}
-		resp["data"] = []types.HittingClustersData{}
+		resp["data"] = []ctypes.HittingClustersData{}
 		return responses.SendOK(writer, resp)
 	}
 
@@ -542,10 +543,10 @@ func proxyImpactedClusters(
 // getImpactedClusters retrieves a list of clusters affected by the given recommendation from aggregator
 func (server HTTPServer) getImpactedClusters(
 	writer http.ResponseWriter,
-	orgID types.OrgID,
-	userID types.UserID,
-	selector types.RuleSelector,
-	activeClusters []types.ClusterName,
+	orgID ctypes.OrgID,
+	userID ctypes.UserID,
+	selector ctypes.RuleSelector,
+	activeClusters []ctypes.ClusterName,
 ) error {
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
@@ -584,12 +585,12 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		return
 	}
 
-	if _, err = content.GetContentForRecommendation(types.RuleID(selector)); err != nil {
+	if _, err = content.GetContentForRecommendation(ctypes.RuleID(selector)); err != nil {
 		//The given rule selector does not exit
 		handleServerError(writer, err)
 		return
 	}
-	activeClusters := make([]types.ClusterName, 0)
+	activeClusters := make([]ctypes.ClusterName, 0)
 	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
 		activeClustersInfo, err := server.amsClient.GetClustersForOrganization(
@@ -600,9 +601,9 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 
 		if err != nil {
 			log.Error().Err(err).Msg("amsclient was unable to retrieve the list of active clusters")
-			activeClusters = make([]types.ClusterName, 0)
+			activeClusters = make([]ctypes.ClusterName, 0)
 		} else {
-			activeClusters = stypes.GetClusterNames(activeClustersInfo)
+			activeClusters = types.GetClusterNames(activeClustersInfo)
 		}
 	}
 

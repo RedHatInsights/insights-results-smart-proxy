@@ -21,15 +21,14 @@ import (
 	"testing"
 	"time"
 
-	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
-
 	ics_server "github.com/RedHatInsights/insights-content-service/server"
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -123,11 +122,11 @@ func TestUpdateContent_CallMultipleTimes(t *testing.T) {
 func TestUpdateContentBadTime(t *testing.T) {
 	defer content.ResetContent()
 	// using testdata.RuleContent4 because contains datetime in a different format
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc4": testdata.RuleContent4,
 		},
 	}
@@ -214,7 +213,7 @@ func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
 		ruleID := testdata.RuleOnReport1.Module
 		errorKey := testdata.RuleOnReport1.ErrorKey
 		ruleWithContent, _ := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
-		ruleWithContentResponse := &local_types.RuleWithContentResponse{
+		ruleWithContentResponse := &types.RuleWithContentResponse{
 			CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
 			Description:     ruleWithContent.Description,
 			ErrorKey:        errorKey,
@@ -262,7 +261,7 @@ func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
 		ruleID := testdata.RuleOnReport1.Module
 		errorKey := testdata.RuleOnReport1.ErrorKey
 		ruleWithContent, _ := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
-		ruleWithContentResponse := &local_types.RuleWithContentResponse{
+		ruleWithContentResponse := &types.RuleWithContentResponse{
 			CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
 			Description:     ruleWithContent.Description,
 			ErrorKey:        errorKey,
@@ -301,10 +300,10 @@ func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
 
 		content.UpdateContent(helpers.DefaultServicesConfig)
 
-		var rule = types.RuleOnReport{
+		var rule = ctypes.RuleOnReport{
 			Module:          testdata.Rule1.Module,
 			ErrorKey:        testdata.RuleErrorKey1.ErrorKey,
-			UserVote:        types.UserVoteNone,
+			UserVote:        ctypes.UserVoteNone,
 			Disabled:        true,
 			DisableFeedback: "",
 			DisabledAt:      "",
@@ -333,10 +332,10 @@ func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
 
 		content.UpdateContent(helpers.DefaultServicesConfig)
 
-		var rule = types.RuleOnReport{
-			Module:          types.RuleID("ccx_rules_ocp.deprecated_a_long_time_ago_should_not_exist"),
+		var rule = ctypes.RuleOnReport{
+			Module:          ctypes.RuleID("ccx_rules_ocp.deprecated_a_long_time_ago_should_not_exist"),
 			ErrorKey:        testdata.RuleErrorKey1.ErrorKey,
-			UserVote:        types.UserVoteNone,
+			UserVote:        ctypes.UserVoteNone,
 			Disabled:        false,
 			DisableFeedback: "",
 			DisabledAt:      "",
@@ -358,11 +357,11 @@ func TestUpdateContentInvalidStatus(t *testing.T) {
 	ek.Metadata.Status = "foo"
 	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc4": ruleContent,
 		},
 	}
@@ -381,11 +380,11 @@ func TestUpdateContentMissingStatus(t *testing.T) {
 	ek.Metadata.Status = ""
 	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc4": ruleContent,
 		},
 	}
@@ -404,11 +403,11 @@ func TestUpdateContentInvalidPublishDate(t *testing.T) {
 	ek.Metadata.PublishDate = "invalid date"
 	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc4": ruleContent,
 		},
 	}
@@ -427,11 +426,11 @@ func TestUpdateContentMissingPublishDate(t *testing.T) {
 	ek.Metadata.PublishDate = ""
 	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc4": ruleContent,
 		},
 	}
@@ -447,11 +446,11 @@ func TestGetContentForRecommendationOK(t *testing.T) {
 
 	ruleContent := testdata.RuleContent1
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc1": ruleContent,
 		},
 	}
@@ -465,11 +464,11 @@ func TestGetContentForRecommendationOK(t *testing.T) {
 func TestGetContentForRecommendationNotFound(t *testing.T) {
 	defer content.ResetContent()
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc1": testdata.RuleContent1,
 		},
 	}
@@ -487,11 +486,11 @@ func TestGetContentForRecommendationBadID(t *testing.T) {
 	ruleContent := testdata.RuleContent1
 	ruleContent.Plugin.PythonModule = ""
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc1": ruleContent,
 		},
 	}
@@ -512,11 +511,11 @@ func TestGetInternalRuleIDs(t *testing.T) {
 	fakeRuleAsInternal(&internalRule2)
 	fakeRuleAsExternal(&externalRule1)
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc1": internalRule1,
 			"rc2": internalRule2,
 			"rc3": externalRule1,
@@ -539,11 +538,11 @@ func TestGetExternalRuleIDs(t *testing.T) {
 	fakeRuleAsExternal(&externalRule2)
 	fakeRuleAsExternal(&externalRule3)
 
-	ruleContentDirectory := types.RuleContentDirectory{
-		Config: types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
-		Rules: map[string]types.RuleContent{
+		Rules: map[string]ctypes.RuleContent{
 			"rc1": externalRule1,
 			"rc2": externalRule2,
 			"rc3": externalRule3,
@@ -558,15 +557,15 @@ func TestGetExternalRuleIDs(t *testing.T) {
 	assert.Equal(t, 3, len(externalRuleIDs))
 }
 
-func fakeRuleAsInternal(ruleContent *types.RuleContent) {
+func fakeRuleAsInternal(ruleContent *ctypes.RuleContent) {
 	modifyPluginPythonModule(ruleContent, internalStr)
 }
 
-func fakeRuleAsExternal(ruleContent *types.RuleContent) {
+func fakeRuleAsExternal(ruleContent *ctypes.RuleContent) {
 	modifyPluginPythonModule(ruleContent, externalStr)
 }
 
-func modifyPluginPythonModule(ruleContent *types.RuleContent, injectStr string) {
+func modifyPluginPythonModule(ruleContent *ctypes.RuleContent, injectStr string) {
 	copy := ruleContent
 	copy.Plugin.PythonModule = fmt.Sprintf("testcontent.%v.%v.rule", injectStr, random.Int())
 	*ruleContent = *copy

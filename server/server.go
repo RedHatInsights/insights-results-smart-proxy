@@ -42,20 +42,19 @@ import (
 	"path/filepath"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
+	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
-
-	httputils "github.com/RedHatInsights/insights-operator-utils/http"
-	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 
-	proxy_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -353,7 +352,7 @@ func copyHeader(srcHeaders, dstHeaders http.Header) {
 
 // readClusterIDsForOrgID reads the list of clusters for a given
 // organization from aggregator
-func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.ClusterName, error) {
+func (server HTTPServer) readClusterIDsForOrgID(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
 	if server.amsClient != nil {
 		clusters, err := server.amsClient.GetClustersForOrganization(
 			orgID,
@@ -362,7 +361,7 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 		)
 		if err == nil {
 			log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of clusters retrieved from the AMS API: %v", len(clusters))
-			clusterNames := proxy_types.GetClusterNames(clusters)
+			clusterNames := types.GetClusterNames(clusters)
 			return clusterNames, err
 		}
 
@@ -390,8 +389,8 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 	}
 
 	var recvMsg struct {
-		Status   string              `json:"status"`
-		Clusters []types.ClusterName `json:"clusters"`
+		Status   string               `json:"status"`
+		Clusters []ctypes.ClusterName `json:"clusters"`
 	}
 
 	err = json.NewDecoder(response.Body).Decode(&recvMsg)
@@ -402,8 +401,8 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID types.OrgID) ([]types.Clus
 // handles errors by sending corresponding message to the user.
 // Returns report and bool value set to true if there was no errors
 func (server HTTPServer) readAggregatorReportForClusterID(
-	orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, writer http.ResponseWriter,
-) (*types.ReportResponse, bool) {
+	orgID ctypes.OrgID, clusterID ctypes.ClusterName, userID ctypes.UserID, writer http.ResponseWriter,
+) (*ctypes.ReportResponse, bool) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ReportEndpoint,
@@ -424,8 +423,8 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	}
 
 	var aggregatorResponse struct {
-		Report *types.ReportResponse `json:"report"`
-		Status string                `json:"status"`
+		Report *ctypes.ReportResponse `json:"report"`
+		Status string                 `json:"status"`
 	}
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
@@ -453,8 +452,8 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 }
 
 func (server HTTPServer) readAggregatorReportForClusterList(
-	orgID types.OrgID, clusterList []string, writer http.ResponseWriter,
-) (*types.ClusterReports, bool) {
+	orgID ctypes.OrgID, clusterList []string, writer http.ResponseWriter,
+) (*ctypes.ClusterReports, bool) {
 	clist := strings.Join(clusterList, ",")
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
@@ -473,7 +472,7 @@ func (server HTTPServer) readAggregatorReportForClusterList(
 		return nil, false
 	}
 
-	var aggregatorResponse types.ClusterReports
+	var aggregatorResponse ctypes.ClusterReports
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
@@ -500,8 +499,8 @@ func (server HTTPServer) readAggregatorReportForClusterList(
 }
 
 func (server HTTPServer) readAggregatorReportForClusterListFromBody(
-	orgID types.OrgID, request *http.Request, writer http.ResponseWriter,
-) (*types.ClusterReports, bool) {
+	orgID ctypes.OrgID, request *http.Request, writer http.ResponseWriter,
+) (*ctypes.ClusterReports, bool) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ReportForListOfClustersPayloadEndpoint,
@@ -534,8 +533,8 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 // handleReportsResponse analyses the aggregator's response and
 // writes an appropriate response to the client, handling any
 // possible error in the meantime
-func handleReportsResponse(response *http.Response, writer http.ResponseWriter) (*types.ClusterReports, bool) {
-	var aggregatorResponse types.ClusterReports
+func handleReportsResponse(response *http.Response, writer http.ResponseWriter) (*ctypes.ClusterReports, bool) {
+	var aggregatorResponse ctypes.ClusterReports
 
 	responseBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -564,8 +563,8 @@ func handleReportsResponse(response *http.Response, writer http.ResponseWriter) 
 // handles errors by sending corresponding message to the user.
 // Returns report and bool value set to true if there was no errors
 func (server HTTPServer) readAggregatorRuleForClusterID(
-	orgID types.OrgID, clusterID types.ClusterName, userID types.UserID, ruleID types.RuleID, errorKey types.ErrorKey, writer http.ResponseWriter,
-) (*types.RuleOnReport, bool) {
+	orgID ctypes.OrgID, clusterID ctypes.ClusterName, userID ctypes.UserID, ruleID ctypes.RuleID, errorKey ctypes.ErrorKey, writer http.ResponseWriter,
+) (*ctypes.RuleOnReport, bool) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.RuleEndpoint,
@@ -587,8 +586,8 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 	}
 
 	var aggregatorResponse struct {
-		Report *types.RuleOnReport `json:"report"`
-		Status string              `json:"status"`
+		Report *ctypes.RuleOnReport `json:"report"`
+		Status string               `json:"status"`
 	}
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
@@ -617,7 +616,7 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 
 func (server HTTPServer) fetchAggregatorReport(
 	writer http.ResponseWriter, request *http.Request,
-) (aggregatorResponse *types.ReportResponse, successful bool, clusterID types.ClusterName) {
+) (aggregatorResponse *ctypes.ReportResponse, successful bool, clusterID ctypes.ClusterName) {
 	clusterID, successful = httputils.ReadClusterName(writer, request)
 	// Error message handled by function
 	if !successful {
@@ -645,7 +644,7 @@ func (server HTTPServer) fetchAggregatorReport(
 // constructed from data returned by Aggregator.
 func (server HTTPServer) fetchAggregatorReports(
 	writer http.ResponseWriter, request *http.Request,
-) (*types.ClusterReports, bool) {
+) (*ctypes.ClusterReports, bool) {
 	// cluster list is specified in path (part of URL)
 	clusterList, successful := httputils.ReadClusterListFromPath(writer, request)
 	// Error message handled by function
@@ -673,7 +672,7 @@ func (server HTTPServer) fetchAggregatorReports(
 // response structure is constructed from data returned by Aggregator.
 func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	writer http.ResponseWriter, request *http.Request,
-) (*types.ClusterReports, bool) {
+) (*ctypes.ClusterReports, bool) {
 	// auth token from request headers
 	authToken, err := server.GetAuthToken(request)
 	if err != nil {
@@ -722,8 +721,8 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	totalRuleCnt := server.getRuleCount(visibleRules, noContentRulesCnt, disabledRulesCnt, clusterID)
 
 	// Meta.Count is only used to perform checks for special cases
-	report := proxy_types.SmartProxyReport{
-		Meta: types.ReportResponseMeta{
+	report := types.SmartProxyReport{
+		Meta: ctypes.ReportResponseMeta{
 			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
 			Count:         totalRuleCnt,
 		},
@@ -737,10 +736,10 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 }
 
 // getRuleCount returns the number of visible rules without those that do not have content
-func (server HTTPServer) getRuleCount(visibleRules []proxy_types.RuleWithContentResponse,
+func (server HTTPServer) getRuleCount(visibleRules []types.RuleWithContentResponse,
 	noContentRulesCnt int,
 	disabledRulesCnt int,
-	clusterID types.ClusterName,
+	clusterID ctypes.ClusterName,
 ) int {
 	totalRuleCnt := len(visibleRules) + noContentRulesCnt
 
@@ -792,7 +791,7 @@ func (server HTTPServer) reportForListOfClustersPayloadEndpoint(writer http.Resp
 
 func (server HTTPServer) fetchAggregatorReportRule(
 	writer http.ResponseWriter, request *http.Request,
-) (*types.RuleOnReport, bool) {
+) (*ctypes.RuleOnReport, bool) {
 	clusterID, successful := httputils.ReadClusterName(writer, request)
 	// Error message handled by function
 	if !successful {
@@ -821,7 +820,7 @@ func (server HTTPServer) fetchAggregatorReportRule(
 }
 
 func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) {
-	var rule *proxy_types.RuleWithContentResponse
+	var rule *types.RuleWithContentResponse
 	var filtered bool
 	var err error
 
@@ -885,7 +884,7 @@ func (server HTTPServer) checkInternalRulePermissions(request *http.Request) err
 		return err
 	}
 
-	requestOrgID := types.OrgID(authToken.Internal.OrgID)
+	requestOrgID := ctypes.OrgID(authToken.Internal.OrgID)
 
 	log.Info().Msgf("Checking internal rule permissions for Organization ID: %v", requestOrgID)
 	for _, allowedID := range server.Config.InternalRulesOrganizations {
@@ -964,9 +963,9 @@ func (server HTTPServer) getGroupsConfig() (
 }
 
 func (server HTTPServer) getOverviewPerCluster(
-	clusterName types.ClusterName,
-	authToken *types.Identity,
-	writer http.ResponseWriter) (*proxy_types.ClusterOverview, error) {
+	clusterName ctypes.ClusterName,
+	authToken *ctypes.Identity,
+	writer http.ResponseWriter) (*types.ClusterOverview, error) {
 
 	userID := authToken.AccountNumber
 	orgID := authToken.Internal.OrgID
@@ -1003,7 +1002,7 @@ func (server HTTPServer) getOverviewPerCluster(
 		tags = append(tags, ruleWithContent.Tags...)
 	}
 
-	return &proxy_types.ClusterOverview{
+	return &types.ClusterOverview{
 		TotalRisksHit: totalRisks,
 		TagsHit:       tags,
 	}, nil
@@ -1013,14 +1012,14 @@ func (server HTTPServer) getOverviewPerCluster(
 // - The rule has content from the content-service
 // - The disabled filter is not match
 // - The OSD elegible filter is not match
-func filterRulesInResponse(aggregatorReport []types.RuleOnReport, filterOSD, getDisabled bool) (
-	okRules []proxy_types.RuleWithContentResponse,
+func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, getDisabled bool) (
+	okRules []types.RuleWithContentResponse,
 	noContentRulesCnt int,
 	disabledRulesCnt int,
 	contentError error,
 ) {
 	log.Debug().Bool(GetDisabledParam, getDisabled).Bool(OSDEligibleParam, filterOSD).Msg("Filtering rules in report")
-	okRules = []proxy_types.RuleWithContentResponse{}
+	okRules = []types.RuleWithContentResponse{}
 	disabledRulesCnt, noContentRulesCnt = 0, 0
 
 	for _, aggregatorRule := range aggregatorReport {
