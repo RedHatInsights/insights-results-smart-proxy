@@ -23,8 +23,9 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -59,8 +60,8 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 
 // postRatingToAggregator asks aggregator for update the rating for a given rule by the current user/org
 func (server HTTPServer) postRatingToAggregator(
-	orgID types.OrgID, userID types.UserID, request *http.Request, writer http.ResponseWriter,
-) (*types.RuleRating, bool) {
+	orgID ctypes.OrgID, userID ctypes.UserID, request *http.Request, writer http.ResponseWriter,
+) (*ctypes.RuleRating, bool) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.Rating,
@@ -81,8 +82,8 @@ func (server HTTPServer) postRatingToAggregator(
 	}
 
 	var aggregatorResponse struct {
-		Rating types.RuleRating `json:"ratings"`
-		Status string           `json:"status"`
+		Rating ctypes.RuleRating `json:"ratings"`
+		Status string            `json:"status"`
 	}
 
 	err = json.NewDecoder(aggregatorResp.Body).Decode(&aggregatorResponse)
@@ -97,19 +98,19 @@ func (server HTTPServer) postRatingToAggregator(
 // getRatingForRecommendation retrieves user rating for recommendation from aggregator
 func (server HTTPServer) getRatingForRecommendation(
 	writer http.ResponseWriter,
-	orgID types.OrgID,
-	userID types.UserID,
-	ruleID types.RuleID,
+	orgID ctypes.OrgID,
+	userID ctypes.UserID,
+	ruleID ctypes.RuleID,
 ) (
-	ruleRating types.RuleRating,
+	ruleRating ctypes.RuleRating,
 	err error,
 ) {
 	ruleRating.Rule = string(ruleID)
 	ruleRating.Rating = 0
 
 	var aggregatorResponse struct {
-		Rating types.RuleRating `json:"rating"`
-		Status string           `json:"status"`
+		Rating ctypes.RuleRating `json:"rating"`
+		Status string            `json:"status"`
 	}
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
@@ -135,7 +136,7 @@ func (server HTTPServer) getRatingForRecommendation(
 
 	if aggregatorResp.StatusCode == http.StatusNotFound {
 		log.Info().Msgf("rule rating for rule %v and user %v not found", ruleID, userID)
-		return ruleRating, &types.ItemNotFoundError{}
+		return ruleRating, &utypes.ItemNotFoundError{}
 	}
 
 	if aggregatorResp.StatusCode != http.StatusOK {

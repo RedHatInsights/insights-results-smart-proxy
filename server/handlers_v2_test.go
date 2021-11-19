@@ -16,10 +16,11 @@ package server_test
 
 import (
 	"fmt"
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
@@ -79,7 +80,12 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 
 	aggregatorResponse := `
 	{
-		"data":[{"cluster":"5d5892d3-1f74-4ccf-91af-548dfc9767bb"}],
+		"data":[
+			{
+				"cluster":"5d5892d3-1f74-4ccf-91af-548dfc9767bb",
+				"cluster_name": "Hello"
+			}
+		],
 		"meta":{
 			"count":1,
 			"rule_id":"ccx_rules_ocp.external.rules.container_max_root_partition_size|ek1"

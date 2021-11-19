@@ -18,10 +18,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 
-	stypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -39,7 +39,7 @@ const (
 var (
 	// ClusterIDListInReq represent the unmarshalled body for a request
 	// with a cluster list
-	ClusterIDListInReq = types.ClusterListInRequest{
+	ClusterIDListInReq = ctypes.ClusterListInRequest{
 		Clusters: []string{
 			ClusterName1,
 			ClusterName2,
@@ -50,29 +50,29 @@ var (
 	// ClusterIDInURL is the comma separated version of the ClusterIDListInReq
 	ClusterIDInURL = strings.Join(ClusterIDListInReq.Clusters, ",")
 
-	ReportCluster1 = types.ReportRules{
-		HitRules: []types.RuleOnReport{
+	ReportCluster1 = ctypes.ReportRules{
+		HitRules: []ctypes.RuleOnReport{
 			testdata.RuleOnReport1,
 			testdata.RuleOnReport2,
 		},
 	}
 
-	ReportCluster2 = types.ReportRules{
-		HitRules: []types.RuleOnReport{
+	ReportCluster2 = ctypes.ReportRules{
+		HitRules: []ctypes.RuleOnReport{
 			testdata.RuleOnReport5,
 			testdata.RuleOnReport2,
 		},
 	}
 
 	// AggregatorReportForClusterList
-	AggregatorReportForClusterList = types.ClusterReports{
-		ClusterList: []types.ClusterName{
-			types.ClusterName(ClusterName1),
-			types.ClusterName(ClusterName2),
-			types.ClusterName(ClusterName3),
+	AggregatorReportForClusterList = ctypes.ClusterReports{
+		ClusterList: []ctypes.ClusterName{
+			ctypes.ClusterName(ClusterName1),
+			ctypes.ClusterName(ClusterName2),
+			ctypes.ClusterName(ClusterName3),
 		},
-		Errors: []types.ClusterName{},
-		Reports: map[types.ClusterName]json.RawMessage{
+		Errors: []ctypes.ClusterName{},
+		Reports: map[ctypes.ClusterName]json.RawMessage{
 			ClusterName1: whateverToJSONRawMessage(ReportCluster1),
 			ClusterName2: whateverToJSONRawMessage(ReportCluster2),
 			ClusterName3: json.RawMessage([]byte("{}")),
@@ -81,8 +81,8 @@ var (
 		Status:      "ok",
 	}
 
-	ClusterInfoResult = []stypes.ClusterInfo{
-		stypes.ClusterInfo{
+	ClusterInfoResult = []types.ClusterInfo{
+		types.ClusterInfo{
 			ID:          testdata.ClusterName,
 			DisplayName: ClusterDisplayName1,
 		},
@@ -91,9 +91,9 @@ var (
 
 // GetRandomClusterInfo function returns a ClusterInfo with random ID
 // and using the same ID as DisplayName
-func GetRandomClusterInfo() stypes.ClusterInfo {
+func GetRandomClusterInfo() types.ClusterInfo {
 	clusterID := testdata.GetRandomClusterID()
-	return stypes.ClusterInfo{
+	return types.ClusterInfo{
 		ID:          clusterID,
 		DisplayName: string(clusterID),
 	}

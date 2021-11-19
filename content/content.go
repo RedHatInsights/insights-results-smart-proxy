@@ -23,53 +23,54 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/generators"
-	"github.com/RedHatInsights/insights-operator-utils/types"
-	local_types "github.com/RedHatInsights/insights-results-smart-proxy/types"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 var (
-	ruleContentDirectory      *types.RuleContentDirectory
+	ruleContentDirectory      *ctypes.RuleContentDirectory
 	ruleContentDirectoryReady = sync.NewCond(&sync.Mutex{})
 	stopUpdateContentLoop     = make(chan struct{})
 	rulesWithContentStorage   = RulesWithContentStorage{
-		rules:                      map[types.RuleID]*types.RuleContent{},
-		rulesWithContent:           map[ruleIDAndErrorKey]*local_types.RuleWithContent{},
-		recommendationsWithContent: map[types.RuleID]*local_types.RuleWithContent{},
+		rules:                      map[ctypes.RuleID]*ctypes.RuleContent{},
+		rulesWithContent:           map[ruleIDAndErrorKey]*types.RuleWithContent{},
+		recommendationsWithContent: map[ctypes.RuleID]*types.RuleWithContent{},
 	}
 	contentDirectoryTimeout = 5 * time.Second
 	dotReport               = ".report"
 )
 
 type ruleIDAndErrorKey struct {
-	RuleID   types.RuleID
-	ErrorKey types.ErrorKey
+	RuleID   ctypes.RuleID
+	ErrorKey ctypes.ErrorKey
 }
 
 // RulesWithContentStorage is a key:value structure to store processed rules.
 // It's thread safe
 type RulesWithContentStorage struct {
 	sync.RWMutex
-	rules            map[types.RuleID]*types.RuleContent
-	rulesWithContent map[ruleIDAndErrorKey]*local_types.RuleWithContent
+	rules            map[ctypes.RuleID]*ctypes.RuleContent
+	rulesWithContent map[ruleIDAndErrorKey]*types.RuleWithContent
 	// recommendationsWithContent map has the same contents as rulesWithContent but the keys
 	// are composite of "rule.module|ERROR_KEY" optimized for Insights Advisor
-	recommendationsWithContent map[types.RuleID]*local_types.RuleWithContent
-	internalRuleIDs            []types.RuleID
-	externalRuleIDs            []types.RuleID
+	recommendationsWithContent map[ctypes.RuleID]*types.RuleWithContent
+	internalRuleIDs            []ctypes.RuleID
+	externalRuleIDs            []ctypes.RuleID
 }
 
 // SetRuleContentDirectory is made for easy testing fake rules etc. from other directories
-func SetRuleContentDirectory(contentDir *types.RuleContentDirectory) {
+func SetRuleContentDirectory(contentDir *ctypes.RuleContentDirectory) {
 	ruleContentDirectory = contentDir
 }
 
 // GetRuleWithErrorKeyContent returns content for rule with error key
 func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
-	ruleID types.RuleID, errorKey types.ErrorKey,
-) (*local_types.RuleWithContent, bool) {
+	ruleID ctypes.RuleID, errorKey ctypes.ErrorKey,
+) (*types.RuleWithContent, bool) {
 	s.RLock()
 	defer s.RUnlock()
 
@@ -81,12 +82,12 @@ func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 }
 
 // GetRuleContentV1 returns content for rule for api v1
-func (s *RulesWithContentStorage) GetRuleContentV1(ruleID types.RuleID) (*local_types.RuleContentV1, bool) {
+func (s *RulesWithContentStorage) GetRuleContentV1(ruleID ctypes.RuleID) (*types.RuleContentV1, bool) {
 	s.RLock()
 	defer s.RUnlock()
 
 	res, found := s.rules[ruleID]
-	resV1 := local_types.RuleContentV1{}
+	resV1 := types.RuleContentV1{}
 	if found {
 		resV1.Plugin = res.Plugin
 		resV1.Generic = res.Generic
@@ -95,10 +96,10 @@ func (s *RulesWithContentStorage) GetRuleContentV1(ruleID types.RuleID) (*local_
 		resV1.MoreInfo = res.MoreInfo
 		resV1.Reason = res.Reason
 		resV1.HasReason = res.HasReason
-		resV1.ErrorKeys = map[string]local_types.RuleErrorKeyContentV1{}
+		resV1.ErrorKeys = map[string]types.RuleErrorKeyContentV1{}
 		for k, elem := range res.ErrorKeys {
-			resV1.ErrorKeys[k] = local_types.RuleErrorKeyContentV1{
-				Metadata: local_types.ErrorKeyMetadataV1{
+			resV1.ErrorKeys[k] = types.RuleErrorKeyContentV1{
+				Metadata: types.ErrorKeyMetadataV1{
 					Description: elem.Metadata.Description,
 					Impact:      elem.Metadata.Impact.Name,
 					Likelihood:  elem.Metadata.Likelihood,
@@ -120,12 +121,12 @@ func (s *RulesWithContentStorage) GetRuleContentV1(ruleID types.RuleID) (*local_
 }
 
 // GetRuleContentV2 returns content for rule for api v2
-func (s *RulesWithContentStorage) GetRuleContentV2(ruleID types.RuleID) (*local_types.RuleContentV2, bool) {
+func (s *RulesWithContentStorage) GetRuleContentV2(ruleID ctypes.RuleID) (*types.RuleContentV2, bool) {
 	s.RLock()
 	defer s.RUnlock()
 
 	res, found := s.rules[ruleID]
-	resV2 := local_types.RuleContentV2{}
+	resV2 := types.RuleContentV2{}
 	if found {
 		resV2.Plugin = res.Plugin
 		resV2.Generic = res.Generic
@@ -134,10 +135,10 @@ func (s *RulesWithContentStorage) GetRuleContentV2(ruleID types.RuleID) (*local_
 		resV2.MoreInfo = res.MoreInfo
 		resV2.Reason = res.Reason
 		resV2.HasReason = res.HasReason
-		resV2.ErrorKeys = map[string]local_types.RuleErrorKeyContentV2{}
+		resV2.ErrorKeys = map[string]types.RuleErrorKeyContentV2{}
 		for k, elem := range res.ErrorKeys {
-			resV2.ErrorKeys[k] = local_types.RuleErrorKeyContentV2{
-				Metadata: local_types.ErrorKeyMetadataV2{
+			resV2.ErrorKeys[k] = types.RuleErrorKeyContentV2{
+				Metadata: types.ErrorKeyMetadataV2{
 					Description: elem.Metadata.Description,
 					Impact:      elem.Metadata.Impact.Impact,
 					Likelihood:  elem.Metadata.Likelihood,
@@ -160,8 +161,8 @@ func (s *RulesWithContentStorage) GetRuleContentV2(ruleID types.RuleID) (*local_
 
 // GetContentForRecommendation returns content for rule with error key
 func (s *RulesWithContentStorage) GetContentForRecommendation(
-	ruleID types.RuleID,
-) (*local_types.RuleWithContent, bool) {
+	ruleID ctypes.RuleID,
+) (*types.RuleWithContent, bool) {
 	s.RLock()
 	defer s.RUnlock()
 
@@ -170,15 +171,15 @@ func (s *RulesWithContentStorage) GetContentForRecommendation(
 }
 
 // GetAllContentV1 returns content for rule for api v1
-func (s *RulesWithContentStorage) GetAllContentV1() []local_types.RuleContentV1 {
+func (s *RulesWithContentStorage) GetAllContentV1() []types.RuleContentV1 {
 	s.RLock()
 	defer s.RUnlock()
 
-	res := make([]local_types.RuleContentV1, 0, len(s.rules))
+	res := make([]types.RuleContentV1, 0, len(s.rules))
 	for _, rule := range s.rules {
-		ruleV1 := local_types.RuleContentV1{
+		ruleV1 := types.RuleContentV1{
 			Plugin:     rule.Plugin,
-			ErrorKeys:  map[string]local_types.RuleErrorKeyContentV1{},
+			ErrorKeys:  map[string]types.RuleErrorKeyContentV1{},
 			Generic:    rule.Generic,
 			Summary:    rule.Summary,
 			Resolution: rule.Resolution,
@@ -187,8 +188,8 @@ func (s *RulesWithContentStorage) GetAllContentV1() []local_types.RuleContentV1 
 			HasReason:  rule.HasReason,
 		}
 		for k, elem := range rule.ErrorKeys {
-			ruleV1.ErrorKeys[k] = local_types.RuleErrorKeyContentV1{
-				Metadata: local_types.ErrorKeyMetadataV1{
+			ruleV1.ErrorKeys[k] = types.RuleErrorKeyContentV1{
+				Metadata: types.ErrorKeyMetadataV1{
 					Description: elem.Metadata.Description,
 					Impact:      elem.Metadata.Impact.Name,
 					Likelihood:  elem.Metadata.Likelihood,
@@ -213,15 +214,15 @@ func (s *RulesWithContentStorage) GetAllContentV1() []local_types.RuleContentV1 
 }
 
 // GetAllContentV2 returns content for api/v2
-func (s *RulesWithContentStorage) GetAllContentV2() []local_types.RuleContentV2 {
+func (s *RulesWithContentStorage) GetAllContentV2() []types.RuleContentV2 {
 	s.RLock()
 	defer s.RUnlock()
 
-	res := make([]local_types.RuleContentV2, 0, len(s.rules))
+	res := make([]types.RuleContentV2, 0, len(s.rules))
 	for _, rule := range s.rules {
-		ruleV2 := local_types.RuleContentV2{
+		ruleV2 := types.RuleContentV2{
 			Plugin:     rule.Plugin,
-			ErrorKeys:  map[string]local_types.RuleErrorKeyContentV2{},
+			ErrorKeys:  map[string]types.RuleErrorKeyContentV2{},
 			Generic:    rule.Generic,
 			Summary:    rule.Summary,
 			Resolution: rule.Resolution,
@@ -230,8 +231,8 @@ func (s *RulesWithContentStorage) GetAllContentV2() []local_types.RuleContentV2 
 			HasReason:  rule.HasReason,
 		}
 		for k, elem := range rule.ErrorKeys {
-			ruleV2.ErrorKeys[k] = local_types.RuleErrorKeyContentV2{
-				Metadata: local_types.ErrorKeyMetadataV2{
+			ruleV2.ErrorKeys[k] = types.RuleErrorKeyContentV2{
+				Metadata: types.ErrorKeyMetadataV2{
 					Description: elem.Metadata.Description,
 					Impact:      elem.Metadata.Impact.Impact,
 					Likelihood:  elem.Metadata.Likelihood,
@@ -257,9 +258,9 @@ func (s *RulesWithContentStorage) GetAllContentV2() []local_types.RuleContentV2 
 
 // SetRuleWithContent sets content for rule with error key
 func (s *RulesWithContentStorage) SetRuleWithContent(
-	ruleID types.RuleID, errorKey types.ErrorKey, ruleWithContent *local_types.RuleWithContent,
+	ruleID ctypes.RuleID, errorKey ctypes.ErrorKey, ruleWithContent *types.RuleWithContent,
 ) {
-	compositeRuleID, err := generators.GenerateCompositeRuleID(types.RuleFQDN(ruleID), errorKey)
+	compositeRuleID, err := generators.GenerateCompositeRuleID(ctypes.RuleFQDN(ruleID), errorKey)
 	if err == nil {
 		s.recommendationsWithContent[compositeRuleID] = ruleWithContent
 	} else {
@@ -283,7 +284,7 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 
 // SetRule sets content for rule
 func (s *RulesWithContentStorage) SetRule(
-	ruleID types.RuleID, ruleContent types.RuleContent,
+	ruleID ctypes.RuleID, ruleContent ctypes.RuleContent,
 ) {
 	s.Lock()
 	defer s.Unlock()
@@ -296,11 +297,11 @@ func (s *RulesWithContentStorage) ResetContent() {
 	s.Lock()
 	defer s.Unlock()
 
-	s.rules = make(map[types.RuleID]*types.RuleContent)
-	s.rulesWithContent = make(map[ruleIDAndErrorKey]*local_types.RuleWithContent)
-	s.recommendationsWithContent = make(map[types.RuleID]*local_types.RuleWithContent)
-	s.internalRuleIDs = make([]types.RuleID, 0)
-	s.externalRuleIDs = make([]types.RuleID, 0)
+	s.rules = make(map[ctypes.RuleID]*ctypes.RuleContent)
+	s.rulesWithContent = make(map[ruleIDAndErrorKey]*types.RuleWithContent)
+	s.recommendationsWithContent = make(map[ctypes.RuleID]*types.RuleWithContent)
+	s.internalRuleIDs = make([]ctypes.RuleID, 0)
+	s.externalRuleIDs = make([]ctypes.RuleID, 0)
 }
 
 // GetRuleIDs gets rule IDs for rules (rule modules)
@@ -318,7 +319,7 @@ func (s *RulesWithContentStorage) GetRuleIDs() []string {
 }
 
 // GetInternalRuleIDs returns the composite rule IDs ("| format") of internal rules
-func (s *RulesWithContentStorage) GetInternalRuleIDs() []types.RuleID {
+func (s *RulesWithContentStorage) GetInternalRuleIDs() []ctypes.RuleID {
 	s.Lock()
 	defer s.Unlock()
 
@@ -326,7 +327,7 @@ func (s *RulesWithContentStorage) GetInternalRuleIDs() []types.RuleID {
 }
 
 // GetExternalRuleIDs returns the composite rule IDs ("| format") of external rules
-func (s *RulesWithContentStorage) GetExternalRuleIDs() []types.RuleID {
+func (s *RulesWithContentStorage) GetExternalRuleIDs() []ctypes.RuleID {
 	s.Lock()
 	defer s.Unlock()
 
@@ -370,8 +371,8 @@ func WaitForContentDirectoryToBeReady() error {
 // GetRuleWithErrorKeyContent returns content for rule with provided `rule id` and `error key`.
 // Caching is done under the hood, don't worry about it.
 func GetRuleWithErrorKeyContent(
-	ruleID types.RuleID, errorKey types.ErrorKey,
-) (*local_types.RuleWithContent, error) {
+	ruleID ctypes.RuleID, errorKey ctypes.ErrorKey,
+) (*types.RuleWithContent, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
 
@@ -379,11 +380,11 @@ func GetRuleWithErrorKeyContent(
 		return nil, err
 	}
 
-	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
+	ruleID = ctypes.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
 
 	res, found := rulesWithContentStorage.GetRuleWithErrorKeyContent(ruleID, errorKey)
 	if !found {
-		return nil, &types.ItemNotFoundError{ItemID: fmt.Sprintf("%v/%v", ruleID, errorKey)}
+		return nil, &utypes.ItemNotFoundError{ItemID: fmt.Sprintf("%v/%v", ruleID, errorKey)}
 	}
 
 	return res, nil
@@ -391,8 +392,8 @@ func GetRuleWithErrorKeyContent(
 
 // GetContentForRecommendation returns content for rule with provided composite rule ID
 func GetContentForRecommendation(
-	ruleID types.RuleID,
-) (*local_types.RuleWithContent, error) {
+	ruleID ctypes.RuleID,
+) (*types.RuleWithContent, error) {
 
 	err := WaitForContentDirectoryToBeReady()
 
@@ -402,7 +403,7 @@ func GetContentForRecommendation(
 
 	res, found := rulesWithContentStorage.GetContentForRecommendation(ruleID)
 	if !found {
-		return nil, &types.ItemNotFoundError{ItemID: fmt.Sprintf("%v", ruleID)}
+		return nil, &utypes.ItemNotFoundError{ItemID: fmt.Sprintf("%v", ruleID)}
 	}
 
 	return res, nil
@@ -410,7 +411,7 @@ func GetContentForRecommendation(
 
 // GetRuleContentV1 returns content for rule with provided `rule id`
 // Caching is done under the hood, don't worry about it.
-func GetRuleContentV1(ruleID types.RuleID) (*local_types.RuleContentV1, error) {
+func GetRuleContentV1(ruleID ctypes.RuleID) (*types.RuleContentV1, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
 
@@ -418,18 +419,18 @@ func GetRuleContentV1(ruleID types.RuleID) (*local_types.RuleContentV1, error) {
 		return nil, err
 	}
 
-	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
+	ruleID = ctypes.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
 
 	res, found := rulesWithContentStorage.GetRuleContentV1(ruleID)
 	if !found {
-		return nil, &types.ItemNotFoundError{ItemID: ruleID}
+		return nil, &utypes.ItemNotFoundError{ItemID: ruleID}
 	}
 
 	return res, nil
 }
 
 // GetRuleContentV2 provides single rule for api v2
-func GetRuleContentV2(ruleID types.RuleID) (*local_types.RuleContentV2, error) {
+func GetRuleContentV2(ruleID ctypes.RuleID) (*types.RuleContentV2, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
 
@@ -437,11 +438,11 @@ func GetRuleContentV2(ruleID types.RuleID) (*local_types.RuleContentV2, error) {
 		return nil, err
 	}
 
-	ruleID = types.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
+	ruleID = ctypes.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
 
 	res, found := rulesWithContentStorage.GetRuleContentV2(ruleID)
 	if !found {
-		return nil, &types.ItemNotFoundError{ItemID: ruleID}
+		return nil, &utypes.ItemNotFoundError{ItemID: ruleID}
 	}
 
 	return res, nil
@@ -464,7 +465,7 @@ func GetRuleIDs() ([]string, error) {
 }
 
 // GetInternalRuleIDs returns a list of composite rule IDs ("| format") of internal rules
-func GetInternalRuleIDs() ([]types.RuleID, error) {
+func GetInternalRuleIDs() ([]ctypes.RuleID, error) {
 	err := WaitForContentDirectoryToBeReady()
 
 	if err != nil {
@@ -475,7 +476,7 @@ func GetInternalRuleIDs() ([]types.RuleID, error) {
 }
 
 // GetExternalRuleIDs returns a list of composite rule IDs ("| format") of external rules
-func GetExternalRuleIDs() ([]types.RuleID, error) {
+func GetExternalRuleIDs() ([]ctypes.RuleID, error) {
 	err := WaitForContentDirectoryToBeReady()
 
 	if err != nil {
@@ -486,7 +487,7 @@ func GetExternalRuleIDs() ([]types.RuleID, error) {
 }
 
 // GetAllContentV1 returns content for all the loaded rules.
-func GetAllContentV1() ([]local_types.RuleContentV1, error) {
+func GetAllContentV1() ([]types.RuleContentV1, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
 
@@ -498,7 +499,7 @@ func GetAllContentV1() ([]local_types.RuleContentV1, error) {
 }
 
 // GetAllContentV2 returns content for api v2
-func GetAllContentV2() ([]local_types.RuleContentV2, error) {
+func GetAllContentV2() ([]types.RuleContentV2, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
 
@@ -559,8 +560,8 @@ func UpdateContent(servicesConf services.Configuration) {
 //   - Structure with rules and content
 //   - return true if the rule has been filtered by OSDElegible field. False otherwise
 //   - return error if the one occurred during retrieval
-func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
-	ruleWithContentResponse *local_types.RuleWithContentResponse,
+func FetchRuleContent(rule ctypes.RuleOnReport, OSDEligible bool) (
+	ruleWithContentResponse *types.RuleWithContentResponse,
 	osdFiltered bool,
 	err error,
 ) {
@@ -583,7 +584,7 @@ func FetchRuleContent(rule types.RuleOnReport, OSDEligible bool) (
 		return
 	}
 
-	ruleWithContentResponse = &local_types.RuleWithContentResponse{
+	ruleWithContentResponse = &types.RuleWithContentResponse{
 		CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
 		Description:     ruleWithContent.Description,
 		ErrorKey:        errorKey,

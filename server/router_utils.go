@@ -22,10 +22,10 @@ import (
 	"strings"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 
-	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -37,13 +37,13 @@ const (
 	ImpactingParam = "impacting"
 )
 
-func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (types.RuleID, types.ErrorKey, error) {
+func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (ctypes.RuleID, ctypes.ErrorKey, error) {
 	ruleIDWithErrorKey, err := httputils.GetRouterParam(request, "rule_id")
 	if err != nil {
 		const message = "unable to get rule id"
 		log.Error().Err(err).Msg(message)
 		handleServerError(writer, err)
-		return types.RuleID(""), types.ErrorKey(""), err
+		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 
 	splitedRuleID := strings.Split(string(ruleIDWithErrorKey), "|")
@@ -56,7 +56,7 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 			paramValue: ruleIDWithErrorKey,
 			errString:  err.Error(),
 		})
-		return types.RuleID(""), types.ErrorKey(""), err
+		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 
 	IDValidator := regexp.MustCompile(`^[a-zA-Z_0-9.]+$`)
@@ -72,14 +72,14 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 			paramValue: ruleIDWithErrorKey,
 			errString:  err.Error(),
 		})
-		return types.RuleID(""), types.ErrorKey(""), err
+		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 
-	return types.RuleID(splitedRuleID[0]), types.ErrorKey(splitedRuleID[1]), nil
+	return ctypes.RuleID(splitedRuleID[0]), ctypes.ErrorKey(splitedRuleID[1]), nil
 }
 
 func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
-	ruleID types.RuleID,
+	ruleID ctypes.RuleID,
 	err error,
 ) {
 	ruleIDParam, err := httputils.GetRouterParam(request, "rule_id")
@@ -103,14 +103,14 @@ func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
 		return
 	}
 
-	ruleID = types.RuleID(ruleIDParam)
+	ruleID = ctypes.RuleID(ruleIDParam)
 	return
 }
 
 func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (
-	userID types.UserID,
-	orgID types.OrgID,
-	impactingFlag sptypes.ImpactingFlag,
+	userID ctypes.UserID,
+	orgID ctypes.OrgID,
+	impactingFlag types.ImpactingFlag,
 	err error,
 ) {
 

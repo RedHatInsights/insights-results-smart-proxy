@@ -17,7 +17,7 @@ limitations under the License.
 package server
 
 import (
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 // Configuration represents configuration of REST API HTTP server

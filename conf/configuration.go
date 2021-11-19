@@ -45,10 +45,10 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )

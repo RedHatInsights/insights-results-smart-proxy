@@ -26,7 +26,7 @@ import (
 	"net/url"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 )
 

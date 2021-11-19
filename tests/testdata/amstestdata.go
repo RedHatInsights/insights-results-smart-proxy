@@ -17,7 +17,7 @@ package testdata
 import (
 	"fmt"
 
-	"github.com/RedHatInsights/insights-operator-utils/types"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 const (

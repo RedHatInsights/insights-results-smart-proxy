@@ -26,9 +26,9 @@ import (
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
-	iou_types "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 
@@ -63,7 +63,7 @@ var (
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: false,
-		InternalRulesOrganizations:       []iou_types.OrgID{1},
+		InternalRulesOrganizations:       []ctypes.OrgID{1},
 	}
 
 	serverConfigInternalOrganizations1 = server.Configuration{
@@ -78,7 +78,7 @@ var (
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: true,
-		InternalRulesOrganizations:       []iou_types.OrgID{1},
+		InternalRulesOrganizations:       []ctypes.OrgID{1},
 	}
 
 	// Same as previous one, but different InternalRulesOrganizations
@@ -95,7 +95,7 @@ var (
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: true,
-		InternalRulesOrganizations:       []iou_types.OrgID{2},
+		InternalRulesOrganizations:       []ctypes.OrgID{2},
 	}
 
 	SmartProxyReportResponse1RuleNoContent = struct {
@@ -376,39 +376,39 @@ var (
 	}
 
 	GetContentResponse3Rules = struct {
-		Status string                  `json:"status"`
-		Rules  []iou_types.RuleContent `json:"content"`
+		Status string               `json:"status"`
+		Rules  []ctypes.RuleContent `json:"content"`
 	}{
 		Status: "ok",
-		Rules: []iou_types.RuleContent{
+		Rules: []ctypes.RuleContent{
 			testdata.RuleContent1,
 			testdata.RuleContent2,
 			testdata.RuleContent3,
 		},
 	}
 
-	RuleContentInternal1 = iou_types.RuleContent{
+	RuleContentInternal1 = ctypes.RuleContent{
 		Summary:    testdata.Rule1.Summary,
 		Generic:    testdata.Rule1.Generic,
 		Reason:     testdata.Rule1.Reason,
 		Resolution: testdata.Rule1.Resolution,
 		MoreInfo:   testdata.Rule1.MoreInfo,
-		Plugin: iou_types.RulePluginInfo{
+		Plugin: ctypes.RulePluginInfo{
 			Name:         testdata.Rule1.Name,
 			NodeID:       "",
 			ProductCode:  "",
 			PythonModule: internalTestRuleModule,
 		},
-		ErrorKeys: map[string]iou_types.RuleErrorKeyContent{
+		ErrorKeys: map[string]ctypes.RuleErrorKeyContent{
 			"ek1": {
 				Summary:    testdata.RuleErrorKey1.Summary,
 				Generic:    testdata.RuleErrorKey1.Generic,
 				Reason:     testdata.RuleErrorKey1.Reason,
 				Resolution: testdata.RuleErrorKey1.Resolution,
 				MoreInfo:   testdata.RuleErrorKey1.MoreInfo,
-				Metadata: iou_types.ErrorKeyMetadata{
+				Metadata: ctypes.ErrorKeyMetadata{
 					Description: testdata.RuleErrorKey1.Description,
-					Impact: iou_types.Impact{
+					Impact: ctypes.Impact{
 						Name:   "test_impact",
 						Impact: testdata.RuleErrorKey1.Impact,
 					},
@@ -676,7 +676,7 @@ var (
 		Status  string                      `json:"status"`
 	}{
 		Content: types.RecommendationContent{
-			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
+			RuleSelector: ctypes.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,
@@ -699,7 +699,7 @@ var (
 		Status  string                              `json:"status"`
 	}{
 		Content: types.RecommendationContentUserData{
-			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
+			RuleSelector: ctypes.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,
@@ -725,7 +725,7 @@ var (
 		Status  string                              `json:"status"`
 	}{
 		Content: types.RecommendationContentUserData{
-			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
+			RuleSelector: ctypes.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,
@@ -751,7 +751,7 @@ var (
 		Status  string                              `json:"status"`
 	}{
 		Content: types.RecommendationContentUserData{
-			RuleSelector: iou_types.RuleSelector(testdata.Rule1CompositeID),
+			RuleSelector: ctypes.RuleSelector(testdata.Rule1CompositeID),
 			Description:  testdata.RuleErrorKey1.Description,
 			Generic:      testdata.RuleErrorKey1.Generic,
 			Reason:       testdata.RuleErrorKey1.Reason,
@@ -777,15 +777,15 @@ func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
 }
 
-func createRuleContentDirectoryFromRuleContent(rulesContent []iou_types.RuleContent) *iou_types.RuleContentDirectory {
-	rules := make(map[string]iou_types.RuleContent)
+func createRuleContentDirectoryFromRuleContent(rulesContent []ctypes.RuleContent) *ctypes.RuleContentDirectory {
+	rules := make(map[string]ctypes.RuleContent)
 
 	for index, rule := range rulesContent {
 		key := fmt.Sprintf("rc%d", index)
 		rules[key] = rule
 	}
-	ruleContentDirectory := iou_types.RuleContentDirectory{
-		Config: iou_types.GlobalRuleConfig{
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
 			Impact: testdata.ImpactStrToInt,
 		},
 		Rules: rules,
@@ -793,7 +793,7 @@ func createRuleContentDirectoryFromRuleContent(rulesContent []iou_types.RuleCont
 	return &ruleContentDirectory
 }
 
-func loadMockRuleContentDir(ruleContentDir *iou_types.RuleContentDirectory) error {
+func loadMockRuleContentDir(ruleContentDir *ctypes.RuleContentDirectory) error {
 	content.SetRuleContentDirectory(ruleContentDir)
 	err := content.WaitForContentDirectoryToBeReady()
 	if err != nil {

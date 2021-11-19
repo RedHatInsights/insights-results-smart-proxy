@@ -30,8 +30,8 @@ import (
 	"github.com/rs/zerolog/log"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
-	"github.com/RedHatInsights/insights-operator-utils/types"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	types "github.com/RedHatInsights/insights-results-types"
 )
 
 const aggregatorImproperCodeMessage = "Aggregator responded with improper HTTP code: %v"
