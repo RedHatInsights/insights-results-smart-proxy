@@ -29,6 +29,7 @@ func (s *RulesWithContentStorage) getRuleContent(ruleID ctypes.RuleID) (*ctypes.
 	return res, found
 }
 
+// RuleContentToV1 parses insights-results-types.RuleContent to RuleContentV1
 func RuleContentToV1(res *ctypes.RuleContent) types.RuleContentV1 {
 	resV1 := types.RuleContentV1{}
 	resV1.Plugin = res.Plugin
@@ -61,6 +62,7 @@ func RuleContentToV1(res *ctypes.RuleContent) types.RuleContentV1 {
 	return resV1
 }
 
+// RuleContentToV2 parses insights-results-types.RuleContent to RuleContentV2
 func RuleContentToV2(res *ctypes.RuleContent) types.RuleContentV2 {
 	resV2 := types.RuleContentV2{}
 	resV2.Plugin = res.Plugin
