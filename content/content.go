@@ -294,25 +294,25 @@ func GetContentForRecommendation(
 // GetRuleContentV1 returns content for rule with provided `rule id`
 // Caching is done under the hood, don't worry about it.
 func GetRuleContentV1(ruleID ctypes.RuleID) (*types.RuleContentV1, error) {
-	// to be sure the data is there
-	err := WaitForContentDirectoryToBeReady()
-
-	if err != nil {
-		return nil, err
+	res, err := getRuleContent(ruleID)
+	if err == nil {
+		resV1 := RuleContentToV1(res)
+		return &resV1, nil
 	}
-
-	ruleID = ctypes.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
-
-	res, found := rulesWithContentStorage.GetRuleContentV1(ruleID)
-	if !found {
-		return nil, &utypes.ItemNotFoundError{ItemID: ruleID}
-	}
-
-	return res, nil
+	return nil, err
 }
 
 // GetRuleContentV2 provides single rule for api v2
 func GetRuleContentV2(ruleID ctypes.RuleID) (*types.RuleContentV2, error) {
+	res, err := getRuleContent(ruleID)
+	if err == nil {
+		resV2 := RuleContentToV2(res)
+		return &resV2, nil
+	}
+	return nil, err
+}
+
+func getRuleContent(ruleID ctypes.RuleID) (*ctypes.RuleContent, error) {
 	// to be sure the data is there
 	err := WaitForContentDirectoryToBeReady()
 
@@ -322,7 +322,7 @@ func GetRuleContentV2(ruleID ctypes.RuleID) (*types.RuleContentV2, error) {
 
 	ruleID = ctypes.RuleID(strings.TrimSuffix(string(ruleID), dotReport))
 
-	res, found := rulesWithContentStorage.GetRuleContentV2(ruleID)
+	res, found := rulesWithContentStorage.getRuleContent(ruleID)
 	if !found {
 		return nil, &utypes.ItemNotFoundError{ItemID: ruleID}
 	}
