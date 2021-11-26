@@ -19,13 +19,15 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
-	"github.com/stretchr/testify/assert"
-
+	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
+	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 )
 
 func TestHTTPServer_SetRating(t *testing.T) {
@@ -78,12 +80,12 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
-	aggregatorResponse := `
+	response := `
 	{
 		"data":[
 			{
-				"cluster":"5d5892d3-1f74-4ccf-91af-548dfc9767bb",
-				"cluster_name": "Hello"
+				"cluster":"%s",
+				"cluster_name": "%s"
 			}
 		],
 		"meta":{
@@ -93,6 +95,9 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		"status":"ok"
 	}
 	`
+
+	aggregatorResponse := fmt.Sprintf(response, testdata.ClusterName, "")
+	expectedResponse := fmt.Sprintf(response, testdata.ClusterName, data.ClusterDisplayName1)
 
 	helpers.GockExpectAPIRequest(
 		t,
@@ -108,13 +113,17 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		},
 	)
 
-	helpers.AssertAPIv2Request(
+	// prepare list of organizations response
+	amsClientMock := helpers.AMSClientWithOrgResults(
+		testdata.OrgID,
+		data.ClusterInfoResult,
+	)
+
+	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+	iou_helpers.AssertAPIRequest(
 		t,
-		&serverConfigJWT,
-		nil,
-		nil,
-		nil,
-		nil,
+		testServer,
+		serverConfigJWT.APIv2Prefix,
 		&helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersDetail,
@@ -122,7 +131,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       aggregatorResponse,
+			Body:       expectedResponse,
 		},
 	)
 }

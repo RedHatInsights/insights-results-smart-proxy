@@ -519,6 +519,7 @@ func proxyImpactedClusters(
 	writer http.ResponseWriter,
 	selector ctypes.RuleSelector,
 	aggregatorResp *http.Response,
+	namesMap map[ctypes.ClusterName]string,
 ) error {
 	// If we received a 404 - no entries found for given orgID+selector in DB
 	// We return an empty list and a 200 OK
@@ -530,6 +531,23 @@ func proxyImpactedClusters(
 		}
 		resp["data"] = []ctypes.HittingClustersData{}
 		return responses.SendOK(writer, resp)
+	}
+
+	if aggregatorResp.StatusCode == http.StatusOK {
+		// unmarshall the response to add cluster names to it
+		var response ctypes.HittingClusters
+
+		err := json.NewDecoder(aggregatorResp.Body).Decode(&response)
+		if err != nil {
+			return err
+		}
+
+		for index := range response.ClusterList {
+			clusterID := response.ClusterList[index].Cluster
+			response.ClusterList[index].Name = namesMap[clusterID]
+		}
+
+		return responses.Send(aggregatorResp.StatusCode, writer, response)
 	}
 
 	//Proxy the other responses as they came
@@ -546,7 +564,7 @@ func (server HTTPServer) getImpactedClusters(
 	orgID ctypes.OrgID,
 	userID ctypes.UserID,
 	selector ctypes.RuleSelector,
-	activeClusters []ctypes.ClusterName,
+	activeClustersInfo []types.ClusterInfo,
 ) error {
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
@@ -557,13 +575,16 @@ func (server HTTPServer) getImpactedClusters(
 		userID,
 	)
 
+	activeClusters := types.GetClusterNames(activeClustersInfo)
 	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters)
 	// if http.Get fails for whatever reason
 	if err != nil {
 		handleServerError(writer, err)
 		return err
 	}
-	if err = proxyImpactedClusters(writer, selector, aggregatorResp); err != nil {
+
+	namesMap := types.ClusterInfoArrayToMap(activeClustersInfo)
+	if err = proxyImpactedClusters(writer, selector, aggregatorResp, namesMap); err != nil {
 		log.Error().Err(err).Msgf(problemSendingResponseError)
 		handleServerError(writer, err)
 		return err
@@ -590,10 +611,10 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		handleServerError(writer, err)
 		return
 	}
-	activeClusters := make([]ctypes.ClusterName, 0)
+	activeClustersInfo := make([]types.ClusterInfo, 0)
 	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
-		activeClustersInfo, err := server.amsClient.GetClustersForOrganization(
+		activeClustersInfo, err = server.amsClient.GetClustersForOrganization(
 			orgID,
 			nil,
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
@@ -601,14 +622,12 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 
 		if err != nil {
 			log.Error().Err(err).Msg("amsclient was unable to retrieve the list of active clusters")
-			activeClusters = make([]ctypes.ClusterName, 0)
-		} else {
-			activeClusters = types.GetClusterNames(activeClustersInfo)
+			activeClustersInfo = make([]types.ClusterInfo, 0)
 		}
 	}
 
 	// get the list of clusters affected by given rule from aggregator and send to client
-	err = server.getImpactedClusters(writer, orgID, userID, selector, activeClusters)
+	err = server.getImpactedClusters(writer, orgID, userID, selector, activeClustersInfo)
 	if err != nil {
 		log.Error().
 			Err(err).

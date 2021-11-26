@@ -14,12 +14,27 @@
 
 package types
 
+import (
+	ctypes "github.com/RedHatInsights/insights-results-types"
+)
+
 // GetClusterNames extract the ClusterName from an array of ClusterInfo
 func GetClusterNames(clustersInfo []ClusterInfo) []ClusterName {
 	var retval []ClusterName = make([]ClusterName, 0)
 
 	for _, info := range clustersInfo {
 		retval = append(retval, info.ID)
+	}
+
+	return retval
+}
+
+// ClusterInfoArrayToMap convert an array of ClusterInfo elements into a map using
+// ClusterName as key
+func ClusterInfoArrayToMap(clustersInfo []ClusterInfo) map[ctypes.ClusterName]string {
+	var retval map[ctypes.ClusterName]string = make(map[ctypes.ClusterName]string)
+	for _, clusterInfo := range clustersInfo {
+		retval[clusterInfo.ID] = clusterInfo.DisplayName
 	}
 
 	return retval
