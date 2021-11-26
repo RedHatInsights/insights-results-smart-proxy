@@ -40,6 +40,8 @@ objects:
     name: ccx-smart-proxy
   spec:
     envName: ${ENV_NAME}
+    testing:
+      iqePlugin: ccx
     deployments:
       - name: service
         minReplicas: ${{MIN_REPLICAS}}
