@@ -376,14 +376,14 @@ var (
 	}
 
 	GetContentResponse3Rules = struct {
-		Status string               `json:"status"`
-		Rules  []ctypes.RuleContent `json:"content"`
+		Status string                 `json:"status"`
+		Rules  []ctypes.RuleContentV1 `json:"content"`
 	}{
 		Status: "ok",
-		Rules: []ctypes.RuleContent{
-			testdata.RuleContent1,
-			testdata.RuleContent2,
-			testdata.RuleContent3,
+		Rules: []ctypes.RuleContentV1{
+			content.RuleContentToV1(&testdata.RuleContent1),
+			content.RuleContentToV1(&testdata.RuleContent2),
+			content.RuleContentToV1(&testdata.RuleContent3),
 		},
 	}
 
@@ -919,18 +919,13 @@ func ruleIDsChecker(t testing.TB, expected, got []byte) {
 }
 
 func ruleInContentChecker(t testing.TB, expected, got []byte) {
-	type ExpResponse struct {
-		Status  string `json:"string"`
-		Content []types.RuleContent
-	}
-
-	type GotResponse struct {
+	type Response struct {
 		Status  string `json:"string"`
 		Content []types.RuleContentV1
 	}
 
-	var expectedResp ExpResponse
-	var gotResp GotResponse
+	var expectedResp Response
+	var gotResp Response
 
 	if err := json.Unmarshal(expected, &expectedResp); err != nil {
 		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
@@ -942,7 +937,7 @@ func ruleInContentChecker(t testing.TB, expected, got []byte) {
 		helpers.FailOnError(t, err)
 	}
 
-	// assert.ElementsMatch(t, expectedResp.Content, gotResp.Content) TODO
+	assert.ElementsMatch(t, expectedResp.Content, gotResp.Content)
 }
 
 func recommendationInResponseChecker(t testing.TB, expected, got []byte) {
