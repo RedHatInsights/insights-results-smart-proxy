@@ -584,10 +584,29 @@ func TestInternalOrganizations(t *testing.T) {
 		MockAuthToken      string
 	}{
 		{
-			"Internal organizations enabled, Request denied",
+			"Internal organizations enabled, Request denied due to wrong OrgID",
 			&serverConfigInternalOrganizations1,
 			http.StatusForbidden,
 			badJWTAuthBearer,
+		},
+		{
+			"Internal organizations enabled, Request denied due to unparsable token",
+			&serverConfigInternalOrganizations1,
+			http.StatusForbidden,
+			unparsableJWTAuthBearer,
+		},
+		// TODO: This case gives 200 instead of 403
+		{
+			"Internal organizations enabled, Request denied due to incomplete token",
+			&serverConfigInternalOrganizations1,
+			http.StatusForbidden,
+			incompleteJWTAuthBearer,
+		},
+		{
+			"Internal organizations enabled, Request denied due to invalid type in token",
+			&serverConfigInternalOrganizations1,
+			http.StatusForbidden,
+			invalidJWTAuthBearer,
 		},
 		{
 			"Internal organizations enabled, Request allowed",
@@ -612,7 +631,7 @@ func TestInternalOrganizations(t *testing.T) {
 				}, &helpers.APIResponse{
 					StatusCode: testCase.ExpectedStatusCode,
 				})
-			}, testTimeout)
+			}, testTimeout*100)
 		})
 	}
 }
