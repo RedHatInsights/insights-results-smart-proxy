@@ -9,6 +9,15 @@
 
 Smart proxy for insights results
 
+<!-- vim-markdown-toc GFM -->
+
+* [Description](#description)
+* [Documentation](#documentation)
+* [Contribution](#contribution)
+* [Package manifest](#package-manifest)
+
+<!-- vim-markdown-toc -->
+
 ## Description
 
 Insights Results Smart Proxy is a service that acts as a proxy between the different external
