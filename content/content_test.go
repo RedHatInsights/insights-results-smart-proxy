@@ -38,85 +38,111 @@ const (
 )
 
 var (
-	random = rand.New(rand.NewSource(time.Now().Unix()))
+	random       = rand.New(rand.NewSource(time.Now().Unix()))
+	testVersions = []string{"v1", "v2"}
+
+	getRuleContentHelperFuncs = []func(testing.TB){
+		testGetRuleContentV1,
+		testGetRuleContentV2,
+	}
 )
+
+func testGetRuleContentV1(t testing.TB) {
+	t.Helper()
+	ruleContent, err := content.GetRuleContentV1(testdata.Rule1ID)
+	helpers.FailOnError(t, err)
+	assert.NotNil(t, ruleContent)
+
+	assert.Equal(t, content.RuleContentToV1(&testdata.RuleContent1), *ruleContent)
+}
+
+func testGetRuleContentV2(t testing.TB) {
+	t.Helper()
+	ruleContent, err := content.GetRuleContentV2(testdata.Rule1ID)
+	helpers.FailOnError(t, err)
+	assert.NotNil(t, ruleContent)
+
+	assert.Equal(t, content.RuleContentToV2(&testdata.RuleContent1), *ruleContent)
+}
 
 func TestGetRuleContent(t *testing.T) {
 	defer content.ResetContent()
-	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		defer helpers.CleanAfterGock(t)
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+
+	for i := range testVersions {
+		t.Run(testVersions[i], func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+					Method:   http.MethodGet,
+					Endpoint: ics_server.AllContentEndpoint,
+				}, &helpers.APIResponse{
+					StatusCode: http.StatusOK,
+					Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+				})
+
+				content.UpdateContent(helpers.DefaultServicesConfig)
+				getRuleContentHelperFuncs[i](t)
+
+			}, testTimeout)
 		})
+	}
 
-		content.UpdateContent(helpers.DefaultServicesConfig)
-
-		ruleContent, err := content.GetRuleContentV2(testdata.Rule1ID)
-		helpers.FailOnError(t, err)
-		assert.NotNil(t, ruleContent)
-
-		assert.Equal(t, testdata.RuleContent1V2, *ruleContent)
-	}, testTimeout)
 }
 
 func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
 	defer content.ResetContent()
 	const N = 10
 
-	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		defer helpers.CleanAfterGock(t)
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: ics_server.AllContentEndpoint,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+	for j := range testVersions {
+		t.Run(testVersions[j], func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+					Method:   http.MethodGet,
+					Endpoint: ics_server.AllContentEndpoint,
+				}, &helpers.APIResponse{
+					StatusCode: http.StatusOK,
+					Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+				})
+
+				content.UpdateContent(helpers.DefaultServicesConfig)
+
+				for i := 0; i < N; i++ {
+					getRuleContentHelperFuncs[j](t)
+				}
+			}, testTimeout)
 		})
-
-		content.UpdateContent(helpers.DefaultServicesConfig)
-
-		for i := 0; i < N; i++ {
-			ruleContent, err := content.GetRuleContentV2(testdata.Rule1ID)
-			helpers.FailOnError(t, err)
-			assert.NotNil(t, ruleContent)
-
-			assert.Equal(t, testdata.RuleContent1V2, *ruleContent)
-		}
-	}, testTimeout)
+	}
 }
 
 func TestUpdateContent_CallMultipleTimes(t *testing.T) {
 	defer content.ResetContent()
 	const N = 10
 
-	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		defer helpers.CleanAfterGock(t)
-		for i := 0; i < N; i++ {
-			helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
-				Method:   http.MethodGet,
-				Endpoint: ics_server.AllContentEndpoint,
-			}, &helpers.APIResponse{
-				StatusCode: http.StatusOK,
-				Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
-			})
-		}
+	for j := range testVersions {
+		t.Run(testVersions[j], func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+				for i := 0; i < N; i++ {
+					helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+						Method:   http.MethodGet,
+						Endpoint: ics_server.AllContentEndpoint,
+					}, &helpers.APIResponse{
+						StatusCode: http.StatusOK,
+						Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+					})
+				}
 
-		for i := 0; i < N; i++ {
-			content.UpdateContent(helpers.DefaultServicesConfig)
-		}
+				for i := 0; i < N; i++ {
+					content.UpdateContent(helpers.DefaultServicesConfig)
+				}
 
-		for i := 0; i < N; i++ {
-			ruleContent, err := content.GetRuleContentV2(testdata.Rule1ID)
-			helpers.FailOnError(t, err)
-			assert.NotNil(t, ruleContent)
-
-			assert.Equal(t, testdata.RuleContent1V2, *ruleContent)
-		}
-	}, testTimeout)
+				for i := 0; i < N; i++ {
+					getRuleContentHelperFuncs[j](t)
+				}
+			}, testTimeout)
+		})
+	}
 }
 
 func TestUpdateContentBadTime(t *testing.T) {
@@ -183,11 +209,19 @@ func TestResetContent(t *testing.T) {
 
 func TestGetAllContent(t *testing.T) {
 	defer content.ResetContent()
-
 	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
-	rules, err := content.GetAllContentV2()
-	assert.Nil(t, err)
-	assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
+
+	t.Run("v1", func(t *testing.T) {
+		rules, err := content.GetAllContentV1()
+		assert.Nil(t, err)
+		assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
+	})
+
+	t.Run("v2", func(t *testing.T) {
+		rules, err := content.GetAllContentV2()
+		assert.Nil(t, err)
+		assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
+	})
 }
 
 func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
