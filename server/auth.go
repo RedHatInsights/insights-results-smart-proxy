@@ -21,7 +21,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -115,7 +114,7 @@ func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID,
 
 	identity, ok := i.(types.Identity)
 	if !ok {
-		return "", fmt.Errorf("contextKeyUser has wrong type")
+		return "", &AuthenticationError{errString: "contextKeyUser has wrong type"}
 	}
 
 	return identity.AccountNumber, nil
@@ -131,7 +130,7 @@ func (server *HTTPServer) GetAuthToken(request *http.Request) (*types.Identity, 
 
 	identity, ok := i.(types.Identity)
 	if !ok {
-		return nil, fmt.Errorf("contextKeyUser has wrong type")
+		return nil, &AuthenticationError{errString: "contextKeyUser has wrong type"}
 	}
 
 	return &identity, nil
