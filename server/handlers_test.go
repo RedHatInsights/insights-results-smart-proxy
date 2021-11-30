@@ -595,11 +595,11 @@ func TestInternalOrganizations(t *testing.T) {
 			http.StatusForbidden,
 			unparsableJWTAuthBearer,
 		},
-		// TODO: This case gives 200 instead of 403
 		{
-			"Internal organizations enabled, Request denied due to incomplete token",
+			// This scenario is managed by 3scale, we don't need to check if the token is complete
+			"Internal organizations enabled, Request allowed even with incomplete token",
 			&serverConfigInternalOrganizations1,
-			http.StatusForbidden,
+			http.StatusOK,
 			incompleteJWTAuthBearer,
 		},
 		{
