@@ -289,6 +289,113 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 }
 
+// getClustersView retrieves all clusters for given organization, retrieves the impacting rules for each cluster
+// from aggregator and returns a list of clusters, total number of hitting rules and a count of impacting rules
+// by severity = total risk = critical, high, moderate, low
+func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *http.Request) {
+	tStart := time.Now()
+
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Err(err).Msg(orgIDTokenError)
+		return
+	}
+	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
+
+	// get a list of clusters from AMS API
+	clusterInfoList, clusterNamesMap, err := server.readClustersForOrgID(orgID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msgf("problem reading cluster list for org")
+		handleServerError(writer, err)
+		return
+	}
+
+	tStartImpacting := time.Now()
+	clusterRecommendationMap, err := server.getClustersAndRecommendations(writer, orgID, userID, types.GetClusterNames(clusterInfoList))
+	if err != nil {
+		log.Error().
+			Err(err).
+			Int(orgIDTag, int(orgID)).
+			Str(userIDTag, string(userID)).
+			Msgf("problem getting clusters and impacting recommendations from aggregator for cluster list: %v", clusterInfoList)
+
+		return
+	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+		"getClustersView getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
+	)
+
+	clusterViewResponse, err := matchClusterInfoRuleSeverity(clusterNamesMap, clusterRecommendationMap)
+	if err != nil {
+		log.Error().Err(err).Msgf("error matching cluster list and rule severities")
+		handleServerError(writer, err)
+	}
+
+	resp := make(map[string]interface{})
+	metaCount := map[string]int{
+		"count": len(clusterViewResponse),
+	}
+	resp["status"] = "ok"
+	resp["meta"] = metaCount
+	resp["data"] = clusterViewResponse
+
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView took %s", time.Since(tStart))
+
+	err = responses.SendOK(writer, resp)
+	if err != nil {
+		log.Error().Err(err).Msgf(problemSendingResponseError)
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// matchClusterInfoRuleSeverity matches data from AMS API, aggregator and calculates the numbers
+// of hitting rules based on their severity (total risk)
+func matchClusterInfoRuleSeverity(
+	clusterNamesMap map[types.ClusterName]string,
+	clusterRecommendationsMap ctypes.ClusterRecommendationMap,
+) ([]types.ClusterListView, error) {
+	clusterListView := make([]types.ClusterListView, 0)
+
+	recommendationSeverities, uniqueSeverities, err := content.GetRuleSeverities()
+	if err != nil {
+		return clusterListView, err
+	}
+
+	// iterates over clusters and their hitting recommendations, accesses map to the get rule severity
+	for clusterID, displayName := range clusterNamesMap {
+		clusterViewItem := types.ClusterListView{
+			ClusterID:       clusterID,
+			DisplayName:     displayName,
+			HitsByTotalRisk: make(map[int]int),
+		}
+
+		// zero in unique severities to have constitent response
+		for _, severity := range uniqueSeverities {
+			clusterViewItem.HitsByTotalRisk[severity] = 0
+		}
+
+		if hittingRecommendations, any := clusterRecommendationsMap[clusterID]; any {
+			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt
+
+			for _, ruleID := range hittingRecommendations.Recommendations {
+				if ruleSeverity, found := recommendationSeverities[ruleID]; found {
+					clusterViewItem.HitsByTotalRisk[ruleSeverity]++
+					clusterViewItem.TotalHitCount++
+				} else {
+					// rule content is missing for this rule; mimicking behaviour of other apps such as OCM = skip rule
+					log.Error().Msgf("rule content was not found for following rule ID. Skipping rule %v.", ruleID)
+				}
+			}
+		}
+
+		clusterListView = append(clusterListView, clusterViewItem)
+	}
+	log.Error().Msgf("%v", len(clusterListView))
+
+	return clusterListView, nil
+}
+
 func generateRuleAckMap(acks []ctypes.SystemWideRuleDisable) (ruleAcksMap map[ctypes.RuleID]bool) {
 	ruleAcksMap = make(map[ctypes.RuleID]bool)
 	for i := range acks {
@@ -436,6 +543,67 @@ func (server HTTPServer) getImpactingRecommendations(
 	}
 
 	return aggregatorResponse.Recommendations, nil
+}
+
+// getClustersAndRecommendations retrieves a list of recommendations from aggregator based on the list of clusters
+func (server HTTPServer) getClustersAndRecommendations(
+	writer http.ResponseWriter,
+	orgID ctypes.OrgID,
+	userID ctypes.UserID,
+	clusterList []ctypes.ClusterName,
+) (ctypes.ClusterRecommendationMap, error) {
+
+	var aggregatorResponse struct {
+		Clusters ctypes.ClusterRecommendationMap `json:"clusters"`
+		Status   string                          `json:"status"`
+	}
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		"clusters/organizations/{org_id}/users/{user_id}/recommendations", //FIXME
+		orgID,
+		userID,
+	)
+
+	jsonMarshalled, err := json.Marshal(clusterList)
+	if err != nil {
+		log.Error().Err(err).Msgf("problem unmarshalling cluster list")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	// #nosec G107
+	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
+	if err != nil {
+		log.Error().Err(err).Msgf("problem getting response from aggregator")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		log.Error().Err(err).Msgf("problem reading response body")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msgf(problemSendingResponseError)
+			handleServerError(writer, err)
+		}
+		return nil, err
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		log.Error().Err(err).Msgf("problem unmarshalling JSON response")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	return aggregatorResponse.Clusters, nil
 }
 
 // getContent retrieves all the static content tied with groups info
@@ -614,7 +782,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	activeClustersInfo := make([]types.ClusterInfo, 0)
 	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
-		activeClustersInfo, err = server.amsClient.GetClustersForOrganization(
+		activeClustersInfo, _, err = server.amsClient.GetClustersForOrganization(
 			orgID,
 			nil,
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},

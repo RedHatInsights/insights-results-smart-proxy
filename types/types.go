@@ -180,6 +180,15 @@ type RecommendationListView struct {
 	ImpactedClustersCnt types.ImpactedClustersCnt `json:"impacted_clusters_count"`
 }
 
+// ClusterListView represents a single item in the response for Clusters List view
+type ClusterListView struct {
+	ClusterID       types.ClusterName `json:"cluster_id"`
+	DisplayName     string            `json:"display_name"`
+	LastCheckedAt   time.Time         `json:"last_checked_at"`
+	TotalHitCount   uint32            `json:"total_hit_count"`
+	HitsByTotalRisk map[int]int       `json:"hits_by_total_risk"`
+}
+
 // RuleRating structure with the rule identifier and the rating
 type RuleRating = types.RuleRating
 

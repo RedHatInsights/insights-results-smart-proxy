@@ -354,14 +354,14 @@ func copyHeader(srcHeaders, dstHeaders http.Header) {
 // organization from aggregator
 func (server HTTPServer) readClusterIDsForOrgID(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
 	if server.amsClient != nil {
-		clusters, err := server.amsClient.GetClustersForOrganization(
+		clusterInfoList, _, err := server.amsClient.GetClustersForOrganization(
 			orgID,
 			nil,
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
 		)
 		if err == nil {
-			log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of clusters retrieved from the AMS API: %v", len(clusters))
-			clusterNames := types.GetClusterNames(clusters)
+			log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of cluster IDs retrieved from the AMS API: %v", len(clusterInfoList))
+			clusterNames := types.GetClusterNames(clusterInfoList)
 			return clusterNames, err
 		}
 
@@ -375,6 +375,56 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID ctypes.OrgID) ([]ctypes.Cl
 	}
 
 	log.Info().Msg("amsclient not initialized. Using fallback mechanism")
+	return server.getClusterIDsFromAggregator(orgID)
+}
+
+// readClustersForOrgID returns a list of cluster info types and a map of cluster display names
+func (server HTTPServer) readClustersForOrgID(orgID ctypes.OrgID) (
+	[]types.ClusterInfo,
+	map[types.ClusterName]string,
+	error,
+) {
+	if server.amsClient != nil {
+		clusterInfoList, clusterNamesMap, err := server.amsClient.GetClustersForOrganization(
+			orgID,
+			nil,
+			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
+		)
+		if err == nil {
+			log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of clusters retrieved from the AMS API: %v", len(clusterInfoList))
+			return clusterInfoList, clusterNamesMap, nil
+		}
+
+		log.Error().Err(err).Msg("Error accessing amsclient")
+	}
+
+	if !server.Config.UseOrgClustersFallback {
+		err := fmt.Errorf("amsclient not initialized")
+		log.Error().Err(err).Msg("")
+		return nil, nil, err
+	}
+
+	log.Info().Msg("amsclient not initialized. Using fallback mechanism")
+	clusterIDs, err := server.getClusterIDsFromAggregator(orgID)
+	if err != nil {
+		log.Error().Err(err).Msg("error retrieving clusters from aggregator")
+		return nil, nil, err
+	}
+
+	// fill in empty display names
+	clusterNamesMap := make(map[types.ClusterName]string)
+	clusterInfo := make([]types.ClusterInfo, len(clusterIDs))
+
+	for i := range clusterIDs {
+		clusterInfo = append(clusterInfo, types.ClusterInfo{ID: clusterIDs[i]})
+		clusterNamesMap[clusterIDs[i]] = ""
+	}
+	return clusterInfo, clusterNamesMap, nil
+}
+
+// readClusterIDsForOrgID reads the list of clusters for a given organization from aggregator
+func (server HTTPServer) getClusterIDsFromAggregator(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
+	log.Info().Msg("retrieving cluster IDs from aggregator")
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,

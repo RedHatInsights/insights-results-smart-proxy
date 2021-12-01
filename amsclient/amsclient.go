@@ -42,7 +42,11 @@ const (
 
 // AMSClient allow us to interact the AMS API
 type AMSClient interface {
-	GetClustersForOrganization(types.OrgID, []string, []string) ([]types.ClusterInfo, error)
+	GetClustersForOrganization(types.OrgID, []string, []string) (
+		clusterInfoList []types.ClusterInfo,
+		clusterNamesMap map[types.ClusterName]string,
+		err error,
+	)
 }
 
 // amsClientImpl is an implementation of the AMSClient interface
@@ -95,24 +99,26 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 // GetClustersForOrganization retrieves the clusters for a given organization using the default client
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
 func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) (
-	[]types.ClusterInfo,
-	error,
+	clusterInfoList []types.ClusterInfo,
+	clusterNamesMap map[types.ClusterName]string,
+	err error,
 ) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking cluster for the organization")
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
+	clusterNamesMap = make(map[types.ClusterName]string)
 
 	tStart := time.Now()
-	var retval []types.ClusterInfo = []types.ClusterInfo{}
 
 	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
 	if err != nil {
-		return retval, err
+		return
 	}
 
 	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter)
 	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
 
 	for pageNum := 1; ; pageNum++ {
+		var err error
 		subscriptionListRequest = subscriptionListRequest.
 			Size(c.pageSize).
 			Page(pageNum).
@@ -123,7 +129,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 		response, err := subscriptionListRequest.Send()
 
 		if err != nil {
-			return retval, err
+			return clusterInfoList, clusterNamesMap, err
 		}
 
 		// When an empty page is returned, then exit the loop
@@ -132,7 +138,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 		}
 
 		for _, item := range response.Items().Slice() {
-			clusterID, ok := item.GetExternalClusterID()
+			clusterIDstr, ok := item.GetExternalClusterID()
 			if !ok {
 				if id, ok := item.GetID(); ok {
 					log.Info().Str("IntClusterID", id).Msg("Not external cluster ID")
@@ -145,17 +151,20 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 
 			displayName, ok := item.GetDisplayName()
 			if !ok {
-				displayName = string(clusterID)
+				displayName = string(clusterIDstr)
 			}
-			retval = append(retval, types.ClusterInfo{
-				ID:          types.ClusterName(clusterID),
+
+			clusterID := types.ClusterName(clusterIDstr)
+			clusterInfoList = append(clusterInfoList, types.ClusterInfo{
+				ID:          clusterID,
 				DisplayName: displayName,
 			})
+			clusterNamesMap[clusterID] = displayName
 		}
 	}
 
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization took %s", time.Since(tStart))
-	return retval, nil
+	return
 }
 
 // GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API

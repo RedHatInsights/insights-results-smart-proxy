@@ -216,6 +216,30 @@ func (s *RulesWithContentStorage) GetExternalRuleIDs() []ctypes.RuleID {
 	return s.externalRuleIDs
 }
 
+// GetRuleSeverities returns a map of rule IDs and their severity (total risk)
+// along with a list of unique severities
+func (s *RulesWithContentStorage) GetRuleSeverities() (
+	severityMap map[ctypes.RuleID]int,
+	uniqueSeverities []int,
+) {
+	s.Lock()
+	defer s.Unlock()
+
+	severityMap = make(map[ctypes.RuleID]int)
+	uniqueMap := make(map[int]bool)
+	for ruleID := range s.recommendationsWithContent {
+		totalRisk := s.recommendationsWithContent[ruleID].TotalRisk
+		severityMap[ruleID] = totalRisk
+		uniqueMap[totalRisk] = true
+	}
+
+	for k := range uniqueMap {
+		uniqueSeverities = append(uniqueSeverities, k)
+	}
+
+	return
+}
+
 // RuleContentDirectoryTimeoutError is used, when the content directory is empty for too long time
 type RuleContentDirectoryTimeoutError struct{}
 
@@ -366,6 +390,23 @@ func GetExternalRuleIDs() ([]ctypes.RuleID, error) {
 	}
 
 	return rulesWithContentStorage.GetExternalRuleIDs(), nil
+}
+
+// GetRuleSeverities returns a map of rule IDs and their severity (total risk),
+// along with a list of unique severities
+func GetRuleSeverities() (
+	map[ctypes.RuleID]int,
+	[]int,
+	error,
+) {
+	err := WaitForContentDirectoryToBeReady()
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	severityMap, uniqueSeverities := rulesWithContentStorage.GetRuleSeverities()
+	return severityMap, uniqueSeverities, nil
 }
 
 // GetAllContentV1 returns content for all the loaded rules.

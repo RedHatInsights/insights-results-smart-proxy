@@ -32,7 +32,10 @@ const (
 	ClustersDetail = "rule/{rule_selector}/clusters_detail"
 
 	// RecommendationsListEndpoint lists all recommendations with a number of impacted clusters.
-	RecommendationsListEndpoint = "rule/"
+	RecommendationsListEndpoint = "rule"
+
+	// ClustersRecommendationsEndpoint returns a list of all clusters, number of impacting rules and number of rules by total risk
+	ClustersRecommendationsEndpoint = "clusters"
 
 	// RuleContentV2 https://issues.redhat.com/browse/CCXDEV-5094
 	// additionally group info is added too
@@ -110,6 +113,7 @@ func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiP
 	router.HandleFunc(apiPrefix+ReportEndpointV2, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+RecommendationsListEndpoint, server.getRecommendations).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+ClustersRecommendationsEndpoint, server.getClustersView).Methods(http.MethodGet)
 }
 
 // addV2RuleEndpointsToRouter method registers handlers for endpoints that handle

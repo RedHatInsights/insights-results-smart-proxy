@@ -28,14 +28,23 @@ type mockAMSClient struct {
 func (m *mockAMSClient) GetClustersForOrganization(
 	orgID types.OrgID,
 	unused1, unused2 []string,
-) ([]types.ClusterInfo, error) {
+) (
+	clusterInfoList []types.ClusterInfo,
+	clusterNamesMap map[types.ClusterName]string,
+	err error,
+) {
 
-	clusters, ok := m.clustersPerOrg[orgID]
+	clusterInfoList, ok := m.clustersPerOrg[orgID]
 	if !ok {
-		return nil, fmt.Errorf("No clusters")
+		return nil, nil, fmt.Errorf("No clusters")
 	}
 
-	return clusters, nil
+	clusterNamesMap = make(map[types.ClusterName]string)
+	for i := range clusterInfoList {
+		clusterNamesMap[clusterInfoList[i].ID] = clusterInfoList[i].DisplayName
+	}
+
+	return
 }
 
 // AMSClientWithOrgResults creates a mock of AMSClient interface that returns the results
