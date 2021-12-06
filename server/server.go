@@ -435,6 +435,10 @@ func (server HTTPServer) getClusterIDsFromAggregator(orgID ctypes.OrgID) ([]ctyp
 	// #nosec G107
 	response, err := http.Get(aggregatorURL)
 	if err != nil {
+		log.Error().Err(err).Msgf("problem getting cluster list from aggregator")
+		if _, ok := err.(*url.Error); ok {
+			return nil, &AggregatorServiceUnavailableError{}
+		}
 		return nil, err
 	}
 

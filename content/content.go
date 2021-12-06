@@ -216,9 +216,9 @@ func (s *RulesWithContentStorage) GetExternalRuleIDs() []ctypes.RuleID {
 	return s.externalRuleIDs
 }
 
-// GetRuleSeverities returns a map of rule IDs and their severity (total risk)
+// GetExternalRuleSeverities returns a map of external rule IDs and their severity (total risk)
 // along with a list of unique severities
-func (s *RulesWithContentStorage) GetRuleSeverities() (
+func (s *RulesWithContentStorage) GetExternalRuleSeverities() (
 	severityMap map[ctypes.RuleID]int,
 	uniqueSeverities []int,
 ) {
@@ -226,11 +226,12 @@ func (s *RulesWithContentStorage) GetRuleSeverities() (
 	defer s.Unlock()
 
 	severityMap = make(map[ctypes.RuleID]int)
-	uniqueMap := make(map[int]bool)
-	for ruleID := range s.recommendationsWithContent {
+	uniqueMap := make(map[int]interface{})
+
+	for _, ruleID := range s.externalRuleIDs {
 		totalRisk := s.recommendationsWithContent[ruleID].TotalRisk
 		severityMap[ruleID] = totalRisk
-		uniqueMap[totalRisk] = true
+		uniqueMap[totalRisk] = nil
 	}
 
 	for k := range uniqueMap {
@@ -392,9 +393,9 @@ func GetExternalRuleIDs() ([]ctypes.RuleID, error) {
 	return rulesWithContentStorage.GetExternalRuleIDs(), nil
 }
 
-// GetRuleSeverities returns a map of rule IDs and their severity (total risk),
+// GetExternalRuleSeverities returns a map of rule IDs and their severity (total risk),
 // along with a list of unique severities
-func GetRuleSeverities() (
+func GetExternalRuleSeverities() (
 	map[ctypes.RuleID]int,
 	[]int,
 	error,
@@ -405,7 +406,7 @@ func GetRuleSeverities() (
 		return nil, nil, err
 	}
 
-	severityMap, uniqueSeverities := rulesWithContentStorage.GetRuleSeverities()
+	severityMap, uniqueSeverities := rulesWithContentStorage.GetExternalRuleSeverities()
 	return severityMap, uniqueSeverities, nil
 }
 

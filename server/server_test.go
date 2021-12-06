@@ -50,6 +50,8 @@ var (
 	badJWTAuthBearer          = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"
 	goodJWTAuthBearer         = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"
 	userIDOnGoodJWTAuthBearer = 5213476
+	testTimeStr               = "2021-01-02T15:04:05Z"
+	testTime, _               = time.Parse("2006-01-02T15:04:05Z", testTimeStr)
 
 	serverConfigJWT = server.Configuration{
 		Address:                          ":8081",
@@ -770,6 +772,81 @@ var (
 		Groups: []groups.Group{},
 		Status: "ok",
 	}
+
+	GetClustersResponse0Clusters = struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}{
+		Meta: map[string]interface{}{
+			"count": 0,
+		},
+		Status:   "ok",
+		Clusters: []types.ClusterListView{},
+	}
+
+	// cluster data filled in in test cases
+	GetClustersResponse2ClusterNoHits = struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}{
+		Meta: map[string]interface{}{
+			"count": 2,
+		},
+		Status: "ok",
+		Clusters: []types.ClusterListView{
+			{
+				ClusterID:       "",
+				ClusterName:     "",
+				LastCheckedAt:   testTimeStr,
+				TotalHitCount:   0,
+				HitsByTotalRisk: map[int]int{},
+			},
+			{
+				ClusterID:       "",
+				ClusterName:     "",
+				LastCheckedAt:   testTimeStr,
+				TotalHitCount:   0,
+				HitsByTotalRisk: map[int]int{},
+			},
+		},
+	}
+
+	// cluster data filled in in test cases
+	GetClustersResponse2ClusterWithHits = struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}{
+		Meta: map[string]interface{}{
+			"count": 2,
+		},
+		Status: "ok",
+		Clusters: []types.ClusterListView{
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimeStr,
+				TotalHitCount: 1,
+				// HitsByTotalRisk always has all unique total risks to have consistent response
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 0,
+				},
+			},
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimeStr,
+				TotalHitCount: 2,
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 1,
+				},
+			},
+		},
+	}
 )
 
 // TODO: move to utils
@@ -959,4 +1036,26 @@ func recommendationInResponseChecker(t testing.TB, expected, got []byte) {
 	}
 
 	assert.ElementsMatch(t, expectedResp.Recommendations, gotResp.Recommendations)
+}
+
+func clusterInResponseChecker(t testing.TB, expected, got []byte) {
+	type Response struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}
+
+	var expectedResp, gotResp Response
+
+	if err := json.Unmarshal(expected, &expectedResp); err != nil {
+		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
+		helpers.FailOnError(t, err)
+	}
+
+	if err := json.Unmarshal(got, &gotResp); err != nil {
+		err = fmt.Errorf(`"got" is not JSON. value = "%v", err = "%v"`, got, err)
+		helpers.FailOnError(t, err)
+	}
+
+	assert.ElementsMatch(t, expectedResp.Clusters, gotResp.Clusters)
 }

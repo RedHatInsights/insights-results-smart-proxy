@@ -183,8 +183,8 @@ type RecommendationListView struct {
 // ClusterListView represents a single item in the response for Clusters List view
 type ClusterListView struct {
 	ClusterID       types.ClusterName `json:"cluster_id"`
-	DisplayName     string            `json:"display_name"`
-	LastCheckedAt   time.Time         `json:"last_checked_at"`
+	ClusterName     string            `json:"cluster_name"`
+	LastCheckedAt   string            `json:"last_checked_at"`
 	TotalHitCount   uint32            `json:"total_hit_count"`
 	HitsByTotalRisk map[int]int       `json:"hits_by_total_risk"`
 }

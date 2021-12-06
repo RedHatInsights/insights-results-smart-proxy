@@ -1582,6 +1582,261 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 	}
 }
 
+// TestHTTPServer_ClustersRecommendationsEndpoint_NoClusters tests no clusters received from AMS API
+func TestHTTPServer_ClustersRecommendationsEndpoint_NoClusters(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 0)
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{
+			"clusters":{}
+		}`
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersRecommendationsEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(GetClustersResponse0Clusters),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights tests clusters received from AMS API, but we dont have them
+// == last_checked_at will be empty
+func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{
+			"clusters":{}
+		}`
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		resp := GetClustersResponse2ClusterNoHits
+		for i := range clusterInfoList {
+			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
+			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].LastCheckedAt = "" // will be empty because we don't have the cluster in our DB
+		}
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersRecommendationsEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(resp),
+			BodyChecker: recommendationInResponseChecker,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits tests clusters received from AMS API, but no rule hits
+func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": []
+				},
+				"%v": {
+					"created_at": "%v",
+					"recommendations": []
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr,
+			clusterInfoList[1].ID, testTimeStr,
+		)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		resp := GetClustersResponse2ClusterNoHits
+		for i := range clusterInfoList {
+			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
+			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+		}
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersRecommendationsEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(resp),
+			BodyChecker: recommendationInResponseChecker,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled tests clusters received from AMS API with rule hits
+func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{
+				testdata.RuleContent1,
+				testdata.RuleContent2,
+				testdata.RuleContent3,
+				RuleContentInternal1,
+			},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// 3 total rules, only 2 unique total risks
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v"]
+				},
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v","%v"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID,
+			clusterInfoList[1].ID, testTimeStr, testdata.Rule2CompositeID, testdata.Rule3CompositeID,
+		)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		resp := GetClustersResponse2ClusterWithHits
+		for i := range clusterInfoList {
+			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
+			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+		}
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersRecommendationsEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(resp),
+			BodyChecker: recommendationInResponseChecker,
+		})
+	}, testTimeout)
+}
+
 func TestHTTPServer_GroupsEndpoint(t *testing.T) {
 	groupsChannel := make(chan []groups.Group)
 	errorFoundChannel := make(chan bool)

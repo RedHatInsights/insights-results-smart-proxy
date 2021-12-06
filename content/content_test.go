@@ -591,6 +591,65 @@ func TestGetExternalRuleIDs(t *testing.T) {
 	assert.Equal(t, 3, len(externalRuleIDs))
 }
 
+// TestGetExternalRuleSeveritiesTwoUnique tests GetExternalRuleSeverities
+func TestGetExternalRuleSeverities1Unique(t *testing.T) {
+	defer content.ResetContent()
+
+	// same total risk
+	externalRule1, externalRule2, internalRule1 := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsExternal(&externalRule2)
+	fakeRuleAsInternal(&internalRule1)
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": externalRule1,
+			"rc2": externalRule2,
+			"rc3": internalRule1,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
+	helpers.FailOnError(t, err)
+	assert.Equal(t, 2, len(recommendationSeverities))
+	// rules have the same severity
+	assert.Equal(t, 1, len(uniqueSeverities))
+}
+
+// TestGetExternalRuleSeverities2Unique tests GetExternalRuleSeverities
+func TestGetExternalRuleSeverities2Unique(t *testing.T) {
+	defer content.ResetContent()
+
+	externalRule1, externalRule2, internalRule1 := testdata.RuleContent1, testdata.RuleContent2, testdata.RuleContent1
+	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsExternal(&externalRule2)
+	fakeRuleAsInternal(&internalRule1)
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": externalRule1,
+			"rc2": externalRule2,
+			"rc3": internalRule1,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
+	helpers.FailOnError(t, err)
+	assert.Equal(t, 2, len(recommendationSeverities))
+	// rules have different severity
+	assert.Equal(t, 2, len(uniqueSeverities))
+}
+
 func fakeRuleAsInternal(ruleContent *ctypes.RuleContent) {
 	modifyPluginPythonModule(ruleContent, internalStr)
 }

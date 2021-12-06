@@ -357,7 +357,7 @@ func matchClusterInfoRuleSeverity(
 ) ([]types.ClusterListView, error) {
 	clusterListView := make([]types.ClusterListView, 0)
 
-	recommendationSeverities, uniqueSeverities, err := content.GetRuleSeverities()
+	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
 	if err != nil {
 		return clusterListView, err
 	}
@@ -366,7 +366,7 @@ func matchClusterInfoRuleSeverity(
 	for clusterID, displayName := range clusterNamesMap {
 		clusterViewItem := types.ClusterListView{
 			ClusterID:       clusterID,
-			DisplayName:     displayName,
+			ClusterName:     displayName,
 			HitsByTotalRisk: make(map[int]int),
 		}
 
@@ -376,7 +376,7 @@ func matchClusterInfoRuleSeverity(
 		}
 
 		if hittingRecommendations, any := clusterRecommendationsMap[clusterID]; any {
-			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt
+			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt.String()
 
 			for _, ruleID := range hittingRecommendations.Recommendations {
 				if ruleSeverity, found := recommendationSeverities[ruleID]; found {
@@ -391,7 +391,6 @@ func matchClusterInfoRuleSeverity(
 
 		clusterListView = append(clusterListView, clusterViewItem)
 	}
-	log.Error().Msgf("%v", len(clusterListView))
 
 	return clusterListView, nil
 }
@@ -560,7 +559,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"clusters/organizations/{org_id}/users/{user_id}/recommendations", //FIXME
+		ira_server.ClustersRecommendationsListEndpoint,
 		orgID,
 		userID,
 	)
@@ -576,7 +575,11 @@ func (server HTTPServer) getClustersAndRecommendations(
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
 		log.Error().Err(err).Msgf("problem getting response from aggregator")
-		handleServerError(writer, err)
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
 		return nil, err
 	}
 
