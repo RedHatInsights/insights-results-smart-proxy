@@ -305,7 +305,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	// get a list of clusters from AMS API
 	clusterInfoList, clusterNamesMap, err := server.readClustersForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msgf("problem reading cluster list for org")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
 		handleServerError(writer, err)
 		return
 	}
@@ -327,7 +327,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 
 	clusterViewResponse, err := matchClusterInfoRuleSeverity(clusterNamesMap, clusterRecommendationMap)
 	if err != nil {
-		log.Error().Err(err).Msgf("error matching cluster list and rule severities")
+		log.Error().Err(err).Msg("error matching cluster list and rule severities")
 		handleServerError(writer, err)
 	}
 
@@ -566,7 +566,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 
 	jsonMarshalled, err := json.Marshal(clusterList)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem unmarshalling cluster list")
+		log.Error().Err(err).Msg("problem unmarshalling cluster list")
 		handleServerError(writer, err)
 		return nil, err
 	}
