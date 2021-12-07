@@ -360,6 +360,49 @@ func TestHTTPServer_ReportMetainfoEndpointNoReports(t *testing.T) {
 	}, testTimeout)
 }
 
+// TestHTTPServer_ReportMetainfoEndpointTwoReports check the /report/info
+// endpoint when two results are found for given cluster.
+func TestHTTPServer_ReportMetainfoEndpointTwoReports(t *testing.T) {
+	const metainfoResponse = `
+		{
+		  "metainfo": {
+		    "count": 2,
+		    "last_checked_at": "1970-01-01T00:00:25Z",
+		    "stored_at": "1970-01-01T00:00:25Z"
+		  },
+		  "status": "ok"
+		}`
+
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		// prepare mocked REST API response from Aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       metainfoResponse,
+		})
+
+		// check the Smart Proxy report/info endpoint
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseTwoReports),
+		})
+	}, testTimeout)
+}
+
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
 	defer content.ResetContent()
