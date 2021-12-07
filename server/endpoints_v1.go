@@ -1,4 +1,4 @@
-// Copyright 2020 Red Hat, Inc
+// Copyright 2020, 2021  Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,8 +29,13 @@ const (
 	MainEndpoint = ""
 	// OldReportEndpoint is made for backwards compatibility// TODO: remove when UI fixes are merged
 	OldReportEndpoint = "report/{org_id}/{cluster}"
+
 	// ReportEndpoint returns report for provided {cluster}
 	ReportEndpoint = "clusters/{cluster}/report"
+
+	// ReportMetainfoEndpoint returns (meta)information about report for provided {cluster}
+	ReportMetainfoEndpoint = "clusters/{cluster}/report/info"
+
 	// ReportForListOfClustersEndpoint returns rule returns reports for provided list of clusters
 	// Reports that are going to be returned are specified by list of cluster IDs that is part of path
 	ReportForListOfClustersEndpoint = "clusters/{cluster_list}/reports"
@@ -122,6 +127,7 @@ func (server *HTTPServer) addV1EndpointsToRouter(router *mux.Router) {
 func (server *HTTPServer) addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ReportMetainfoEndpoint, server.reportMetainfoEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersEndpoint, server.reportForListOfClustersEndpoint).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersPayloadEndpoint, server.reportForListOfClustersPayloadEndpoint).Methods(http.MethodPost)
 }
