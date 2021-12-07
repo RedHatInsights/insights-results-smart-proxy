@@ -894,6 +894,12 @@ var (
 		Status:   "ok",
 		Metainfo: &ReportResponseMetainfoTwoReports,
 	}
+
+	ReportMetainfoAPIResponseInvalidJSON = struct {
+		Status string `json:"status"`
+	}{
+		Status: "invalid character 'T' looking for beginning of value",
+	}
 )
 
 // TODO: move to utils

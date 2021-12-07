@@ -403,6 +403,71 @@ func TestHTTPServer_ReportMetainfoEndpointTwoReports(t *testing.T) {
 	}, testTimeout)
 }
 
+// TestHTTPServer_ReportMetainfoEndpointForbidden checks how HTTP codes are
+// handled in report/info endpoint handler.
+func TestHTTPServer_ReportMetainfoEndpointForbidden(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusForbidden,
+			Body:       "",
+		})
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusForbidden,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ReportMetainfoEndpointImproperJSON check the /report/info
+// endpoint when improper response is returned from Aggregator REST API.
+func TestHTTPServer_ReportMetainfoEndpointImproperJSON(t *testing.T) {
+	const metainfoResponse = "THIS_IS_NOT_JSON"
+
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		// prepare mocked REST API response from Aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       metainfoResponse,
+		})
+
+		// check the Smart Proxy report/info endpoint
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseInvalidJSON),
+		})
+	}, testTimeout)
+}
+
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
 	defer content.ResetContent()
