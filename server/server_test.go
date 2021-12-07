@@ -900,6 +900,12 @@ var (
 	}{
 		Status: "invalid character 'T' looking for beginning of value",
 	}
+
+	ReportMetainfoAPIResponseInvalidClusterName = struct {
+		Status string `json:"status"`
+	}{
+		Status: "Error during parsing param 'cluster' with value 'not-proper-cluster-name'. Error: 'invalid UUID length: 23'",
+	}
 )
 
 // TODO: move to utils
