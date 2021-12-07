@@ -513,7 +513,7 @@ func (server HTTPServer) readAggregatorReportMetainfoForClusterID(
 ) (*ctypes.ReportResponseMetainfo, bool) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"organizations/{org_id}/clusters/{cluster}/users/{user_id}/report/info", //ira_server.ReportMetainfoEndpoint,
+		ira_server.ReportMetainfoEndpoint,
 		orgID,
 		clusterID,
 		userID,
