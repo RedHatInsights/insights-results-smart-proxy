@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 Red Hat, Inc.
+Copyright © 2020, 2021  Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -505,6 +505,59 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	return aggregatorResponse.Report, true
 }
 
+// readAggregatorReportMetainfoForClusterID reads report metainfo from Aggregator,
+// handles errors by sending corresponding message to the user.
+// Returns report and bool value set to true if there was no errors
+func (server HTTPServer) readAggregatorReportMetainfoForClusterID(
+	orgID ctypes.OrgID, clusterID ctypes.ClusterName, userID ctypes.UserID, writer http.ResponseWriter,
+) (*ctypes.ReportResponseMetainfo, bool) {
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		"organizations/{org_id}/clusters/{cluster}/users/{user_id}/report/info", //ira_server.ReportMetainfoEndpoint,
+		orgID,
+		clusterID,
+		userID,
+	)
+
+	// #nosec G107
+	aggregatorResp, err := http.Get(aggregatorURL)
+	if err != nil {
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
+		return nil, false
+	}
+
+	var aggregatorResponse struct {
+		Metainfo *ctypes.ReportResponseMetainfo `json:"metainfo"`
+		Status   string                         `json:"status"`
+	}
+
+	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, false
+	}
+
+	err = json.Unmarshal(responseBytes, &aggregatorResponse)
+	if err != nil {
+		handleServerError(writer, err)
+		return nil, false
+	}
+
+	return aggregatorResponse.Metainfo, true
+}
+
 func (server HTTPServer) readAggregatorReportForClusterList(
 	orgID ctypes.OrgID, clusterList []string, writer http.ResponseWriter,
 ) (*ctypes.ClusterReports, bool) {
@@ -693,6 +746,33 @@ func (server HTTPServer) fetchAggregatorReport(
 	return
 }
 
+// fetchAggregatorReportMetainfo method tries to fetch metainformation about
+// report for selected cluster.
+func (server HTTPServer) fetchAggregatorReportMetainfo(
+	writer http.ResponseWriter, request *http.Request,
+) (aggregatorResponse *ctypes.ReportResponseMetainfo, successful bool, clusterID ctypes.ClusterName) {
+	clusterID, successful = httputils.ReadClusterName(writer, request)
+	// Error message handled by function
+	if !successful {
+		return
+	}
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	userID := authToken.AccountNumber
+	orgID := authToken.Internal.OrgID
+
+	aggregatorResponse, successful = server.readAggregatorReportMetainfoForClusterID(orgID, clusterID, userID, writer)
+	if !successful {
+		return
+	}
+	return
+}
+
 // fetchAggregatorReports method access the Insights Results Aggregator to read
 // reports for given list of clusters. Then the response structure is
 // constructed from data returned by Aggregator.
@@ -784,6 +864,23 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	}
 
 	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+// readMetainfo method retrieves metainformations for report stored in
+// Aggregator's database and return the retrieved info to requester via
+// response payload. The payload has type types.ReportResponseMetainfo
+func (server HTTPServer) reportMetainfoEndpoint(writer http.ResponseWriter, request *http.Request) {
+	aggregatorResponse, successful, clusterID := server.fetchAggregatorReportMetainfo(writer, request)
+	if !successful {
+		return
+	}
+
+	log.Info().Msgf("Metainfo returned by aggregator for cluster %s: %v", clusterID, aggregatorResponse)
+
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("metainfo", aggregatorResponse))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
