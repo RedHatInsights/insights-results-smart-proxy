@@ -97,7 +97,8 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 	}
 }
 
-// TODO: move to utils
+// According to rule content specification, it's explicitly defined as floor((impact + likelihood) / 2), which
+// is the default behaviour in Go
 func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
 }

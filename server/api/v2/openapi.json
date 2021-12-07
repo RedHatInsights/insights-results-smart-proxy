@@ -416,6 +416,43 @@
         }
       }
     },
+    "/clusters": {
+      "get": {
+        "operationId": "getClusters",
+        "summary": "Returns a list of clusters, total number of hitting rules and a count of impacting rules by total risk.",
+        "description": "Retrieves all clusters for given organization, retrieves the impacting rules for each cluster and calculates the count of impacting rules by total risk (severity == critical, high, moderate, low)",
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/clusterListResponse"
+                }
+              }
+            },
+            "description": "If a cluster has 0 total_hit_count and empty last_checked_at timestamp, we have no Insights data for that archive. If total_hit_count = 0 and the timestamp is valid, there are no rule hits for the cluster."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A dependent service such as AMS API or results aggregator is unavailable. Specified in status message."
+          }
+        }
+      }
+    },
     "/rule/{ruleId}/content": {
       "get": {
         "tags": [
@@ -1206,6 +1243,92 @@
           "recommendations": {
             "$ref": "#/components/schemas/recommendationList",
             "description": "List of recommendations and number of impacting clusters"
+          },
+          "status": {
+            "description": "Request response status",
+            "type": "string"
+          }
+        }
+      },
+      "clusterList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cluster_id": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            },
+            "cluster_name": {
+              "type": "string",
+              "description": "An human-readable name for the cluster",
+              "example": "Production cluster 1"
+            },
+            "last_checked_at": {
+              "format": "date-time",
+              "type": "string",
+              "description": "Last time of analysis for given cluster."
+            },
+            "total_hit_count": {
+              "type": "int",
+              "description": "Total number of rules hitting for given cluster. 0 combined with an empty last_checked_at means we haven't received any archive from that cluster. 0 hits with a valid timestamp means we have an archive, but there are no rule hits."
+            },
+            "hits_by_total_risk": {
+              "description": "Dictionary with numeric representation of total risk as keys, the number of rule hits by each total risk as values.",
+              "example": {
+                "1": 1,
+                "2": 4,
+                "3": 0,
+                "4": 0
+              }
+            }
+          },
+          "example": [
+            {
+              "cluster_id": "1234ecc5-624a-49a5-bab8-4fdc5e51a266",
+              "cluster_name": "Production cluster 1",
+              "publish_date": "2021-12-06 13:46:28.156726 +0000 UTC",
+              "total_hit_count": 7,
+              "hits_by_total_risk": {
+                "1": 1,
+                "2": 4,
+                "3": 2,
+                "4": 0
+              }
+            },
+            {
+              "cluster_id": "5678ecc5-624a-49a5-bab8-4fdc5e51a266",
+              "cluster_name": "My cluster",
+              "publish_date": "2021-01-01 13:46:28.156726 +0000 UTC",
+              "total_hit_count": 8,
+              "hits_by_total_risk": {
+                "1": 0,
+                "2": 0,
+                "3": 8,
+                "4": 0
+              }
+            }
+          ]
+        }
+      },
+      "clusterListResponse": {
+        "description": "Response data type for GET /clusters endpoint",
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/clusterList",
+            "description": "Returns a list of clusters, total number of hitting rules and a count of impacting rules by total risk"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           },
           "status": {
             "description": "Request response status",
