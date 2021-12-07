@@ -866,6 +866,46 @@ var (
 			},
 		},
 	}
+
+	ReportResponseMetainfoNoReports = ctypes.ReportResponseMetainfo{
+		Count:         -1,
+		LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		StoredAt:      types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+	}
+
+	ReportMetainfoAPIResponseNoReports = struct {
+		Status   string                         `json:"status"`
+		Metainfo *ctypes.ReportResponseMetainfo `json:"metainfo"`
+	}{
+		Status:   "ok",
+		Metainfo: &ReportResponseMetainfoNoReports,
+	}
+
+	ReportResponseMetainfoTwoReports = ctypes.ReportResponseMetainfo{
+		Count:         2,
+		LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		StoredAt:      types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+	}
+
+	ReportMetainfoAPIResponseTwoReports = struct {
+		Status   string                         `json:"status"`
+		Metainfo *ctypes.ReportResponseMetainfo `json:"metainfo"`
+	}{
+		Status:   "ok",
+		Metainfo: &ReportResponseMetainfoTwoReports,
+	}
+
+	ReportMetainfoAPIResponseInvalidJSON = struct {
+		Status string `json:"status"`
+	}{
+		Status: "invalid character 'T' looking for beginning of value",
+	}
+
+	ReportMetainfoAPIResponseInvalidClusterName = struct {
+		Status string `json:"status"`
+	}{
+		Status: "Error during parsing param 'cluster' with value 'not-proper-cluster-name'. Error: 'invalid UUID length: 23'",
+	}
 )
 
 // TODO: move to utils
