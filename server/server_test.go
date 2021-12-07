@@ -866,6 +866,34 @@ var (
 			},
 		},
 	}
+
+	ReportResponseMetainfoNoReports = ctypes.ReportResponseMetainfo{
+		Count:         -1,
+		LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		StoredAt:      types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+	}
+
+	ReportMetainfoAPIResponseNoReports = struct {
+		Status   string                         `json:"status"`
+		Metainfo *ctypes.ReportResponseMetainfo `json:"metainfo"`
+	}{
+		Status:   "ok",
+		Metainfo: &ReportResponseMetainfoNoReports,
+	}
+
+	ReportResponseMetainfoTwoReports = ctypes.ReportResponseMetainfo{
+		Count:         2,
+		LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		StoredAt:      types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+	}
+
+	ReportMetainfoAPIResponseTwoReports = struct {
+		Status   string                         `json:"status"`
+		Metainfo *ctypes.ReportResponseMetainfo `json:"metainfo"`
+	}{
+		Status:   "ok",
+		Metainfo: &ReportResponseMetainfoTwoReports,
+	}
 )
 
 // TODO: move to utils
