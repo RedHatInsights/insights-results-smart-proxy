@@ -274,15 +274,6 @@
         "tags": [
           "prod"
         ],
-        "requestBody": {
-          "description": "Specification of rule selector (ID+error key) and a justification why rule has been disabled.",
-          "content": {
-            "application/json": {
-              "schema": {}
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "content": {
@@ -362,15 +353,6 @@
             "required": true
           }
         ],
-        "requestBody": {
-          "description": "Specification of justification why rule has been disabled.",
-          "content": {
-            "application/json": {
-              "schema": {}
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "content": {
