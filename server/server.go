@@ -391,7 +391,9 @@ func (server HTTPServer) readClustersForOrgID(orgID ctypes.OrgID) (
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
 		)
 		if err == nil {
-			log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of clusters retrieved from the AMS API: %v", len(clusterInfoList))
+			log.Info().Int(orgIDTag, int(orgID)).Msgf(
+				"Number of clusters retrieved from the AMS API: clusterInfoList %v, clusterNamesMap %v", len(clusterInfoList), len(clusterNamesMap),
+			)
 			return clusterInfoList, clusterNamesMap, nil
 		}
 
