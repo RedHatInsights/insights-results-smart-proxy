@@ -327,9 +327,10 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 
 	clusterViewResponse, err := matchClusterInfoRuleSeverity(clusterNamesMap, clusterRecommendationMap)
 	if err != nil {
-		log.Error().Err(err).Msg("error matching cluster list and rule severities")
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Msg("error matching cluster list and rule severities")
 		handleServerError(writer, err)
 	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView final number %v", len(clusterViewResponse))
 
 	resp := make(map[string]interface{})
 	metaCount := map[string]int{
