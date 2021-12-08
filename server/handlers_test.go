@@ -317,6 +317,202 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 	}, testTimeout)
 }
 
+// TestHTTPServer_ReportMetainfoEndpointNoReports check the /report/info
+// endpoint when no results are found for given cluster.
+func TestHTTPServer_ReportMetainfoEndpointNoReports(t *testing.T) {
+	const metainfoResponse = `
+		{
+		  "metainfo": {
+		    "count": -1,
+		    "last_checked_at": "1970-01-01T00:00:25Z",
+		    "stored_at": "1970-01-01T00:00:25Z"
+		  },
+		  "status": "ok"
+		}`
+
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		// prepare mocked REST API response from Aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       metainfoResponse,
+		})
+
+		// check the Smart Proxy report/info endpoint
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseNoReports),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ReportMetainfoEndpointTwoReports check the /report/info
+// endpoint when two results are found for given cluster.
+func TestHTTPServer_ReportMetainfoEndpointTwoReports(t *testing.T) {
+	const metainfoResponse = `
+		{
+		  "metainfo": {
+		    "count": 2,
+		    "last_checked_at": "1970-01-01T00:00:25Z",
+		    "stored_at": "1970-01-01T00:00:25Z"
+		  },
+		  "status": "ok"
+		}`
+
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		// prepare mocked REST API response from Aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       metainfoResponse,
+		})
+
+		// check the Smart Proxy report/info endpoint
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseTwoReports),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ReportMetainfoEndpointForbidden checks how HTTP codes are
+// handled in report/info endpoint handler.
+func TestHTTPServer_ReportMetainfoEndpointForbidden(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusForbidden,
+			Body:       "",
+		})
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusForbidden,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ReportMetainfoEndpointImproperJSON check the /report/info
+// endpoint when improper response is returned from Aggregator REST API.
+func TestHTTPServer_ReportMetainfoEndpointImproperJSON(t *testing.T) {
+	const metainfoResponse = "THIS_IS_NOT_JSON"
+
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		// prepare mocked REST API response from Aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       metainfoResponse,
+		})
+
+		// check the Smart Proxy report/info endpoint
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseInvalidJSON),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ReportMetainfoEndpointWrongClusterName check the /report/info
+// endpoint for incorrect input
+func TestHTTPServer_ReportMetainfoEndpointWrongClusterName(t *testing.T) {
+	const metainfoResponse = `
+		{
+		  "metainfo": {
+		    "count": 2,
+		    "last_checked_at": "1970-01-01T00:00:25Z",
+		    "stored_at": "1970-01-01T00:00:25Z"
+		  },
+		  "status": "ok"
+		}`
+
+	const clusterName = "not-proper-cluster-name"
+
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		// prepare mocked REST API response from Aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, clusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       metainfoResponse,
+		})
+
+		// check the Smart Proxy report/info endpoint
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportMetainfoEndpoint,
+			EndpointArgs: []interface{}{clusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseInvalidClusterName),
+		})
+	}, testTimeout)
+}
+
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
 	defer content.ResetContent()
@@ -584,10 +780,29 @@ func TestInternalOrganizations(t *testing.T) {
 		MockAuthToken      string
 	}{
 		{
-			"Internal organizations enabled, Request denied",
+			"Internal organizations enabled, Request denied due to wrong OrgID",
 			&serverConfigInternalOrganizations1,
 			http.StatusForbidden,
 			badJWTAuthBearer,
+		},
+		{
+			"Internal organizations enabled, Request denied due to unparsable token",
+			&serverConfigInternalOrganizations1,
+			http.StatusForbidden,
+			unparsableJWTAuthBearer,
+		},
+		{
+			// This scenario is managed by 3scale, we don't need to check if the token is complete
+			"Internal organizations enabled, Request allowed even with incomplete token",
+			&serverConfigInternalOrganizations1,
+			http.StatusOK,
+			incompleteJWTAuthBearer,
+		},
+		{
+			"Internal organizations enabled, Request denied due to invalid type in token",
+			&serverConfigInternalOrganizations1,
+			http.StatusForbidden,
+			invalidJWTAuthBearer,
 		},
 		{
 			"Internal organizations enabled, Request allowed",
@@ -612,7 +827,7 @@ func TestInternalOrganizations(t *testing.T) {
 				}, &helpers.APIResponse{
 					StatusCode: testCase.ExpectedStatusCode,
 				})
-			}, testTimeout)
+			}, testTimeout*100)
 		})
 	}
 }
