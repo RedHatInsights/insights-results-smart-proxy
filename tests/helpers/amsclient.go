@@ -30,18 +30,12 @@ func (m *mockAMSClient) GetClustersForOrganization(
 	unused1, unused2 []string,
 ) (
 	clusterInfoList []types.ClusterInfo,
-	clusterNamesMap map[types.ClusterName]string,
 	err error,
 ) {
 
 	clusterInfoList, ok := m.clustersPerOrg[orgID]
 	if !ok {
-		return nil, nil, fmt.Errorf("No clusters")
-	}
-
-	clusterNamesMap = make(map[types.ClusterName]string)
-	for i := range clusterInfoList {
-		clusterNamesMap[clusterInfoList[i].ID] = clusterInfoList[i].DisplayName
+		return nil, fmt.Errorf("No clusters")
 	}
 
 	return

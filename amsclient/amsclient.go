@@ -44,7 +44,6 @@ const (
 type AMSClient interface {
 	GetClustersForOrganization(types.OrgID, []string, []string) (
 		clusterInfoList []types.ClusterInfo,
-		clusterNamesMap map[types.ClusterName]string,
 		err error,
 	)
 }
@@ -100,12 +99,10 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
 func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) (
 	clusterInfoList []types.ClusterInfo,
-	clusterNamesMap map[types.ClusterName]string,
 	err error,
 ) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking cluster for the organization")
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
-	clusterNamesMap = make(map[types.ClusterName]string)
 
 	tStart := time.Now()
 
@@ -129,7 +126,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 		response, err := subscriptionListRequest.Send()
 
 		if err != nil {
-			return clusterInfoList, clusterNamesMap, err
+			return clusterInfoList, err
 		}
 
 		// When an empty page is returned, then exit the loop
@@ -159,11 +156,6 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 				ID:          clusterID,
 				DisplayName: displayName,
 			})
-			if existingDisplayName, exists := clusterNamesMap[clusterID]; exists {
-				log.Error().Uint32(orgIDTag, uint32(orgID)).Msgf("duplicate cluster ID %v with display names %v, %v", clusterID, displayName, existingDisplayName)
-			} else {
-				clusterNamesMap[clusterID] = displayName
-			}
 		}
 	}
 
