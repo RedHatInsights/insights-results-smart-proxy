@@ -412,10 +412,13 @@ func (server HTTPServer) readClustersForOrgID(orgID ctypes.OrgID) (
 	}
 
 	// fill in empty display names
-	clusterInfo := make([]types.ClusterInfo, len(clusterIDs))
+	clusterInfo := make([]types.ClusterInfo, 0)
 
-	for i := range clusterIDs {
-		clusterInfo = append(clusterInfo, types.ClusterInfo{ID: clusterIDs[i]})
+	for _, clusterID := range clusterIDs {
+		clusterInfo = append(clusterInfo, types.ClusterInfo{
+			ID:          clusterID,
+			DisplayName: string(clusterID),
+		})
 	}
 	return clusterInfo, nil
 }
