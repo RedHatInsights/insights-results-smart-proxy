@@ -159,7 +159,11 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 				ID:          clusterID,
 				DisplayName: displayName,
 			})
-			clusterNamesMap[clusterID] = displayName
+			if existingDisplayName, exists := clusterNamesMap[clusterID]; exists {
+				log.Error().Uint32(orgIDTag, uint32(orgID)).Msgf("duplicate cluster ID %v with display names %v, %v", clusterID, displayName, existingDisplayName)
+			} else {
+				clusterNamesMap[clusterID] = displayName
+			}
 		}
 	}
 
