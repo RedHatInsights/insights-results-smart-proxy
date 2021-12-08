@@ -303,7 +303,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
 
 	// get a list of clusters from AMS API
-	clusterInfoList, clusterNamesMap, err := server.readClustersForOrgID(orgID)
+	clusterInfoList, err := server.readClustersForOrgID(orgID)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
 		handleServerError(writer, err)
@@ -325,7 +325,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		"getClustersView getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
 	)
 
-	clusterViewResponse, err := matchClusterInfoRuleSeverity(clusterNamesMap, clusterRecommendationMap)
+	clusterViewResponse, err := matchClusterInfoRuleSeverity(clusterInfoList, clusterRecommendationMap)
 	if err != nil {
 		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Msg("error matching cluster list and rule severities")
 		handleServerError(writer, err)
@@ -353,7 +353,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 // matchClusterInfoRuleSeverity matches data from AMS API, aggregator and calculates the numbers
 // of hitting rules based on their severity (total risk)
 func matchClusterInfoRuleSeverity(
-	clusterNamesMap map[types.ClusterName]string,
+	clusterInfoList []types.ClusterInfo,
 	clusterRecommendationsMap ctypes.ClusterRecommendationMap,
 ) ([]types.ClusterListView, error) {
 	clusterListView := make([]types.ClusterListView, 0)
@@ -364,10 +364,10 @@ func matchClusterInfoRuleSeverity(
 	}
 
 	// iterates over clusters and their hitting recommendations, accesses map to the get rule severity
-	for clusterID, displayName := range clusterNamesMap {
+	for i := range clusterInfoList {
 		clusterViewItem := types.ClusterListView{
-			ClusterID:       clusterID,
-			ClusterName:     displayName,
+			ClusterID:       clusterInfoList[i].ID,
+			ClusterName:     clusterInfoList[i].DisplayName,
 			HitsByTotalRisk: make(map[int]int),
 		}
 
@@ -376,7 +376,7 @@ func matchClusterInfoRuleSeverity(
 			clusterViewItem.HitsByTotalRisk[severity] = 0
 		}
 
-		if hittingRecommendations, any := clusterRecommendationsMap[clusterID]; any {
+		if hittingRecommendations, any := clusterRecommendationsMap[clusterViewItem.ClusterID]; any {
 			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt.String()
 
 			for _, ruleID := range hittingRecommendations.Recommendations {
@@ -786,7 +786,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	activeClustersInfo := make([]types.ClusterInfo, 0)
 	// Get list of active clusters if AMS client is available
 	if server.amsClient != nil {
-		activeClustersInfo, _, err = server.amsClient.GetClustersForOrganization(
+		activeClustersInfo, err = server.amsClient.GetClustersForOrganization(
 			orgID,
 			nil,
 			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
