@@ -377,7 +377,7 @@ func matchClusterInfoRuleSeverity(
 		}
 
 		if hittingRecommendations, any := clusterRecommendationsMap[clusterViewItem.ClusterID]; any {
-			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt.String()
+			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt.UTC().Format(time.RFC3339)
 
 			for _, ruleID := range hittingRecommendations.Recommendations {
 				if ruleSeverity, found := recommendationSeverities[ruleID]; found {
