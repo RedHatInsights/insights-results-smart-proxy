@@ -1895,7 +1895,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *t
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
-			BodyChecker: recommendationInResponseChecker,
+			BodyChecker: clusterInResponseChecker,
 		})
 	}, testTimeout)
 }
@@ -1954,6 +1954,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].LastCheckedAt = testTimeStr
 		}
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
@@ -1964,7 +1965,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
-			BodyChecker: recommendationInResponseChecker,
+			BodyChecker: clusterInResponseChecker,
 		})
 	}, testTimeout)
 }
@@ -2009,8 +2010,8 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 			}
 		}`
 		respBody = fmt.Sprintf(respBody,
-			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID,
-			clusterInfoList[1].ID, testTimeStr, testdata.Rule2CompositeID, testdata.Rule3CompositeID,
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID, // total_risk = 1
+			clusterInfoList[1].ID, testTimeStr, testdata.Rule2CompositeID, testdata.Rule3CompositeID, // total_risk = 2, 2
 		)
 
 		// prepare response from amsclient for list of clusters
@@ -2047,7 +2048,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
-			BodyChecker: recommendationInResponseChecker,
+			BodyChecker: clusterInResponseChecker,
 		})
 	}, testTimeout)
 }

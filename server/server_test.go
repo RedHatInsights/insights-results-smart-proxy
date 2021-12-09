@@ -860,8 +860,8 @@ var (
 				LastCheckedAt: testTimeStr,
 				TotalHitCount: 2,
 				HitsByTotalRisk: map[int]int{
-					1: 1,
-					2: 1,
+					1: 0,
+					2: 2,
 				},
 			},
 		},
