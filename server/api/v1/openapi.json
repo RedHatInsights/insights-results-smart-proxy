@@ -965,7 +965,16 @@
           "description": "List of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
           "content": {
             "text/plain": {
-              "schema": {}
+              "schema": {
+                "type": "array",
+                "items": {
+                  "format": "uuid",
+                  "description": "ID of cluster in UUID format.",
+                  "maxLength": 36,
+                  "minLength": 36,
+                  "type": "string"
+                }
+              }
             }
           },
           "required": true
