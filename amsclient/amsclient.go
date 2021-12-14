@@ -20,6 +20,7 @@ import (
 	"time"
 
 	sdk "github.com/openshift-online/ocm-sdk-go"
+	accMgmt "github.com/openshift-online/ocm-sdk-go/accountsmgmt/v1"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
@@ -38,6 +39,17 @@ const (
 	StatusDeprovisioned = "Deprovisioned"
 	// StatusArchived indicates the corresponding cluster subscription status
 	StatusArchived = "Archived"
+	// StatusReserved means the cluster has reserved resources, but isn't initialized yet.
+	StatusReserved = "Reserved"
+)
+
+var (
+	// DefaultStatusNegativeFilters are filters that are applied to the AMS API subscriptions query when the filters are empty
+	// We are either not interested in clusters in these states (Archived, Deprovisioned) or the cluster's
+	// initialization hasn't finished yet (Reserved), meaning the cluster is not ready to start sending Insights archives,
+	// as it might not even have a Cluster UUID assigned yet. When the initialization succeeds or fails, the cluster's
+	// state becomes either Active or Deprovisioned.
+	DefaultStatusNegativeFilters = []string{StatusArchived, StatusDeprovisioned, StatusReserved}
 )
 
 // AMSClient allow us to interact the AMS API
@@ -97,14 +109,13 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 
 // GetClustersForOrganization retrieves the clusters for a given organization using the default client
 // it allows to filter the clusters by their status (statusNegativeFilter will exclude the clusters with status in that list)
+// If nil is passed for filters, default filters will be applied. To select empty filters, pass an empty slice.
 func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilter, statusNegativeFilter []string) (
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking cluster for the organization")
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
-
-	clusterIDsMap := make(map[types.ClusterName]string)
 
 	tStart := time.Now()
 
@@ -113,8 +124,62 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 		return
 	}
 
+	if statusNegativeFilter == nil {
+		statusNegativeFilter = DefaultStatusNegativeFilters
+	}
+
 	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter)
 	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
+
+	clusterInfoList, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery, orgID)
+	if err != nil {
+		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg("problem executing subscription list request")
+		return
+	}
+
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization took %s", time.Since(tStart))
+	return
+}
+
+// GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API
+func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg(
+		"Looking for the internal organization ID for an external one",
+	)
+	orgsListRequest := c.connection.AccountsMgmt().V1().Organizations().List()
+	response, err := orgsListRequest.
+		Search(fmt.Sprintf("external_id = %d", orgID)).
+		Fields("id,external_id").
+		Send()
+
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return "", err
+	}
+
+	if response.Items().Len() != 1 {
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgMoreInternalOrgs)
+		return "", fmt.Errorf(orgMoreInternalOrgs)
+	}
+
+	internalID, ok := response.Items().Get(0).GetID()
+	if !ok {
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgNoInternalID)
+		return "", fmt.Errorf(orgNoInternalID)
+	}
+
+	return internalID, nil
+}
+
+func (c *amsClientImpl) executeSubscriptionListRequest(
+	subscriptionListRequest *accMgmt.SubscriptionsListRequest,
+	searchQuery string,
+	orgID types.OrgID,
+) (
+	clusterInfoList []types.ClusterInfo,
+	err error,
+) {
+	clusterIDsMap := make(map[types.ClusterName]string)
 
 	for pageNum := 1; ; pageNum++ {
 		var err error
@@ -171,36 +236,5 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 		}
 	}
 
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization took %s", time.Since(tStart))
 	return
-}
-
-// GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API
-func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
-	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg(
-		"Looking for the internal organization ID for an external one",
-	)
-	orgsListRequest := c.connection.AccountsMgmt().V1().Organizations().List()
-	response, err := orgsListRequest.
-		Search(fmt.Sprintf("external_id = %d", orgID)).
-		Fields("id,external_id").
-		Send()
-
-	if err != nil {
-		log.Error().Err(err).Msg("")
-		return "", err
-	}
-
-	if response.Items().Len() != 1 {
-		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgMoreInternalOrgs)
-		return "", fmt.Errorf(orgMoreInternalOrgs)
-	}
-
-	internalID, ok := response.Items().Get(0).GetID()
-	if !ok {
-		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgNoInternalID)
-		return "", fmt.Errorf(orgNoInternalID)
-	}
-
-	return internalID, nil
 }

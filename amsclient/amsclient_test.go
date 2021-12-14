@@ -37,6 +37,8 @@ const (
 		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27&size={pageSize}")
 	subscriptionsSearchEndpointWithFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
 		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%29&size={pageSize}")
+	subscriptionsSearchEndpointWithDefaultFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
+		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+not+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%2C%%27{status3}%%27%%29&size={pageSize}")
 )
 
 var (
@@ -125,7 +127,7 @@ func TestClusterForOrganization(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
 	})
 
-	clusterList, err := c.GetClustersForOrganization(testdata.ExternalOrgID, nil, nil)
+	clusterList, err := c.GetClustersForOrganization(testdata.ExternalOrgID, nil, []string{})
 	helpers.FailOnError(t, err)
 	assert.Equal(t, 2, len(clusterList))
 }
@@ -176,6 +178,67 @@ func TestClusterForOrganizationWithFiltering(t *testing.T) {
 	clusterList, err := c.GetClustersForOrganization(
 		testdata.ExternalOrgID,
 		[]string{amsclient.StatusArchived, amsclient.StatusDeprovisioned},
+		[]string{},
+	)
+
+	helpers.FailOnError(t, err)
+	assert.Equal(t, 2, len(clusterList))
+}
+
+func TestClusterForOrganizationWithDefaultFiltering(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponse),
+	})
+
+	// prepare cluster list requests
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			1, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponse),
+	})
+	// second and more requests will be done until the last one returns an empty response (0 sized)
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			2, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterList, err := c.GetClustersForOrganization(
+		testdata.ExternalOrgID,
+		nil,
 		nil,
 	)
 
