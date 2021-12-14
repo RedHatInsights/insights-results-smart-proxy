@@ -13,6 +13,7 @@ enable_cors = false
 enable_internal_rules_organizations = false
 internal_rules_organizations = []
 log_auth_token = true
+org_clusters_fallback = false
 
 [services]
 aggregator = "http://localhost:8080/api/v1/"
@@ -25,8 +26,8 @@ internal_rules_organizations_csv_file = ""
 
 [amsclient]
 url = "https://api.openshift.com"
-client_id = "theclient"
-client_secret = "thesecret"
+client_id = ""
+client_secret = ""
 page_size = 100
 
 [metrics]
