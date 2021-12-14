@@ -350,22 +350,32 @@ func copyHeader(srcHeaders, dstHeaders http.Header) {
 	}
 }
 
+func (server HTTPServer) getClusterInfoFromAMS(orgID ctypes.OrgID) (
+	clusterInfoList []types.ClusterInfo,
+	err error,
+) {
+	// providing nil filters will mean default filters will be applied
+	clusterInfoList, err = server.amsClient.GetClustersForOrganization(orgID, nil, nil)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving clusters from AMS API")
+		return
+	}
+	log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of clusters retrieved from the AMS API: %v", len(clusterInfoList))
+	return
+}
+
 // readClusterIDsForOrgID reads the list of clusters for a given
 // organization from aggregator
 func (server HTTPServer) readClusterIDsForOrgID(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
 	if server.amsClient != nil {
-		clusterInfoList, err := server.amsClient.GetClustersForOrganization(
-			orgID,
-			nil,
-			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
-		)
-		if err == nil {
-			log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of cluster IDs retrieved from the AMS API: %v", len(clusterInfoList))
-			clusterNames := types.GetClusterNames(clusterInfoList)
-			return clusterNames, err
+		clusterInfoList, err := server.getClusterInfoFromAMS(orgID)
+		if err != nil {
+			log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster IDs from AMS API")
+			return []ctypes.ClusterName{}, err
 		}
 
-		log.Error().Err(err).Msg("Error accessing amsclient")
+		clusterNames := types.GetClusterNames(clusterInfoList)
+		return clusterNames, err
 	}
 
 	if !server.Config.UseOrgClustersFallback {
@@ -378,24 +388,19 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID ctypes.OrgID) ([]ctypes.Cl
 	return server.getClusterIDsFromAggregator(orgID)
 }
 
-// readClustersForOrgID returns a list of cluster info types and a map of cluster display names
-func (server HTTPServer) readClustersForOrgID(orgID ctypes.OrgID) (
+// readClusterInfoForOrgID returns a list of cluster info types and a map of cluster display names
+func (server HTTPServer) readClusterInfoForOrgID(orgID ctypes.OrgID) (
 	[]types.ClusterInfo,
 	error,
 ) {
 	if server.amsClient != nil {
-		clusterInfoList, err := server.amsClient.GetClustersForOrganization(
-			orgID,
-			nil,
-			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
-		)
-		if err == nil {
-			log.Info().Int(orgIDTag, int(orgID)).Msgf(
-				"Number of clusters retrieved from the AMS API: %v", len(clusterInfoList))
-			return clusterInfoList, nil
+		clusterInfoList, err := server.getClusterInfoFromAMS(orgID)
+		if err != nil {
+			log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster info from AMS API")
+			return clusterInfoList, err
 		}
 
-		log.Error().Err(err).Msg("Error accessing amsclient")
+		return clusterInfoList, nil
 	}
 
 	if !server.Config.UseOrgClustersFallback {
