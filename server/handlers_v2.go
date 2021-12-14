@@ -35,7 +35,6 @@ import (
 
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
@@ -303,7 +302,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
 
 	// get a list of clusters from AMS API
-	clusterInfoList, err := server.readClustersForOrgID(orgID)
+	clusterInfoList, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
 		handleServerError(writer, err)
@@ -783,19 +782,11 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		handleServerError(writer, err)
 		return
 	}
-	activeClustersInfo := make([]types.ClusterInfo, 0)
-	// Get list of active clusters if AMS client is available
-	if server.amsClient != nil {
-		activeClustersInfo, err = server.amsClient.GetClustersForOrganization(
-			orgID,
-			nil,
-			[]string{amsclient.StatusDeprovisioned, amsclient.StatusArchived},
-		)
 
-		if err != nil {
-			log.Error().Err(err).Msg("amsclient was unable to retrieve the list of active clusters")
-			activeClustersInfo = make([]types.ClusterInfo, 0)
-		}
+	// Get list of clusters for given organization
+	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster IDs from AMS API. Using empty list.")
 	}
 
 	// get the list of clusters affected by given rule from aggregator and send to client

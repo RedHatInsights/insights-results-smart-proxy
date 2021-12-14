@@ -1,3 +1,9 @@
+[amsclient]
+url = "https://api.openshift.com"
+client_id = ""
+client_secret = ""
+page_size = 100
+
 [server]
 address = ":8081"
 api_dbg_prefix = "/api/dbg/"
@@ -13,6 +19,7 @@ enable_cors = true
 enable_internal_rules_organizations = false
 internal_rules_organizations = []
 log_auth_token = true
+org_clusters_fallback = false
 
 [services]
 aggregator = "http://localhost:8080/api/insights-results-aggregator/v1/"
