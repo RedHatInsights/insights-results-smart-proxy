@@ -179,7 +179,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
-	clusterIDsMap := make(map[types.ClusterName]string)
+	uniqueClusterIDs := make(map[types.ClusterName]string)
 
 	for pageNum := 1; ; pageNum++ {
 		var err error
@@ -189,7 +189,6 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 			Fields("external_cluster_id,display_name,cluster_id").
 			Search(searchQuery)
 
-		log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("Sending following request to AMS API: %v", subscriptionListRequest)
 		response, err := subscriptionListRequest.Send()
 
 		if err != nil {
@@ -225,16 +224,23 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 			})
 
 			amsID, _ := item.GetClusterID()
-			if existingAMSID, exists := clusterIDsMap[clusterID]; exists {
-				log.Error().Uint32(orgIDTag, uint32(orgID)).Msgf(
-					"duplicate cluster UUID %v (display name: %v) with AMS API cluster_ids %v, %v",
-					clusterID, displayName, existingAMSID, amsID,
-				)
-			} else {
-				clusterIDsMap[clusterID] = amsID
-			}
+			uniqueClusterIDs[clusterID] = amsID
 		}
 	}
 
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+		"clusterInfoList length: %v; uniqueClusterIDs length: %v", len(clusterInfoList), len(uniqueClusterIDs),
+	)
+	cIDmap := make(map[types.ClusterName]interface{})
+	for i := range clusterInfoList {
+		cID := clusterInfoList[i].ID
+		if _, exists := cIDmap[cID]; exists {
+			log.Error().Uint32(orgIDTag, uint32(orgID)).Msgf(
+				"duplicate cluster UUID in clusterInfoList %v", cID,
+			)
+		} else {
+			cIDmap[cID] = nil
+		}
+	}
 	return
 }
