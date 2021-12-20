@@ -28,7 +28,7 @@ internal_rules_organizations_csv_file = ""
 url = "https://api.openshift.com"
 client_id = ""
 client_secret = ""
-page_size = 100
+page_size = 6000
 
 [metrics]
 namespace = "smart_proxy"
