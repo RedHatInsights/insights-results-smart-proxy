@@ -261,4 +261,4 @@ parameters:
 - name: AMS_API_URL
   value: "https://api.stage.openshift.com"
 - name: AMS_API_PAGESIZE
-  value: "1500"
+  value: "6000"
