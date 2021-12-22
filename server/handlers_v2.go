@@ -215,7 +215,6 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		Impact:       uint8(ruleContent.Impact),
 		Likelihood:   uint8(ruleContent.Likelihood),
 		PublishDate:  ruleContent.PublishDate,
-		RuleStatus:   "",
 		Rating:       rating.Rating,
 		AckedCount:   0,
 		Tags:         ruleContent.Tags,

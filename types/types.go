@@ -102,7 +102,6 @@ type RecommendationContentUserData struct {
 	Likelihood   uint8              `json:"likelihood"`
 	PublishDate  time.Time          `json:"publish_date"`
 	Tags         []string           `json:"tags"`
-	RuleStatus   string             `json:"rule_status"`
 	Rating       types.UserVote     `json:"rating"`
 	AckedCount   uint32             `json:"hosts_acked_count"`
 	Disabled     bool               `json:"disabled"`
