@@ -105,6 +105,7 @@ type RecommendationContentUserData struct {
 	RuleStatus   string             `json:"rule_status"`
 	Rating       types.UserVote     `json:"rating"`
 	AckedCount   uint32             `json:"hosts_acked_count"`
+	Disabled     bool               `json:"disabled"`
 }
 
 // SmartProxyReport represents the response of /report endpoint for smart proxy
