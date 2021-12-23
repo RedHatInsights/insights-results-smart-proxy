@@ -82,9 +82,20 @@ var (
 	}
 
 	ClusterInfoResult = []types.ClusterInfo{
-		types.ClusterInfo{
+		{
 			ID:          testdata.ClusterName,
 			DisplayName: ClusterDisplayName1,
+		},
+	}
+
+	ClusterInfoResult2Clusters = []types.ClusterInfo{
+		{
+			ID:          testdata.GetRandomClusterID(),
+			DisplayName: ClusterDisplayName1,
+		},
+		{
+			ID:          testdata.GetRandomClusterID(),
+			DisplayName: ClusterDisplayName2,
 		},
 	}
 )

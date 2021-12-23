@@ -843,7 +843,7 @@
     },
     "/rule/{rule_selector}/clusters_detail": {
       "get": {
-        "summary": "Returns a list of cluster where the given rule is active.",
+        "summary": "Returns a list of cluster where the given rule is active. Also returns a list of clusters, for which the rule has been disabled.",
         "description": "Provided a correct rule selector and a valid organization ID, this method will query the DB for all the organization's clusters being currently affected by the rule, if any.",
         "operationId": "getClustersForRecommendation",
         "parameters": [
@@ -866,25 +866,11 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "report": {
+                    "data": {
                       "type": "object",
                       "properties": {
-                        "meta": {
-                          "type": "object",
-                          "properties": {
-                            "count": {
-                              "type": "integer",
-                              "description": "Number of clusters affected by the received rule.",
-                              "example": "1"
-                            },
-                            "rule_selector": {
-                              "type": "string",
-                              "description": "The rule selector retrieved in the URL.",
-                              "example": "some.python.module|SOME_ERROR_KEY"
-                            }
-                          }
-                        },
-                        "data": {
+                        "enabled": {
+                          "description": "A list of clusters, which are hitting this rule and are enabled.",
                           "type": "array",
                           "items": {
                             "type": "object",
@@ -899,6 +885,35 @@
                                 "type": "string",
                                 "description": "An human-readable name for the cluster",
                                 "example": "Production cluster 1"
+                              }
+                            }
+                          }
+                        },
+                        "disabled": {
+                          "description": "A list of clusters for which the user has disabled this rule",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "cluster": {
+                                "type": "string",
+                                "minLength": 36,
+                                "maxLength": 36,
+                                "format": "uuid"
+                              },
+                              "cluster_name": {
+                                "type": "string",
+                                "description": "An human-readable name for the cluster",
+                                "example": "Production cluster 1"
+                              },
+                              "disabled_at": {
+                                  "format": "date-time",
+                                  "type": "string"
+                              },
+                              "justification": {
+                                "type": "string",
+                                "description": "User given justification why rule was disabled.",
+                                "example": "Not useful for us."
                               }
                             }
                           }

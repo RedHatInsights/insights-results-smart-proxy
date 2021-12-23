@@ -19,9 +19,11 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -46,6 +48,9 @@ const (
 	IncludingImpacting
 	// ExcludingImpacting flag to return all recommendations excluding impacting ones on GET /rule/
 	ExcludingImpacting
+	// OkMsg is in status field with HTTP 200 response
+	OkMsg       = "ok"
+	selectorStr = "selector"
 )
 
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
@@ -131,7 +136,7 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
-	responseContent["status"] = "ok"
+	responseContent["status"] = OkMsg
 	responseContent["groups"] = ruleGroups
 	responseContent["content"] = contentResponse
 
@@ -203,7 +208,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
-	responseContent["status"] = "ok"
+	responseContent["status"] = OkMsg
 	responseContent["groups"] = ruleGroups
 	responseContent["content"] = contentResponse
 
@@ -274,7 +279,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		Msgf("number of final recommendations: %d", len(recommendationList))
 
 	resp := make(map[string]interface{})
-	resp["status"] = "ok"
+	resp["status"] = OkMsg
 	resp["recommendations"] = recommendationList
 
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
@@ -335,7 +340,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	metaCount := map[string]int{
 		"count": len(clusterViewResponse),
 	}
-	resp["status"] = "ok"
+	resp["status"] = OkMsg
 	resp["meta"] = metaCount
 	resp["data"] = clusterViewResponse
 
@@ -638,7 +643,7 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 	}
 	// prepare data structure for building response
 	responseContent := make(map[string]interface{})
-	responseContent["status"] = "ok"
+	responseContent["status"] = OkMsg
 	responseContent["groups"] = ruleGroups
 	responseContent["content"] = rules
 
@@ -684,51 +689,6 @@ func getImpactedClustersFromAggregator(
 	return
 }
 
-// proxyImpactedClusters sends the list of clusters impacted by the
-// recommendation to the client, if any.
-func proxyImpactedClusters(
-	writer http.ResponseWriter,
-	selector ctypes.RuleSelector,
-	aggregatorResp *http.Response,
-	namesMap map[ctypes.ClusterName]string,
-) error {
-	// If we received a 404 - no entries found for given orgID+selector in DB
-	// We return an empty list and a 200 OK
-	if aggregatorResp.StatusCode == http.StatusNotFound {
-		resp := responses.BuildOkResponse()
-		resp["meta"] = ctypes.HittingClustersMetadata{
-			Count:    0,
-			Selector: selector,
-		}
-		resp["data"] = []ctypes.HittingClustersData{}
-		return responses.SendOK(writer, resp)
-	}
-
-	if aggregatorResp.StatusCode == http.StatusOK {
-		// unmarshall the response to add cluster names to it
-		var response ctypes.HittingClusters
-
-		err := json.NewDecoder(aggregatorResp.Body).Decode(&response)
-		if err != nil {
-			return err
-		}
-
-		for index := range response.ClusterList {
-			clusterID := response.ClusterList[index].Cluster
-			response.ClusterList[index].Name = namesMap[clusterID]
-		}
-
-		return responses.Send(aggregatorResp.StatusCode, writer, response)
-	}
-
-	//Proxy the other responses as they came
-	responseBytes, e := ioutil.ReadAll(aggregatorResp.Body)
-	if e != nil {
-		return e
-	}
-	return responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
-}
-
 // getImpactedClusters retrieves a list of clusters affected by the given recommendation from aggregator
 func (server HTTPServer) getImpactedClusters(
 	writer http.ResponseWriter,
@@ -736,8 +696,10 @@ func (server HTTPServer) getImpactedClusters(
 	userID ctypes.UserID,
 	selector ctypes.RuleSelector,
 	activeClustersInfo []types.ClusterInfo,
-) error {
-
+) (
+	[]ctypes.HittingClustersData,
+	error,
+) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.RuleClusterDetailEndpoint,
@@ -751,16 +713,24 @@ func (server HTTPServer) getImpactedClusters(
 	// if http.Get fails for whatever reason
 	if err != nil {
 		handleServerError(writer, err)
-		return err
+		return []ctypes.HittingClustersData{}, err
 	}
 
-	namesMap := types.ClusterInfoArrayToMap(activeClustersInfo)
-	if err = proxyImpactedClusters(writer, selector, aggregatorResp, namesMap); err != nil {
-		log.Error().Err(err).Msgf(problemSendingResponseError)
-		handleServerError(writer, err)
-		return err
+	if aggregatorResp.StatusCode == http.StatusOK {
+		var response struct {
+			Clusters []ctypes.HittingClustersData `json:"clusters"`
+			Status   string                       `json:"status"`
+		}
+
+		err := json.NewDecoder(aggregatorResp.Body).Decode(&response)
+		if err != nil {
+			return []ctypes.HittingClustersData{}, err
+		}
+
+		return response.Clusters, nil
 	}
-	return nil
+
+	return []ctypes.HittingClustersData{}, nil
 }
 
 // getClustersDetailForRule retrieves all the clusters affected by the recommendation
@@ -789,15 +759,110 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster IDs from AMS API. Using empty list.")
 	}
 
-	// get the list of clusters affected by given rule from aggregator and send to client
-	err = server.getImpactedClusters(writer, orgID, userID, selector, activeClustersInfo)
+	// get the list of clusters affected by given rule from aggregator and
+	impactedClusters, err := server.getImpactedClusters(writer, orgID, userID, selector, activeClustersInfo)
 	if err != nil {
-		log.Error().
-			Err(err).
-			Int("orgID", int(orgID)).
-			Str(userIDTag, string(userID)).
-			Str("selector", string(selector)).
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
 			Msg("Couldn't get impacted clusters for given rule selector")
+		handleServerError(writer, err)
 		return
 	}
+
+	disabledClusters, err := server.getListOfDisabledClusters(orgID, userID, selector)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
+			Msg("Couldn't retrieve disabled clusters for given rule selector")
+		handleServerError(writer, err)
+		return
+	}
+
+	err = server.processClustersDetailResponse(impactedClusters, disabledClusters, activeClustersInfo, writer)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
+			Msg("Couldn't process response for clusters detail")
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getListOfDisabledClusters reads list of disabled clusters from aggregator
+func (server *HTTPServer) getListOfDisabledClusters(
+	orgID types.OrgID, userID types.UserID, ruleSelector ctypes.RuleSelector,
+) ([]ctypes.DisabledClusterInfo, error) {
+	var response struct {
+		Status           string                       `json:"status"`
+		DisabledClusters []ctypes.DisabledClusterInfo `json:"clusters"`
+	}
+
+	// rule selector has already been validated
+	splitRuleID := strings.Split(string(ruleSelector), "|")
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ListOfDisabledClusters,
+		splitRuleID[0],
+		splitRuleID[1],
+		userID,
+	)
+
+	// #nosec G107
+	resp, err := http.Get(aggregatorURL)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
+		err := fmt.Errorf("error reading disabled clusters from aggregator: %v", resp.StatusCode)
+		return nil, err
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.DisabledClusters, nil
+}
+
+// processClustersDetailResponse processes responses from aggregator and AMS API and sends a response
+func (server *HTTPServer) processClustersDetailResponse(
+	impactedClusters []ctypes.HittingClustersData,
+	disabledClusters []ctypes.DisabledClusterInfo,
+	clusterInfo []types.ClusterInfo,
+	writer http.ResponseWriter,
+) error {
+
+	data := types.ClustersDetailData{
+		EnabledClusters:  make([]ctypes.HittingClustersData, 0),
+		DisabledClusters: make([]ctypes.DisabledClusterInfo, 0),
+	}
+	// disabledMap is used to filter out the impacted clusters
+	disabledMap := make(map[types.ClusterName]ctypes.DisabledClusterInfo)
+	clusterNamesMap := types.ClusterInfoArrayToMap(clusterInfo)
+
+	// filter out inactive clusters from disabled; fill in display names
+	for _, disabledC := range disabledClusters {
+		// omit clusters that weren't retrieved from AMS API
+		if displayName, found := clusterNamesMap[disabledC.ClusterID]; found {
+			disabledC.ClusterName = displayName
+			disabledMap[disabledC.ClusterID] = disabledC
+			data.DisabledClusters = append(data.DisabledClusters, disabledC)
+		}
+	}
+
+	for _, impactedC := range impactedClusters {
+		// omit disabled clusters
+		if _, disabled := disabledMap[impactedC.Cluster]; disabled {
+			continue
+		}
+		impactedC.Name = clusterNamesMap[impactedC.Cluster]
+		data.EnabledClusters = append(data.EnabledClusters, impactedC)
+	}
+
+	response := types.ClustersDetailResponse{
+		Status: OkMsg,
+		Data:   data,
+	}
+
+	return responses.Send(http.StatusOK, writer, response)
 }

@@ -222,3 +222,15 @@ type ClusterInfo struct {
 	ID          ClusterName
 	DisplayName string
 }
+
+// ClustersDetailData is the inner data structure for /clusters_detail
+type ClustersDetailData struct {
+	EnabledClusters  []types.HittingClustersData `json:"enabled"`
+	DisabledClusters []types.DisabledClusterInfo `json:"disabled"`
+}
+
+// ClustersDetailResponse is a data structure used as the response for /clusters_detail
+type ClustersDetailResponse struct {
+	Data   ClustersDetailData `json:"data"`
+	Status string             `json:"status"`
+}
