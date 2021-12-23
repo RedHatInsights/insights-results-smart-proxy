@@ -890,7 +890,7 @@
                           }
                         },
                         "disabled": {
-                          "description": "A list of clusters, which the user has disabled from hitting this rule.",
+                          "description": "A list of clusters for which the user has disabled this rule",
                           "type": "array",
                           "items": {
                             "type": "object",
