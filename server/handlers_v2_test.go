@@ -131,9 +131,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 		&helpers.APIRequest{
-			Method: http.MethodGet,
-			//Endpoint:     ira_server.ListOfDisabledClusters,
-			Endpoint:     "clusters/rules/{rule_id}/error_key/{error_key}/users/{user_id}/disabled", //FIXME
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
 			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
@@ -249,9 +248,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_ImpactedClusterDi
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 		&helpers.APIRequest{
-			Method: http.MethodGet,
-			//Endpoint:     ira_server.ListOfDisabledClusters,
-			Endpoint:     "clusters/rules/{rule_id}/error_key/{error_key}/users/{user_id}/disabled", //FIXME
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
 			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
@@ -361,9 +359,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 		&helpers.APIRequest{
-			Method: http.MethodGet,
-			//Endpoint:     ira_server.ListOfDisabledClusters,
-			Endpoint:     "clusters/rules/{rule_id}/error_key/{error_key}/users/{user_id}/disabled", //FIXME
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
 			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
@@ -450,9 +447,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 		&helpers.APIRequest{
-			Method: http.MethodGet,
-			//Endpoint:     ira_server.ListOfDisabledClusters,
-			Endpoint:     "clusters/rules/{rule_id}/error_key/{error_key}/users/{user_id}/disabled", //FIXME
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
 			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
@@ -510,9 +506,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 		&helpers.APIRequest{
-			Method: http.MethodGet,
-			//Endpoint:     ira_server.ListOfDisabledClusters,
-			Endpoint:     "clusters/rules/{rule_id}/error_key/{error_key}/users/{user_id}/disabled", //FIXME
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
 			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
@@ -579,9 +574,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse500(t *testing.T) {
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 		&helpers.APIRequest{
-			Method: http.MethodGet,
-			//Endpoint:     ira_server.ListOfDisabledClusters,
-			Endpoint:     "clusters/rules/{rule_id}/error_key/{error_key}/users/{user_id}/disabled", //FIXME
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
 			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{

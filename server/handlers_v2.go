@@ -799,8 +799,7 @@ func (server *HTTPServer) getListOfDisabledClusters(
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		//FIXME
-		"clusters/rules/{rule_id}/error_key/{error_key}/users/{user_id}/disabled",
+		ira_server.ListOfDisabledClusters,
 		splitRuleID[0],
 		splitRuleID[1],
 		userID,
