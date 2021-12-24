@@ -424,7 +424,7 @@ func RunUpdateContentLoop(servicesConf services.Configuration) {
 		select {
 		case <-ticker.C:
 		case <-stopUpdateContentLoop:
-			break
+			return
 		}
 	}
 }

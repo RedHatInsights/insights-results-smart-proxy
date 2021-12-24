@@ -27,6 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
@@ -648,6 +649,15 @@ func TestGetExternalRuleSeverities2Unique(t *testing.T) {
 	assert.Equal(t, 2, len(recommendationSeverities))
 	// rules have different severity
 	assert.Equal(t, 2, len(uniqueSeverities))
+}
+
+func TestContentLoop(t *testing.T) {
+	go content.RunUpdateContentLoop(services.Configuration{
+		GroupsPollingTime: 1 * time.Second,
+	})
+	content.SetContentDirectoryTimeout(1 * time.Second)
+	time.Sleep(2 * time.Second)
+	content.StopUpdateContentLoop()
 }
 
 func fakeRuleAsInternal(ruleContent *ctypes.RuleContent) {
