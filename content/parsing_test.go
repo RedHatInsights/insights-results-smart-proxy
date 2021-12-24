@@ -16,6 +16,7 @@ package content
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -27,5 +28,26 @@ func TestCommaSeparatedStrToTags(t *testing.T) {
 
 	t.Run("valid string", func(t *testing.T) {
 		assert.Equal(t, []string{"a", "string"}, commaSeparatedStrToTags("a,string "))
+	})
+}
+
+func TestTimeParse(t *testing.T) {
+	t.Run("empty input", func(t *testing.T) {
+		_, missing, err := timeParse("")
+		assert.True(t, missing)
+		assert.NoError(t, err)
+	})
+
+	t.Run("valid layout", func(t *testing.T) {
+		date, missing, err := timeParse("2021-02-03 01:02:03")
+		assert.Equal(t, time.Date(2021, time.Month(2), 3, 1, 2, 3, 0, time.UTC), date)
+		assert.False(t, missing)
+		assert.NoError(t, err)
+	})
+
+	t.Run("invalid layout", func(t *testing.T) {
+		_, missing, err := timeParse("2021/02/03 01:02:03")
+		assert.False(t, missing)
+		assert.Error(t, err)
 	})
 }

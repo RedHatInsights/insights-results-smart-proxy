@@ -141,11 +141,8 @@ func timeParse(value string) (publishDate time.Time, missing bool, err error) {
 		)
 	}
 
-	if err != nil {
-		log.Error().Msgf("problem parsing publish_date: %v", err)
-	} else {
-		err = errors.New("invalid format of publish_date")
-	}
+	log.Error().Msgf("problem parsing publish_date: %v", err)
+	err = errors.New("invalid format of publish_date")
 
 	return
 }
