@@ -81,26 +81,6 @@ func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 	return res, found
 }
 
-// GetRuleContentV1 returns content for rule for api v1
-func (s *RulesWithContentStorage) GetRuleContentV1(ruleID ctypes.RuleID) (*types.RuleContentV1, bool) {
-	res, found := s.getRuleContent(ruleID)
-	resV1 := types.RuleContentV1{}
-	if found {
-		resV1 = RuleContentToV1(res)
-	}
-	return &resV1, found
-}
-
-// GetRuleContentV2 returns content for rule for api v2
-func (s *RulesWithContentStorage) GetRuleContentV2(ruleID ctypes.RuleID) (*types.RuleContentV2, bool) {
-	res, found := s.getRuleContent(ruleID)
-	resV2 := types.RuleContentV2{}
-	if found {
-		resV2 = RuleContentToV2(res)
-	}
-	return &resV2, found
-}
-
 // GetContentForRecommendation returns content for rule with error key
 func (s *RulesWithContentStorage) GetContentForRecommendation(
 	ruleID ctypes.RuleID,
