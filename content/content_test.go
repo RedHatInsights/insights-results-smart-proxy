@@ -660,6 +660,12 @@ func TestContentLoop(t *testing.T) {
 	content.StopUpdateContentLoop()
 }
 
+func TestRuleContentDirectoryTimeoutErrorError(t *testing.T) {
+	ruleContentDirectoryTimeoutError := content.RuleContentDirectoryTimeoutError{}
+	errString := ruleContentDirectoryTimeoutError.Error()
+	assert.NotEmpty(t, errString)
+}
+
 func fakeRuleAsInternal(ruleContent *ctypes.RuleContent) {
 	modifyPluginPythonModule(ruleContent, internalStr)
 }
