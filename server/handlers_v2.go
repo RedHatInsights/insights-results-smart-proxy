@@ -186,6 +186,21 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		}
 	}
 
+	ruleModule, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ruleID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// ignoring the response and the possible error.
+	// We are just interested on know if the rule is system disabled or not
+	_, ackFound, _ := server.readRuleDisableStatus(
+		ctypes.Component(ruleModule),
+		errorKey,
+		orgID,
+		userID,
+	)
+
 	// fill in user rating and other DB stuff from aggregator
 	contentResponse := types.RecommendationContentUserData{
 		// RuleID in rule.module|ERROR_KEY format
@@ -200,10 +215,10 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		Impact:       uint8(ruleContent.Impact),
 		Likelihood:   uint8(ruleContent.Likelihood),
 		PublishDate:  ruleContent.PublishDate,
-		RuleStatus:   "",
 		Rating:       rating.Rating,
 		AckedCount:   0,
 		Tags:         ruleContent.Tags,
+		Disabled:     ackFound,
 	}
 
 	// prepare data structure for building response

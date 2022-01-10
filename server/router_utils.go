@@ -19,7 +19,6 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-	"strings"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ctypes "github.com/RedHatInsights/insights-results-types"
@@ -46,11 +45,8 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 
-	splitedRuleID := strings.Split(string(ruleIDWithErrorKey), "|")
-
-	if len(splitedRuleID) != 2 {
-		err = fmt.Errorf("invalid rule ID, it must contain only rule ID and error key separated by |")
-		log.Error().Err(err)
+	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleIDWithErrorKey))
+	if err != nil {
 		handleServerError(writer, &RouterParsingError{
 			paramName:  "rule_id",
 			paramValue: ruleIDWithErrorKey,
@@ -59,23 +55,7 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 
-	IDValidator := regexp.MustCompile(`^[a-zA-Z_0-9.]+$`)
-
-	isRuleIDValid := IDValidator.MatchString(splitedRuleID[0])
-	isErrorKeyValid := IDValidator.MatchString(splitedRuleID[1])
-
-	if !isRuleIDValid || !isErrorKeyValid {
-		err = fmt.Errorf("invalid rule ID, each part of ID must contain only latin characters, number, underscores or dots")
-		log.Error().Err(err)
-		handleServerError(writer, &RouterParsingError{
-			paramName:  "rule_id",
-			paramValue: ruleIDWithErrorKey,
-			errString:  err.Error(),
-		})
-		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
-	}
-
-	return ctypes.RuleID(splitedRuleID[0]), ctypes.ErrorKey(splitedRuleID[1]), nil
+	return ruleID, errorKey, nil
 }
 
 func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (

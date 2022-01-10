@@ -1760,6 +1760,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 				defer helpers.CleanAfterGock(t)
 				rating := fmt.Sprintf(`{"rule":"%v","rating":%v}`, testCase.RuleID, testCase.UserVote)
 				aggregatorResponse := fmt.Sprintf(`{"rating":%s}`, rating)
+				ruleID, errorKey, _ := types.RuleIDWithErrorKeyFromCompositeRuleID(testCase.RuleID)
 
 				// prepare response from aggregator for recommendations
 				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -1770,6 +1771,19 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 					},
 					&helpers.APIResponse{
 						StatusCode: http.StatusOK,
+						Body:       aggregatorResponse,
+					},
+				)
+
+				// prepare response from aggregator for ack status get
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+					&helpers.APIRequest{
+						Method:       http.MethodGet,
+						Endpoint:     ira_server.ReadRuleSystemWide,
+						EndpointArgs: []interface{}{ruleID, errorKey, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+					},
+					&helpers.APIResponse{
+						StatusCode: http.StatusNotFound,
 						Body:       aggregatorResponse,
 					},
 				)
