@@ -839,6 +839,8 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		handleServerError(writer, err)
 		return
 	}
+	//Using a map makes looking for a disabled rule faster when filtering
+	systemWideRuleDisables := make(map[ctypes.RuleSelector]string)
 
 	osdFlag, err := readOSDEligible(request)
 	if err != nil {
@@ -848,7 +850,24 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
 
-	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		// everything's handled already
+		return
+	}
+	acks, err := server.readListOfAckedRules(orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Unable to retrieve list of acked rules for given organization")
+		// server error has been handled already
+		return
+	}
+	for _, ack := range acks{
+		selector := ctypes.RuleSelector(string(ack.RuleID) + "|" + string(ack.ErrorKey))
+		systemWideRuleDisables[selector] = ack.Justification
+	}
+
+	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables)
 
 	if err != nil {
 		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
@@ -1168,7 +1187,7 @@ func (server HTTPServer) getOverviewPerCluster(
 // - The rule has content from the content-service
 // - The disabled filter is not match
 // - The OSD elegible filter is not match
-func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, getDisabled bool) (
+func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, getDisabled bool, systemWideDisabledRules map[ctypes.RuleSelector]string) (
 	okRules []types.RuleWithContentResponse,
 	noContentRulesCnt int,
 	disabledRulesCnt int,
@@ -1182,6 +1201,14 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		if aggregatorRule.Disabled && !getDisabled {
 			disabledRulesCnt++
 			continue
+		}
+
+		if !getDisabled && len(systemWideDisabledRules) > 0 {
+			selector := ctypes.RuleSelector(strings.TrimSuffix(string(aggregatorRule.Module), dotReport) + "|" + string(aggregatorRule.ErrorKey))
+			if _, exists := systemWideDisabledRules[selector]; exists {
+				disabledRulesCnt++
+				continue
+			}
 		}
 
 		rule, filtered, err := content.FetchRuleContent(aggregatorRule, filterOSD)
