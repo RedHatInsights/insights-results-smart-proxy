@@ -82,6 +82,29 @@ var (
 			},
 		},
 	}
+
+	ResponseNoRulesDisabledSystemWide = `{
+		"meta": {
+			"count": 0
+		},
+		"data": []
+	}`
+
+	ResponseRule2DisabledSystemWide = struct {
+		Status      string                         `json:"status"`
+		RuleDisable []ctypes.SystemWideRuleDisable `json:"disabledRules"`
+	}{
+		Status: "ok",
+		RuleDisable: []ctypes.SystemWideRuleDisable{
+			{
+				OrgID:         testdata.OrgID,
+				UserID:        testdata.UserID,
+				RuleID:        testdata.Rule2ID,
+				ErrorKey:      testdata.ErrorKey2,
+				Justification: "Rule 2 disabled for testing purposes",
+			},
+		},
+	}
 )
 
 func expectNoRulesDisabledSystemWide(t *testing.TB) {
@@ -91,7 +114,7 @@ func expectNoRulesDisabledSystemWide(t *testing.TB) {
 		EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusOK,
-		Body:       testdata.ResponseNoRulesDisabledSystemWide,
+		Body:       ResponseNoRulesDisabledSystemWide,
 	})
 }
 
@@ -376,7 +399,7 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 				EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
-				Body:       helpers.ToJSONString(testdata.ResponseRule2DisabledSystemWide),
+				Body:       helpers.ToJSONString(ResponseRule2DisabledSystemWide),
 			})
 		}
 		// Get report with get_disabled = false
@@ -417,7 +440,6 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 		})
 	}, testTimeout)
 }
-
 
 // TestHTTPServer_ReportMetainfoEndpointNoReports check the /report/info
 // endpoint when no results are found for given cluster.

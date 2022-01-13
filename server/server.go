@@ -839,8 +839,6 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		handleServerError(writer, err)
 		return
 	}
-	//Using a map makes looking for a disabled rule faster when filtering
-	systemWideRuleDisables := make(map[ctypes.RuleSelector]string)
 
 	osdFlag, err := readOSDEligible(request)
 	if err != nil {
@@ -862,10 +860,8 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		// server error has been handled already
 		return
 	}
-	for _, ack := range acks{
-		selector := ctypes.RuleSelector(string(ack.RuleID) + "|" + string(ack.ErrorKey))
-		systemWideRuleDisables[selector] = ack.Justification
-	}
+
+	systemWideRuleDisables := generateRuleAckMap(acks)
 
 	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables)
 
@@ -1187,7 +1183,8 @@ func (server HTTPServer) getOverviewPerCluster(
 // - The rule has content from the content-service
 // - The disabled filter is not match
 // - The OSD elegible filter is not match
-func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, getDisabled bool, systemWideDisabledRules map[ctypes.RuleSelector]string) (
+func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, getDisabled bool,
+	systemWideDisabledRules map[types.RuleID]bool) (
 	okRules []types.RuleWithContentResponse,
 	noContentRulesCnt int,
 	disabledRulesCnt int,
@@ -1204,8 +1201,13 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		}
 
 		if !getDisabled && len(systemWideDisabledRules) > 0 {
-			selector := ctypes.RuleSelector(strings.TrimSuffix(string(aggregatorRule.Module), dotReport) + "|" + string(aggregatorRule.ErrorKey))
-			if _, exists := systemWideDisabledRules[selector]; exists {
+			selector := types.RuleID(
+				fmt.Sprintf("%v|%v",
+					strings.TrimSuffix(string(aggregatorRule.Module), dotReport),
+					aggregatorRule.ErrorKey,
+				),
+			)
+			if systemWideDisabledRules[selector] {
 				disabledRulesCnt++
 				continue
 			}
