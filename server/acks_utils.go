@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Red Hat, Inc.
+Copyright © 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -175,9 +175,8 @@ func (server *HTTPServer) updateAckRuleSystemWide(
 	}
 
 	// do POST request and read response from Insights Aggregator
-	// #nosec G107
 	response, err := http.Post(aggregatorURL, JSONContentType,
-		bytes.NewBuffer(jsonData))
+		bytes.NewBuffer(jsonData)) // #nosec G107
 	if err != nil {
 		return err
 	}
