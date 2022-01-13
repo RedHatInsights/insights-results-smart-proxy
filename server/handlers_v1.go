@@ -1,4 +1,4 @@
-// Copyright 2020, 2021 Red Hat, Inc
+// Copyright 2020, 2021, 2022 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -399,8 +399,7 @@ func infoFromService(url string) map[string]string {
 // returned response
 func readInfoAPIEndpoint(url string) (map[string]string, error) {
 	// perform GET request to given service
-	// #nosec G107
-	response, err := http.Get(url)
+	response, err := http.Get(url) // #nosec G107
 
 	// error happening during GET request
 	if err != nil {

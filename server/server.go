@@ -1,5 +1,5 @@
 /*
-Copyright © 2020, 2021  Red Hat, Inc.
+Copyright © 2020, 2021, 2022  Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,8 +37,7 @@ import (
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
-	// #nosec G108
-	_ "net/http/pprof"
+	_ "net/http/pprof" // #nosec G108
 	"path/filepath"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
