@@ -22,11 +22,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	// dotReport ".report" string present in the ruleID in most tables
-	dotReport = ".report"
-)
-
 func logClusterInfos(orgID types.OrgID, clusterID types.ClusterName, response []types.RuleOnReport) {
 	logMessage := fmt.Sprintf("rule hits for %d.%s:", orgID, clusterID)
 	for _, ruleHit := range response {

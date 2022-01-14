@@ -68,6 +68,9 @@ const (
 
 	// userIDTag represent the tags for print user ID (account number) in the logs
 	userIDTag = "userID"
+
+	// dotReport ".report" string present in the ruleID in most tables
+	dotReport = ".report"
 )
 
 // HTTPServer is an implementation of Server interface

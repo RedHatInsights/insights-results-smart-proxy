@@ -17,6 +17,10 @@ package server_test
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"testing"
+	"time"
+
 	"github.com/RedHatInsights/insights-content-service/groups"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
@@ -28,9 +32,6 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/stretchr/testify/assert"
-	"net/http"
-	"testing"
-	"time"
 )
 
 var (
