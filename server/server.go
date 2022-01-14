@@ -1179,6 +1179,25 @@ func (server HTTPServer) getOverviewPerCluster(
 	}, nil
 }
 
+func isDisabledRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
+	if aggregatorRule.Disabled {
+		return true
+	}
+
+	if len(systemWideDisabledRules) > 0 {
+		selector := types.RuleID(
+			fmt.Sprintf("%v|%v",
+				strings.TrimSuffix(string(aggregatorRule.Module), dotReport),
+				aggregatorRule.ErrorKey,
+			),
+		)
+		if systemWideDisabledRules[selector] {
+			return true
+		}
+	}
+	return false
+}
+
 // filterRulesInResponse returns an array of RuleWithContentResponse with only the rules that matches 3 criteria:
 // - The rule has content from the content-service
 // - The disabled filter is not match
@@ -1195,22 +1214,9 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 	disabledRulesCnt, noContentRulesCnt = 0, 0
 
 	for _, aggregatorRule := range aggregatorReport {
-		if aggregatorRule.Disabled && !getDisabled {
+		if !getDisabled && isDisabledRule(aggregatorRule, systemWideDisabledRules) {
 			disabledRulesCnt++
 			continue
-		}
-
-		if !getDisabled && len(systemWideDisabledRules) > 0 {
-			selector := types.RuleID(
-				fmt.Sprintf("%v|%v",
-					strings.TrimSuffix(string(aggregatorRule.Module), dotReport),
-					aggregatorRule.ErrorKey,
-				),
-			)
-			if systemWideDisabledRules[selector] {
-				disabledRulesCnt++
-				continue
-			}
 		}
 
 		rule, filtered, err := content.FetchRuleContent(aggregatorRule, filterOSD)
