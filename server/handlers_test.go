@@ -19,20 +19,19 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
+	"time"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
-	ctypes "github.com/RedHatInsights/insights-results-types"
-
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
+	ctypes "github.com/RedHatInsights/insights-results-types"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -53,7 +52,72 @@ var (
 			"rc5": testdata.RuleContent5,
 		},
 	}
+
+	SmartProxyReportRule1 = struct {
+		Status string                  `json:"status"`
+		Report *types.SmartProxyReport `json:"report"`
+	}{
+		Status: "ok",
+		Report: &types.SmartProxyReport{
+			Meta: types.ReportResponseMeta{
+				Count:         1,
+				LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+			},
+			Data: []types.RuleWithContentResponse{
+				{
+					RuleID:       testdata.Rule1.Module,
+					ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+					CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+					Description:  testdata.RuleErrorKey1.Description,
+					Generic:      testdata.RuleErrorKey1.Generic,
+					Reason:       testdata.RuleErrorKey1.Reason,
+					Resolution:   testdata.RuleErrorKey1.Resolution,
+					MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
+					TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+					RiskOfChange: 0,
+					Disabled:     testdata.Rule1Disabled,
+					UserVote:     types.UserVoteNone,
+					TemplateData: testdata.Rule1ExtraData,
+					Tags:         testdata.RuleErrorKey1.Tags,
+				},
+			},
+		},
+	}
+
+	ResponseNoRulesDisabledSystemWide = `{
+		"meta": {
+			"count": 0
+		},
+		"data": []
+	}`
+
+	ResponseRule2DisabledSystemWide = struct {
+		Status      string                         `json:"status"`
+		RuleDisable []ctypes.SystemWideRuleDisable `json:"disabledRules"`
+	}{
+		Status: "ok",
+		RuleDisable: []ctypes.SystemWideRuleDisable{
+			{
+				OrgID:         testdata.OrgID,
+				UserID:        testdata.UserID,
+				RuleID:        testdata.Rule2ID,
+				ErrorKey:      testdata.ErrorKey2,
+				Justification: "Rule 2 disabled for testing purposes",
+			},
+		},
+	}
 )
+
+func expectNoRulesDisabledSystemWide(t *testing.TB) {
+	helpers.GockExpectAPIRequest(*t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+		EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Body:       ResponseNoRulesDisabledSystemWide,
+	})
+}
 
 // TODO: test more cases for report endpoint
 func TestHTTPServer_ReportEndpoint(t *testing.T) {
@@ -71,6 +135,8 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
+
+		expectNoRulesDisabledSystemWide(&t)
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -106,6 +172,8 @@ func TestHTTPServer_ReportEndpoint_UnavailableContentService(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
@@ -136,6 +204,8 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       testdata.Report1RuleExpectedResponse,
 		})
+
+		expectNoRulesDisabledSystemWide(&t)
 
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
@@ -169,6 +239,8 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		// 1 rule returned, but count = 3
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -200,6 +272,8 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 			Body:       testdata.Report3RulesExpectedResponse,
 		})
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint + "?" + server.OSDEligibleParam + "=true",
@@ -213,7 +287,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
+func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
 	assert.Nil(t, err)
@@ -221,34 +295,18 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3Rules1DisabledExpectedResponse,
-		})
+		for i := 0; i < 3; i++ {
+			helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ReportEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       testdata.Report3Rules1DisabledExpectedResponse,
+			})
 
-		// Same as previous one for the second endpoint request
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3Rules1DisabledExpectedResponse,
-		})
-
-		// Same as previous one for the third endpoint request
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3Rules1DisabledExpectedResponse,
-		})
+			expectNoRulesDisabledSystemWide(&t)
+		}
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -287,7 +345,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRules(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing.T) {
+func TestHTTPServer_ReportEndpoint_WithDisabledRulesForClusterAndMissingContent(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(&RuleContentDirectoryOnlyDisabledRule)
 	assert.Nil(t, err)
@@ -304,6 +362,8 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 			Body:       testdata.Report3Rules1DisabledExpectedResponse,
 		})
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     server.ReportEndpoint,
@@ -313,6 +373,71 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesAndMissingContent(t *testing
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyEmptyResponse),
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		for i := 0; i < 3; i++ {
+			helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ReportEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       testdata.Report3Rules1DisabledExpectedResponse,
+			})
+
+			helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(ResponseRule2DisabledSystemWide),
+			})
+		}
+		// Get report with get_disabled = false
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=false",
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyReportRule1),
+		})
+
+		// Get report without specifying get_disabled => same result as above
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyReportRule1),
+		})
+
+		// Get report with get_disabled = true
+		// => Report contains disabled rules for cluster and org-wide disabled rules
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=true",
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyReportResponse3RulesAll),
 		})
 	}, testTimeout)
 }
