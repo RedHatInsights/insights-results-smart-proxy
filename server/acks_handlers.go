@@ -71,7 +71,7 @@ func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.
 
 	acks, err := server.readListOfAckedRules(orgID, userID)
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to retrieve list of acked rules")
+		log.Error().Err(err).Msg(ackedRulesError)
 		// server error has been handled already
 		return
 	}
