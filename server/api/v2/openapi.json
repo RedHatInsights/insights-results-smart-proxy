@@ -746,12 +746,6 @@
                           "format": "date-time",
                           "type": "string"
                         },
-
-                        "rule_status": {
-                          "description": "Whether the rule has been disabled/acked or not.",
-                          "type": "string",
-                          "example": "disabled"
-                        },
                         "rating": {
                           "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
                           "enum": [
@@ -770,6 +764,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "disabled": {
+                          "description": "Whether the rule has been disabled/acked for all clusters or not.",
+                          "type": "boolean",
+                          "example": "false"
                         }
                       }
                     },

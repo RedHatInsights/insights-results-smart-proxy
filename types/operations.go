@@ -15,7 +15,12 @@
 package types
 
 import (
+	"fmt"
+	"regexp"
+	"strings"
+
 	ctypes "github.com/RedHatInsights/insights-results-types"
+	"github.com/rs/zerolog/log"
 )
 
 // GetClusterNames extract the ClusterName from an array of ClusterInfo
@@ -38,4 +43,28 @@ func ClusterInfoArrayToMap(clustersInfo []ClusterInfo) (retval map[ctypes.Cluste
 	}
 
 	return
+}
+
+// RuleIDWithErrorKeyFromCompositeRuleID get a pair RuleID + ErrorKey from a composite rule identifier
+func RuleIDWithErrorKeyFromCompositeRuleID(compositeRuleID ctypes.RuleID) (ctypes.RuleID, ctypes.ErrorKey, error) {
+	splitedRuleID := strings.Split(string(compositeRuleID), "|")
+
+	if len(splitedRuleID) != 2 {
+		err := fmt.Errorf("invalid rule ID, it must contain only rule ID and error key separated by |")
+		log.Error().Err(err)
+		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
+	}
+
+	IDValidator := regexp.MustCompile(`^[a-zA-Z_0-9.]+$`)
+
+	isRuleIDValid := IDValidator.MatchString(splitedRuleID[0])
+	isErrorKeyValid := IDValidator.MatchString(splitedRuleID[1])
+
+	if !isRuleIDValid || !isErrorKeyValid {
+		err := fmt.Errorf("invalid rule ID, each part of ID must contain only latin characters, number, underscores or dots")
+		log.Error().Err(err)
+		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
+	}
+
+	return ctypes.RuleID(splitedRuleID[0]), ctypes.ErrorKey(splitedRuleID[1]), nil
 }

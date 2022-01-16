@@ -1,5 +1,5 @@
 /*
-Copyright © 2020, 2021  Red Hat, Inc.
+Copyright © 2020, 2021, 2022  Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,8 +37,7 @@ import (
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
-	// #nosec G108
-	_ "net/http/pprof"
+	_ "net/http/pprof" // #nosec G108
 	"path/filepath"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
@@ -68,9 +67,14 @@ const (
 	orgIDTag = "orgID"
 
 	// userIDTag represent the tags for print user ID (account number) in the logs
-	userIDTag            = "userID"
-	ackedRulesError      = "Unable to retrieve list of acked rules"
+	userIDTag = "userID"
+
+	ackedRulesError = "Unable to retrieve list of acked rules"
+
 	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
+
+	// dotReport ".report" string present in the ruleID in most tables
+	dotReport = ".report"
 )
 
 // HTTPServer is an implementation of Server interface
@@ -851,7 +855,22 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
 
-	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled)
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		// everything's handled already
+		return
+	}
+	acks, err := server.readListOfAckedRules(orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Unable to retrieve list of acked rules for given organization")
+		// server error has been handled already
+		return
+	}
+
+	systemWideRuleDisables := generateRuleAckMap(acks)
+
+	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables)
 
 	if err != nil {
 		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
@@ -1167,11 +1186,31 @@ func (server HTTPServer) getOverviewPerCluster(
 	}, nil
 }
 
+func isDisabledRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
+	if aggregatorRule.Disabled {
+		return true
+	}
+
+	if len(systemWideDisabledRules) > 0 {
+		selector := types.RuleID(
+			fmt.Sprintf("%v|%v",
+				strings.TrimSuffix(string(aggregatorRule.Module), dotReport),
+				aggregatorRule.ErrorKey,
+			),
+		)
+		if systemWideDisabledRules[selector] {
+			return true
+		}
+	}
+	return false
+}
+
 // filterRulesInResponse returns an array of RuleWithContentResponse with only the rules that matches 3 criteria:
 // - The rule has content from the content-service
 // - The disabled filter is not match
 // - The OSD elegible filter is not match
-func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, getDisabled bool) (
+func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, getDisabled bool,
+	systemWideDisabledRules map[types.RuleID]bool) (
 	okRules []types.RuleWithContentResponse,
 	noContentRulesCnt int,
 	disabledRulesCnt int,
@@ -1182,7 +1221,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 	disabledRulesCnt, noContentRulesCnt = 0, 0
 
 	for _, aggregatorRule := range aggregatorReport {
-		if aggregatorRule.Disabled && !getDisabled {
+		if !getDisabled && isDisabledRule(aggregatorRule, systemWideDisabledRules) {
 			disabledRulesCnt++
 			continue
 		}
