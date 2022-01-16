@@ -509,7 +509,7 @@ func (server *HTTPServer) getUserDisabledRulesPerCluster(userID types.UserID) (
 		}
 
 		if ruleList, found := disabledRulesPerCluster[disabledRule.ClusterID]; found {
-			ruleList = append(ruleList, compositeRuleID)
+			disabledRulesPerCluster[disabledRule.ClusterID] = append(ruleList, compositeRuleID)
 		} else {
 			disabledRulesPerCluster[disabledRule.ClusterID] = []ctypes.RuleID{compositeRuleID}
 		}
