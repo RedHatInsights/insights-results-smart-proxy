@@ -1,5 +1,5 @@
 /*
-Copyright © 2020, 2021 Red Hat, Inc.
+Copyright © 2020, 2021, 2022 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -66,7 +66,6 @@ func TestStartServer_BadServerAddress(t *testing.T) {
 	})
 
 	_ = main.StartServer()
-	// assert.Equal(t, main.ExitStatusServerError, errCode)
 }
 
 // TestPrintVersionInfo is dummy ATM - we'll check versions etc. in integration tests.
