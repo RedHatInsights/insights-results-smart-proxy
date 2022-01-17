@@ -277,7 +277,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	// retrieve rule acknowledgements (disable/enable)
 	acks, err := server.readListOfAckedRules(orgID, userID)
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to retrieve list of acked rules")
+		log.Error().Err(err).Msg(ackedRulesError)
 		// server error has been handled already
 		return
 	}
@@ -308,6 +308,29 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 }
 
+func (server HTTPServer) getRuleAcksAndDisables(orgID types.OrgID, userID types.UserID) (
+	ackedRulesMap map[ctypes.RuleID]bool,
+	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
+) {
+	ackedRulesMap = make(map[ctypes.RuleID]bool)
+	disabledRulesPerCluster = make(map[ctypes.ClusterName][]ctypes.RuleID)
+
+	// retrieve rule acknowledgements (disable/enable for all clusters)
+	ackedRules, err := server.readListOfAckedRules(orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg(ackedRulesError)
+		// server error has been handled already
+		return
+	}
+	// put rule acks in a map so we only iterate over them once
+	ackedRulesMap = generateRuleAckMap(ackedRules)
+
+	// retrieve list of cluster IDs and single disabled rules for each cluster
+	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(userID)
+
+	return
+}
+
 // getClustersView retrieves all clusters for given organization, retrieves the impacting rules for each cluster
 // from aggregator and returns a list of clusters, total number of hitting rules and a count of impacting rules
 // by severity = total risk = critical, high, moderate, low
@@ -328,6 +351,8 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		handleServerError(writer, err)
 		return
 	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+		"getClustersView list of clusters %s", clusterInfoList)
 
 	tStartImpacting := time.Now()
 	clusterRecommendationMap, err := server.getClustersAndRecommendations(writer, orgID, userID, types.GetClusterNames(clusterInfoList))
@@ -344,7 +369,11 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		"getClustersView getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
 	)
 
-	clusterViewResponse, err := matchClusterInfoRuleSeverity(clusterInfoList, clusterRecommendationMap)
+	ackedRulesMap, disabledRulesPerCluster := server.getRuleAcksAndDisables(orgID, userID)
+
+	clusterViewResponse, err := matchClusterInfoAndUserData(
+		clusterInfoList, clusterRecommendationMap, ackedRulesMap, disabledRulesPerCluster,
+	)
 	if err != nil {
 		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Msg("error matching cluster list and rule severities")
 		handleServerError(writer, err)
@@ -369,12 +398,16 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	}
 }
 
-// matchClusterInfoRuleSeverity matches data from AMS API, aggregator and calculates the numbers
-// of hitting rules based on their severity (total risk)
-func matchClusterInfoRuleSeverity(
+// matchClusterInfoAndUserData matches data from AMS API, rule hits from aggregator + user data from aggregator
+// regarding disabled rules and calculates the numbers of hitting rules based on their severity (total risk)
+func matchClusterInfoAndUserData(
 	clusterInfoList []types.ClusterInfo,
 	clusterRecommendationsMap ctypes.ClusterRecommendationMap,
-) ([]types.ClusterListView, error) {
+	systemWideDisabledRules map[ctypes.RuleID]bool,
+	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
+) (
+	[]types.ClusterListView, error,
+) {
 	clusterListView := make([]types.ClusterListView, 0)
 
 	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
@@ -395,10 +428,17 @@ func matchClusterInfoRuleSeverity(
 			clusterViewItem.HitsByTotalRisk[severity] = 0
 		}
 
+		// check if there are any hitting recommendations
 		if hittingRecommendations, any := clusterRecommendationsMap[clusterViewItem.ClusterID]; any {
 			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt.UTC().Format(time.RFC3339)
 
-			for _, ruleID := range hittingRecommendations.Recommendations {
+			// filter out acked and disabled rules
+			enabledOnlyRecommendations := filterOutDisabledRules(
+				hittingRecommendations.Recommendations, clusterViewItem.ClusterID,
+				systemWideDisabledRules, disabledRulesPerCluster,
+			)
+
+			for _, ruleID := range enabledOnlyRecommendations {
 				if ruleSeverity, found := recommendationSeverities[ruleID]; found {
 					clusterViewItem.HitsByTotalRisk[ruleSeverity]++
 					clusterViewItem.TotalHitCount++
@@ -415,6 +455,68 @@ func matchClusterInfoRuleSeverity(
 	return clusterListView, nil
 }
 
+// filterOutDisabledRules filters out system-wide disabled rules (rule acknowledgement) and rules which had been
+// disabled on a single cluster basis.
+func filterOutDisabledRules(
+	hittingRecommendations []ctypes.RuleID,
+	clusterID ctypes.ClusterName,
+	systemWideDisabledRules map[ctypes.RuleID]bool,
+	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
+) (enabledOnlyRecommendations []ctypes.RuleID) {
+
+	for _, hittingRuleID := range hittingRecommendations {
+		// no need to continue, rule has been acked
+		if systemWideDisabledRules[hittingRuleID] {
+			continue
+		}
+
+		// try to find rule ID in list of disabled rules, if any
+		ruleDisabled := false
+		if disabledRulesList, any := disabledRulesPerCluster[clusterID]; any {
+			for _, disabledRuleID := range disabledRulesList {
+				if disabledRuleID == hittingRuleID {
+					ruleDisabled = true
+				}
+			}
+		}
+
+		if !ruleDisabled {
+			enabledOnlyRecommendations = append(enabledOnlyRecommendations, hittingRuleID)
+		}
+	}
+
+	return
+}
+
+// Method getUserDisabledRulesPerCluster returns a map of cluster IDs with a list of disabled rules for each cluster
+func (server *HTTPServer) getUserDisabledRulesPerCluster(userID types.UserID) (
+	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
+) {
+	listOfDisabledRules, err := server.readListOfClusterDisabledRules(userID)
+	if err != nil {
+		log.Error().Err(err).Msg("error retrieving list of disabled rules")
+		return
+	}
+
+	disabledRulesPerCluster = make(map[ctypes.ClusterName][]ctypes.RuleID)
+	for i := range listOfDisabledRules {
+		disabledRule := &listOfDisabledRules[i]
+
+		compositeRuleID, err := generators.GenerateCompositeRuleID(ctypes.RuleFQDN(disabledRule.RuleID), disabledRule.ErrorKey)
+		if err != nil {
+			log.Error().Err(err).Msgf(compositeRuleIDError, disabledRule.RuleID, disabledRule.ErrorKey)
+			continue
+		}
+
+		if ruleList, found := disabledRulesPerCluster[disabledRule.ClusterID]; found {
+			disabledRulesPerCluster[disabledRule.ClusterID] = append(ruleList, compositeRuleID)
+		} else {
+			disabledRulesPerCluster[disabledRule.ClusterID] = []ctypes.RuleID{compositeRuleID}
+		}
+	}
+	return
+}
+
 func generateRuleAckMap(acks []ctypes.SystemWideRuleDisable) (ruleAcksMap map[ctypes.RuleID]bool) {
 	ruleAcksMap = make(map[ctypes.RuleID]bool)
 	for i := range acks {
@@ -423,7 +525,7 @@ func generateRuleAckMap(acks []ctypes.SystemWideRuleDisable) (ruleAcksMap map[ct
 		if err == nil {
 			ruleAcksMap[compositeRuleID] = true
 		} else {
-			log.Error().Err(err).Msgf("Error generating composite rule ID for [%v] and [%v]", ack.RuleID, ack.ErrorKey)
+			log.Error().Err(err).Msgf(compositeRuleIDError, ack.RuleID, ack.ErrorKey)
 		}
 	}
 	return

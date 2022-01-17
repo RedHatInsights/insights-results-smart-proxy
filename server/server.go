@@ -69,6 +69,10 @@ const (
 	// userIDTag represent the tags for print user ID (account number) in the logs
 	userIDTag = "userID"
 
+	ackedRulesError = "Unable to retrieve list of acked rules"
+
+	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
+
 	// dotReport ".report" string present in the ruleID in most tables
 	dotReport = ".report"
 )
@@ -1243,4 +1247,39 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 	}
 
 	return
+}
+
+// Method readListOfClusterDisabledRules returns rules with a list of clusters for which the user had
+// disabled the rule (if any)
+func (server *HTTPServer) readListOfClusterDisabledRules(userID types.UserID) ([]ctypes.DisabledRule, error) {
+	// wont be used anywhere else
+	var response struct {
+		Status        string                `json:"status"`
+		DisabledRules []ctypes.DisabledRule `json:"rules"`
+	}
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		ira_server.ListOfDisabledRules,
+		userID,
+	)
+
+	// #nosec G107
+	resp, err := http.Get(aggregatorURL)
+	if err != nil {
+		return nil, err
+	}
+
+	// check the aggregator response
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
+		err := fmt.Errorf("error reading disabled rules from aggregator: %v", resp.StatusCode)
+		return nil, err
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.DisabledRules, nil
 }
