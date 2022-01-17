@@ -865,7 +865,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	}
 
 	if _, err = content.GetContentForRecommendation(ctypes.RuleID(selector)); err != nil {
-		//The given rule selector does not exit
+		// The given rule selector does not exit
 		handleServerError(writer, err)
 		return
 	}
