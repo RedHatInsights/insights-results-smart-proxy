@@ -101,7 +101,7 @@ func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter
 	}
 
 	impactingParam := request.URL.Query().Get(ImpactingParam)
-	if len(impactingParam) == 0 {
+	if impactingParam == "" {
 		// impacting control flag is missing, display all recommendations
 		impactingFlag = IncludingImpacting
 		return
@@ -131,7 +131,7 @@ func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter
 // readQueryParam return the value of the parameter in the query. If not found, defaults to false
 func readQueryBoolParam(name string, defaultValue bool, request *http.Request) (bool, error) {
 	value := request.URL.Query().Get(name)
-	if len(value) == 0 {
+	if value == "" {
 		return defaultValue, nil
 	}
 	return strconv.ParseBool(value)
