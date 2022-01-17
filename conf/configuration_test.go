@@ -169,7 +169,7 @@ func GetTmpConfigFile(configData string) (string, error) {
 		return "", err
 	}
 
-	if _, err := tmpFile.Write([]byte(configData)); err != nil {
+	if _, err := tmpFile.WriteString(configData); err != nil {
 		return "", err
 	}
 
