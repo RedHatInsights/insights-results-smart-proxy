@@ -109,7 +109,7 @@ var (
 )
 
 func expectNoRulesDisabledSystemWide(t *testing.TB) {
-	helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+	helpers.GockExpectAPIRequest(*t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 		Method:       http.MethodGet,
 		Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
 		EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
