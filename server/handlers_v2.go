@@ -778,7 +778,7 @@ func getImpactedClustersFromAggregator(
 	url string,
 	activeClusters []ctypes.ClusterName,
 ) (resp *http.Response, err error) {
-	if len(activeClusters) < 1 { //empty array
+	if len(activeClusters) < 1 {
 		// #nosec G107
 		resp, err = http.Get(url)
 		return
