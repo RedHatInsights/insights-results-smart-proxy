@@ -391,7 +391,7 @@ func (server HTTPServer) readClusterIDsForOrgID(orgID ctypes.OrgID) ([]ctypes.Cl
 	}
 
 	log.Info().Msg("amsclient not initialized. Using fallback mechanism")
-	return server.getClusterIDsFromAggregator(orgID)
+	return server.getClusterDetailsFromAggregator(orgID)
 }
 
 // readClusterInfoForOrgID returns a list of cluster info types and a map of cluster display names
@@ -416,7 +416,7 @@ func (server HTTPServer) readClusterInfoForOrgID(orgID ctypes.OrgID) (
 	}
 
 	log.Info().Msg("amsclient not initialized. Using fallback mechanism")
-	clusterIDs, err := server.getClusterIDsFromAggregator(orgID)
+	clusterIDs, err := server.getClusterDetailsFromAggregator(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg("error retrieving clusters from aggregator")
 		return nil, err
@@ -434,8 +434,8 @@ func (server HTTPServer) readClusterInfoForOrgID(orgID ctypes.OrgID) (
 	return clusterInfo, nil
 }
 
-// readClusterIDsForOrgID reads the list of clusters for a given organization from aggregator
-func (server HTTPServer) getClusterIDsFromAggregator(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
+// getClusterDetailsFromAggregator reads the list of clusters for a given organization from aggregator
+func (server HTTPServer) getClusterDetailsFromAggregator(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
 	log.Info().Msg("retrieving cluster IDs from aggregator")
 
 	aggregatorURL := httputils.MakeURLToEndpoint(

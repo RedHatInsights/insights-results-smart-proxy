@@ -390,7 +390,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 	}
 	`
 
-	// 2nd clussster is there
+	// 2nd cluster is there
 	expectedResponse = fmt.Sprintf(expectedResponse, clusters[1], data.ClusterDisplayName2)
 
 	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
