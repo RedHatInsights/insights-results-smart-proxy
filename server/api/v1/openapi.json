@@ -194,10 +194,7 @@
                     "clusters": {
                       "type": "array",
                       "items": {
-                        "format": "uuid",
-                        "maxLength": 36,
-                        "minLength": 36,
-                        "type": "string"
+                        "$ref": "#/components/schemas/clusterId"
                       }
                     },
                     "status": {
@@ -228,15 +225,12 @@
             "schema": {
               "type": "array",
               "items": {
-                "format": "uuid",
-                "description": "ID of cluster in UUID format.",
-                "maxLength": 36,
-                "minLength": 36,
-                "type": "string"
+                "$ref": "#/components/schemas/clusterId"
               }
             },
             "in": "path",
-            "required": true
+            "required": true,
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           }
         ],
         "responses": {
@@ -251,7 +245,7 @@
             "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster."
           },
           "400": {
-            "description": "Invalid request, usualy caused when some cluster belongs to different organization."
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
           }
         },
         "operationId": "getReportsForClusters",
@@ -267,55 +261,18 @@
         ],
         "parameters": [
           {
-            "name": "clusterId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the cluster which must conform to UUID format.",
-            "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
-            },
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            "$ref": "#/components/parameters/clusterId"
           },
           {
-            "name": "ruleId",
-            "in": "path",
-            "required": true,
-            "description": "ID of a rule",
-            "schema": {
-              "type": "string"
-            },
-            "example": "some.python.module"
+            "$ref": "#/components/parameters/ruleId"
           },
           {
-            "name": "errorKey",
-            "in": "path",
-            "required": true,
-            "description": "ID of the error key",
-            "schema": {
-              "type": "string"
-            },
-            "example": "ERROR_COOL_NAME"
+            "$ref": "#/components/parameters/errorKey"
           }
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Status ok"
+            "$ref": "#/components/responses/status"
           }
         },
         "operationId": "addLikeToRule",
@@ -331,55 +288,18 @@
         ],
         "parameters": [
           {
-            "name": "clusterId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the cluster which must conform to UUID format",
-            "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
-            },
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            "$ref": "#/components/parameters/clusterId"
           },
           {
-            "name": "ruleId",
-            "in": "path",
-            "required": true,
-            "description": "ID of a rule",
-            "schema": {
-              "type": "string"
-            },
-            "example": "some.python.module"
+            "$ref": "#/components/parameters/ruleId"
           },
           {
-            "name": "errorKey",
-            "in": "path",
-            "required": true,
-            "description": "ID of the error key",
-            "schema": {
-              "type": "string"
-            },
-            "example": "ERROR_COOL_NAME"
+            "$ref": "#/components/parameters/errorKey"
           }
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Status ok"
+            "$ref": "#/components/responses/status"
           }
         },
         "operationId": "addDislikeToRule",
@@ -395,55 +315,18 @@
         ],
         "parameters": [
           {
-            "name": "clusterId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the cluster which must conform to UUID format.",
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
-            "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
-            }
+            "$ref": "#/components/parameters/clusterId"
           },
           {
-            "name": "ruleId",
-            "in": "path",
-            "required": true,
-            "description": "ID of a rule",
-            "example": "some.python.module",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/ruleId"
           },
           {
-            "name": "errorKey",
-            "in": "path",
-            "required": true,
-            "description": "ID of the error key",
-            "schema": {
-              "type": "string"
-            },
-            "example": "ERROR_COOL_NAME"
+            "$ref": "#/components/parameters/errorKey"
           }
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Status ok"
+            "$ref": "#/components/responses/status"
           }
         },
         "operationId": "resetVoteForRule",
@@ -464,7 +347,10 @@
                   "type": "object",
                   "properties": {
                     "rules": {
-                      "type": "string"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "status": {
                       "type": "string",
@@ -489,14 +375,7 @@
         ],
         "parameters": [
           {
-            "name": "ruleId",
-            "description": "ID of the rule which content is required",
-            "schema": {
-              "type": "string",
-              "example": "some.python.module"
-            },
-            "in": "path",
-            "required": true
+            "$ref": "#/components/parameters/ruleId"
           }
         ],
         "responses": {
@@ -507,81 +386,7 @@
                   "type": "object",
                   "properties": {
                     "content": {
-                      "type": "object",
-                      "properties": {
-                        "summary": {
-                          "type": "string"
-                        },
-                        "reason": {
-                          "type": "string"
-                        },
-                        "resolution": {
-                          "type": "string"
-                        },
-                        "more_info": {
-                          "type": "string"
-                        },
-                        "plugin": {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "node_id": {
-                              "type": "string"
-                            },
-                            "product_code": {
-                              "type": "string"
-                            },
-                            "python_module": {
-                              "type": "string"
-                            }
-                          }
-                        },
-                        "error_keys": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                              "reason": {
-                                "type": "string"
-                              },
-                              "generic": {
-                                "type": "string"
-                              },
-                              "metadata": {
-                                "type": "object",
-                                "properties": {
-                                  "condition": {
-                                    "type": "string"
-                                  },
-                                  "description": {
-                                    "type": "string"
-                                  },
-                                  "impact": {
-                                    "type": "string"
-                                  },
-                                  "likelihood": {
-                                    "type": "integer"
-                                  },
-                                  "publish_date": {
-                                    "type": "string"
-                                  },
-                                  "status": {
-                                    "type": "string"
-                                  },
-                                  "tags": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "string"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
+                      "$ref": "#/components/schemas/ruleContent"
                     },
                     "status": {
                       "type": "string",
@@ -610,10 +415,7 @@
             "description": "Rule ID is not available"
           },
           "503": {
-            "content": {
-              "text/plain": {}
-            },
-            "description": "Content service is unavailable"
+            "$ref": "#/components/responses/unavailable"
           }
         },
         "operationId": "getContentForRule",
@@ -631,85 +433,12 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "object",
                   "properties": {
                     "content": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "summary": {
-                            "type": "string"
-                          },
-                          "reason": {
-                            "type": "string"
-                          },
-                          "resolution": {
-                            "type": "string"
-                          },
-                          "more_info": {
-                            "type": "string"
-                          },
-                          "plugin": {
-                            "type": "object",
-                            "properties": {
-                              "name": {
-                                "type": "string"
-                              },
-                              "node_id": {
-                                "type": "string"
-                              },
-                              "product_code": {
-                                "type": "string"
-                              },
-                              "python_module": {
-                                "type": "string"
-                              }
-                            }
-                          },
-                          "error_keys": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "type": "object",
-                              "properties": {
-                                "generic": {
-                                  "type": "string"
-                                },
-                                "reason": {
-                                  "type": "string"
-                                },
-                                "metadata": {
-                                  "type": "object",
-                                  "properties": {
-                                    "condition": {
-                                      "type": "string"
-                                    },
-                                    "description": {
-                                      "type": "string"
-                                    },
-                                    "impact": {
-                                      "type": "string"
-                                    },
-                                    "likelihood": {
-                                      "type": "integer"
-                                    },
-                                    "publish_date": {
-                                      "type": "string"
-                                    },
-                                    "status": {
-                                      "type": "string"
-                                    },
-                                    "tags": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "string"
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
+                        "$ref": "#/components/schemas/ruleContent"
                       }
                     },
                     "status": {
@@ -736,55 +465,18 @@
         ],
         "parameters": [
           {
-            "name": "clusterId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the cluster which must conform to UUID format",
-            "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
-            },
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            "$ref": "#/components/parameters/clusterId"
           },
           {
-            "name": "ruleId",
-            "in": "path",
-            "required": true,
-            "description": "ID of a rule",
-            "schema": {
-              "type": "string"
-            },
-            "example": "some.python.module"
+            "$ref": "#/components/parameters/ruleId"
           },
           {
-            "name": "errorKey",
-            "in": "path",
-            "required": true,
-            "description": "ID of the error key",
-            "schema": {
-              "type": "string"
-            },
-            "example": "ERROR_COOL_NAME"
+            "$ref": "#/components/parameters/errorKey"
           }
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Status ok"
+            "$ref": "#/components/responses/status"
           }
         },
         "operationId": "disableRule",
@@ -815,37 +507,13 @@
         ],
         "parameters": [
           {
-            "name": "clusterId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the cluster which must conform to UUID format",
-            "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
-            },
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            "$ref": "#/components/parameters/clusterId"
           },
           {
-            "name": "ruleId",
-            "in": "path",
-            "required": true,
-            "description": "ID of a rule",
-            "schema": {
-              "type": "string"
-            },
-            "example": "some.python.module"
+            "$ref": "#/components/parameters/ruleId"
           },
           {
-            "name": "errorKey",
-            "in": "path",
-            "required": true,
-            "description": "ID of the error key",
-            "schema": {
-              "type": "string"
-            },
-            "example": "ERROR_COOL_NAME"
+            "$ref": "#/components/parameters/errorKey"
           }
         ],
         "responses": {
@@ -883,55 +551,18 @@
         ],
         "parameters": [
           {
-            "name": "clusterId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the cluster which must conform to UUID format",
-            "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
-            },
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            "$ref": "#/components/parameters/clusterId"
           },
           {
-            "name": "ruleId",
-            "in": "path",
-            "required": true,
-            "description": "ID of a rule",
-            "schema": {
-              "type": "string"
-            },
-            "example": "some.python.module"
+            "$ref": "#/components/parameters/ruleId" 
           },
           {
-            "name": "errorKey",
-            "in": "path",
-            "required": true,
-            "description": "ID of the error key",
-            "schema": {
-              "type": "string"
-            },
-            "example": "ERROR_COOL_NAME"
+            "$ref": "#/components/parameters/errorKey"
           }
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    }
-                  }
-                }
-              }
-            },
-            "description": "Status ok"
+            "$ref": "#/components/responses/status" 
           }
         },
         "operationId": "enableRule",
@@ -946,14 +577,14 @@
         ],
         "responses": {
           "200": {
+            "description": "Summary of results by cluster",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/overview_response"
+                  "$ref": "#/components/schemas/overviewResponse"
                 }
               }
-            },
-            "description": "Status ok"
+            }
           }
         },
         "operationId": "getOverviewForOrganization",
@@ -962,19 +593,21 @@
       },
       "post": {
         "requestBody": {
-          "description": "List of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
+          "description": "List of cluster IDs. Each ID must conform to UUID format.",
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
-                "type": "array",
-                "items": {
-                  "format": "uuid",
-                  "description": "ID of cluster in UUID format.",
-                  "maxLength": 36,
-                  "minLength": 36,
-                  "type": "string"
+                "type": "object",
+                "properties": {
+                  "clusters": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/clusterId"
+                    }
+                  }
                 }
-              }
+              },
+              "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
             }
           },
           "required": true
@@ -987,7 +620,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/overview_response"
+                  "$ref": "#/components/schemas/overviewResponse"
                 }
               }
             },
@@ -1003,24 +636,10 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
-            "name": "clusterId",
-            "description": "ID of the cluster which must conform to UUID format.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "required": true
+            "$ref": "#/components/parameters/clusterId"
           },
           {
-            "name": "osd_eligible",
-            "description": "If true, only OSD eligible rules will be sent.",
-            "in": "query",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "required": false
+            "$ref": "#/components/parameters/osdEligible"
           },
           {
             "name": "get_disabled",
@@ -1035,14 +654,52 @@
         ],
         "responses": {
           "200": {
+            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/reportResponse"
+                  "description": "Response data type for GET /clusters/{clusterId}/report endpoint",
+                  "type": "object",
+                  "properties": {
+                    "report": {
+                      "description": "",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/reportData"
+                          }
+                        },
+                        "meta": {
+                          "description": "",
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "format": "int32",
+                              "type": "integer"
+                            },
+                            "last_checked_at": {
+                              "format": "date-time",
+                              "type": "string"
+                            }
+                          },
+                          "example": {
+                            "count": 9,
+                            "last_checked_at": "2020-12-08T09:45:23Z"
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster."
+            }
           }
         },
         "deprecated": false,
@@ -1058,17 +715,7 @@
         "description": "The report is specified by the cluster ID. Metainformation about the latest report available for the given combination will be returned.",
         "parameters": [
           {
-            "name": "clusterId",
-            "in": "path",
-            "required": true,
-            "description": "ID of the cluster which must conform to UUID format.",
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
-            "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
-            }
+            "$ref": "#/components/parameters/clusterId"
           }
         ],
         "responses": {
@@ -1124,48 +771,43 @@
         ],
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
-            "name": "clusterId",
-            "description": "ID of the cluster which must conform to UUID format.",
-            "schema": {
-              "format": "uuid",
-              "maxLength": 36,
-              "minLength": 36,
-              "type": "string"
-            },
-            "in": "path",
-            "required": true
+            "$ref": "#/components/parameters/clusterId"
           },
           {
             "name": "ruleIdAndErrorKey",
+            "in": "path",
             "description": "ruleId and errorKey separated by \"|\"",
+            "required": true,
             "schema": {
               "type": "string"
-            },
-            "in": "path",
-            "required": true
+            }
           },
           {
-            "name": "osd_eligible",
-            "description": "If true, only OSD eligible rules will be sent.",
-            "in": "query",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "required": false
+            "$ref": "#/components/parameters/osdEligible"
           }
         ],
+
+
         "responses": {
           "200": {
+            "description": "Latest available rule report for the given organization, cluster combination and rule ID. Returns rule and it description that were hit by the cluster.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/singleRuleReportResponse"
+                  "description": "Response data type for GET /clusters/{clusterId}/rules/{ruleIdAndErrorKey}/report endpoint",
+                  "type": "object",
+                  "properties": {
+                    "report": {
+                      "$ref": "#/components/schemas/reportData"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Latest available rule report for the given organization, cluster combination and rule ID. Returns rule and it description that were hit by the cluster."
+            }
           }
         },
         "operationId": "getSingleReportForCluster",
@@ -1173,45 +815,185 @@
         "description": "The rule is specified by the cluster ID and rule ID from params and information about the org_id and user_id is taken from the token. The latest rule report available for the given combination will be returned."
       }
     },
+  
+
+
     "/clusters/reports": {
       "post": {
+        "tags": [
+          "prod"
+        ],
+        "summary": "Returns the latest reports for the given list of clusters.",
+        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of request body.",
+        "operationId": "getReportsForClustersPost",
         "requestBody": {
-          "description": "List of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
+          "description": "List of cluster IDs. Each ID must conform to UUID format.",
           "content": {
-            "text/plain": {
-              "schema": {}
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clusters": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/clusterId"
+                    }
+                  }
+                }
+              },
+              "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
             }
           },
           "required": true
         },
-        "tags": [
-          "prod"
-        ],
         "responses": {
           "200": {
+            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/reportsResponse"
                 }
               }
-            },
-            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster."
+            }
           },
           "400": {
-            "description": "Invalid request, usualy caused when some cluster belongs to different organization."
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
           }
-        },
-        "operationId": "getReportsForClustersPost",
-        "summary": "Returns the latest reports for the given list of clusters.",
-        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of request body."
+        }
       }
     }
   },
   "components": {
     "schemas": {
+      "status": {
+        "description": "To be used for allOf once #453 in openapi-generator is fixed",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "ruleContent": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "more_info": {
+            "type": "string"
+          },
+          "generic": {
+            "type": "string"
+          },
+          "plugin": {
+            "$ref": "#/components/schemas/ruleContentPlugin"
+          },
+          "error_keys": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ruleContentErrorKey"
+            }
+          },
+          "HasReason": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ruleContentPlugin": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "product_code": {
+            "type": "string"
+          },
+          "python_module": {
+            "type": "string"
+          }
+        }
+      },
+      "ruleContentErrorKey": {
+        "type": "object",
+        "properties": {
+          "generic": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "impact": {
+                "type": "string"
+              },
+              "likelihood": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              },
+              "publish_date": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "total_risk": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "more_info": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "HasReason": {
+            "type": "boolean"
+          }
+        }
+      },
       "reportData": {
-        "description": "/clusters/{clusterId}/report returns an array of ruleHit instances",
+        "description": "Array of ruleHit instances",
         "type": "object",
         "properties": {
           "rule_id": {
@@ -1244,14 +1026,13 @@
           },
           "total_risk": {
             "description": "Total risk - calculated from rule impact and likelihood.",
+            "type": "integer",
             "enum": [
-              0,
               1,
               2,
               3,
               4
-            ],
-            "type": "integer"
+            ]
           },
           "risk_of_change": {
             "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
@@ -1306,7 +1087,6 @@
           "details": "Red Hat Insights for OpenShift is a proactive management solution. It provides ongoing infrastructure analyses of your Red Hat OpenShift Container Platform 4.2 and later installations. Red Hat Insights helps you identify, prioritize, and resolve risks to security, performance, availability, and stability before they become urgent issues.\nRed Hat Insights for OpenShift uses the Remote Health Monitoring feature of OpenShift 4. The health checks are created by Red Hat subject matter experts and assessed according to severity and impact.\nThis is an example  recommendation that you can safely ignore. To disable it, click  the triple-dot menu button next to the header, and select Disable.\n\n[Knowledgebase Article](https://access.redhat.com/search/#/knowledgebase)\n\n",
           "reason": "",
           "resolution": "",
-          "more_info": "",
           "total_risk": 1,
           "risk_of_change": 0,
           "disabled": false,
@@ -1324,164 +1104,135 @@
           ]
         }
       },
-      "reportMeta": {
-        "description": "",
+      "reportsResponse": {
+        "description": "Reports for a set of clusters",
         "type": "object",
         "properties": {
-          "count": {
-            "format": "int32",
-            "type": "integer"
+          "clusters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
-          "last_checked_at": {
-            "format": "date-time",
+          "errors": {
+            "type": "string",
+            "nullable": true
+          },
+          "reports": {
+            "type": "object",
+            "additionalProperties": {
+              "description": "",
+              "type": "object",
+              "properties": {
+                "analysis_metadata": {
+                  "type": "object",
+                  "properties": {
+                    "execution_context": {
+                      "description": "",
+                      "type": "string"
+                    },
+                    "finish": {
+                      "format": "date-time",
+                      "description": "",
+                      "type": "string"
+                    },
+                    "plugin_sets": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "commit": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "version": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "example": {
+                        "insights-core": {
+                          "commit": "placeholder",
+                          "version": "insights-core-3.0.176-1"
+                        }
+                      }
+                    },
+                    "start": {
+                      "format": "date-time",
+                      "description": "",
+                      "type": "string"
+                    }
+                  }
+                },
+                "fingerprints": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "info": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reportsComponent"
+                  }
+                },
+                "reports": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reportsComponent"
+                  }
+                },
+                "skips": {
+                  "type": "array",
+                  "items": {
+                    "title": "Root Type for reportsSkipsDetails",
+                    "type": "object",
+                    "properties": {
+                      "details": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": "string"
+                      },
+                      "rule_fqdn": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "example": {
+                      "details": "All: ['ccx_rules_ocp.external.rules.container_max_root_partition_size.check_container_runtime_config'] Any: ",
+                      "reason": "MISSING_REQUIREMENTS",
+                      "rule_fqdn": "ccx_rules_ocp.external.rules.container_max_root_partition_size.report",
+                      "type": "skip"
+                    }
+                  }
+                },
+                "system": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "metadata": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "generated_at": {
             "type": "string"
-          }
-        },
-        "example": {
-          "count": 9,
-          "last_checked_at": "2020-12-08T09:45:23Z"
-        }
-      },
-      "reportResponse": {
-        "description": "Response data type for GET /clusters/{clusterId}/report endpoint",
-        "type": "object",
-        "properties": {
-          "report": {
-            "$ref": "#/components/schemas/report",
-            "description": ""
           },
           "status": {
-            "description": "",
             "type": "string"
-          }
-        }
-      },
-      "report": {
-        "description": "",
-        "type": "object",
-        "properties": {
-          "data": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/reportData"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/reportMeta",
-            "description": ""
-          }
-        }
-      },
-      "singleRuleReportResponse": {
-        "description": "Response data type for GET /clusters/{clusterId}/rules/{ruleIdAndErrorKey}/report endpoint",
-        "type": "object",
-        "properties": {
-          "report": {
-            "$ref": "#/components/schemas/reportData",
-            "description": ""
-          },
-          "status": {
-            "description": "",
-            "type": "string"
-          }
-        },
-        "example": {
-          "report": {
-            "rule_id": "ccx_rules_ocm.tutorial_rule.report",
-            "created_at": "2020-04-08T00:42:00Z",
-            "description": "Introducing Insights for Red Hat OpenShift Container Platform",
-            "details": "Red Hat Insights for OpenShift is a proactive management solution. It provides ongoing infrastructure analyses of your Red Hat OpenShift Container Platform 4.2 and later installations. Red Hat Insights helps you identify, prioritize, and resolve risks to security, performance, availability, and stability before they become urgent issues.\nRed Hat Insights for OpenShift uses the Remote Health Monitoring feature of OpenShift 4. The health checks are created by Red Hat subject matter experts and assessed according to severity and impact.\nThis is an example  recommendation that you can safely ignore. To disable it, click  the triple-dot menu button next to the header, and select Disable.\n\n[Knowledgebase Article](https://access.redhat.com/search/#/knowledgebase)\n\n",
-            "reason": "",
-            "resolution": "",
-            "total_risk": 1,
-            "risk_of_change": 0,
-            "disabled": false,
-            "disable_feedback": "",
-            "disabled_at": "",
-            "internal": false,
-            "user_vote": 0,
-            "extra_data": {
-              "error_key": "TUTORIAL_ERROR",
-              "type": "rule"
-            },
-            "tags": [
-              "openshift",
-              "service_availability"
-            ]
-          },
-          "status": "ok"
-        }
-      },
-      "reportsAnalysisMetadataPluginSet": {
-        "description": "",
-        "type": "object",
-        "additionalProperties": {
-          "type": "object",
-          "properties": {
-            "commit": {
-              "type": "string"
-            },
-            "version": {
-              "type": "string"
-            }
-          }
-        },
-        "example": {
-          "insights-core": {
-            "commit": "placeholder",
-            "version": "insights-core-3.0.176-1"
-          }
-        }
-      },
-      "reportsAnalysisMetadata": {
-        "description": "",
-        "type": "object",
-        "properties": {
-          "execution_context": {
-            "description": "",
-            "type": "string"
-          },
-          "finish": {
-            "format": "date-time",
-            "description": "",
-            "type": "string"
-          },
-          "plugin_sets": {
-            "$ref": "#/components/schemas/reportsAnalysisMetadataPluginSet",
-            "description": ""
-          },
-          "start": {
-            "format": "date-time",
-            "description": "",
-            "type": "string"
-          }
-        }
-      },
-      "reportsComponentLinks": {
-        "description": "",
-        "type": "object",
-        "properties": {
-          "kcs": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "docs": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "bz": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },
@@ -1495,6 +1246,9 @@
           },
           "details": {
             "type": "object"
+          },
+          "info_id": {
+            "type": "string"
           },
           "key": {
             "description": "",
@@ -1516,140 +1270,33 @@
             "type": "string"
           },
           "links": {
-            "$ref": "#/components/schemas/reportsComponentLinks",
-            "description": ""
-          }
-        }
-      },
-      "reportsSkipDetails": {
-        "title": "Root Type for reportsSkipsDetails",
-        "description": "",
-        "type": "object",
-        "properties": {
-          "details": {
-            "type": "string"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "rule_fqdn": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          }
-        },
-        "example": {
-          "details": "All: ['ccx_rules_ocp.external.rules.container_max_root_partition_size.check_container_runtime_config'] Any: ",
-          "reason": "MISSING_REQUIREMENTS",
-          "rule_fqdn": "ccx_rules_ocp.external.rules.container_max_root_partition_size.report",
-          "type": "skip"
-        }
-      },
-      "reportsCluster": {
-        "description": "",
-        "type": "object",
-        "properties": {
-          "analysis_metadata": {
-            "$ref": "#/components/schemas/reportsAnalysisMetadata",
-            "description": ""
-          },
-          "fingerprints": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "info": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/reportsComponent"
-            }
-          },
-          "reports": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/reportsComponent"
-            }
-          },
-          "skips": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/reportsSkipDetails"
-            }
-          },
-          "system": {
-            "description": "",
-            "type": "object",
-            "properties": {
-              "hostname": {
-                "type": "string"
-              },
-              "metadata": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "reportsResponse": {
-        "description": "",
-        "type": "object",
-        "properties": {
-          "clusters": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "errors": {
-            "description": "",
-            "type": "string"
-          },
-          "reports": {
-            "description": "",
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/components/schemas/reportsCluster"
+              "type": "array",
+              "items": {
+                  "type": "string"
+                }
             }
-          },
-          "generated_at": {
-            "description": "",
-            "type": "string"
-          },
-          "status": {
-            "description": "",
-            "type": "string"
           }
         }
       },
-      "overview_response": {
-        "description": "",
+      "overviewResponse": {
         "type": "object",
         "properties": {
-          "status": {
-            "type": "string",
-            "example": "ok"
-          },
           "overview": {
             "type": "object",
             "properties": {
               "clusters_hit": {
                 "description": "Number of clusters with at least 1 Insights hit.",
                 "type": "integer",
-                "example": "1"
+                "example": 1
               },
               "hit_by_risk": {
                 "type": "object",
                 "additionalProperties": {
                   "description": "Number of clusters hit by rules for each criticality",
                   "type": "integer",
-                  "example": "1"
+                  "example": 1
                 }
               },
               "hit_by_tag": {
@@ -1657,11 +1304,88 @@
                 "additionalProperties": {
                   "description": "Number of clusters hit by rules for each category",
                   "type": "integer",
-                  "example": "1"
+                  "example": 1
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "clusterId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "ID of cluster in UUID format.",
+        "maxLength": 36,
+        "minLength": 36
+      }
+    },
+    "responses": {
+      "unavailable": {
+        "description": "Content service is unavailable",
+        "content": {
+          "text/plain": {}
+        }
+      },
+      "status": {
+        "description": "Status ok",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ok"
                 }
               }
             }
           }
+        }
+      }
+    },
+    "parameters": {
+      "clusterId": {
+        "name": "clusterId",
+        "in": "path",
+        "description": "ID of the cluster which must conform to UUID format.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/clusterId"
+        },
+        "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+      },
+      "ruleId": {
+        "name": "ruleId",
+        "in": "path",
+        "description": "ID of a rule.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "some.python.module"
+      },
+      "errorKey": {
+        "name": "errorKey",
+        "in": "path",
+        "description": "ID of the error key",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "ERROR_COOL_NAME"
+      },
+      "osdEligible": {
+        "name": "osd_eligible",
+        "in": "query",
+        "description": "If true, only OSD eligible rules will be sent.",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": false
         }
       }
     }
