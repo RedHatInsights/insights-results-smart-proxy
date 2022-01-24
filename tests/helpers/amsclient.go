@@ -16,6 +16,7 @@ package helpers
 
 import (
 	"fmt"
+	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
@@ -38,6 +39,21 @@ func (m *mockAMSClient) GetClustersForOrganization(
 		return nil, fmt.Errorf("No clusters")
 	}
 
+	return
+}
+
+//Returns cluster info is given ID is found in clusterInfoList for testdata.orgID
+func (m *mockAMSClient) GetClusterDetailsFromExternalClusterID(
+	id types.ClusterName,
+) (
+	clusterInfo types.ClusterInfo,
+) {
+
+	for _, info := range m.clustersPerOrg[testdata.OrgID] {
+		if info.ID == id {
+			return info
+		}
+	}
 	return
 }
 

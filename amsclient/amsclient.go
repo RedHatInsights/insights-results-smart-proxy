@@ -34,6 +34,7 @@ const (
 	orgNoInternalID     = "Organization doesn't have proper internal ID"
 	orgMoreInternalOrgs = "More than one internal organization for the given orgID"
 	orgIDTag            = "OrgID"
+	clusterIDTag        = "ClusterID"
 
 	// StatusDeprovisioned indicates the corresponding cluster subscription status
 	StatusDeprovisioned = "Deprovisioned"
@@ -57,6 +58,9 @@ type AMSClient interface {
 	GetClustersForOrganization(types.OrgID, []string, []string) (
 		clusterInfoList []types.ClusterInfo,
 		err error,
+	)
+	GetClusterDetailsFromExternalClusterID(types.ClusterName) (
+		clusterInfo types.ClusterInfo,
 	)
 }
 
@@ -114,7 +118,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
-	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking cluster for the organization")
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking up active clusters for the organization")
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
 
 	tStart := time.Now()
@@ -131,13 +135,38 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter)
 	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
 
-	clusterInfoList, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery, orgID)
+	clusterInfoList, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
 		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg("problem executing subscription list request")
 		return
 	}
 
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization from AMS API took %s", time.Since(tStart))
+	return
+}
+
+// GetClusterDetailsFromExternalClusterID retrieves the cluster_id and display_name
+// associated to a cluster using the default AMS client
+func (c *amsClientImpl) GetClusterDetailsFromExternalClusterID(externalID types.ClusterName) (
+	clusterInfo types.ClusterInfo,
+) {
+	log.Debug().Str(clusterIDTag, string(externalID)).Msg("Looking up details for the cluster")
+	tStart := time.Now()
+
+	searchQuery := fmt.Sprintf("external_cluster_id = '%s'", externalID)
+	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
+
+	clusterInfoList, err := c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
+	if err != nil {
+		log.Error().Err(err).Str(clusterIDTag, string(externalID)).Msg("problem executing subscription list request")
+		return
+	}
+	if clusterInfoList == nil {
+		return
+	}
+
+	clusterInfo = clusterInfoList[0]
+	log.Info().Str(clusterIDTag, string(externalID)).Msgf("GetClustersForOrganization from AMS API took %s", time.Since(tStart))
 	return
 }
 
@@ -174,7 +203,6 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string,
 func (c *amsClientImpl) executeSubscriptionListRequest(
 	subscriptionListRequest *accMgmt.SubscriptionsListRequest,
 	searchQuery string,
-	orgID types.OrgID,
 ) (
 	clusterInfoList []types.ClusterInfo,
 	err error,
