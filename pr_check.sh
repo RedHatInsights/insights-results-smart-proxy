@@ -22,6 +22,8 @@ set -exv
 APP_NAME="ccx-data-pipeline"  # name of app-sre "application" folder this component lives in
 COMPONENT_NAME="insights-results-smart-proxy"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
 IMAGE="quay.io/cloudservices/ccx-smart-proxy"
+COMPONENTS="ccx-data-pipeline,ccx-insights-results,insights-content-service,insights-results-smart-proxy"  # comma-separated list of components to laod
+COMPONENTS_W_RESOURCES="insights-results-smart-proxy"  # component to keep
 CACHE_FROM_LATEST_IMAGE="true"
 
 export IQE_PLUGINS="ccx"
@@ -41,6 +43,8 @@ function deploy_ephemeral() {
 }
 
 function run_smoke_tests() {
+    # component name needs to be re-export to match ClowdApp name (as bonfire requires for this)
+    export COMPONENT_NAME="ccx-smart-proxy"
     source $CICD_ROOT/cji_smoke_test.sh
 }
 
