@@ -91,7 +91,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		"clusters":[
 			{
 				"cluster":"%v",
-				"cluster_name": "%v"
+				"cluster_name": "%v",
+				"last_checked_at":""
 			}
 		],
 		"status":"ok"
@@ -153,7 +154,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 			"enabled": [
 				{
 					"cluster": "%v",
-					"cluster_name": "%v"
+					"cluster_name": "%v",
+				    "last_checked_at": ""
 				}
 			],
 			"disabled": [
@@ -381,7 +383,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 			"enabled": [
 				{
 					"cluster": "%v",
-					"cluster_name": "%v"
+					"cluster_name": "%v",
+					"last_checked_at":""
 				}
 			],
 			"disabled": []
