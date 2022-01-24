@@ -21,7 +21,3 @@ require (
 	github.com/stretchr/testify v1.7.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 )
-
-replace (
-	github.com/RedHatInsights/insights-results-aggregator => ../insights-results-aggregator
-)
