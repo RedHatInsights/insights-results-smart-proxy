@@ -16,7 +16,6 @@ package amsclient_test
 
 import (
 	"crypto/rsa"
-	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"net/http"
 	"testing"
 	"time"
@@ -29,6 +28,7 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (

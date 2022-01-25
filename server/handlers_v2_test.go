@@ -155,7 +155,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 				{
 					"cluster": "%v",
 					"cluster_name": "%v",
-				    "last_checked_at": ""
+					"last_checked_at": ""
 				}
 			],
 			"disabled": [

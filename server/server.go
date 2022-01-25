@@ -82,15 +82,14 @@ const (
 
 // HTTPServer is an implementation of Server interface
 type HTTPServer struct {
-	Config                   Configuration
-	InfoParams               map[string]string
-	ServicesConfig           services.Configuration
-	amsClient                amsclient.AMSClient
-	GroupsChannel            chan []groups.Group
-	AmsClusterDetailsChannel chan []groups.Group
-	ErrorFoundChannel        chan bool
-	ErrorChannel             chan error
-	Serv                     *http.Server
+	Config            Configuration
+	InfoParams        map[string]string
+	ServicesConfig    services.Configuration
+	amsClient         amsclient.AMSClient
+	GroupsChannel     chan []groups.Group
+	ErrorFoundChannel chan bool
+	ErrorChannel      chan error
+	Serv              *http.Server
 }
 
 // RequestModifier is a type of function which modifies request when proxying
