@@ -28,6 +28,7 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
 const (
@@ -39,6 +40,8 @@ const (
 		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%29&size={pageSize}")
 	subscriptionsSearchEndpointWithDefaultFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
 		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+not+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%2C%%27{status3}%%27%%29&size={pageSize}")
+	clusterDetailsSearchEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
+		"search=external_cluster_id+%%3D+%%27{clusterID}%%27&size={pageSize}")
 )
 
 var (
@@ -255,4 +258,70 @@ func TestGetClustersForOrganizationOnError(t *testing.T) {
 		t.Fail()
 	}
 	assert.Equal(t, 0, len(clusters))
+}
+
+func TestGetClusterDetailsFromExternalClusterId(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare subscription filtered by external_cluster_id response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     clusterDetailsSearchEndpoint,
+		EndpointArgs: []interface{}{1, testdata.ClusterName1, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponse),
+	})
+
+	// second request will get an empty response (0 sized), so no more requests will be made
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     clusterDetailsSearchEndpoint,
+		EndpointArgs: []interface{}{2, testdata.ClusterName1, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterListInfo := c.GetClusterDetailsFromExternalClusterID(
+		testdata.ClusterName1,
+	)
+
+	assert.Equal(t, clusterListInfo, types.ClusterInfo{
+		ID:          testdata.ClusterName1,
+		DisplayName: testdata.ClusterDisplayName1,
+	})
+}
+
+func TestGetClusterDetailsUnknownExternalClusterId(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare subscription filtered by external_cluster_id response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     clusterDetailsSearchEndpoint,
+		EndpointArgs: []interface{}{1, testdata.ClusterName1, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterListInfo := c.GetClusterDetailsFromExternalClusterID(
+		testdata.ClusterName1,
+	)
+
+	assert.Equal(t, clusterListInfo, types.ClusterInfo{})
 }

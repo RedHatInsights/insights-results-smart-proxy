@@ -884,7 +884,11 @@
                                 "type": "string",
                                 "description": "An human-readable name for the cluster",
                                 "example": "Production cluster 1"
-                              }
+                              },
+			      "last_checked_at": {
+				"format": "date-time",
+			       	"type": "string"
+			      }
                             }
                           }
                         },
@@ -1140,6 +1144,11 @@
         "description": "",
         "type": "object",
         "properties": {
+          "cluster_name": {
+            "type": "string",
+            "description": "An human-readable name for the cluster",
+            "example": "Production cluster 1"
+          },
           "count": {
             "format": "int32",
             "type": "integer"
@@ -1150,6 +1159,7 @@
           }
         },
         "example": {
+          "cluster_name": "Production cluster 1",
           "count": 9,
           "last_checked_at": "2020-12-08T09:45:23Z"
         }

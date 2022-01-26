@@ -63,10 +63,13 @@ const (
 	// JSONContentType represents the application/json content type
 	JSONContentType = "application/json; charset=utf-8"
 
-	// orgIDTag represent the tags for print orgID in the logs
+	// orgIDTag represent the tags for printing orgID in the logs
 	orgIDTag = "orgID"
 
-	// userIDTag represent the tags for print user ID (account number) in the logs
+	// clusterIDTad represent the tags for printing clusterID in the logs
+	clusterIDTad = "clusterID"
+
+	// userIDTag represent the tags for printing user ID (account number) in the logs
 	userIDTag = "userID"
 
 	ackedRulesError = "Unable to retrieve list of acked rules"
@@ -835,10 +838,30 @@ func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	return aggregatorResponse, true
 }
 
+// SetClusterDisplayNameInReport tries to retrieve the display name of the cluster using
+// the configured AMS client. If no info is retrieved, it sets the cluster's external
+// ID as display name.
+func (server HTTPServer) SetClusterDisplayNameInReport(clusterID types.ClusterName, report *types.SmartProxyReport) {
+	if server.amsClient != nil {
+		clusterInfo := server.amsClient.GetClusterDetailsFromExternalClusterID(clusterID)
+		if clusterInfo.DisplayName != "" {
+			report.Meta.DisplayName = clusterInfo.DisplayName
+			return
+		}
+	}
+	report.Meta.DisplayName = string(clusterID)
+}
+
 func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
 	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
 	if !successful {
 		return
+	}
+
+	report := types.SmartProxyReport{
+		Meta: ctypes.ReportResponseMeta{
+			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
+		},
 	}
 
 	includeDisabled, err := readGetDisabledParam(request)
@@ -861,6 +884,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		// everything's handled already
 		return
 	}
+
 	acks, err := server.readListOfAckedRules(orgID, userID)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Unable to retrieve list of acked rules for given organization")
@@ -879,16 +903,13 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		}
 	}
 
+	server.SetClusterDisplayNameInReport(clusterID, &report)
+
 	totalRuleCnt := server.getRuleCount(visibleRules, noContentRulesCnt, disabledRulesCnt, clusterID)
 
 	// Meta.Count is only used to perform checks for special cases
-	report := types.SmartProxyReport{
-		Meta: ctypes.ReportResponseMeta{
-			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
-			Count:         totalRuleCnt,
-		},
-		Data: visibleRules,
-	}
+	report.Meta.Count = totalRuleCnt
+	report.Data = visibleRules
 
 	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
 	if err != nil {

@@ -19,6 +19,7 @@ package server_test
 import (
 	"encoding/json"
 	"fmt"
+	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"net/http"
 	"testing"
 	"time"
@@ -124,7 +125,7 @@ var (
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Report: &SmartProxyReport1RuleNoContent,
+		Report: &SmartProxyReport1RuleNoContentNoAMSClient,
 	}
 
 	SmartProxyReportResponse3Rules2NoContent = struct {
@@ -132,7 +133,7 @@ var (
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Report: &SmartProxyReport3Rules2NoContent,
+		Report: &SmartProxyReport3Rules2NoContentNoAMSClient,
 	}
 
 	SmartProxyReportResponse3Rules = struct {
@@ -140,19 +141,21 @@ var (
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Report: &SmartProxyReport3Rules,
+		Report: &SmartProxyReport3RulesNoAMSClient,
 	}
 
-	SmartProxyReport1RuleNoContent = types.SmartProxyReport{
+	SmartProxyReport1RuleNoContentNoAMSClient = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
+			DisplayName:   string(testdata.ClusterName),
 			Count:         0,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
 		Data: []types.RuleWithContentResponse{},
 	}
 
-	SmartProxyReport3Rules = types.SmartProxyReport{
+	SmartProxyReport3RulesNoAMSClient = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
+			DisplayName:   string(testdata.ClusterName),
 			Count:         3,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
@@ -208,8 +211,9 @@ var (
 		},
 	}
 
-	SmartProxyReport3Rules2NoContent = types.SmartProxyReport{
+	SmartProxyReport3Rules2NoContentNoAMSClient = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
+			DisplayName:   string(testdata.ClusterName),
 			Count:         3,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
@@ -238,7 +242,7 @@ var (
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Report: &SmartProxyReport3RulesWithOnlyOSD,
+		Report: &SmartProxyReport3RulesWithOnlyOSDNoAMSClient,
 	}
 
 	SmartProxyReportResponse3RulesOnlyEnabled = struct {
@@ -246,7 +250,7 @@ var (
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Report: &SmartProxyReport3RulesOnlyEnabled,
+		Report: &SmartProxyReport3RulesOnlyEnabledNoAMSClient,
 	}
 
 	SmartProxyEmptyResponse = struct {
@@ -254,7 +258,7 @@ var (
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Report: &SmartProxyReportEmptyCount2,
+		Report: &SmartProxyReportEmptyCount2NoAMSClient,
 	}
 
 	SmartProxyReportResponse3RulesAll = struct {
@@ -262,11 +266,12 @@ var (
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
-		Report: &SmartProxyReport3RulesWithDisabled,
+		Report: &SmartProxyReport3RulesWithDisabledNoAMSClient,
 	}
 
-	SmartProxyReport3RulesWithOnlyOSD = types.SmartProxyReport{
+	SmartProxyReport3RulesWithOnlyOSDNoAMSClient = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
+			DisplayName:   string(testdata.ClusterName),
 			Count:         1,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
@@ -290,8 +295,9 @@ var (
 		},
 	}
 
-	SmartProxyReport3RulesOnlyEnabled = types.SmartProxyReport{
+	SmartProxyReport3RulesOnlyEnabledNoAMSClient = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
+			DisplayName:   string(testdata.ClusterName),
 			Count:         2,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
@@ -331,16 +337,18 @@ var (
 		},
 	}
 
-	SmartProxyReportEmptyCount2 = types.SmartProxyReport{
+	SmartProxyReportEmptyCount2NoAMSClient = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
+			DisplayName:   string(testdata.ClusterName),
 			Count:         2,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
 		Data: []types.RuleWithContentResponse{},
 	}
 
-	SmartProxyReport3RulesWithDisabled = types.SmartProxyReport{
+	SmartProxyReport3RulesWithDisabledNoAMSClient = types.SmartProxyReport{
 		Meta: types.ReportResponseMeta{
+			DisplayName:   string(testdata.ClusterName),
 			Count:         3,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
@@ -1054,7 +1062,6 @@ func TestAddCORSHeaders(t *testing.T) {
 	})
 }
 
-//
 // TestHTTPServer_OverviewEndpointWithFallback
 func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 	defer content.ResetContent()
@@ -1101,6 +1108,27 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 				Body:       helpers.ToJSONString(OverviewResponse),
 			})
 	}, testTimeout)
+}
+
+func TestHTTPServer_setClusterDisplayNameInReportNoAMSClient(t *testing.T) {
+	report := types.SmartProxyReport{}
+	config := helpers.DefaultServerConfig
+	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
+	testServer.SetClusterDisplayNameInReport(testdata.ClusterName, &report)
+	assert.Equal(t, string(testdata.ClusterName), report.Meta.DisplayName)
+}
+
+func TestHTTPServer_setClusterDisplayNameInReportAMSClientClusterIDFound(t *testing.T) {
+	report := types.SmartProxyReport{}
+	config := helpers.DefaultServerConfig
+	// prepare list of organizations response
+	amsClientMock := helpers.AMSClientWithOrgResults(
+		testdata.OrgID,
+		data.ClusterInfoResult,
+	)
+	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil)
+	testServer.SetClusterDisplayNameInReport(testdata.ClusterName, &report)
+	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }
 
 func ruleIDsChecker(t testing.TB, expected, got []byte) {
