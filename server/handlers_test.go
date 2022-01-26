@@ -53,13 +53,14 @@ var (
 		},
 	}
 
-	SmartProxyReportRule1 = struct {
+	SmartProxyReportRule1NoAMSClient = struct {
 		Status string                  `json:"status"`
 		Report *types.SmartProxyReport `json:"report"`
 	}{
 		Status: "ok",
 		Report: &types.SmartProxyReport{
 			Meta: types.ReportResponseMeta{
+				DisplayName:   string(testdata.ClusterName),
 				Count:         1,
 				LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 			},
@@ -412,7 +413,7 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportRule1),
+			Body:       helpers.ToJSONString(SmartProxyReportRule1NoAMSClient),
 		})
 
 		// Get report without specifying get_disabled => same result as above
@@ -424,7 +425,7 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportRule1),
+			Body:       helpers.ToJSONString(SmartProxyReportRule1NoAMSClient),
 		})
 
 		// Get report with get_disabled = true

@@ -838,6 +838,9 @@ func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	return aggregatorResponse, true
 }
 
+// SetClusterDisplayNameInReport tries to retrieve the display name of the cluster using
+// the configured AMS client. If no info is retrieved, it sets the cluster's external
+// ID as display name.
 func (server HTTPServer) SetClusterDisplayNameInReport(clusterID types.ClusterName, report *types.SmartProxyReport) {
 	if server.amsClient != nil {
 		clusterInfo := server.amsClient.GetClusterDetailsFromExternalClusterID(clusterID)
