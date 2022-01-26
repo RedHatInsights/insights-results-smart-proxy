@@ -19,6 +19,7 @@ package server_test
 import (
 	"encoding/json"
 	"fmt"
+	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"net/http"
 	"testing"
 	"time"
@@ -1054,7 +1055,6 @@ func TestAddCORSHeaders(t *testing.T) {
 	})
 }
 
-//
 // TestHTTPServer_OverviewEndpointWithFallback
 func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 	defer content.ResetContent()
@@ -1101,6 +1101,27 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 				Body:       helpers.ToJSONString(OverviewResponse),
 			})
 	}, testTimeout)
+}
+
+func TestHTTPServer_setClusterDisplayNameInReportNoAMSClient(t *testing.T) {
+	report := types.SmartProxyReport{}
+	config := helpers.DefaultServerConfig
+	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
+	testServer.SetClusterDisplayNameInReport(testdata.ClusterName, &report)
+	assert.Equal(t, string(testdata.ClusterName), report.Meta.DisplayName)
+}
+
+func TestHTTPServer_setClusterDisplayNameInReportAMSClientClusterIDFound(t *testing.T) {
+	report := types.SmartProxyReport{}
+	config := helpers.DefaultServerConfig
+	// prepare list of organizations response
+	amsClientMock := helpers.AMSClientWithOrgResults(
+		testdata.OrgID,
+		data.ClusterInfoResult,
+	)
+	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil)
+	testServer.SetClusterDisplayNameInReport(testdata.ClusterName, &report)
+	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }
 
 func ruleIDsChecker(t testing.TB, expected, got []byte) {

@@ -838,15 +838,15 @@ func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	return aggregatorResponse, true
 }
 
-func (server HTTPServer) setClusterDisplayNameInReport(clusterID types.ClusterName, report *types.SmartProxyReport) {
+func (server HTTPServer) SetClusterDisplayNameInReport(clusterID types.ClusterName, report *types.SmartProxyReport) {
 	if server.amsClient != nil {
 		clusterInfo := server.amsClient.GetClusterDetailsFromExternalClusterID(clusterID)
-		if clusterInfo.DisplayName == "" {
-			report.Meta.DisplayName = string(clusterID)
-		} else {
+		if clusterInfo.DisplayName != "" {
 			report.Meta.DisplayName = clusterInfo.DisplayName
+			return
 		}
 	}
+	report.Meta.DisplayName = string(clusterID)
 }
 
 func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
@@ -900,7 +900,7 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 		}
 	}
 
-	server.setClusterDisplayNameInReport(clusterID, &report)
+	server.SetClusterDisplayNameInReport(clusterID, &report)
 
 	totalRuleCnt := server.getRuleCount(visibleRules, noContentRulesCnt, disabledRulesCnt, clusterID)
 
