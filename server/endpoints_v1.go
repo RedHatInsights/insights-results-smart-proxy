@@ -48,7 +48,7 @@ const (
 	RuleContent = "rules/{rule_id}/content"
 	// RuleIDs returns a list of rule IDs
 	RuleIDs = "rule_ids"
-	// Content returns all the static content avaiable for the user
+	// Content returns all the static content available for the user
 	Content = "content"
 	// SingleRuleEndpoint returns single rule with static content for {cluster} and {rule_id}
 	SingleRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/report"
