@@ -125,7 +125,7 @@ func startServer() ExitCode {
 		log.Error().Err(err).Msg("Cannot init the AMSClient, using old approach")
 		amsClient = nil
 	} else {
-		log.Info().Msg("AMSClient succesfully created")
+		log.Info().Msg("AMSClient successfully created")
 	}
 
 	serverInstance = server.New(serverCfg, servicesCfg, amsClient, groupsChannel, errorFoundChannel, errorChannel)

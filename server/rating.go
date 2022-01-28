@@ -1,4 +1,4 @@
-// Copyright 2021 Red Hat, Inc
+// Copyright 2021, 2022 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 
 	log.Info().Int32("org_id", int32(orgID)).Str("user_id", string(userID)).Msg("Extraced user and org")
 
-	rating, succesful := server.postRatingToAggregator(orgID, userID, request, writer)
-	if !succesful {
+	rating, successful := server.postRatingToAggregator(orgID, userID, request, writer)
+	if !successful {
 		log.Error().Msg("Unable to get response from aggregator")
 		// All errors already handled
 	}
@@ -88,7 +88,7 @@ func (server HTTPServer) postRatingToAggregator(
 
 	err = json.NewDecoder(aggregatorResp.Body).Decode(&aggregatorResponse)
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to understand aggregator's reponse")
+		log.Error().Err(err).Msg("Unable to understand aggregator's response")
 		handleServerError(writer, err)
 	}
 

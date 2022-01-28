@@ -45,7 +45,7 @@ const (
 	// RuleContentWithUserData returns same as RuleContentV2, but includes user-specific data
 	RuleContentWithUserData = "rule/{rule_id}"
 
-	// ContentV2 returns all the static content avaiable for the user
+	// ContentV2 returns all the static content available for the user
 	ContentV2 = "content"
 
 	// Endpoints to acknowledge rule and to manipulate with
