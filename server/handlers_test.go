@@ -1048,7 +1048,7 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		// prepare reports reponse
+		// prepare reports response
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
@@ -1087,7 +1087,7 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		// prepare reports reponse
+		// prepare reports response
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
