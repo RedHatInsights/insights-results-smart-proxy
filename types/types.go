@@ -107,7 +107,20 @@ type RecommendationContentUserData struct {
 	Disabled     bool               `json:"disabled"`
 }
 
-// SmartProxyReport represents the response of /report endpoint for smart proxy
+// ReportResponseMetaV1 contains metadata for /report endpoint in v1
+type ReportResponseMetaV1 struct {
+	Count         int       `json:"count"`
+	LastCheckedAt Timestamp `json:"last_checked_at"`
+}
+
+// SmartProxyReportV1 represents the response of /report (V1) endpoint for smart proxy
+// This structure exists to make sure we comply with the previous API used by some clients
+type SmartProxyReportV1 struct {
+	Meta ReportResponseMetaV1      `json:"meta"`
+	Data []RuleWithContentResponse `json:"data"`
+}
+
+// SmartProxyReport represents the response of /report (V2) endpoint for smart proxy
 type SmartProxyReport struct {
 	Meta types.ReportResponseMeta  `json:"meta"`
 	Data []RuleWithContentResponse `json:"data"`

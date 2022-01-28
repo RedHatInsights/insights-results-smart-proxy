@@ -53,35 +53,36 @@ var (
 		},
 	}
 
-	SmartProxyReportRule1NoAMSClient = struct {
-		Status string                  `json:"status"`
-		Report *types.SmartProxyReport `json:"report"`
+	v1Report1RuleData = []types.RuleWithContentResponse{
+		{
+			RuleID:       testdata.Rule1.Module,
+			ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
+			CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
+			Description:  testdata.RuleErrorKey1.Description,
+			Generic:      testdata.RuleErrorKey1.Generic,
+			Reason:       testdata.RuleErrorKey1.Reason,
+			Resolution:   testdata.RuleErrorKey1.Resolution,
+			MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
+			TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
+			RiskOfChange: 0,
+			Disabled:     testdata.Rule1Disabled,
+			UserVote:     types.UserVoteNone,
+			TemplateData: testdata.Rule1ExtraData,
+			Tags:         testdata.RuleErrorKey1.Tags,
+		},
+	}
+
+	SmartProxyReportRule1 = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
 	}{
 		Status: "ok",
-		Report: &types.SmartProxyReport{
-			Meta: types.ReportResponseMeta{
-				DisplayName:   string(testdata.ClusterName),
+		Report: &types.SmartProxyReportV1{
+			Meta: types.ReportResponseMetaV1{
 				Count:         1,
 				LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 			},
-			Data: []types.RuleWithContentResponse{
-				{
-					RuleID:       testdata.Rule1.Module,
-					ErrorKey:     testdata.RuleErrorKey1.ErrorKey,
-					CreatedAt:    testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339),
-					Description:  testdata.RuleErrorKey1.Description,
-					Generic:      testdata.RuleErrorKey1.Generic,
-					Reason:       testdata.RuleErrorKey1.Reason,
-					Resolution:   testdata.RuleErrorKey1.Resolution,
-					MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
-					TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
-					RiskOfChange: 0,
-					Disabled:     testdata.Rule1Disabled,
-					UserVote:     types.UserVoteNone,
-					TemplateData: testdata.Rule1ExtraData,
-					Tags:         testdata.RuleErrorKey1.Tags,
-				},
-			},
+			Data: v1Report1RuleData,
 		},
 	}
 
@@ -106,6 +107,133 @@ var (
 				Justification: "Rule 2 disabled for testing purposes",
 			},
 		},
+	}
+
+	v1Report1RuleNoContent = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         0,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{},
+	}
+
+	SmartProxyV1ReportResponse1RuleNoContent = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1Report1RuleNoContent,
+	}
+
+	v1ReportEmptyCount2 = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         2,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{},
+	}
+
+	SmartProxyV1EmptyResponseDisabledRulesMissingContent = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1ReportEmptyCount2,
+	}
+
+	v1Report3Rules = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         3,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: Report3RulesData,
+	}
+
+	SmartProxyV1ReportResponse3Rules = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1Report3Rules,
+	}
+
+	v1Report3Rules2NoContent = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         3,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: Report3Rules2NoContentData,
+	}
+	SmartProxyV1ReportResponse3Rules2NoContent = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1Report3Rules2NoContent,
+	}
+
+	v1Report3RulesWithOnlyOSD = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         1,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: Report3RulesWithOnlyOSDData,
+	}
+
+	SmartProxyV1ReportResponse3RulesWithOnlyOSD = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1Report3RulesWithOnlyOSD,
+	}
+
+	v1ReportResponse3RulesOnlyEnabled = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         2,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: Report3RulesOnlyEnabledData,
+	}
+
+	SmartProxyV1ReportResponse3RulesOnlyEnabled = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1ReportResponse3RulesOnlyEnabled,
+	}
+
+	v1ReportResponse3RulesWithDisabled = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         3,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: Report3RulesWithDisabledData,
+	}
+
+	SmartProxyV1ReportResponse3RulesWithDisabled = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1ReportResponse3RulesWithDisabled,
+	}
+
+	v1Report3RulesWithDisabled = types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			Count:         3,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: Report3RulesWithDisabledData,
+	}
+
+	SmartProxyV1ReportResponse3RulesAll = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV1 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v1Report3RulesWithDisabled,
 	}
 )
 
@@ -147,7 +275,7 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3Rules),
 		})
 	}, testTimeout)
 }
@@ -217,7 +345,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse1RuleNoContent),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse1RuleNoContent),
 		})
 	}, testTimeout)
 }
@@ -251,7 +379,7 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3Rules2NoContent),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3Rules2NoContent),
 		})
 	}, testTimeout)
 }
@@ -283,7 +411,7 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3RulesWithOnlyOSD),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesWithOnlyOSD),
 		})
 	}, testTimeout)
 }
@@ -317,7 +445,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3RulesOnlyEnabled),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesOnlyEnabled),
 		})
 
 		// Not using the parameter gets the same result as using with =false
@@ -329,7 +457,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3RulesOnlyEnabled),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesOnlyEnabled),
 		})
 
 		// Enabling the parameter
@@ -341,7 +469,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3RulesAll),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesAll),
 		})
 	}, testTimeout)
 }
@@ -373,7 +501,7 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForClusterAndMissingContent(
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyEmptyResponse),
+			Body:       helpers.ToJSONString(SmartProxyV1EmptyResponseDisabledRulesMissingContent),
 		})
 	}, testTimeout)
 }
@@ -413,7 +541,7 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportRule1NoAMSClient),
+			Body:       helpers.ToJSONString(SmartProxyReportRule1),
 		})
 
 		// Get report without specifying get_disabled => same result as above
@@ -425,7 +553,7 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportRule1NoAMSClient),
+			Body:       helpers.ToJSONString(SmartProxyReportRule1),
 		})
 
 		// Get report with get_disabled = true
@@ -438,7 +566,7 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyReportResponse3RulesAll),
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesAll),
 		})
 	}, testTimeout)
 }

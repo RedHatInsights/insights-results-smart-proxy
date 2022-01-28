@@ -125,8 +125,8 @@ func (server *HTTPServer) addV1EndpointsToRouter(router *mux.Router) {
 // addV1ReportsEndpointsToRouter method registers handlers for endpoints that
 // return cluster report or reports to client
 func (server *HTTPServer) addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseURL string) {
-	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpoint).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+OldReportEndpoint, server.reportEndpointV1).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiPrefix+ReportEndpoint, server.reportEndpointV1).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportMetainfoEndpoint, server.reportMetainfoEndpoint).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersEndpoint, server.reportForListOfClustersEndpoint).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ReportForListOfClustersPayloadEndpoint, server.reportForListOfClustersPayloadEndpoint).Methods(http.MethodPost)

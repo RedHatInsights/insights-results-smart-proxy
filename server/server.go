@@ -852,18 +852,11 @@ func (server HTTPServer) SetClusterDisplayNameInReport(clusterID types.ClusterNa
 	report.Meta.DisplayName = string(clusterID)
 }
 
-func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *http.Request) {
-	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
-	if !successful {
-		return
-	}
-
-	report := types.SmartProxyReport{
-		Meta: ctypes.ReportResponseMeta{
-			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
-		},
-	}
-
+func (server HTTPServer) buildReportEndpointResponse(
+	writer http.ResponseWriter, request *http.Request,
+	aggregatorResponse *ctypes.ReportResponse,
+	clusterID types.ClusterName,
+) (visibleRules []types.RuleWithContentResponse, rulesCount int, err error) {
 	includeDisabled, err := readGetDisabledParam(request)
 	if err != nil {
 		handleServerError(writer, err)
@@ -899,21 +892,61 @@ func (server HTTPServer) reportEndpoint(writer http.ResponseWriter, request *htt
 	if err != nil {
 		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 			handleServerError(writer, err)
-			return
+			return nil, 0, err
 		}
+	}
+
+	rulesCount = server.getRuleCount(visibleRules, noContentRulesCnt, disabledRulesCnt, clusterID)
+	return
+}
+
+func sendReportReponse(writer http.ResponseWriter, report interface{}) {
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+// reportEndpointV1 serves /report endpoint without cluster_name field in the metadata
+func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *http.Request) {
+	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
+	if !successful {
+		return
+	}
+
+	// Uses SmartProxyReportV1 type for backward compatibility
+	report := types.SmartProxyReportV1{
+		Meta: types.ReportResponseMetaV1{
+			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
+		},
+	}
+
+	var err error
+	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
+		writer, request, aggregatorResponse, clusterID); err == nil {
+		sendReportReponse(writer, report)
+	}
+}
+
+// reportEndpointV2 serves /report endpoint with cluster_name field in the metadata
+func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *http.Request) {
+	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
+	if !successful {
+		return
+	}
+
+	report := types.SmartProxyReport{
+		Meta: ctypes.ReportResponseMeta{
+			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
+		},
 	}
 
 	server.SetClusterDisplayNameInReport(clusterID, &report)
 
-	totalRuleCnt := server.getRuleCount(visibleRules, noContentRulesCnt, disabledRulesCnt, clusterID)
-
-	// Meta.Count is only used to perform checks for special cases
-	report.Meta.Count = totalRuleCnt
-	report.Data = visibleRules
-
-	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
-	if err != nil {
-		log.Error().Err(err).Msg(responseDataError)
+	var err error
+	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
+		writer, request, aggregatorResponse, clusterID); err == nil {
+		sendReportReponse(writer, report)
 	}
 }
 
