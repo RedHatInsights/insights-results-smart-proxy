@@ -1193,10 +1193,13 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 			},
 		)
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodPost,
 			Endpoint: server.OverviewEndpoint,
 			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
 			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -1232,10 +1235,13 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *
 			},
 		)
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodPost,
 			Endpoint: server.OverviewEndpoint,
 			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
 			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,

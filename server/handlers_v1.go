@@ -257,6 +257,12 @@ func (server HTTPServer) getOverviewForClusters(
 
 // overviewEndpointWithClusterIDs returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) {
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
 	// get reports for the cluster list in body
 	log.Info().Msg("Retrieving reports for clusters to generate org_overview")
 	aggregatorResponse, ok := server.fetchAggregatorReportsUsingRequestBodyClusterList(writer, request)
@@ -265,7 +271,16 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 		return
 	}
 
-	r, err := generateOrgOverview(aggregatorResponse)
+	// retrieve rule acknowledgements (disable/enable)
+	acks, err := server.readListOfAckedRules(orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg(ackedRulesError)
+		// server error has been handled already
+		return
+	}
+	orgWideDisabledRules := generateRuleAckMap(acks)
+
+	r, err := generateOrgOverview(aggregatorResponse, orgWideDisabledRules)
 
 	if err != nil {
 		handleServerError(writer, err)
@@ -279,7 +294,10 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 }
 
 // generateOrgOverview generates an OrgOverviewResponse from the aggregator's response
-func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOverviewResponse, error) {
+func generateOrgOverview(
+	aggregatorReport *types.ClusterReports,
+	orgWideDisabledRules map[types.RuleID]bool,
+	) (sptypes.OrgOverviewResponse, error) {
 	clustersHits := 0
 	hitsByTotalRisk := make(map[int]int)
 	hitsByTags := make(map[string]int)
@@ -299,7 +317,7 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOve
 		clustersHits++
 
 		for _, rule := range clusterReport.HitRules {
-			if rule.Disabled {
+			if isDisabledRule(rule, orgWideDisabledRules) {
 				continue
 			}
 
