@@ -1195,9 +1195,11 @@ func (server HTTPServer) getGroupsConfig() (
 }
 
 func (server HTTPServer) getOverviewPerCluster(
+	writer http.ResponseWriter,
 	clusterName ctypes.ClusterName,
 	authToken *ctypes.Identity,
-	writer http.ResponseWriter) (*types.ClusterOverview, error) {
+	orgWideDisabledRules map[types.RuleID]bool,
+) (*types.ClusterOverview, error) {
 
 	userID := authToken.AccountNumber
 	orgID := authToken.Internal.OrgID
@@ -1216,6 +1218,9 @@ func (server HTTPServer) getOverviewPerCluster(
 	tags := make([]string, 0)
 
 	for _, rule := range aggregatorResponse.Report {
+		if isDisabledRule(rule, orgWideDisabledRules) {
+			continue
+		}
 		ruleID := rule.Module
 		errorKey := rule.ErrorKey
 		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
@@ -1240,11 +1245,7 @@ func (server HTTPServer) getOverviewPerCluster(
 	}, nil
 }
 
-func isDisabledRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
-	if aggregatorRule.Disabled {
-		return true
-	}
-
+func isDisabledForOrgRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
 	if len(systemWideDisabledRules) > 0 {
 		selector := types.RuleID(
 			fmt.Sprintf("%v|%v",
@@ -1252,11 +1253,16 @@ func isDisabledRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules 
 				aggregatorRule.ErrorKey,
 			),
 		)
-		if systemWideDisabledRules[selector] {
-			return true
-		}
+		return systemWideDisabledRules[selector]
 	}
 	return false
+}
+
+func isDisabledRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
+	if aggregatorRule.Disabled {
+		return true
+	}
+	return isDisabledForOrgRule(aggregatorRule, systemWideDisabledRules)
 }
 
 // filterRulesInResponse returns an array of RuleWithContentResponse with only the rules that matches 3 criteria:

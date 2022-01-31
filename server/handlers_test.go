@@ -947,6 +947,8 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		// prepare report for cluster
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -994,6 +996,8 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 			testdata.OrgID,
 			data.ClusterInfoResult,
 		)
+
+		expectNoRulesDisabledSystemWide(&t)
 
 		// prepare report for cluster
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{

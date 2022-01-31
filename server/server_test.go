@@ -1091,6 +1091,8 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
 		})
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		// prepare report for cluster
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,

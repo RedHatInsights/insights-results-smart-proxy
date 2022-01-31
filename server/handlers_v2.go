@@ -517,20 +517,6 @@ func (server *HTTPServer) getUserDisabledRulesPerCluster(userID types.UserID) (
 	return
 }
 
-func generateRuleAckMap(acks []ctypes.SystemWideRuleDisable) (ruleAcksMap map[ctypes.RuleID]bool) {
-	ruleAcksMap = make(map[ctypes.RuleID]bool)
-	for i := range acks {
-		ack := &acks[i]
-		compositeRuleID, err := generators.GenerateCompositeRuleID(ctypes.RuleFQDN(ack.RuleID), ack.ErrorKey)
-		if err == nil {
-			ruleAcksMap[compositeRuleID] = true
-		} else {
-			log.Error().Err(err).Msgf(compositeRuleIDError, ack.RuleID, ack.ErrorKey)
-		}
-	}
-	return
-}
-
 func generateImpactingRuleIDList(impactingRecommendations ctypes.RecommendationImpactedClusters) (ruleIDList []ctypes.RuleID) {
 	ruleIDList = make([]ctypes.RuleID, len(impactingRecommendations))
 	i := 0

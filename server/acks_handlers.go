@@ -18,6 +18,7 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/RedHatInsights/insights-operator-utils/generators"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -384,4 +385,18 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 
 	// return 204 -> rule ack has been deleted
 	writer.WriteHeader(http.StatusNoContent)
+}
+
+func generateRuleAckMap(acks []types.SystemWideRuleDisable) (ruleAcksMap map[types.RuleID]bool) {
+	ruleAcksMap = make(map[types.RuleID]bool)
+	for i := range acks {
+		ack := &acks[i]
+		compositeRuleID, err := generators.GenerateCompositeRuleID(types.RuleFQDN(ack.RuleID), ack.ErrorKey)
+		if err == nil {
+			ruleAcksMap[compositeRuleID] = true
+		} else {
+			log.Error().Err(err).Msgf(compositeRuleIDError, ack.RuleID, ack.ErrorKey)
+		}
+	}
+	return
 }
