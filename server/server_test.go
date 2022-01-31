@@ -460,7 +460,7 @@ var (
 		},
 	}
 
-	OverviewResponse = struct {
+	OverviewResponseRules123Enabled = struct {
 		Status   string                 `json:"status"`
 		Overview map[string]interface{} `json:"overview"`
 	}{
@@ -470,6 +470,58 @@ var (
 			"hit_by_risk": map[string]int{
 				"1": 1,
 				"2": 2,
+			},
+			"hit_by_tag": map[string]int{
+				"openshift":            1,
+				"osd_customer":         1,
+				"service_availability": 1,
+			},
+		},
+	}
+
+	OverviewResponseRule1DisabledRule2Enabled = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 1,
+			"hit_by_risk": map[string]int{
+				"2": 2,
+			},
+			"hit_by_tag": map[string]int{},
+		},
+	}
+
+	OverviewResponseRule1EnabledRule2Disabled = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 1,
+			"hit_by_risk": map[string]int{
+				"1": 1,
+				"2": 1,
+			},
+			"hit_by_tag": map[string]int{
+				"openshift":            1,
+				"osd_customer":         1,
+				"service_availability": 1,
+			},
+		},
+	}
+
+	OverviewResponseRule5DisabledRules1And2Enabled = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 1,
+			"hit_by_risk": map[string]int{
+				"1": 1,
+				"2": 1,
 			},
 			"hit_by_tag": map[string]int{
 				"openshift":            1,
@@ -489,6 +541,38 @@ var (
 			"hit_by_risk": map[string]int{
 				"1": 1,
 				"2": 2,
+			},
+			"hit_by_tag": map[string]int{
+				"openshift":            1,
+				"osd_customer":         1,
+				"service_availability": 1,
+			},
+		},
+	}
+
+	OverviewResponsePostEndpointRule1Disabled = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 2,
+			"hit_by_risk": map[string]int{
+				"2": 2,
+			},
+			"hit_by_tag": map[string]int{},
+		},
+	}
+
+	OverviewResponsePostEndpointRule2Disabled = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 2,
+			"hit_by_risk": map[string]int{
+				"1": 1,
 			},
 			"hit_by_tag": map[string]int{
 				"openshift":            1,
@@ -1117,7 +1201,7 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 				UserID:   testdata.UserID,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
-				Body:       helpers.ToJSONString(OverviewResponse),
+				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
 			})
 	}, testTimeout)
 }

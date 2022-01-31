@@ -297,7 +297,7 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 func generateOrgOverview(
 	aggregatorReport *types.ClusterReports,
 	orgWideDisabledRules map[types.RuleID]bool,
-	) (sptypes.OrgOverviewResponse, error) {
+) (sptypes.OrgOverviewResponse, error) {
 	clustersHits := 0
 	hitsByTotalRisk := make(map[int]int)
 	hitsByTags := make(map[string]int)
@@ -314,6 +314,7 @@ func generateOrgOverview(
 			continue
 		}
 
+		//TO-DO: If we have a cluster where all the rules are disabled, it will still count. is that ok?
 		clustersHits++
 
 		for _, rule := range clusterReport.HitRules {
