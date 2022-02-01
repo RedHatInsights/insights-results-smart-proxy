@@ -1,4 +1,4 @@
-// Copyright 2021 Red Hat, Inc
+// Copyright 2021, 2022 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package amsclient_test
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v4"
 	ocmtesting "github.com/openshift-online/ocm-sdk-go/testing"
 )
 
