@@ -13,7 +13,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
-	github.com/openshift-online/ocm-sdk-go v0.1.212
+	github.com/openshift-online/ocm-sdk-go v0.1.238
 	github.com/prometheus/client_golang v1.11.0
 	github.com/redhatinsights/app-common-go v1.6.0
 	github.com/rs/zerolog v1.25.0
