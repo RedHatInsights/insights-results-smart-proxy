@@ -165,8 +165,7 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 
 // overviewEndpoint returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *http.Request) {
-	authToken, err := server.GetAuthToken(request)
-	orgID := authToken.Internal.OrgID
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -190,7 +189,17 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 	// The missing ones (clusters registered in the list but no report available)
 	// The available ones with the whole report
 
-	r, err := server.getOverviewForClusters(writer, clusters, authToken)
+	// retrieve rule acknowledgements (disable/enable)
+	acks, err := server.readListOfAckedRules(orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg(ackedRulesError)
+		// server error has been handled already
+		return
+	}
+	orgWideDisabledRules := generateRuleAckMap(acks)
+
+	authToken, _ := server.GetAuthToken(request)
+	r, err := server.getOverviewForClusters(writer, clusters, authToken, orgWideDisabledRules)
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -203,13 +212,18 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 }
 
 // getOverviewForClusters gets the overview for all clusters
-func (server HTTPServer) getOverviewForClusters(writer http.ResponseWriter, clusters []types.ClusterName, authToken *types.Identity) (sptypes.OrgOverviewResponse, error) {
+func (server HTTPServer) getOverviewForClusters(
+	writer http.ResponseWriter,
+	clusters []types.ClusterName,
+	authToken *types.Identity,
+	orgWideDisabledRules map[types.RuleID]bool,
+) (sptypes.OrgOverviewResponse, error) {
 	clustersHits := 0
 	hitsByTotalRisk := make(map[int]int)
 	hitsByTags := make(map[string]int)
 
 	for _, clusterID := range clusters {
-		overview, err := server.getOverviewPerCluster(clusterID, authToken, writer)
+		overview, err := server.getOverviewPerCluster(writer, clusterID, authToken, orgWideDisabledRules)
 		if err != nil {
 			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 				return sptypes.OrgOverviewResponse{}, err
@@ -243,6 +257,12 @@ func (server HTTPServer) getOverviewForClusters(writer http.ResponseWriter, clus
 
 // overviewEndpointWithClusterIDs returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) {
+	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
 	// get reports for the cluster list in body
 	log.Info().Msg("Retrieving reports for clusters to generate org_overview")
 	aggregatorResponse, ok := server.fetchAggregatorReportsUsingRequestBodyClusterList(writer, request)
@@ -251,7 +271,16 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 		return
 	}
 
-	r, err := generateOrgOverview(aggregatorResponse)
+	// retrieve rule acknowledgements (disable/enable)
+	acks, err := server.readListOfAckedRules(orgID, userID)
+	if err != nil {
+		log.Error().Err(err).Msg(ackedRulesError)
+		// server error has been handled already
+		return
+	}
+	orgWideDisabledRules := generateRuleAckMap(acks)
+
+	r, err := generateOrgOverview(aggregatorResponse, orgWideDisabledRules)
 
 	if err != nil {
 		handleServerError(writer, err)
@@ -265,7 +294,10 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 }
 
 // generateOrgOverview generates an OrgOverviewResponse from the aggregator's response
-func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOverviewResponse, error) {
+func generateOrgOverview(
+	aggregatorReport *types.ClusterReports,
+	orgWideDisabledRules map[types.RuleID]bool,
+) (sptypes.OrgOverviewResponse, error) {
 	clustersHits := 0
 	hitsByTotalRisk := make(map[int]int)
 	hitsByTags := make(map[string]int)
@@ -282,10 +314,11 @@ func generateOrgOverview(aggregatorReport *types.ClusterReports) (sptypes.OrgOve
 			continue
 		}
 
+		//TO-DO: If we have a cluster where all the rules are disabled, it will still count. is that ok?
 		clustersHits++
 
 		for _, rule := range clusterReport.HitRules {
-			if rule.Disabled {
+			if isDisabledRule(rule, orgWideDisabledRules) {
 				continue
 			}
 

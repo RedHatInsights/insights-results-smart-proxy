@@ -93,6 +93,22 @@ var (
 		"data": []
 	}`
 
+	ResponseRule1DisabledSystemWide = struct {
+		Status      string                         `json:"status"`
+		RuleDisable []ctypes.SystemWideRuleDisable `json:"disabledRules"`
+	}{
+		Status: "ok",
+		RuleDisable: []ctypes.SystemWideRuleDisable{
+			{
+				OrgID:         testdata.OrgID,
+				UserID:        testdata.UserID,
+				RuleID:        testdata.Rule1ID,
+				ErrorKey:      testdata.ErrorKey1,
+				Justification: "Rule 1 disabled for testing purposes",
+			},
+		},
+	}
+
 	ResponseRule2DisabledSystemWide = struct {
 		Status      string                         `json:"status"`
 		RuleDisable []ctypes.SystemWideRuleDisable `json:"disabledRules"`
@@ -947,6 +963,8 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		// prepare report for cluster
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -969,7 +987,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 				UserID:   testdata.UserID,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
-				Body:       helpers.ToJSONString(OverviewResponse),
+				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
 			})
 	}, testTimeout)
 }
@@ -995,6 +1013,8 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		// prepare report for cluster
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -1015,6 +1035,122 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
 		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		// Rule 2 is disabled org-wide
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ResponseRule2DisabledSystemWide),
+		})
+
+		// prepare report for cluster
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		testServer := helpers.CreateHTTPServer(nil, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			helpers.DefaultServerConfig.APIv1Prefix,
+			&helpers.APIRequest{
+				Method:   http.MethodGet,
+				Endpoint: server.OverviewEndpoint,
+				OrgID:    testdata.OrgID,
+				UserID:   testdata.UserID,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(OverviewResponseRule1EnabledRule2Disabled),
+			},
+		)
+
+		//Now rule 1 is disabled org-wide
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ResponseRule1DisabledSystemWide),
+		})
+
+		// prepare report for cluster
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			helpers.DefaultServerConfig.APIv1Prefix,
+			&helpers.APIRequest{
+				Method:   http.MethodGet,
+				Endpoint: server.OverviewEndpoint,
+				OrgID:    testdata.OrgID,
+				UserID:   testdata.UserID,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(OverviewResponseRule1DisabledRule2Enabled),
+			},
+		)
+
+		// now report includes rule 5, which is disabled
+		expectNoRulesDisabledSystemWide(&t)
+
+		// prepare report for cluster
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3Rules1DisabledExpectedResponse,
+		})
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			helpers.DefaultServerConfig.APIv1Prefix,
+			&helpers.APIRequest{
+				Method:   http.MethodGet,
+				Endpoint: server.OverviewEndpoint,
+				OrgID:    testdata.OrgID,
+				UserID:   testdata.UserID,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(OverviewResponseRule5DisabledRules1And2Enabled),
+			},
+		)
+
 	}, testTimeout)
 }
 
@@ -1189,10 +1325,13 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 			},
 		)
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodPost,
 			Endpoint: server.OverviewEndpoint,
 			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
 			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -1228,14 +1367,97 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *
 			},
 		)
 
+		expectNoRulesDisabledSystemWide(&t)
+
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodPost,
 			Endpoint: server.OverviewEndpoint,
 			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
 			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_OverviewWithClusterIDsEndpoint
+func TestHTTPServer_OverviewWithClusterIDsEndpointDisabledRules(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare reports response
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ReportForListOfClustersPayloadEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(data.AggregatorReportForClusterList),
+			},
+		)
+
+		// Rule 1 is disabled org-wide
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ResponseRule1DisabledSystemWide),
+		})
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodPost,
+			Endpoint: server.OverviewEndpoint,
+			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
+			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(OverviewResponsePostEndpointRule1Disabled),
+		})
+
+		// Now rule2 is disabled org-wide
+		// prepare reports response
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ReportForListOfClustersPayloadEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(data.AggregatorReportForClusterList),
+			},
+		)
+
+		// Rule 1 is disabled org-wide
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ResponseRule2DisabledSystemWide),
+		})
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodPost,
+			Endpoint: server.OverviewEndpoint,
+			OrgID:    testdata.OrgID,
+			UserID:   testdata.UserID,
+			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(OverviewResponsePostEndpointRule2Disabled),
 		})
 	}, testTimeout)
 }
