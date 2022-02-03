@@ -1,4 +1,4 @@
-// Copyright 2020 Red Hat, Inc
+// Copyright 2020, 2021, 2022 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -675,7 +675,7 @@ func fakeRuleAsExternal(ruleContent *ctypes.RuleContent) {
 }
 
 func modifyPluginPythonModule(ruleContent *ctypes.RuleContent, injectStr string) {
-	copy := ruleContent
-	copy.Plugin.PythonModule = fmt.Sprintf("testcontent.%v.%v.rule", injectStr, random.Int())
-	*ruleContent = *copy
+	ruleContentCopy := ruleContent
+	ruleContentCopy.Plugin.PythonModule = fmt.Sprintf("testcontent.%v.%v.rule", injectStr, random.Int())
+	*ruleContent = *ruleContentCopy
 }
