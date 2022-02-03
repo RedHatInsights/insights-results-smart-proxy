@@ -1,4 +1,4 @@
-// Copyright 2021 Red Hat, Inc
+// Copyright 2021, 2022 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ func (m *mockAMSClient) GetClustersForOrganization(
 	return
 }
 
-//Returns cluster info is given ID is found in clusterInfoList for testdata.orgID
+// GetClusterDetailsFromExternalClusterID method returns cluster info is given
+// ID is found in clusterInfoList for testdata.orgID
 func (m *mockAMSClient) GetClusterDetailsFromExternalClusterID(
 	id types.ClusterName,
 ) (

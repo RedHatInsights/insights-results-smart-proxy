@@ -1,4 +1,4 @@
-// Copyright 2020 Red Hat, Inc
+// Copyright 2020, 2021, 2022 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1088,7 +1088,7 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 			},
 		)
 
-		//Now rule 1 is disabled org-wide
+		// Now rule 1 is disabled org-wide
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
@@ -2578,8 +2578,8 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 			}
 		}`
 		respBody = fmt.Sprintf(respBody,
-			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID, // total_risk = 1
-			clusterInfoList[1].ID, testTimeStr, testdata.Rule2CompositeID, testdata.Rule3CompositeID, // total_risk = 2, 2
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID, // total_risk == 1
+			clusterInfoList[1].ID, testTimeStr, testdata.Rule2CompositeID, testdata.Rule3CompositeID, // total_risk == 2, 2
 		)
 
 		// prepare response from amsclient for list of clusters
