@@ -58,7 +58,7 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 	return ruleID, errorKey, nil
 }
 
-func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
+func readCompositeRuleID(request *http.Request) (
 	ruleID ctypes.RuleID,
 	err error,
 ) {
@@ -83,7 +83,8 @@ func readCompositeRuleID(writer http.ResponseWriter, request *http.Request) (
 		return
 	}
 
-	ruleID = ctypes.RuleID(ruleIDParam)
+	// trim the .report from module part if present
+	ruleID = ctypes.RuleID(trimDotReportFromRuleID(ruleIDParam))
 	return
 }
 
