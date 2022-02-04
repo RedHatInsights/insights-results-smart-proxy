@@ -17,7 +17,6 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
@@ -45,8 +44,4 @@ func logClustersReport(orgID types.OrgID, reports map[types.ClusterName]json.Raw
 		}
 		logClusterInfos(orgID, clusterName, report)
 	}
-}
-
-func trimDotReportFromRuleID(ruleID string) string {
-	return strings.ReplaceAll(ruleID, dotReportModuleSuffix, "|")
 }
