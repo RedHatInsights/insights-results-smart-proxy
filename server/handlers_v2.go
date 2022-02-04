@@ -237,8 +237,8 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 }
 
 // getRecommendations retrieves all recommendations with a count of impacted clusters
-// By default returns only those recommendations that currently hit atleast one cluster, but it's
-// possible to show all recommendations by passing a URL parameter `impacting`
+// By default returns only those recommendations that currently hit at least one cluster,
+// but it's possible to show all recommendations by passing a URL parameter `impacting`
 func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request *http.Request) {
 	var recommendationList []types.RecommendationListView
 	tStart := time.Now()
