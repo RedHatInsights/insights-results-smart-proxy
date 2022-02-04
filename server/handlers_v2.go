@@ -104,7 +104,7 @@ func (server HTTPServer) getRuleWithGroups(
 // getRecommendationContent retrieves the static content for the given ruleID tied
 // with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
 func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, request *http.Request) {
-	ruleID, err := readCompositeRuleID(writer, request)
+	ruleID, err := readCompositeRuleID(request)
 	if err != nil {
 		log.Error().Err(err).Msgf("error retrieving rule ID from request")
 		handleServerError(writer, err)
@@ -157,7 +157,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		return
 	}
 
-	ruleID, err := readCompositeRuleID(writer, request)
+	ruleID, err := readCompositeRuleID(request)
 	if err != nil {
 		log.Error().Err(err).Msgf("error retrieving rule ID from request")
 		handleServerError(writer, err)
