@@ -83,8 +83,7 @@ func readCompositeRuleID(request *http.Request) (
 		return
 	}
 
-	// trim the .report from module part if present
-	ruleID = ctypes.RuleID(trimDotReportFromRuleID(ruleIDParam))
+	ruleID = ctypes.RuleID(ruleIDParam)
 	return
 }
 
