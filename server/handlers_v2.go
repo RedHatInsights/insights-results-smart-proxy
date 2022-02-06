@@ -274,15 +274,20 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		"getRecommendations get impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
 	)
 
-	// retrieve rule acknowledgements (disable/enable)
-	acks, err := server.readListOfAckedRules(orgID, userID)
+	// get a map of acknowledged rules
+	ackedRulesMap := server.getRuleAcksMap(orgID, userID)
+
+	// retrieve user disabled rules for given list of active clusters
+	numberOfDisabledClustersForRules := server.getRuleNumberOfDisabledClusters(writer, userID, clusterList)
 	if err != nil {
-		log.Error().Err(err).Msg(ackedRulesError)
+		log.Error().Err(err).Msg("problem getting user disabled rules for list of clusters")
 		// server error has been handled already
 		return
 	}
 
-	recommendationList, err = getRecommendationsFillUserData(impactingRecommendations, impactingFlag, acks)
+	recommendationList, err = getRecommendationsFillUserData(
+		impactingRecommendations, impactingFlag, ackedRulesMap, numberOfDisabledClustersForRules,
+	)
 	if err != nil {
 		log.Error().Err(err).Msg("problem getting recommendation content")
 		handleServerError(writer, err)
@@ -308,12 +313,10 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 }
 
-func (server HTTPServer) getRuleAcksAndDisables(orgID types.OrgID, userID types.UserID) (
+func (server HTTPServer) getRuleAcksMap(orgID types.OrgID, userID types.UserID) (
 	ackedRulesMap map[ctypes.RuleID]bool,
-	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
 ) {
 	ackedRulesMap = make(map[ctypes.RuleID]bool)
-	disabledRulesPerCluster = make(map[ctypes.ClusterName][]ctypes.RuleID)
 
 	// retrieve rule acknowledgements (disable/enable for all clusters)
 	ackedRules, err := server.readListOfAckedRules(orgID, userID)
@@ -325,8 +328,34 @@ func (server HTTPServer) getRuleAcksAndDisables(orgID types.OrgID, userID types.
 	// put rule acks in a map so we only iterate over them once
 	ackedRulesMap = generateRuleAckMap(ackedRules)
 
-	// retrieve list of cluster IDs and single disabled rules for each cluster
-	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(userID)
+	return
+}
+
+func (server HTTPServer) getRuleNumberOfDisabledClusters(
+	writer http.ResponseWriter,
+	userID types.UserID,
+	clusterList []ctypes.ClusterName,
+) (
+	numberOfRuleDisabledClusters map[types.RuleID]uint32,
+) {
+	numberOfRuleDisabledClusters = make(map[types.RuleID]uint32)
+
+	listOfDisabledRules, err := server.readListOfDisabledRulesForClusters(writer, userID, clusterList)
+	if err != nil {
+		log.Error().Err(err).Msg("error reading disabled rules from aggregator")
+		// server error has been handled already
+		return
+	}
+
+	for _, disabledRule := range listOfDisabledRules {
+		compositeRuleID, err := generators.GenerateCompositeRuleID(ctypes.RuleFQDN(disabledRule.RuleID), disabledRule.ErrorKey)
+		if err != nil {
+			log.Error().Err(err).Msg("error generating composite rule ID")
+			continue
+		}
+
+		numberOfRuleDisabledClusters[compositeRuleID]++
+	}
 
 	return
 }
@@ -369,7 +398,11 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		"getClustersView getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
 	)
 
-	ackedRulesMap, disabledRulesPerCluster := server.getRuleAcksAndDisables(orgID, userID)
+	// get a map of acknowledged rules
+	ackedRulesMap := server.getRuleAcksMap(orgID, userID)
+
+	// retrieve list of cluster IDs and single disabled rules for each cluster
+	disabledRulesPerCluster := server.getUserDisabledRulesPerCluster(userID)
 
 	clusterViewResponse, err := matchClusterInfoAndUserData(
 		clusterInfoList, clusterRecommendationMap, ackedRulesMap, disabledRulesPerCluster,
@@ -530,14 +563,13 @@ func generateImpactingRuleIDList(impactingRecommendations ctypes.RecommendationI
 func getRecommendationsFillUserData(
 	impactingRecommendations ctypes.RecommendationImpactedClusters,
 	impactingFlag types.ImpactingFlag,
-	acks []ctypes.SystemWideRuleDisable,
+	ruleAcksMap map[types.RuleID]bool,
+	numberOfDisabledClustersForRules map[types.RuleID]uint32,
 ) (
 	recommendationList []types.RecommendationListView,
 	err error,
 ) {
 	var ruleIDList []ctypes.RuleID
-	// put rule acks in a map so we only iterate over them once
-	ruleAcksMap := generateRuleAckMap(acks)
 
 	if impactingFlag == OnlyImpacting {
 		// retrieve content only for impacting rules
@@ -561,6 +593,10 @@ func getRecommendationsFillUserData(
 		if found && impactingFlag == ExcludingImpacting {
 			// rule is impacting, but requester doesn't want them
 			continue
+		}
+
+		if numberOfDisabledClusters, any := numberOfDisabledClustersForRules[ruleID]; any {
+			impactingClustersCnt = ctypes.ImpactedClustersCnt(uint32(impactingClustersCnt) - numberOfDisabledClusters)
 		}
 
 		ruleContent, err := content.GetContentForRecommendation(ruleID)
@@ -613,7 +649,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	jsonMarshalled, err := json.Marshal(clusterList)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem unmarshalling cluster list")
+		log.Error().Err(err).Msgf("getImpactingRecommendations problem unmarshalling cluster list")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -621,14 +657,14 @@ func (server HTTPServer) getImpactingRecommendations(
 	// #nosec G107
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
-		log.Error().Err(err).Msgf("problem getting response from aggregator")
+		log.Error().Err(err).Msgf("getImpactingRecommendations problem getting response from aggregator")
 		handleServerError(writer, err)
 		return nil, err
 	}
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem reading response body")
+		log.Error().Err(err).Msgf("getImpactingRecommendations problem reading response body")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -644,7 +680,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem unmarshalling JSON response")
+		log.Error().Err(err).Msgf("getImpactingRecommendations problem unmarshalling JSON response")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -674,7 +710,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 
 	jsonMarshalled, err := json.Marshal(clusterList)
 	if err != nil {
-		log.Error().Err(err).Msg("problem unmarshalling cluster list")
+		log.Error().Err(err).Msg("getClustersAndRecommendations problem unmarshalling cluster list")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -682,7 +718,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 	// #nosec G107
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
-		log.Error().Err(err).Msgf("problem getting response from aggregator")
+		log.Error().Err(err).Msgf("getClustersAndRecommendations problem getting response from aggregator")
 		if _, ok := err.(*url.Error); ok {
 			handleServerError(writer, &AggregatorServiceUnavailableError{})
 		} else {
@@ -693,7 +729,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 
 	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem reading response body")
+		log.Error().Err(err).Msgf("getClustersAndRecommendations problem reading response body")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -709,7 +745,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem unmarshalling JSON response")
+		log.Error().Err(err).Msgf("getClustersAndRecommendations problem unmarshalling JSON response")
 		handleServerError(writer, err)
 		return nil, err
 	}
