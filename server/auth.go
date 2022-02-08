@@ -20,6 +20,7 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -153,8 +154,8 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 		// check if the retrieved token matched this requirement
 		splitted := strings.Split(tokenHeader, " ")
 		if len(splitted) != 2 {
-			log.Error().Msg(message)
-			handleServerError(w, &AuthenticationError{errString: message})
+			log.Error().Msg(invalidTokenMessage)
+			handleServerError(w, &AuthenticationError{errString: invalidTokenMessage})
 			return "", false
 		}
 
@@ -162,7 +163,7 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 		// second one
 		splitted = strings.Split(splitted[1], ".")
 		if len(splitted) < 1 {
-			return "", &errors.UnauthorizedError{ErrString: invalidTokenMessage}
+			return "", false
 		}
 		tokenHeader = splitted[1]
 	} else {
