@@ -20,19 +20,20 @@ package server
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"strings"
 
 	"github.com/RedHatInsights/insights-operator-utils/collections"
 	types "github.com/RedHatInsights/insights-results-types"
-	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
 	// #nosec G101
 	malformedTokenMessage = "Malformed authentication token"
+	invalidTokenMessage   = "Invalid/Malformed auth token"
 )
 
 // Authentication middleware for checking auth rights
@@ -58,9 +59,11 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		}
 
 		// decode auth. token to JSON string
-		decoded, err := jwt.DecodeSegment(token)
+		decoded, err := base64.StdEncoding.DecodeString(token)
+
 		// if token is malformed return HTTP code 403 to client
 		if err != nil {
+			// malformed token, returns with HTTP code 403 as usual
 			log.Error().Err(err).Msg(malformedTokenMessage)
 			handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
 			return
@@ -96,7 +99,8 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			}
 		}
 
-		// Everything went well, proceed with the request and set the caller to the user retrieved from the parsed token
+		// Everything went well, proceed with the request and set the
+		// caller to the user retrieved from the parsed token
 		ctx := context.WithValue(r.Context(), types.ContextKeyUser, tk.Identity)
 		r = r.WithContext(ctx)
 
@@ -138,23 +142,37 @@ func (server *HTTPServer) GetAuthToken(request *http.Request) (*types.Identity, 
 
 func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool) {
 	var tokenHeader string
-	// In case of testing on local machine we don't take x-rh-identity header, but instead Authorization with JWT token in it
+	// In case of testing on local machine we don't take x-rh-identity
+	// header, but instead Authorization with JWT token in it
 	if server.Config.AuthType == "jwt" {
-		tokenHeader = r.Header.Get("Authorization") // Grab the token from the header
-		splitted := strings.Split(tokenHeader, " ") // The token normally comes in format `Bearer {token-body}`, we check if the retrieved token matched this requirement
+		log.Info().Msg("Retrieving jwt token")
+
+		// Grab the token from the header
+		tokenHeader = r.Header.Get("Authorization")
+
+		// The token normally comes in format `Bearer {token-body}`, we
+		// check if the retrieved token matched this requirement
+		splitted := strings.Split(tokenHeader, " ")
 		if len(splitted) != 2 {
-			const message = "Invalid/Malformed auth token"
-			log.Error().Msg(message)
-			handleServerError(w, &AuthenticationError{errString: message})
+			log.Error().Msg(invalidTokenMessage)
+			handleServerError(w, &AuthenticationError{errString: invalidTokenMessage})
 			return "", false
 		}
 
-		// Here we take JWT token which include 3 parts, we need only second one
+		// Here we take JWT token which include 3 parts, we need only
+		// second one
 		splitted = strings.Split(splitted[1], ".")
+		if len(splitted) < 1 {
+			return "", false
+		}
 		tokenHeader = splitted[1]
 	} else {
-		tokenHeader = r.Header.Get("x-rh-identity") // Grab the token from the header
+		log.Info().Msg("Retrieving x-rh-identity token")
+		// Grab the token from the header
+		tokenHeader = r.Header.Get("x-rh-identity")
 	}
+
+	log.Info().Int("Length", len(tokenHeader)).Msg("Token retrieved")
 
 	if tokenHeader == "" {
 		const message = "Missing auth token"
