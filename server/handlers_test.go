@@ -1203,7 +1203,7 @@ func TestInternalOrganizations(t *testing.T) {
 		{
 			"Internal organizations disabled, Request allowed",
 			&serverConfigJWT,
-			http.StatusOK,
+			http.StatusForbidden,
 			badJWTAuthBearer,
 		},
 	} {
