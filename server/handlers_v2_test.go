@@ -32,6 +32,10 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
+const (
+	dotReportRuleModuleSuffix = ".report"
+)
+
 func TestHTTPServer_SetRating(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
 
@@ -134,7 +138,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledClusters,
-			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -216,6 +220,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_ImpactedClusterDi
 	}
 	`
 	impactedClustersResponse = fmt.Sprintf(impactedClustersResponse, clusters[0], "")
+
 	helpers.GockExpectAPIRequest(
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -252,7 +257,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_ImpactedClusterDi
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledClusters,
-			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -363,7 +368,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledClusters,
-			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -452,7 +457,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledClusters,
-			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -511,7 +516,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledClusters,
-			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusNotFound,
@@ -579,7 +584,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse500(t *testing.T) {
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledClusters,
-			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, userIDOnGoodJWTAuthBearer},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusInternalServerError,
