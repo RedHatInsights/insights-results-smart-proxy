@@ -900,10 +900,11 @@ func (server *HTTPServer) getListOfDisabledClusters(
 	// rule selector has already been validated
 	splitRuleID := strings.Split(string(ruleSelector), "|")
 
+	// rules disabled using v1 enable/disable endpoints include '.report' in the module
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ListOfDisabledClusters,
-		splitRuleID[0],
+		splitRuleID[0]+dotReport,
 		splitRuleID[1],
 		userID,
 	)

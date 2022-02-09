@@ -38,7 +38,7 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 		return
 	}
 
-	log.Info().Int32("org_id", int32(orgID)).Str("user_id", string(userID)).Msg("Extraced user and org")
+	log.Info().Int32("org_id", int32(orgID)).Str("user_id", string(userID)).Msg("Extracted user and org")
 
 	rating, successful := server.postRatingToAggregator(orgID, userID, request, writer)
 	if !successful {
