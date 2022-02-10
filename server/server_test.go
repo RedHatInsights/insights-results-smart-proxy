@@ -19,10 +19,11 @@ package server_test
 import (
 	"encoding/json"
 	"fmt"
-	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"net/http"
 	"testing"
 	"time"
+
+	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
@@ -667,7 +668,7 @@ var (
 		},
 	}
 
-	GetRecommendationsResponse2Rules1Disabled0Clusters = struct {
+	GetRecommendationsResponse2Rules1Disabled1Acked = struct {
 		Status          string                         `json:"status"`
 		Recommendations []types.RecommendationListView `json:"recommendations"`
 	}{
@@ -682,9 +683,9 @@ var (
 				Impact:              uint8(testdata.RuleErrorKey1.Impact),
 				Likelihood:          uint8(testdata.RuleErrorKey1.Likelihood),
 				Tags:                testdata.RuleErrorKey1.Tags,
-				Disabled:            true,
+				Disabled:            true, // acked flag
 				RiskOfChange:        0,
-				ImpactedClustersCnt: 0,
+				ImpactedClustersCnt: 2,
 			},
 			{
 				RuleID:              testdata.Rule2CompositeID,
@@ -697,7 +698,7 @@ var (
 				Tags:                testdata.RuleErrorKey2.Tags,
 				Disabled:            false,
 				RiskOfChange:        0,
-				ImpactedClustersCnt: 0,
+				ImpactedClustersCnt: 1, // one cluster is disabled
 			},
 		},
 	}

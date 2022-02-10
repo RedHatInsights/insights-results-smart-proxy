@@ -1,5 +1,5 @@
 [amsclient]
-url = "https://api.openshift.com"
+url = ""
 client_id = ""
 client_secret = ""
 page_size = 100
@@ -19,7 +19,7 @@ enable_cors = true
 enable_internal_rules_organizations = false
 internal_rules_organizations = []
 log_auth_token = true
-org_clusters_fallback = false
+org_clusters_fallback = true
 
 [services]
 aggregator = "http://localhost:8080/api/insights-results-aggregator/v1/"

@@ -1343,3 +1343,56 @@ func (server *HTTPServer) readListOfClusterDisabledRules(userID types.UserID) ([
 
 	return response.DisabledRules, nil
 }
+
+// Method readListOfClusterDisabledRules returns user disabled rules for given cluster list
+func (server *HTTPServer) readListOfDisabledRulesForClusters(
+	writer http.ResponseWriter,
+	userID ctypes.UserID,
+	clusterList []ctypes.ClusterName,
+) ([]ctypes.DisabledRule, error) {
+
+	// wont be used anywhere else
+	var response struct {
+		Status        string                `json:"status"`
+		DisabledRules []ctypes.DisabledRule `json:"rules"`
+	}
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		// ira_server.ListOfDisabledRulesForClusters, FIXME
+		"rules/users/{user_id}/disabled_for_clusters",
+		userID,
+	)
+
+	jsonMarshalled, err := json.Marshal(clusterList)
+	if err != nil {
+		log.Error().Err(err).Msg("readListOfDisabledRulesForClusters problem unmarshalling cluster list")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	// #nosec G107
+	resp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
+	if err != nil {
+		log.Error().Err(err).Msgf("readListOfDisabledRulesForClusters problem getting response from aggregator")
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
+		return nil, err
+	}
+
+	// check the aggregator response
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
+		err := fmt.Errorf("error reading disabled rules from aggregator: %v", resp.StatusCode)
+		return nil, err
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.DisabledRules, nil
+}

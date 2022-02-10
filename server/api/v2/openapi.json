@@ -1259,7 +1259,7 @@
             },
             "impacted_clusters_count": {
               "type": "int",
-              "description": "The number of clusters impacted by this rule.",
+              "description": "The number of clusters impacted by this rule. When the user disables a rule for a specific cluster, this cluster is no longer considered to be impacted.",
               "example": 42
             }
           },
