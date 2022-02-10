@@ -1203,7 +1203,7 @@ func TestInternalOrganizations(t *testing.T) {
 		{
 			"Internal organizations disabled, Request allowed",
 			&serverConfigJWT,
-			http.StatusOK,
+			http.StatusForbidden,
 			badJWTAuthBearer,
 		},
 	} {
@@ -2182,7 +2182,7 @@ func TestHTTPServer_RecommendationsListEndpoint_BadToken(t *testing.T) {
 			Endpoint:           server.RecommendationsListEndpoint,
 			AuthorizationToken: badJWTAuthBearer,
 		}, &helpers.APIResponse{
-			StatusCode: http.StatusInternalServerError,
+			StatusCode: http.StatusForbidden,
 		})
 	}, testTimeout)
 }

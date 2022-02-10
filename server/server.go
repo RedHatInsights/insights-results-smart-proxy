@@ -76,9 +76,8 @@ const (
 
 	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
 
-	// dotReportModuleSuffix ".report|" substring present at the end of the rule
-	// selector's module part
-	dotReportModuleSuffix = ".report|"
+	// dotReport ".report" string present in the ruleID in most tables
+	dotReport = ".report"
 )
 
 // HTTPServer is an implementation of Server interface
@@ -1250,7 +1249,7 @@ func isDisabledForOrgRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabled
 	if len(systemWideDisabledRules) > 0 {
 		selector := types.RuleID(
 			fmt.Sprintf("%v|%v",
-				trimDotReportFromRuleID(string(aggregatorRule.Module)),
+				strings.TrimSuffix(string(aggregatorRule.Module), dotReport),
 				aggregatorRule.ErrorKey,
 			),
 		)
