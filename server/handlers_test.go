@@ -1483,10 +1483,10 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
-		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
+		respBody := `{"recommendations":{"%v":["%v","%v"],"%v":["%v"]},"status":"ok"}`
 		respBody = fmt.Sprintf(respBody,
-			testdata.Rule1CompositeID, 2,
-			testdata.Rule2CompositeID, 1,
+			testdata.Rule1CompositeID, clusterList[0], clusterList[1],
+			testdata.Rule2CompositeID, clusterList[0],
 		)
 
 		// prepare response from amsclient for list of clusters
@@ -1526,9 +1526,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 		ruleDisablesBody := `{"rules":[],"status":"ok"}`
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},
@@ -1572,10 +1571,10 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
-		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
+		respBody := `{"recommendations":{"%v":["%v","%v"],"%v":["%v","%v"]},"status":"ok"}`
 		respBody = fmt.Sprintf(respBody,
-			testdata.Rule1CompositeID, 2,
-			testdata.Rule2CompositeID, 2,
+			testdata.Rule1CompositeID, clusterList[0], clusterList[1],
+			testdata.Rule2CompositeID, clusterList[0], clusterList[1],
 		)
 
 		// prepare response from amsclient for list of clusters
@@ -1636,9 +1635,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},
@@ -1648,6 +1646,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 			},
 		)
 
+		// one rule acked; one rule user disabled (not counted as impacting)
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
@@ -1682,10 +1681,10 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
-		respBody := `{"recommendations":{"%v":%v,"%v":%v},"status":"ok"}`
+		respBody := `{"recommendations":{"%v":["%v","%v"],"%v":["%v","%v"]},"status":"ok"}`
 		respBody = fmt.Sprintf(respBody,
-			testdata.Rule1CompositeID, 2,
-			testdata.Rule2CompositeID, 1,
+			testdata.Rule1CompositeID, clusterList[0], clusterList[1],
+			testdata.Rule2CompositeID, clusterList[0], clusterList[1],
 		)
 
 		// prepare response from amsclient for list of clusters
@@ -1725,9 +1724,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 		ruleDisablesBody := `{"rules":[],"status":"ok"}`
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},
@@ -1762,11 +1760,10 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
-		respBody := `{"recommendations":{"%v":%v,"%v":%v,"%v":%v},"status":"ok"}`
+		respBody := `{"recommendations":{"%v":["%v","%v"],"%v":["%v","%v"]},"status":"ok"}`
 		respBody = fmt.Sprintf(respBody,
-			testdata.Rule1CompositeID, 2,
-			testdata.Rule2CompositeID, 2,
-			testdata.Rule3CompositeID, 1,
+			testdata.Rule1CompositeID, clusterList[0], clusterList[1],
+			testdata.Rule2CompositeID, clusterList[0], clusterList[1],
 		)
 
 		// prepare response from amsclient for list of clusters
@@ -1806,9 +1803,8 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 		ruleDisablesBody := `{"rules":[],"status":"ok"}`
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},
@@ -1890,9 +1886,8 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 		ruleDisablesBody := `{"rules":[],"status":"ok"}`
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},
@@ -1974,9 +1969,8 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 		ruleDisablesBody := `{"rules":[],"status":"ok"}`
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},
@@ -2020,9 +2014,9 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
-		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
+		respBody := `{"recommendations":{"%v":["%v","%v"]},"status":"ok"}`
 		respBody = fmt.Sprintf(respBody,
-			testdata.Rule1CompositeID, 2,
+			testdata.Rule1CompositeID, clusterList[0], clusterList[1],
 		)
 
 		// prepare response from amsclient for list of clusters
@@ -2062,9 +2056,8 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 		ruleDisablesBody := `{"rules":[],"status":"ok"}`
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},
@@ -2113,9 +2106,9 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
 
-		respBody := `{"recommendations":{"%v":%v},"status":"ok"}`
+		respBody := `{"recommendations":{"%v":["%v"]},"status":"ok"}`
 		respBody = fmt.Sprintf(respBody,
-			testdata.Rule1CompositeID, 1,
+			testdata.Rule1CompositeID, clusterList[0],
 		)
 
 		// prepare response from amsclient for list of clusters
@@ -2155,9 +2148,8 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 		ruleDisablesBody := `{"rules":[],"status":"ok"}`
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method: http.MethodPost,
-				//Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				Endpoint:     "rules/users/{user_id}/disabled_for_clusters",
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
 				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
 				Body:         reqBody,
 			},

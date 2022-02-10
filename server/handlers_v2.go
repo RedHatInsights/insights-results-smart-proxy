@@ -278,7 +278,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	ackedRulesMap := server.getRuleAcksMap(orgID, userID)
 
 	// retrieve user disabled rules for given list of active clusters
-	numberOfDisabledClustersForRules := server.getRuleNumberOfDisabledClusters(writer, userID, clusterList)
+	disabledClustersForRules := server.getRuleDisabledClusters(writer, userID, clusterList)
 	if err != nil {
 		log.Error().Err(err).Msg("problem getting user disabled rules for list of clusters")
 		// server error has been handled already
@@ -286,7 +286,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 
 	recommendationList, err = getRecommendationsFillUserData(
-		impactingRecommendations, impactingFlag, ackedRulesMap, numberOfDisabledClustersForRules,
+		impactingRecommendations, impactingFlag, ackedRulesMap, disabledClustersForRules,
 	)
 	if err != nil {
 		log.Error().Err(err).Msg("problem getting recommendation content")
@@ -331,14 +331,14 @@ func (server HTTPServer) getRuleAcksMap(orgID types.OrgID, userID types.UserID) 
 	return
 }
 
-func (server HTTPServer) getRuleNumberOfDisabledClusters(
+func (server HTTPServer) getRuleDisabledClusters(
 	writer http.ResponseWriter,
 	userID types.UserID,
 	clusterList []ctypes.ClusterName,
 ) (
-	numberOfRuleDisabledClusters map[types.RuleID]uint32,
+	ruleDisabledClusters map[types.RuleID][]types.ClusterName,
 ) {
-	numberOfRuleDisabledClusters = make(map[types.RuleID]uint32)
+	ruleDisabledClusters = make(map[types.RuleID][]types.ClusterName)
 
 	listOfDisabledRules, err := server.readListOfDisabledRulesForClusters(writer, userID, clusterList)
 	if err != nil {
@@ -354,7 +354,7 @@ func (server HTTPServer) getRuleNumberOfDisabledClusters(
 			continue
 		}
 
-		numberOfRuleDisabledClusters[compositeRuleID]++
+		ruleDisabledClusters[compositeRuleID] = append(ruleDisabledClusters[compositeRuleID], disabledRule.ClusterID)
 	}
 
 	return
@@ -560,11 +560,32 @@ func generateImpactingRuleIDList(impactingRecommendations ctypes.RecommendationI
 	return
 }
 
+func calculateImpactingClusters(
+	impactingClusters []types.ClusterName,
+	disabledclusters []types.ClusterName,
+) (count uint32) {
+	for _, impactingID := range impactingClusters {
+		disabled := false
+
+		for _, disabledID := range disabledclusters {
+			if impactingID == disabledID {
+				disabled = true
+				break
+			}
+		}
+
+		if !disabled {
+			count++
+		}
+	}
+	return
+}
+
 func getRecommendationsFillUserData(
 	impactingRecommendations ctypes.RecommendationImpactedClusters,
 	impactingFlag types.ImpactingFlag,
 	ruleAcksMap map[types.RuleID]bool,
-	numberOfDisabledClustersForRules map[types.RuleID]uint32,
+	disabledClustersForRules map[types.RuleID][]types.ClusterName,
 ) (
 	recommendationList []types.RecommendationListView,
 	err error,
@@ -585,18 +606,26 @@ func getRecommendationsFillUserData(
 
 	recommendationList = make([]types.RecommendationListView, 0)
 
+	// iterate over rules and count impacted clusters, exluding user disabled ones
 	for _, ruleID := range ruleIDList {
-		// rule is disabled if found in the ack map
+		var impactedClustersCnt uint32
+
+		// rule has system-wide disabled status if found in the ack map,
+		// but the user can still see number of impacted clusters in the UI, so we need to go on
 		_, ruleDisabled := ruleAcksMap[ruleID]
 
-		impactingClustersCnt, found := impactingRecommendations[ruleID]
+		// get list of impacting clusters
+		impactingClustersList, found := impactingRecommendations[ruleID]
 		if found && impactingFlag == ExcludingImpacting {
 			// rule is impacting, but requester doesn't want them
 			continue
 		}
 
-		if numberOfDisabledClusters, any := numberOfDisabledClustersForRules[ruleID]; any {
-			impactingClustersCnt = ctypes.ImpactedClustersCnt(uint32(impactingClustersCnt) - numberOfDisabledClusters)
+		// remove any disabled clusters from the total count, if they're impacting
+		if disabledClusters, any := disabledClustersForRules[ruleID]; any {
+			impactedClustersCnt = calculateImpactingClusters(impactingClustersList, disabledClusters)
+		} else {
+			impactedClustersCnt = uint32(len(impactingClustersList))
 		}
 
 		ruleContent, err := content.GetContentForRecommendation(ruleID)
@@ -620,7 +649,7 @@ func getRecommendationsFillUserData(
 			Tags:                ruleContent.Tags,
 			Disabled:            ruleDisabled,
 			RiskOfChange:        uint8(ruleContent.RiskOfChange),
-			ImpactedClustersCnt: impactingClustersCnt,
+			ImpactedClustersCnt: impactedClustersCnt,
 		})
 	}
 

@@ -180,17 +180,17 @@ type RuleWithContent struct {
 // RiskOfChange == resolution risk, currently missing from rule content
 type RecommendationListView struct {
 	// RuleID is in "|" format
-	RuleID              types.RuleID              `json:"rule_id"`
-	Description         string                    `json:"description"`
-	Generic             string                    `json:"generic"`
-	PublishDate         time.Time                 `json:"publish_date"`
-	TotalRisk           uint8                     `json:"total_risk"`
-	Impact              uint8                     `json:"impact"`
-	Likelihood          uint8                     `json:"likelihood"`
-	Tags                []string                  `json:"tags"`
-	Disabled            bool                      `json:"disabled"`
-	RiskOfChange        uint8                     `json:"risk_of_change"`
-	ImpactedClustersCnt types.ImpactedClustersCnt `json:"impacted_clusters_count"`
+	RuleID              types.RuleID `json:"rule_id"`
+	Description         string       `json:"description"`
+	Generic             string       `json:"generic"`
+	PublishDate         time.Time    `json:"publish_date"`
+	TotalRisk           uint8        `json:"total_risk"`
+	Impact              uint8        `json:"impact"`
+	Likelihood          uint8        `json:"likelihood"`
+	Tags                []string     `json:"tags"`
+	Disabled            bool         `json:"disabled"`
+	RiskOfChange        uint8        `json:"risk_of_change"`
+	ImpactedClustersCnt uint32       `json:"impacted_clusters_count"`
 }
 
 // ClusterListView represents a single item in the response for Clusters List view
