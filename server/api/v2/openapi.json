@@ -1258,7 +1258,7 @@
               "type": "integer"
             },
             "impacted_clusters_count": {
-              "type": "int",
+              "type": "integer",
               "description": "The number of clusters impacted by this rule. When the user disables a rule for a specific cluster, this cluster is no longer considered to be impacted.",
               "example": 42
             }
@@ -1316,7 +1316,7 @@
               "description": "Last time of analysis for given cluster."
             },
             "total_hit_count": {
-              "type": "int",
+              "type": "integer",
               "description": "Total number of rules hitting for given cluster. 0 combined with an empty last_checked_at means we haven't received any archive from that cluster. 0 hits with a valid timestamp means we have an archive, but there are no rule hits."
             },
             "hits_by_total_risk": {
