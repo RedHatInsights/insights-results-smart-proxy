@@ -128,7 +128,7 @@ var (
 	v1Report1RuleNoContent = types.SmartProxyReportV1{
 		Meta: types.ReportResponseMetaV1{
 			Count:         0,
-			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+			LastCheckedAt: "",
 		},
 		Data: []types.RuleWithContentResponse{},
 	}
@@ -352,6 +352,10 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t)
 
+		expectedJSONBody := helpers.ToJSONString(SmartProxyV1ReportResponse1RuleNoContent)
+		// last_checked_at is omitted from the JSON as it is empty
+		assert.Equal(t, `{"status":"ok","report":{"meta":{"count":0},"data":[]}}`, expectedJSONBody)
+
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -361,7 +365,7 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			OrgID:        testdata.OrgID,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse1RuleNoContent),
+			Body:       expectedJSONBody,
 		})
 	}, testTimeout)
 }

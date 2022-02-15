@@ -915,15 +915,14 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 	}
 
 	// Uses SmartProxyReportV1 type for backward compatibility
-	report := types.SmartProxyReportV1{
-		Meta: types.ReportResponseMetaV1{
-			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
-		},
-	}
+	report := types.SmartProxyReportV1{}
 
 	var err error
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
 		writer, request, aggregatorResponse, clusterID); err == nil {
+		if report.Meta.Count != 0 {
+			report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
+		}
 		sendReportReponse(writer, report)
 	}
 }
@@ -935,17 +934,16 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 		return
 	}
 
-	report := types.SmartProxyReport{
-		Meta: ctypes.ReportResponseMeta{
-			LastCheckedAt: aggregatorResponse.Meta.LastCheckedAt,
-		},
-	}
+	report := types.SmartProxyReport{}
 
 	server.SetClusterDisplayNameInReport(clusterID, &report)
 
 	var err error
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
 		writer, request, aggregatorResponse, clusterID); err == nil {
+		if report.Meta.Count != 0 {
+			report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
+		}
 		sendReportReponse(writer, report)
 	}
 }

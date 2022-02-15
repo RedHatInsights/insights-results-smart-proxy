@@ -110,7 +110,7 @@ type RecommendationContentUserData struct {
 // ReportResponseMetaV1 contains metadata for /report endpoint in v1
 type ReportResponseMetaV1 struct {
 	Count         int       `json:"count"`
-	LastCheckedAt Timestamp `json:"last_checked_at"`
+	LastCheckedAt Timestamp `json:"last_checked_at,omitempty"`
 }
 
 // SmartProxyReportV1 represents the response of /report (V1) endpoint for smart proxy
