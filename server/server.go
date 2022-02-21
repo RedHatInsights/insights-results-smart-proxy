@@ -1359,8 +1359,7 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		// ira_server.ListOfDisabledRulesForClusters, FIXME
-		"rules/users/{user_id}/disabled_for_clusters",
+		ira_server.ListOfDisabledRulesForClusters,
 		userID,
 	)
 

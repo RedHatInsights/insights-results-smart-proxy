@@ -17,7 +17,10 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/RedHatInsights/insights-operator-utils/generators"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 )
@@ -44,4 +47,19 @@ func logClustersReport(orgID types.OrgID, reports map[types.ClusterName]json.Raw
 		}
 		logClusterInfos(orgID, clusterName, report)
 	}
+}
+
+// generateCompositeRuleIDFromDisabled trims ".report" from given disabled rule module and generates composite rule ID
+func generateCompositeRuleIDFromDisabled(disabledRule ctypes.DisabledRule) (
+	compositeRuleID types.RuleID, err error,
+) {
+	// the records in v1-related enable/disable DB tables contain ".report" suffix which needs to be
+	// (hopefully) temporarily trimmed for v2-related functionality
+	trimmedRuleModule := strings.TrimSuffix(string(disabledRule.RuleID), dotReport)
+
+	compositeRuleID, err = generators.GenerateCompositeRuleID(
+		ctypes.RuleFQDN(trimmedRuleModule),
+		disabledRule.ErrorKey,
+	)
+	return
 }
