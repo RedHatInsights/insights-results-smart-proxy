@@ -29,7 +29,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-operator-utils/generators"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
@@ -348,7 +347,8 @@ func (server HTTPServer) getRuleDisabledClusters(
 	}
 
 	for _, disabledRule := range listOfDisabledRules {
-		compositeRuleID, err := generators.GenerateCompositeRuleID(ctypes.RuleFQDN(disabledRule.RuleID), disabledRule.ErrorKey)
+		compositeRuleID, err := generateCompositeRuleIDFromDisabled(disabledRule)
+
 		if err != nil {
 			log.Error().Err(err).Msg("error generating composite rule ID")
 			continue
@@ -535,7 +535,7 @@ func (server *HTTPServer) getUserDisabledRulesPerCluster(userID types.UserID) (
 	for i := range listOfDisabledRules {
 		disabledRule := &listOfDisabledRules[i]
 
-		compositeRuleID, err := generators.GenerateCompositeRuleID(ctypes.RuleFQDN(disabledRule.RuleID), disabledRule.ErrorKey)
+		compositeRuleID, err := generateCompositeRuleIDFromDisabled(*disabledRule)
 		if err != nil {
 			log.Error().Err(err).Msgf(compositeRuleIDError, disabledRule.RuleID, disabledRule.ErrorKey)
 			continue
