@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.3",
   "info": {
     "title": "Insights Results Aggregator",
     "version": "2.0.0",
@@ -9,8 +9,12 @@
   "paths": {
     "/openapi.json": {
       "get": {
+        "operationId": "getOpenApi",
+        "summary": "Returns the OpenAPI specification JSON.",
+        "description": "The OpenAPI specification of this REST API service that is represented in formatted and human-readable JSON is available under this endpoint.",
         "responses": {
           "200": {
+            "description": "A JSON containing the OpenAPI specification for this service.",
             "content": {
               "application/json": {
                 "schema": {
@@ -36,87 +40,68 @@
                     "paths": {
                       "description": "Available paths and their descriptions.",
                       "type": "object"
+                    },
+                    "components": {
+                      "type": "object"
                     }
                   }
                 }
               }
-            },
-            "description": "A JSON containing the OpenAPI specification for this service."
+            }
           }
-        },
-        "operationId": "getOpenApi",
-        "summary": "Returns the OpenAPI specification JSON.",
-        "description": "The OpenAPI specification of this REST API service that is represented in formatted and human-readable JSON is available under this endpoint."
+        }
       }
     },
     "/metrics": {
       "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "text/plain": {}
-            },
-            "description": "Default response containing all metrics in semi-structured text format"
-          }
-        },
         "operationId": "getMetrics",
         "summary": "Read all metrics exposed by this service",
-        "description": "Set of metrics provided by insights-operator-utils library providing total number of requests counter, API endpoints response times, and counter of HTTP status code responses. Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with go_ and process_ prefixes."
+        "description": "Set of metrics provided by insights-operator-utils library providing total number of requests counter, API endpoints response times, and counter of HTTP status code responses. Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with go_ and process_ prefixes.",
+        "responses": {
+          "200": {
+            "description": "Default response containing all metrics in semi-structured text format",
+            "content": {
+              "text/plain": {}
+            }
+          }
+        }
       }
     },
-    "/cluster/{clusterId}/reports": {
+    "/clusters/{clusterList}/reports": {
       "get": {
         "tags": [
           "prod"
         ],
+        "summary": "Returns the latest reports for the given list of clusters.",
+        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of path.",
+        "operationId": "getReportsForClusters",
         "parameters": [
           {
-            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
-            "name": "clusterId",
-            "description": "ID of the cluster which must conform to UUID format.",
-            "schema": {
-              "type": "string"
-            },
+            "name": "clusterList",
             "in": "path",
-            "required": true
-          },
-          {
-            "name": "osd_eligible",
-            "description": "If true, only OSD eligible rules will be sent.",
-            "in": "query",
+            "description": "A comma separated list of cluster IDs. Each ID must conform to UUID format.",
+            "required": true,
             "schema": {
-              "type": "boolean",
-              "default": false
+              "$ref": "#/components/schemas/clusterList"
             },
-            "required": false
-          },
-          {
-            "name": "get_disabled",
-            "description": "If true, disabled rules will be sent too.",
-            "in": "query",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "required": false
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
           }
         ],
         "responses": {
           "200": {
+            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/reportResponse"
+                  "$ref": "#/components/schemas/reportsResponse"
                 }
               }
-            },
-            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster."
+            }
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
           }
-        },
-        "deprecated": false,
-        "operationId": "getReportForCluster",
-        "summary": "Returns the latest insights report for a cluster.",
-        "description": "The report is specified by the cluster ID from params and information about the org_id and user_id is taken from the token. The latest report available for the given combination will be returned."
+        }
       }
     },
     "/content": {
@@ -478,20 +463,17 @@
         "tags": [
           "prod"
         ],
+        "operationId": "getContentForRule",
+        "summary": "Get all static content for the given ruleId.",
+        "description": "The static content is taken from the cache periodically updated from the content service.",
         "parameters": [
           {
-            "name": "ruleId",
-            "description": "ID of the rule for which content is required",
-            "schema": {
-              "type": "string",
-              "example": "some.python.module|ERROR_KEY_NAME"
-            },
-            "in": "path",
-            "required": true
+            "$ref": "#/components/parameters/ruleId"
           }
         ],
         "responses": {
           "200": {
+            "description": "A JSON object with the content.",
             "content": {
               "application/json": {
                 "schema": {
@@ -607,10 +589,10 @@
                   }
                 }
               }
-            },
-            "description": "A JSON object with the content."
+            }
           },
           "404": {
+            "description": "Rule ID is not available",
             "content": {
               "application/json": {
                 "schema": {
@@ -623,10 +605,10 @@
                   }
                 }
               }
-            },
-            "description": "Rule ID is not available"
+            }
           },
           "503": {
+            "description": "Content service is unavailable.",
             "content": {
               "application/json": {
                 "schema": {
@@ -639,13 +621,9 @@
                   }
                 }
               }
-            },
-            "description": "Content service is unavailable."
+            }
           }
-        },
-        "operationId": "getContentForRule",
-        "summary": "Get all static content for the given ruleId.",
-        "description": "The static content is taken from the cache periodically updated from the content service."
+        }
       }
     },
     "/rule/{ruleId}": {
@@ -655,14 +633,7 @@
         ],
         "parameters": [
           {
-            "name": "ruleId",
-            "description": "ID of the rule for which content is required",
-            "schema": {
-              "type": "string",
-              "example": "some.python.module|ERROR_KEY_NAME"
-            },
-            "in": "path",
-            "required": true
+            "$ref": "#/components/parameters/ruleId"
           }
         ],
         "responses": {
@@ -885,10 +856,10 @@
                                 "description": "An human-readable name for the cluster",
                                 "example": "Production cluster 1"
                               },
-			      "last_checked_at": {
-				"format": "date-time",
-			       	"type": "string"
-			      }
+                              "last_checked_at": {
+                                "format": "date-time",
+                                "type": "string"
+                              }
                             }
                           }
                         },
@@ -898,7 +869,7 @@
                           "items": {
                             "type": "object",
                             "properties": {
-                              "cluster": {
+                              "cluster_id": {
                                 "type": "string",
                                 "minLength": 36,
                                 "maxLength": 36,
@@ -1144,11 +1115,6 @@
         "description": "",
         "type": "object",
         "properties": {
-          "cluster_name": {
-            "type": "string",
-            "description": "An human-readable name for the cluster",
-            "example": "Production cluster 1"
-          },
           "count": {
             "format": "int32",
             "type": "integer"
@@ -1159,7 +1125,6 @@
           }
         },
         "example": {
-          "cluster_name": "Production cluster 1",
           "count": 9,
           "last_checked_at": "2020-12-08T09:45:23Z"
         }
@@ -1174,6 +1139,138 @@
           },
           "status": {
             "description": "",
+            "type": "string"
+          }
+        }
+      },
+      "reportsResponse": {
+        "description": "Reports for a set of clusters",
+        "type": "object",
+        "properties": {
+          "clusters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "errors": {
+            "type": "string",
+            "nullable": true
+          },
+          "reports": {
+            "type": "object",
+            "additionalProperties": {
+              "description": "",
+              "type": "object",
+              "properties": {
+                "analysis_metadata": {
+                  "type": "object",
+                  "properties": {
+                    "execution_context": {
+                      "description": "",
+                      "type": "string"
+                    },
+                    "finish": {
+                      "format": "date-time",
+                      "description": "",
+                      "type": "string"
+                    },
+                    "plugin_sets": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "commit": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "version": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "example": {
+                        "insights-core": {
+                          "commit": "placeholder",
+                          "version": "insights-core-3.0.176-1"
+                        }
+                      }
+                    },
+                    "start": {
+                      "format": "date-time",
+                      "description": "",
+                      "type": "string"
+                    }
+                  }
+                },
+                "fingerprints": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "info": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reportsComponent"
+                  }
+                },
+                "reports": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reportsComponent"
+                  }
+                },
+                "skips": {
+                  "type": "array",
+                  "items": {
+                    "title": "Root Type for reportsSkipsDetails",
+                    "type": "object",
+                    "properties": {
+                      "details": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": "string"
+                      },
+                      "rule_fqdn": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "example": {
+                      "details": "All: ['ccx_rules_ocp.external.rules.container_max_root_partition_size.check_container_runtime_config'] Any: ",
+                      "reason": "MISSING_REQUIREMENTS",
+                      "rule_fqdn": "ccx_rules_ocp.external.rules.container_max_root_partition_size.report",
+                      "type": "skip"
+                    }
+                  }
+                },
+                "system": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "metadata": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "generated_at": {
+            "type": "string"
+          },
+          "status": {
             "type": "string"
           }
         }
@@ -1259,7 +1356,7 @@
             },
             "impacted_clusters_count": {
               "type": "integer",
-              "description": "The number of clusters impacted by this rule. When the user disables a rule for a specific cluster, this cluster is no longer considered to be impacted.",
+              "description": "The number of clusters impacted by this rule.",
               "example": 42
             }
           },
@@ -1452,9 +1549,9 @@
           },
           "updated_at": {
             "type": "string",
-            "format": "date-time",
             "description": "Timestamp when the rule justification has been changed (can be empty)",
-            "example": "2021-09-05T16:29:33+02:00"
+            "example": "2021-09-05T16:29:33+02:00",
+            "default": ""
           }
         }
       },
@@ -1475,6 +1572,50 @@
           }
         }
       },
+      "reportsComponent": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "component": {
+            "description": "",
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          },
+          "info_id": {
+            "type": "string"
+          },
+          "key": {
+            "description": "",
+            "type": "string"
+          },
+          "rule_id": {
+            "description": "",
+            "type": "string"
+          },
+          "tags": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "description": "",
+            "type": "string"
+          },
+          "links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                  "type": "string"
+                }
+            }
+          }
+        }
+      },
       "ratingSchema": {
         "description": "",
         "type": "object",
@@ -1486,6 +1627,18 @@
             "type": "integer"
           }
         }
+      }
+    },
+    "parameters": {
+      "ruleId": {
+        "name": "ruleId",
+        "in": "path",
+        "description": "ID of the rule for which content is required.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "some.python.module|ERROR_KEY_NAME"
       }
     }
   }
