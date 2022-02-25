@@ -67,7 +67,7 @@
         }
       }
     },
-    "/clusters/{clusterList}/reports": {
+    "/cluster/{clusterList}/reports": {
       "get": {
         "tags": [
           "prod"
