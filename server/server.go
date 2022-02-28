@@ -888,6 +888,7 @@ func (server HTTPServer) buildReportEndpointResponse(
 	systemWideRuleDisables := generateRuleAckMap(acks)
 
 	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables)
+	log.Info().Msgf("Cluster ID: %v; visible rules %v, no content rules %d, disabled rules %d", clusterID, visibleRules, noContentRulesCnt, disabledRulesCnt)
 
 	if err != nil {
 		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
@@ -1253,6 +1254,7 @@ func isDisabledForOrgRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabled
 				aggregatorRule.ErrorKey,
 			),
 		)
+		log.Info().Msgf("org-wide disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 		return systemWideDisabledRules[selector]
 	}
 	return false
@@ -1260,6 +1262,7 @@ func isDisabledForOrgRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabled
 
 func isDisabledRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
 	if aggregatorRule.Disabled {
+		log.Info().Msgf("on report disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 		return true
 	}
 	return isDisabledForOrgRule(aggregatorRule, systemWideDisabledRules)
@@ -1282,6 +1285,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 
 	for _, aggregatorRule := range aggregatorReport {
 		if !getDisabled && isDisabledRule(aggregatorRule, systemWideDisabledRules) {
+			log.Info().Msgf("disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 			disabledRulesCnt++
 			continue
 		}
@@ -1289,6 +1293,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		rule, filtered, err := content.FetchRuleContent(aggregatorRule, filterOSD)
 		if err != nil {
 			if !filtered {
+				log.Info().Msgf("no content rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 				noContentRulesCnt++
 			}
 			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
@@ -1300,12 +1305,14 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		}
 
 		if filtered {
+			log.Info().Msgf("osd filtered rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 			continue
 		}
 
 		okRules = append(okRules, *rule)
 	}
 
+	log.Info().Msgf("ok rules [%v]", okRules)
 	return
 }
 
