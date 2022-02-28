@@ -1,3 +1,5 @@
 run:
     skip-files:
         - export_test.go
+        - server/router_utils.go
+        - server/server.go
