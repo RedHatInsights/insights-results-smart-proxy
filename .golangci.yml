@@ -1,0 +1,3 @@
+run:
+    skip-files:
+        - export_test.go
