@@ -76,7 +76,7 @@ func (server HTTPServer) getContentForRuleV1(writer http.ResponseWriter, request
 	}
 
 	// check for internal rule permissions
-	if internal := content.IsRuleInternal(ruleID); internal == true {
+	if internal := content.IsRuleInternal(ruleID); internal {
 		err := server.checkInternalRulePermissions(request)
 		if err != nil {
 			handleServerError(writer, err)
@@ -131,7 +131,6 @@ func (server HTTPServer) getClustersForOrg(writer http.ResponseWriter, request *
 	}
 
 	server.proxyTo(server.ServicesConfig.AggregatorBaseEndpoint, nil)(writer, request)
-	return
 }
 
 // getRuleIDs returns a list of the names of the rules

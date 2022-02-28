@@ -66,9 +66,6 @@ const (
 	// orgIDTag represent the tags for printing orgID in the logs
 	orgIDTag = "orgID"
 
-	// clusterIDTad represent the tags for printing clusterID in the logs
-	clusterIDTad = "clusterID"
-
 	// userIDTag represent the tags for printing user ID (account number) in the logs
 	userIDTag = "userID"
 

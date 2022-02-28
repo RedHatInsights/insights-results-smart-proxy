@@ -72,7 +72,6 @@ var (
 	invalidJWTAuthBearer      = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOjEsImp0aSI6IjA1NDQzYjk5LWQ4MjQtNDgwYi1hNGJlLTM3OTc3NDA1ZjA5MyIsImlhdCI6MTU5NDEyNjM0MCwiZXhwIjoxNTk0MTQxODQ3fQ.GndJUWNaG4IWm8OkKBs_1uvD1-vaJqL2Xvf9QiGvlRw"
 	userIDOnGoodJWTAuthBearer = 5213476
 	testTimeStr               = "2021-01-02T15:04:05Z"
-	testTime, _               = time.Parse("2006-01-02T15:04:05Z", testTimeStr)
 
 	serverConfigJWT = server.Configuration{
 		Address:                          ":8081",
