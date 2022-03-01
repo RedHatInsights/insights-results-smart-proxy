@@ -21,7 +21,6 @@ package main_test
 import (
 	"os"
 	"testing"
-	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/bmizerany/assert"
@@ -29,10 +28,6 @@ import (
 
 	main "github.com/RedHatInsights/insights-results-smart-proxy"
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
-)
-
-const (
-	testsTimeout = 60 * time.Second
 )
 
 func mustSetEnv(t *testing.T, key, val string) {

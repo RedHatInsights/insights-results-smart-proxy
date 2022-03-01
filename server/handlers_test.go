@@ -1629,7 +1629,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 			"rules":[
 				{
 					"ClusterID": "%v",
-					"RuleID": "%v",
+					"RuleID": "%v.report",
 					"ErrorKey": "%v"
 				}
 			],
@@ -2977,7 +2977,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledRuleSingleCluster(t 
 			"rules":[
 				{
 					"ClusterID": "%v",
-					"RuleID": "%v",
+					"RuleID": "%v.report",
 					"ErrorKey": "%v"
 				}
 			],
@@ -3109,7 +3109,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 			"rules":[
 				{
 					"ClusterID": "%v",
-					"RuleID": "%v",
+					"RuleID": "%v.report",
 					"ErrorKey": "%v"
 				}
 			],
