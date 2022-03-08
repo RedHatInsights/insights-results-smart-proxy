@@ -1207,7 +1207,7 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 }
 
 func TestHTTPServer_setClusterDisplayNameInReportNoAMSClient(t *testing.T) {
-	report := types.SmartProxyReport{}
+	report := types.SmartProxyReportV2{}
 	config := helpers.DefaultServerConfig
 	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
 	testServer.SetClusterDisplayNameInReport(testdata.ClusterName, &report)
@@ -1215,7 +1215,7 @@ func TestHTTPServer_setClusterDisplayNameInReportNoAMSClient(t *testing.T) {
 }
 
 func TestHTTPServer_setClusterDisplayNameInReportAMSClientClusterIDFound(t *testing.T) {
-	report := types.SmartProxyReport{}
+	report := types.SmartProxyReportV2{}
 	config := helpers.DefaultServerConfig
 	// prepare list of organizations response
 	amsClientMock := helpers.AMSClientWithOrgResults(
