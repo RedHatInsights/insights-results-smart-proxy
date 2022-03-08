@@ -261,6 +261,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	tStartImpacting := time.Now()
 	impactingRecommendations, err := server.getImpactingRecommendations(writer, orgID, userID, clusterList)
 	if err != nil {
+		// log cluster list in case of error even though message might be too large for Kibana/zerolog
 		log.Error().
 			Err(err).
 			Int(orgIDTag, int(orgID)).
@@ -381,7 +382,8 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		return
 	}
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
-		"getClustersView list of clusters %s", clusterInfoList)
+		"getClustersView number of clusters before processing %d", len(clusterInfoList),
+	)
 
 	tStartImpacting := time.Now()
 	clusterRecommendationMap, err := server.getClustersAndRecommendations(writer, orgID, userID, types.GetClusterNames(clusterInfoList))

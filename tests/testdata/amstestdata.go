@@ -89,6 +89,33 @@ var (
 		},
 	}
 
+	// SubscriptionsResponseEmptyClusterIDs contains a valid response for subscription from AMS, 3 clusters,
+	// but 2 of them are expected to be filtered out, even if they have display name and internal ID,
+	// as they don't have the external_cluster_id
+	SubscriptionsResponseEmptyClusterIDs map[string]interface{} = map[string]interface{}{
+		"kind":  "SubscriptionList",
+		"page":  1,
+		"size":  2,
+		"total": 2,
+		"items": []map[string]interface{}{
+			{
+				"display_name":        ClusterDisplayName1,
+				"external_cluster_id": ClusterName1,
+				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
+			},
+			{
+				"display_name":        ClusterDisplayName2,
+				"external_cluster_id": "",
+				"id":                  "1QfQ9bR7LTDz24YzfFmaCdeBf86",
+			},
+			{
+				"display_name":        "",
+				"external_cluster_id": "",
+				"id":                  "", // cover edge case condition
+			},
+		},
+	}
+
 	// SubscriptionEmptyResponse contains a valid response for subscription from AMS, 0 clusters
 	SubscriptionEmptyResponse map[string]interface{} = map[string]interface{}{
 		"kind":  "SubscriptionList",

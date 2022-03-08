@@ -228,11 +228,12 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 
 		for _, item := range response.Items().Slice() {
 			clusterIDstr, ok := item.GetExternalClusterID()
-			if !ok {
+			// we could exclude empty external_cluster_id in the query, but we want to log these special clusters
+			if !ok || clusterIDstr == "" {
 				if id, ok := item.GetID(); ok {
-					log.Info().Str("IntClusterID", id).Msg("Not external cluster ID")
+					log.Warn().Str("InternalClusterID", id).Msg("cluster has no external ID")
 				} else {
-					log.Info().Msg("Not external cluster ID")
+					log.Error().Msgf("No external or internal cluster ID. Cluster [%v]", item)
 				}
 
 				continue

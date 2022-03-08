@@ -885,7 +885,7 @@ func (server HTTPServer) buildReportEndpointResponse(
 	systemWideRuleDisables := generateRuleAckMap(acks)
 
 	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables)
-	log.Info().Msgf("Cluster ID: %v; visible rules %v, no content rules %d, disabled rules %d", clusterID, visibleRules, noContentRulesCnt, disabledRulesCnt)
+	log.Info().Msgf("Cluster ID: %v; visible rules %d, no content rules %d, disabled rules %d", clusterID, len(visibleRules), noContentRulesCnt, disabledRulesCnt)
 
 	if err != nil {
 		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
@@ -1308,7 +1308,6 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		okRules = append(okRules, *rule)
 	}
 
-	log.Info().Msgf("ok rules [%v]", okRules)
 	return
 }
 

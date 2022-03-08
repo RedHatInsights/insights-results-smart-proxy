@@ -249,6 +249,68 @@ func TestClusterForOrganizationWithDefaultFiltering(t *testing.T) {
 	assert.Equal(t, 2, len(clusterList))
 }
 
+func TestClusterForOrganizationWithEmptyClusterIDs(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponse),
+	})
+
+	// prepare cluster list requests. Response has 2 invalid clusters and 1 valid one
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			1, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponseEmptyClusterIDs),
+	})
+	// second and more requests will be done until the last one returns an empty response (0 sized)
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			2, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterList, err := c.GetClustersForOrganization(
+		testdata.ExternalOrgID,
+		nil,
+		nil,
+	)
+
+	helpers.FailOnError(t, err)
+	// we expect 2 out of 3 clusters to be excluded because they don't have external cluster ID
+	assert.Equal(t, 1, len(clusterList))
+}
+
 func TestGetClustersForOrganizationOnError(t *testing.T) {
 	client, err := amsclient.NewAMSClient(defaultConfig)
 	helpers.FailOnError(t, err) // Doesn't fail because ocm-sdk doesn't perform any checks
