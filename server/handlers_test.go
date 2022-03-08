@@ -128,6 +128,15 @@ var (
 	v1Report1RuleNoContent = types.SmartProxyReportV1{
 		Meta: types.ReportResponseMetaV1{
 			Count:         0,
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
+		},
+		Data: []types.RuleWithContentResponse{},
+	}
+
+	v2Report1RuleNoContent = types.SmartProxyReportV2{
+		Meta: types.ReportResponseMetaV2{
+			DisplayName:   string(testdata.ClusterName),
+			Count:         0,
 			LastCheckedAt: "",
 		},
 		Data: []types.RuleWithContentResponse{},
@@ -139,6 +148,14 @@ var (
 	}{
 		Status: "ok",
 		Report: &v1Report1RuleNoContent,
+	}
+
+	SmartProxyV2ReportResponse1RuleNoContent = struct {
+		Status string                    `json:"status"`
+		Report *types.SmartProxyReportV2 `json:"report"`
+	}{
+		Status: "ok",
+		Report: &v2Report1RuleNoContent,
 	}
 
 	v1ReportEmptyCount2 = types.SmartProxyReportV1{
@@ -352,10 +369,6 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t)
 
-		expectedJSONBody := helpers.ToJSONString(SmartProxyV1ReportResponse1RuleNoContent)
-		// last_checked_at is omitted from the JSON as it is empty
-		assert.Equal(t, `{"status":"ok","report":{"meta":{"count":0},"data":[]}}`, expectedJSONBody)
-
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -363,6 +376,62 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 			EndpointArgs: []interface{}{testdata.ClusterName},
 			UserID:       testdata.UserID,
 			OrgID:        testdata.OrgID,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse1RuleNoContent),
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 0)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, userIDOnGoodJWTAuthBearer},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report1RuleExpectedResponse,
+		})
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ResponseNoRulesDisabledSystemWide,
+		})
+
+		expectedJSONBody := helpers.ToJSONString(SmartProxyV2ReportResponse1RuleNoContent)
+		// last_checked_at is omitted from the JSON as it is empty
+		expectedJSON := fmt.Sprintf(`{"status":"ok","report":{"meta":{"cluster_name":"%v","count":0},"data":[]}}`, testdata.ClusterName)
+		assert.Equal(t, expectedJSON, expectedJSONBody)
+
+		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpointV2,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       expectedJSONBody,

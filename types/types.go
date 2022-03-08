@@ -110,6 +110,13 @@ type RecommendationContentUserData struct {
 // ReportResponseMetaV1 contains metadata for /report endpoint in v1
 type ReportResponseMetaV1 struct {
 	Count         int       `json:"count"`
+	LastCheckedAt Timestamp `json:"last_checked_at"`
+}
+
+// ReportResponseMetaV2 contains metadata for /report endpoint in v2
+type ReportResponseMetaV2 struct {
+	DisplayName   string    `json:"cluster_name"`
+	Count         int       `json:"count"`
 	LastCheckedAt Timestamp `json:"last_checked_at,omitempty"`
 }
 
@@ -117,6 +124,13 @@ type ReportResponseMetaV1 struct {
 // This structure exists to make sure we comply with the previous API used by some clients
 type SmartProxyReportV1 struct {
 	Meta ReportResponseMetaV1      `json:"meta"`
+	Data []RuleWithContentResponse `json:"data"`
+}
+
+// SmartProxyReportV2 represents the response of /report (V2) endpoint for smart proxy
+// This structure exists to make sure we comply with the previous API used by some clients
+type SmartProxyReportV2 struct {
+	Meta ReportResponseMetaV2      `json:"meta"`
 	Data []RuleWithContentResponse `json:"data"`
 }
 
