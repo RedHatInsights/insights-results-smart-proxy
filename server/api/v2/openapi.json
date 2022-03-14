@@ -1122,6 +1122,10 @@
           "last_checked_at": {
             "format": "date-time",
             "type": "string"
+          },
+          "gathered_at": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "example": {

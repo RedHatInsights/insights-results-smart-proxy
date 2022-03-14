@@ -942,6 +942,7 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 		writer, request, aggregatorResponse, clusterID); err == nil {
 		if report.Meta.Count != 0 {
 			report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
+			report.Meta.GatheredAt = aggregatorResponse.Meta.GatheredAt
 		}
 		sendReportReponse(writer, report)
 	}

@@ -118,6 +118,7 @@ type ReportResponseMetaV2 struct {
 	DisplayName   string    `json:"cluster_name"`
 	Count         int       `json:"count"`
 	LastCheckedAt Timestamp `json:"last_checked_at,omitempty"`
+	GatheredAt    Timestamp `json:"gathered_at,omitempty"`
 }
 
 // SmartProxyReportV1 represents the response of /report (V1) endpoint for smart proxy
