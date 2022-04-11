@@ -72,6 +72,7 @@ var (
 	invalidJWTAuthBearer      = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOjEsImp0aSI6IjA1NDQzYjk5LWQ4MjQtNDgwYi1hNGJlLTM3OTc3NDA1ZjA5MyIsImlhdCI6MTU5NDEyNjM0MCwiZXhwIjoxNTk0MTQxODQ3fQ.GndJUWNaG4IWm8OkKBs_1uvD1-vaJqL2Xvf9QiGvlRw"
 	userIDOnGoodJWTAuthBearer = 5213476
 	testTimeStr               = "2021-01-02T15:04:05Z"
+	testTimestamp             = types.Timestamp(testTimeStr)
 
 	serverConfigJWT = server.Configuration{
 		Address:                          ":8081",
@@ -920,14 +921,40 @@ var (
 			{
 				ClusterID:       "",
 				ClusterName:     "",
-				LastCheckedAt:   testTimeStr,
+				LastCheckedAt:   testTimestamp,
 				TotalHitCount:   0,
 				HitsByTotalRisk: map[int]int{},
 			},
 			{
 				ClusterID:       "",
 				ClusterName:     "",
-				LastCheckedAt:   testTimeStr,
+				LastCheckedAt:   testTimestamp,
+				TotalHitCount:   0,
+				HitsByTotalRisk: map[int]int{},
+			},
+		},
+	}
+
+	// cluster data filled in in test cases, last_checked_at is empty and thus ommitted
+	GetClustersResponse2ClusterNoArchiveInDB = struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}{
+		Meta: map[string]interface{}{
+			"count": 2,
+		},
+		Status: "ok",
+		Clusters: []types.ClusterListView{
+			{
+				ClusterID:       "",
+				ClusterName:     "",
+				TotalHitCount:   0,
+				HitsByTotalRisk: map[int]int{},
+			},
+			{
+				ClusterID:       "",
+				ClusterName:     "",
 				TotalHitCount:   0,
 				HitsByTotalRisk: map[int]int{},
 			},
@@ -948,7 +975,7 @@ var (
 			{
 				ClusterID:     "",
 				ClusterName:   "",
-				LastCheckedAt: testTimeStr,
+				LastCheckedAt: testTimestamp,
 				TotalHitCount: 1,
 				// HitsByTotalRisk always has all unique total risks to have consistent response
 				HitsByTotalRisk: map[int]int{
@@ -959,7 +986,7 @@ var (
 			{
 				ClusterID:     "",
 				ClusterName:   "",
-				LastCheckedAt: testTimeStr,
+				LastCheckedAt: testTimestamp,
 				TotalHitCount: 2,
 				HitsByTotalRisk: map[int]int{
 					1: 0,
@@ -983,7 +1010,7 @@ var (
 			{
 				ClusterID:     "",
 				ClusterName:   "",
-				LastCheckedAt: testTimeStr,
+				LastCheckedAt: testTimestamp,
 				TotalHitCount: 0,
 				// HitsByTotalRisk always has all unique total risks to have consistent response
 				HitsByTotalRisk: map[int]int{
@@ -994,7 +1021,7 @@ var (
 			{
 				ClusterID:     "",
 				ClusterName:   "",
-				LastCheckedAt: testTimeStr,
+				LastCheckedAt: testTimestamp,
 				TotalHitCount: 1,
 				HitsByTotalRisk: map[int]int{
 					1: 0,
@@ -1018,7 +1045,7 @@ var (
 			{
 				ClusterID:     "",
 				ClusterName:   "",
-				LastCheckedAt: testTimeStr,
+				LastCheckedAt: testTimestamp,
 				TotalHitCount: 1,
 				// HitsByTotalRisk always has all unique total risks to have consistent response
 				HitsByTotalRisk: map[int]int{
@@ -1029,7 +1056,7 @@ var (
 			{
 				ClusterID:     "",
 				ClusterName:   "",
-				LastCheckedAt: testTimeStr,
+				LastCheckedAt: testTimestamp,
 				TotalHitCount: 1,
 				HitsByTotalRisk: map[int]int{
 					1: 0,

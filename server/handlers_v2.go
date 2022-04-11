@@ -465,7 +465,9 @@ func matchClusterInfoAndUserData(
 
 		// check if there are any hitting recommendations
 		if hittingRecommendations, any := clusterRecommendationsMap[clusterViewItem.ClusterID]; any {
-			clusterViewItem.LastCheckedAt = hittingRecommendations.CreatedAt.UTC().Format(time.RFC3339)
+			clusterViewItem.LastCheckedAt = types.Timestamp(
+				hittingRecommendations.CreatedAt.UTC().Format(time.RFC3339),
+			)
 
 			// filter out acked and disabled rules
 			enabledOnlyRecommendations := filterOutDisabledRules(
