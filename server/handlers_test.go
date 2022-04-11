@@ -137,7 +137,7 @@ var (
 		Meta: types.ReportResponseMetaV2{
 			DisplayName:   string(testdata.ClusterName),
 			Count:         0,
-			LastCheckedAt: "",
+			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
 		Data: []types.RuleWithContentResponse{},
 	}
@@ -420,9 +420,6 @@ func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
 		})
 
 		expectedJSONBody := helpers.ToJSONString(SmartProxyV2ReportResponse1RuleNoContent)
-		// last_checked_at is omitted from the JSON as it is empty
-		expectedJSON := fmt.Sprintf(`{"status":"ok","report":{"meta":{"cluster_name":"%v","count":0},"data":[]}}`, testdata.ClusterName)
-		assert.Equal(t, expectedJSON, expectedJSONBody)
 
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
@@ -2719,7 +2716,90 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
-			resp.Clusters[i].LastCheckedAt = testTimeStr
+			resp.Clusters[i].LastCheckedAt = testTimestamp
+		}
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersRecommendationsEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(resp),
+			BodyChecker: clusterInResponseChecker,
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		respBody := `{
+			"clusters":{
+			}
+		}`
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
+
+		disabledRulesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRules,
+				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledRulesBody,
+			},
+		)
+
+		resp := GetClustersResponse2ClusterNoArchiveInDB
+		for i := range clusterInfoList {
+			// cluster display name is filled, but last_checked_at is ommitted
+			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
+			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
 		}
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
