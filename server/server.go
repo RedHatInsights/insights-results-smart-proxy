@@ -938,12 +938,13 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 	server.SetClusterDisplayNameInReport(clusterID, &report)
 
 	var err error
+
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
 		writer, request, aggregatorResponse, clusterID); err == nil {
-		if report.Meta.Count != 0 {
-			report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
-			report.Meta.GatheredAt = aggregatorResponse.Meta.GatheredAt
-		}
+
+		// fill in timestamps
+		report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
+		report.Meta.GatheredAt = aggregatorResponse.Meta.GatheredAt
 		sendReportReponse(writer, report)
 	}
 }

@@ -212,7 +212,7 @@ type RecommendationListView struct {
 type ClusterListView struct {
 	ClusterID       types.ClusterName `json:"cluster_id"`
 	ClusterName     string            `json:"cluster_name"`
-	LastCheckedAt   string            `json:"last_checked_at"`
+	LastCheckedAt   Timestamp         `json:"last_checked_at,omitempty"`
 	TotalHitCount   uint32            `json:"total_hit_count"`
 	HitsByTotalRisk map[int]int       `json:"hits_by_total_risk"`
 }
