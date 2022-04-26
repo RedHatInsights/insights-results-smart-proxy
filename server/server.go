@@ -835,12 +835,13 @@ func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	return aggregatorResponse, true
 }
 
-// SetClusterDisplayNameInReport tries to retrieve the display name of the cluster using
+// SetAMSInfoInReport tries to retrieve the display name and managed status of the cluster using
 // the configured AMS client. If no info is retrieved, it sets the cluster's external
 // ID as display name.
-func (server HTTPServer) SetClusterDisplayNameInReport(clusterID types.ClusterName, report *types.SmartProxyReportV2) {
+func (server HTTPServer) SetAMSInfoInReport(clusterID types.ClusterName, report *types.SmartProxyReportV2) {
 	if server.amsClient != nil {
 		clusterInfo := server.amsClient.GetClusterDetailsFromExternalClusterID(clusterID)
+		report.Meta.Managed = clusterInfo.Managed
 		if clusterInfo.DisplayName != "" {
 			report.Meta.DisplayName = clusterInfo.DisplayName
 			return
@@ -935,7 +936,7 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 
 	report := types.SmartProxyReportV2{}
 
-	server.SetClusterDisplayNameInReport(clusterID, &report)
+	server.SetAMSInfoInReport(clusterID, &report)
 
 	var err error
 

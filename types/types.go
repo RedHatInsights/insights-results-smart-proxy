@@ -116,6 +116,7 @@ type ReportResponseMetaV1 struct {
 // ReportResponseMetaV2 contains metadata for /report endpoint in v2
 type ReportResponseMetaV2 struct {
 	DisplayName   string    `json:"cluster_name"`
+	Managed       bool      `json:"managed"`
 	Count         int       `json:"count"`
 	LastCheckedAt Timestamp `json:"last_checked_at,omitempty"`
 	GatheredAt    Timestamp `json:"gathered_at,omitempty"`
@@ -212,6 +213,7 @@ type RecommendationListView struct {
 type ClusterListView struct {
 	ClusterID       types.ClusterName `json:"cluster_id"`
 	ClusterName     string            `json:"cluster_name"`
+	Managed         bool              `json:"managed"`
 	LastCheckedAt   Timestamp         `json:"last_checked_at,omitempty"`
 	TotalHitCount   uint32            `json:"total_hit_count"`
 	HitsByTotalRisk map[int]int       `json:"hits_by_total_risk"`

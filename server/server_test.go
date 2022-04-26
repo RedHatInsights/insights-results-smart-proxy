@@ -1233,15 +1233,15 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_setClusterDisplayNameInReportNoAMSClient(t *testing.T) {
+func TestHTTPServer_SetAMSInfoInReportNoAMSClient(t *testing.T) {
 	report := types.SmartProxyReportV2{}
 	config := helpers.DefaultServerConfig
 	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
-	testServer.SetClusterDisplayNameInReport(testdata.ClusterName, &report)
+	testServer.SetAMSInfoInReport(testdata.ClusterName, &report)
 	assert.Equal(t, string(testdata.ClusterName), report.Meta.DisplayName)
 }
 
-func TestHTTPServer_setClusterDisplayNameInReportAMSClientClusterIDFound(t *testing.T) {
+func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 	report := types.SmartProxyReportV2{}
 	config := helpers.DefaultServerConfig
 	// prepare list of organizations response
@@ -1250,7 +1250,7 @@ func TestHTTPServer_setClusterDisplayNameInReportAMSClientClusterIDFound(t *test
 		data.ClusterInfoResult,
 	)
 	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil)
-	testServer.SetClusterDisplayNameInReport(testdata.ClusterName, &report)
+	testServer.SetAMSInfoInReport(testdata.ClusterName, &report)
 	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }
 

@@ -133,10 +133,11 @@ var (
 		Data: []types.RuleWithContentResponse{},
 	}
 
-	v2Report1RuleNoContent = types.SmartProxyReportV2{
+	v2ReportNoContent = types.SmartProxyReportV2{
 		Meta: types.ReportResponseMetaV2{
 			DisplayName:   string(testdata.ClusterName),
 			Count:         0,
+			Managed:       false,
 			LastCheckedAt: types.Timestamp(testdata.LastCheckedAt.UTC().Format(time.RFC3339)),
 		},
 		Data: []types.RuleWithContentResponse{},
@@ -155,7 +156,7 @@ var (
 		Report *types.SmartProxyReportV2 `json:"report"`
 	}{
 		Status: "ok",
-		Report: &v2Report1RuleNoContent,
+		Report: &v2ReportNoContent,
 	}
 
 	v1ReportEmptyCount2 = types.SmartProxyReportV1{
@@ -426,6 +427,63 @@ func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
 			Method:             http.MethodGet,
 			Endpoint:           server.ReportEndpointV2,
 			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       expectedJSONBody,
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReportEndpointV2TestAMSData(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := data.GetRandomClusterInfoList(3)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, clusterInfoList[0].ID, userIDOnGoodJWTAuthBearer},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report1RuleExpectedResponse,
+		})
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ResponseNoRulesDisabledSystemWide,
+		})
+
+		resp := SmartProxyV2ReportResponse1RuleNoContent
+		resp.Report.Meta.DisplayName = clusterInfoList[0].DisplayName
+		resp.Report.Meta.Managed = clusterInfoList[0].Managed
+
+		expectedJSONBody := helpers.ToJSONString(resp)
+
+		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpointV2,
+			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
 			UserID:             types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
 			OrgID:              testdata.OrgID,
 			AuthorizationToken: goodJWTAuthBearer,
@@ -2558,10 +2616,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *t
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]types.ClusterInfo, 2)
-		for i := range clusterInfoList {
-			clusterInfoList[i] = data.GetRandomClusterInfo()
-		}
+		clusterInfoList := data.GetRandomClusterInfoList(2)
 
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
@@ -2620,6 +2675,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *t
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 			resp.Clusters[i].LastCheckedAt = "" // will be empty because we don't have the cluster in our DB
 		}
 
@@ -2641,10 +2697,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]types.ClusterInfo, 2)
-		for i := range clusterInfoList {
-			clusterInfoList[i] = data.GetRandomClusterInfo()
-		}
+		clusterInfoList := data.GetRandomClusterInfoList(2)
 
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
@@ -2716,6 +2769,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 			resp.Clusters[i].LastCheckedAt = testTimestamp
 		}
 
@@ -2736,10 +2790,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]types.ClusterInfo, 2)
-		for i := range clusterInfoList {
-			clusterInfoList[i] = data.GetRandomClusterInfo()
-		}
+		clusterInfoList := data.GetRandomClusterInfoList(2)
 
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
@@ -2800,6 +2851,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
 			// cluster display name is filled, but last_checked_at is ommitted
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
@@ -2833,10 +2885,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]types.ClusterInfo, 2)
-		for i := range clusterInfoList {
-			clusterInfoList[i] = data.GetRandomClusterInfo()
-		}
+		clusterInfoList := data.GetRandomClusterInfoList(2)
 
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
@@ -2910,6 +2959,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
@@ -2943,10 +2993,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]types.ClusterInfo, 2)
-		for i := range clusterInfoList {
-			clusterInfoList[i] = data.GetRandomClusterInfo()
-		}
+		clusterInfoList := data.GetRandomClusterInfoList(2)
 
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
@@ -3028,6 +3075,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule(t *testing.T) {
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
@@ -3061,10 +3109,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledRuleSingleCluster(t 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]types.ClusterInfo, 2)
-		for i := range clusterInfoList {
-			clusterInfoList[i] = data.GetRandomClusterInfo()
-		}
+		clusterInfoList := data.GetRandomClusterInfoList(2)
 
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
@@ -3150,6 +3195,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledRuleSingleCluster(t 
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
@@ -3183,10 +3229,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := make([]types.ClusterInfo, 2)
-		for i := range clusterInfoList {
-			clusterInfoList[i] = data.GetRandomClusterInfo()
-		}
+		clusterInfoList := data.GetRandomClusterInfoList(2)
 
 		clusterList := types.GetClusterNames(clusterInfoList)
 		reqBody, _ := json.Marshal(clusterList)
@@ -3282,6 +3325,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 		for i := range clusterInfoList {
 			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
 			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
