@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
-	"github.com/bmizerany/assert"
+	"github.com/stretchr/testify/assert"
 	testify "github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/insights-results-smart-proxy"
