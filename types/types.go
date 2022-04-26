@@ -247,8 +247,9 @@ type InfoResponse struct {
 
 // ClusterInfo is a data structure containing some relevant cluster information
 type ClusterInfo struct {
-	ID          ClusterName
-	DisplayName string
+	ID          ClusterName `json:"cluster_id"`
+	DisplayName string      `json:"display_name"`
+	Managed     bool        `json:"managed"`
 }
 
 // ClustersDetailData is the inner data structure for /clusters_detail

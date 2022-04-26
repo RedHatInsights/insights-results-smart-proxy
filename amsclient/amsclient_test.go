@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bmizerany/assert"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
@@ -34,13 +34,13 @@ import (
 const (
 	organizationsSearchEndpoint = "api/accounts_mgmt/v1/organizations?fields=id%%2Cexternal_id&search=external_id+%%3D+{orgID}"
 
-	subscriptionsSearchEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
+	subscriptionsSearchEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged&page={pageNum}&" +
 		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27&size={pageSize}")
-	subscriptionsSearchEndpointWithFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
+	subscriptionsSearchEndpointWithFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged&page={pageNum}&" +
 		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%29&size={pageSize}")
-	subscriptionsSearchEndpointWithDefaultFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
+	subscriptionsSearchEndpointWithDefaultFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged&page={pageNum}&" +
 		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+not+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%2C%%27{status3}%%27%%29&size={pageSize}")
-	clusterDetailsSearchEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id&page={pageNum}&" +
+	clusterDetailsSearchEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged&page={pageNum}&" +
 		"search=external_cluster_id+%%3D+%%27{clusterID}%%27&size={pageSize}")
 )
 
@@ -133,6 +133,7 @@ func TestClusterForOrganization(t *testing.T) {
 	clusterList, err := c.GetClustersForOrganization(testdata.ExternalOrgID, nil, []string{})
 	helpers.FailOnError(t, err)
 	assert.Equal(t, 2, len(clusterList))
+	assert.ElementsMatch(t, testdata.OKClustersForOrganization, clusterList)
 }
 
 func TestClusterForOrganizationWithFiltering(t *testing.T) {
@@ -186,6 +187,7 @@ func TestClusterForOrganizationWithFiltering(t *testing.T) {
 
 	helpers.FailOnError(t, err)
 	assert.Equal(t, 2, len(clusterList))
+	assert.ElementsMatch(t, testdata.OKClustersForOrganization, clusterList)
 }
 
 func TestClusterForOrganizationWithDefaultFiltering(t *testing.T) {
@@ -247,6 +249,7 @@ func TestClusterForOrganizationWithDefaultFiltering(t *testing.T) {
 
 	helpers.FailOnError(t, err)
 	assert.Equal(t, 2, len(clusterList))
+	assert.ElementsMatch(t, testdata.OKClustersForOrganization, clusterList)
 }
 
 func TestClusterForOrganizationWithEmptyClusterIDs(t *testing.T) {
@@ -309,6 +312,8 @@ func TestClusterForOrganizationWithEmptyClusterIDs(t *testing.T) {
 	helpers.FailOnError(t, err)
 	// we expect 2 out of 3 clusters to be excluded because they don't have external cluster ID
 	assert.Equal(t, 1, len(clusterList))
+	// cluster 1 is managed (has `managed` attribute set in AMS response)
+	assert.Equal(t, true, clusterList[0].Managed)
 }
 
 func TestGetClustersForOrganizationOnError(t *testing.T) {
@@ -353,13 +358,15 @@ func TestGetClusterDetailsFromExternalClusterId(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
 	})
 
-	clusterListInfo := c.GetClusterDetailsFromExternalClusterID(
+	clusterInfo := c.GetClusterDetailsFromExternalClusterID(
 		testdata.ClusterName1,
 	)
 
-	assert.Equal(t, clusterListInfo, types.ClusterInfo{
+	// cluster 1 is managed (has `managed` attribute set in AMS response)
+	assert.Equal(t, clusterInfo, types.ClusterInfo{
 		ID:          testdata.ClusterName1,
 		DisplayName: testdata.ClusterDisplayName1,
+		Managed:     true,
 	})
 }
 

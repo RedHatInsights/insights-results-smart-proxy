@@ -17,6 +17,7 @@ package testdata
 import (
 	"fmt"
 
+	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 	types "github.com/RedHatInsights/insights-results-types"
 )
 
@@ -80,11 +81,13 @@ var (
 				"display_name":        ClusterDisplayName1,
 				"external_cluster_id": ClusterName1,
 				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
+				"managed":             true,
 			},
 			{
 				"display_name":        ClusterDisplayName2,
 				"external_cluster_id": ClusterName2,
 				"id":                  "1YfQLCOCZZOEXgOp8uIbqe5i5z2",
+				"managed":             false,
 			},
 		},
 	}
@@ -102,16 +105,19 @@ var (
 				"display_name":        ClusterDisplayName1,
 				"external_cluster_id": ClusterName1,
 				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
+				"managed":             true,
 			},
 			{
 				"display_name":        ClusterDisplayName2,
 				"external_cluster_id": "",
 				"id":                  "1QfQ9bR7LTDz24YzfFmaCdeBf86",
+				"managed":             false,
 			},
 			{
 				"display_name":        "",
 				"external_cluster_id": "",
 				"id":                  "", // cover edge case condition
+				"managed":             false,
 			},
 		},
 	}
@@ -123,5 +129,19 @@ var (
 		"size":  0,
 		"total": 2,
 		"items": []map[string]interface{}{},
+	}
+
+	// OKClustersForOrganization is the expected OK result of GetClustersForOrganization
+	OKClustersForOrganization []sptypes.ClusterInfo = []sptypes.ClusterInfo{
+		{
+			ID:          ClusterName1,
+			DisplayName: ClusterDisplayName1,
+			Managed:     true,
+		},
+		{
+			ID:          ClusterName2,
+			DisplayName: ClusterDisplayName2,
+			Managed:     false,
+		},
 	}
 )
