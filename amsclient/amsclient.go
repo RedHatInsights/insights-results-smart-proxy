@@ -212,7 +212,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 		subscriptionListRequest = subscriptionListRequest.
 			Size(c.pageSize).
 			Page(pageNum).
-			Fields("external_cluster_id,display_name,cluster_id").
+			Fields("external_cluster_id,display_name,cluster_id,managed").
 			Search(searchQuery)
 
 		response, err := subscriptionListRequest.Send()
@@ -244,10 +244,16 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 				displayName = string(clusterIDstr)
 			}
 
+			managed, ok := item.GetManaged()
+			if !ok {
+				log.Warn().Str(clusterIDTag, clusterIDstr).Msg("cluster has no managed attribute")
+			}
+
 			clusterID := types.ClusterName(clusterIDstr)
 			clusterInfoList = append(clusterInfoList, types.ClusterInfo{
 				ID:          clusterID,
 				DisplayName: displayName,
+				Managed:     managed,
 			})
 		}
 	}

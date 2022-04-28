@@ -455,6 +455,7 @@ func matchClusterInfoAndUserData(
 		clusterViewItem := types.ClusterListView{
 			ClusterID:       clusterInfoList[i].ID,
 			ClusterName:     clusterInfoList[i].DisplayName,
+			Managed:         clusterInfoList[i].Managed,
 			HitsByTotalRisk: make(map[int]int),
 		}
 

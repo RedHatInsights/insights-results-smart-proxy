@@ -110,6 +110,16 @@ func GetRandomClusterInfo() types.ClusterInfo {
 	}
 }
 
+// GetRandomClusterInfoList generates a slice of given length with random clusterInfo. Every other cluster has managed=true
+func GetRandomClusterInfoList(length int) []types.ClusterInfo {
+	clusterInfoList := make([]types.ClusterInfo, length)
+	for i := range clusterInfoList {
+		clusterInfoList[i] = GetRandomClusterInfo()
+		clusterInfoList[i].Managed = i%2 == 0
+	}
+	return clusterInfoList
+}
+
 func whateverToJSONRawMessage(obj interface{}) json.RawMessage {
 	var result json.RawMessage
 
