@@ -250,23 +250,25 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getRecommendations start")
 
-	// get the list of active clusters if AMS API is available, otherwise from our DB
-	clusterList, err := server.readClusterIDsForOrgID(orgID)
+	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msgf("problem reading cluster list for org")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
 		handleServerError(writer, err)
 		return
 	}
+	clusterIDList := types.GetClusterNames(activeClustersInfo)
 
 	tStartImpacting := time.Now()
-	impactingRecommendations, err := server.getImpactingRecommendations(writer, orgID, userID, clusterList)
+	impactingRecommendations, err := server.getImpactingRecommendations(
+		writer, orgID, userID, clusterIDList,
+	)
 	if err != nil {
 		// log cluster list in case of error even though message might be too large for Kibana/zerolog
 		log.Error().
 			Err(err).
 			Int(orgIDTag, int(orgID)).
 			Str(userIDTag, string(userID)).
-			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterList)
+			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterIDList)
 
 		return
 	}
@@ -278,16 +280,17 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	ackedRulesMap := server.getRuleAcksMap(orgID, userID)
 
 	// retrieve user disabled rules for given list of active clusters
-	disabledClustersForRules := server.getRuleDisabledClusters(writer, userID, clusterList)
+	disabledClustersForRules := server.getRuleDisabledClusters(writer, userID, clusterIDList)
 	if err != nil {
 		log.Error().Err(err).Msg("problem getting user disabled rules for list of clusters")
 		// server error has been handled already
 		return
 	}
 
-	recommendationList, err = getRecommendationsFillUserData(
-		impactingRecommendations, impactingFlag, ackedRulesMap, disabledClustersForRules,
+	recommendationList, err = getFilteredRecommendationsList(
+		activeClustersInfo, impactingRecommendations, impactingFlag, ackedRulesMap, disabledClustersForRules,
 	)
+
 	if err != nil {
 		log.Error().Err(err).Msg("problem getting recommendation content")
 		handleServerError(writer, err)
@@ -374,43 +377,17 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	}
 	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
 
-	// get a list of clusters from AMS API
-	clusterInfoList, err := server.readClusterInfoForOrgID(orgID)
-	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
-		handleServerError(writer, err)
-		return
-	}
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
-		"getClustersView number of clusters before processing %d", len(clusterInfoList),
+	clusterList, clusterRuleHits, ackedRulesMap, disabledRules := server.getClusterListAndUserData(
+		writer,
+		orgID,
+		userID,
 	)
-
-	tStartImpacting := time.Now()
-	clusterRecommendationMap, err := server.getClustersAndRecommendations(writer, orgID, userID, types.GetClusterNames(clusterInfoList))
-	if err != nil {
-		log.Error().
-			Err(err).
-			Int(orgIDTag, int(orgID)).
-			Str(userIDTag, string(userID)).
-			Msgf("problem getting clusters and impacting recommendations from aggregator for cluster list: %v", clusterInfoList)
-
-		return
-	}
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
-		"getClustersView getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
-	)
-
-	// get a map of acknowledged rules
-	ackedRulesMap := server.getRuleAcksMap(orgID, userID)
-
-	// retrieve list of cluster IDs and single disabled rules for each cluster
-	disabledRulesPerCluster := server.getUserDisabledRulesPerCluster(userID)
 
 	clusterViewResponse, err := matchClusterInfoAndUserData(
-		clusterInfoList, clusterRecommendationMap, ackedRulesMap, disabledRulesPerCluster,
+		clusterList, clusterRuleHits, ackedRulesMap, disabledRules,
 	)
 	if err != nil {
-		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Msg("error matching cluster list and rule severities")
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Msg("getClustersView error generating cluster list response")
 		handleServerError(writer, err)
 	}
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView final number %v", len(clusterViewResponse))
@@ -450,6 +427,11 @@ func matchClusterInfoAndUserData(
 		return clusterListView, err
 	}
 
+	rulesManagedInfo, err := content.GetExternalRulesManagedInfo()
+	if err != nil {
+		return clusterListView, err
+	}
+
 	// iterates over clusters and their hitting recommendations, accesses map to the get rule severity
 	for i := range clusterInfoList {
 		clusterViewItem := types.ClusterListView{
@@ -477,6 +459,11 @@ func matchClusterInfoAndUserData(
 			)
 
 			for _, ruleID := range enabledOnlyRecommendations {
+				if clusterViewItem.Managed && !rulesManagedInfo[ruleID] {
+					// cluster is managed, therefore must show only managed rules
+					continue
+				}
+
 				if ruleSeverity, found := recommendationSeverities[ruleID]; found {
 					clusterViewItem.HitsByTotalRisk[ruleSeverity]++
 					clusterViewItem.TotalHitCount++
@@ -565,14 +552,14 @@ func generateImpactingRuleIDList(impactingRecommendations ctypes.RecommendationI
 	return
 }
 
-func calculateImpactingClusters(
+func excludeDisabledClusters(
 	impactingClusters []types.ClusterName,
-	disabledclusters []types.ClusterName,
-) (count uint32) {
+	disabledClusters []types.ClusterName,
+) (filteredClusters []types.ClusterName) {
 	for _, impactingID := range impactingClusters {
 		disabled := false
 
-		for _, disabledID := range disabledclusters {
+		for _, disabledID := range disabledClusters {
 			if impactingID == disabledID {
 				disabled = true
 				break
@@ -580,13 +567,14 @@ func calculateImpactingClusters(
 		}
 
 		if !disabled {
-			count++
+			filteredClusters = append(filteredClusters, impactingID)
 		}
 	}
 	return
 }
 
-func getRecommendationsFillUserData(
+func getFilteredRecommendationsList(
+	activeClustersInfo []types.ClusterInfo,
 	impactingRecommendations ctypes.RecommendationImpactedClusters,
 	impactingFlag types.ImpactingFlag,
 	ruleAcksMap map[types.RuleID]bool,
@@ -595,8 +583,10 @@ func getRecommendationsFillUserData(
 	recommendationList []types.RecommendationListView,
 	err error,
 ) {
-	var ruleIDList []ctypes.RuleID
+	clusterInfoMap := types.ClusterInfoArrayToMap(activeClustersInfo)
+	recommendationList = make([]types.RecommendationListView, 0)
 
+	var ruleIDList []ctypes.RuleID
 	if impactingFlag == OnlyImpacting {
 		// retrieve content only for impacting rules
 		ruleIDList = generateImpactingRuleIDList(impactingRecommendations)
@@ -609,14 +599,12 @@ func getRecommendationsFillUserData(
 		}
 	}
 
-	recommendationList = make([]types.RecommendationListView, 0)
-
 	// iterate over rules and count impacted clusters, exluding user disabled ones
 	for _, ruleID := range ruleIDList {
 		var impactedClustersCnt uint32
 
 		// rule has system-wide disabled status if found in the ack map,
-		// but the user can still see number of impacted clusters in the UI, so we need to go on
+		// but the user must be able to see the number of impacted clusters in the UI, so we need to go on
 		_, ruleDisabled := ruleAcksMap[ruleID]
 
 		// get list of impacting clusters
@@ -628,9 +616,7 @@ func getRecommendationsFillUserData(
 
 		// remove any disabled clusters from the total count, if they're impacting
 		if disabledClusters, any := disabledClustersForRules[ruleID]; any {
-			impactedClustersCnt = calculateImpactingClusters(impactingClustersList, disabledClusters)
-		} else {
-			impactedClustersCnt = uint32(len(impactingClustersList))
+			impactingClustersList = excludeDisabledClusters(impactingClustersList, disabledClusters)
 		}
 
 		ruleContent, err := content.GetContentForRecommendation(ruleID)
@@ -638,9 +624,22 @@ func getRecommendationsFillUserData(
 			if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 				return recommendationList, err
 			}
-			// simply omit the rule as we can't display anything
+			// missing rule content, simply omit the rule as we can't display anything
 			log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
 			continue
+		}
+
+		if !ruleContent.OSDCustomer {
+			// rule doesn't have osd_customer tag, so it doesn't apply to managed clusters
+			for _, clusterID := range impactingClustersList {
+				// exclude non-managed clusters from the count
+				if !clusterInfoMap[clusterID].Managed {
+					impactedClustersCnt++
+				}
+			}
+		} else {
+			// rule has osd_customer tag and can be shown for all clusters
+			impactedClustersCnt = uint32(len(impactingClustersList))
 		}
 
 		recommendationList = append(recommendationList, types.RecommendationListView{
@@ -920,7 +919,8 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		return
 	}
 
-	if _, err = content.GetContentForRecommendation(ctypes.RuleID(selector)); err != nil {
+	recommendation, err := content.GetContentForRecommendation(ctypes.RuleID(selector))
+	if err != nil {
 		// The given rule selector does not exit
 		handleServerError(writer, err)
 		return
@@ -930,6 +930,20 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster IDs from AMS API. Using empty list.")
+	}
+
+	// if the recommendation is not intended to be used with OpenShift Dedicated ("managed") clusters, we must exclude them
+	if !recommendation.OSDCustomer {
+		filteredClusters := make([]types.ClusterInfo, 0)
+
+		for _, cluster := range activeClustersInfo {
+			// skipping managed clusters, because recommendation isn't managed
+			if !cluster.Managed {
+				filteredClusters = append(filteredClusters, cluster)
+			}
+		}
+
+		activeClustersInfo = filteredClusters
 	}
 
 	// get the list of clusters affected by given rule from aggregator and
@@ -1012,13 +1026,13 @@ func (server *HTTPServer) processClustersDetailResponse(
 	}
 	// disabledMap is used to filter out the impacted clusters
 	disabledMap := make(map[types.ClusterName]ctypes.DisabledClusterInfo)
-	clusterNamesMap := types.ClusterInfoArrayToMap(clusterInfo)
+	clusterInfoMap := types.ClusterInfoArrayToMap(clusterInfo)
 
 	// filter out inactive clusters from disabled; fill in display names
 	for _, disabledC := range disabledClusters {
 		// omit clusters that weren't retrieved from AMS API
-		if displayName, found := clusterNamesMap[disabledC.ClusterID]; found {
-			disabledC.ClusterName = displayName
+		if cluster, found := clusterInfoMap[disabledC.ClusterID]; found {
+			disabledC.ClusterName = cluster.DisplayName
 			disabledMap[disabledC.ClusterID] = disabledC
 			data.DisabledClusters = append(data.DisabledClusters, disabledC)
 		}
@@ -1029,7 +1043,7 @@ func (server *HTTPServer) processClustersDetailResponse(
 		if _, disabled := disabledMap[impactedC.Cluster]; disabled {
 			continue
 		}
-		impactedC.Name = clusterNamesMap[impactedC.Cluster]
+		impactedC.Name = clusterInfoMap[impactedC.Cluster].DisplayName
 		data.EnabledClusters = append(data.EnabledClusters, impactedC)
 	}
 
