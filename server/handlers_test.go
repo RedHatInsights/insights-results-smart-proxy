@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/insights-operator-utils/responses"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
@@ -1079,44 +1080,101 @@ func TestHTTPServer_GetContent(t *testing.T) {
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 	defer content.ResetContent()
-	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{
+				testdata.RuleContent1,
+				testdata.RuleContent2,
+				testdata.RuleContent3,
+			},
+		),
+	)
 	assert.Nil(t, err)
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// 3 total rules, only 2 unique total risks
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v","%v","%v"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID,
+			testdata.Rule2CompositeID, testdata.Rule3CompositeID,
+		)
+
 		// prepare list of organizations response
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			data.ClusterInfoResult,
+			clusterInfoList,
 		)
 
-		expectNoRulesDisabledSystemWide(&t)
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
 
-		// prepare report for cluster
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3RulesExpectedResponse,
-		})
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
 
-		testServer := helpers.CreateHTTPServer(nil, nil, amsClientMock, nil, nil, nil)
+		disabledRulesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRules,
+				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledRulesBody,
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:   http.MethodGet,
-				Endpoint: server.OverviewEndpoint,
-				OrgID:    testdata.OrgID,
-				UserID:   testdata.UserID,
+				Method:             http.MethodGet,
+				Endpoint:           server.OverviewEndpoint,
+				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
-			})
+			},
+		)
 	}, testTimeout)
 }
 
@@ -1135,30 +1193,79 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		// prepare response from amsclient for list of clusters
-		amsClientMock := helpers.AMSClientWithOrgResults(
-			testdata.OrgID,
-			data.ClusterInfoResult,
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// 3 total rules, only 2 unique total risks
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v","%v","%v"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID,
+			testdata.Rule2CompositeID, testdata.Rule3CompositeID,
 		)
 
-		expectNoRulesDisabledSystemWide(&t)
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			//data.ClusterInfoResult,
+			clusterInfoList,
+		)
 
-		// prepare report for cluster
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3RulesExpectedResponse,
-		})
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
 
-		testServer := helpers.CreateHTTPServer(nil, nil, amsClientMock, nil, nil, nil)
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
+
+		disabledRulesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRules,
+				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledRulesBody,
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, helpers.DefaultServerConfig.APIv1Prefix, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: server.OverviewEndpoint,
-			OrgID:    testdata.OrgID,
-			UserID:   testdata.UserID,
+			Method:             http.MethodGet,
+			Endpoint:           server.OverviewEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
@@ -1174,45 +1281,96 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// 3 total rules, only 2 unique total risks
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v","%v","%v"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID,
+			testdata.Rule2CompositeID, testdata.Rule3CompositeID,
+		)
+
 		// prepare list of organizations response
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			data.ClusterInfoResult,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
 		)
 
 		// Rule 2 is disabled org-wide
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+			EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(ResponseRule2DisabledSystemWide),
 		})
 
-		// prepare report for cluster
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3RulesExpectedResponse,
-		})
+		disabledRulesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRules,
+				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledRulesBody,
+			},
+		)
 
-		testServer := helpers.CreateHTTPServer(nil, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:   http.MethodGet,
-				Endpoint: server.OverviewEndpoint,
-				OrgID:    testdata.OrgID,
-				UserID:   testdata.UserID,
+				Method:             http.MethodGet,
+				Endpoint:           server.OverviewEndpoint,
+				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRule1EnabledRule2Disabled),
+			},
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
 			},
 		)
 
@@ -1220,50 +1378,123 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.UserID},
+			EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(ResponseRule1DisabledSystemWide),
 		})
 
-		// prepare report for cluster
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3RulesExpectedResponse,
-		})
-
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRules,
+				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledRulesBody,
+			},
+		)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:   http.MethodGet,
-				Endpoint: server.OverviewEndpoint,
-				OrgID:    testdata.OrgID,
-				UserID:   testdata.UserID,
+				Method:             http.MethodGet,
+				Endpoint:           server.OverviewEndpoint,
+				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRule1DisabledRule2Enabled),
 			},
 		)
 
-		// now report includes rule 5, which is disabled
-		expectNoRulesDisabledSystemWide(&t)
+	}, testTimeout)
+}
 
-		// prepare report for cluster
+// TestHTTPServer_OverviewEndpointWithFallback
+func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+		}
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// 3 total rules, only 2 unique total risks
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v","%v","%v"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID,
+			testdata.Rule2CompositeID, testdata.Rule3CompositeID,
+		)
+
+		// prepare list of organizations response
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
-			Body:       testdata.Report3Rules1DisabledExpectedResponse,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
 		})
 
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		ruleAcksBody := `{"disabledRules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleAcksBody,
+			},
+		)
+
+		disabledRulesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRules,
+				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledRulesBody,
+			},
+		)
+
+		config := helpers.DefaultServerConfig
+		config.UseOrgClustersFallback = true
+		testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -1272,13 +1503,11 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 				Method:   http.MethodGet,
 				Endpoint: server.OverviewEndpoint,
 				OrgID:    testdata.OrgID,
-				UserID:   testdata.UserID,
+				UserID:   ctypes.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
-				Body:       helpers.ToJSONString(OverviewResponseRule5DisabledRules1And2Enabled),
-			},
-		)
-
+				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
+			})
 	}, testTimeout)
 }
 

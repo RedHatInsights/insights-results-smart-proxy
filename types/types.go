@@ -171,24 +171,24 @@ const (
 
 // RuleWithContent structure with rule and rule content
 type RuleWithContent struct {
-	Module          types.RuleID   `json:"module"`
-	Name            string         `json:"name"`
-	Summary         string         `json:"summary"`
-	Reason          string         `json:"reason"`
-	Resolution      string         `json:"resolution"`
-	MoreInfo        string         `json:"more_info"`
-	ErrorKey        types.ErrorKey `json:"error_key"`
-	Description     string         `json:"description"`
-	TotalRisk       int            `json:"total_risk"`
-	RiskOfChange    int            `json:"risk_of_change"`
-	Impact          int            `json:"impact"`
-	Likelihood      int            `json:"likelihood"`
-	PublishDate     time.Time      `json:"publish_date"`
-	Active          bool           `json:"active"`
-	Internal        bool           `json:"internal"`
-	Generic         string         `json:"generic"`
-	Tags            []string       `json:"tags"`
-	NotRequireAdmin bool
+	Module       types.RuleID   `json:"module"`
+	Name         string         `json:"name"`
+	Summary      string         `json:"summary"`
+	Reason       string         `json:"reason"`
+	Resolution   string         `json:"resolution"`
+	MoreInfo     string         `json:"more_info"`
+	ErrorKey     types.ErrorKey `json:"error_key"`
+	Description  string         `json:"description"`
+	TotalRisk    int            `json:"total_risk"`
+	RiskOfChange int            `json:"risk_of_change"`
+	Impact       int            `json:"impact"`
+	Likelihood   int            `json:"likelihood"`
+	PublishDate  time.Time      `json:"publish_date"`
+	Active       bool           `json:"active"`
+	Internal     bool           `json:"internal"`
+	Generic      string         `json:"generic"`
+	Tags         []string       `json:"tags"`
+	OSDCustomer  bool           `json:"osd_customer"`
 }
 
 // RecommendationListView represents the API response for Advisor /rule/ related endpoints
