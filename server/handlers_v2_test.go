@@ -437,7 +437,6 @@ func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
 			clusterInfoList[i] = data.GetRandomClusterInfo()
 			clusterInfoList[i].Managed = true
 		}
-		clusters := types.GetClusterNames(clusterInfoList)
 
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
@@ -452,7 +451,6 @@ func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
 		}
 		`
 		// cluster 0 is managed, but the rule we're requesting is not, so the cluster is filtered
-		impactedClustersResponse = fmt.Sprintf(impactedClustersResponse, clusters[0])
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
