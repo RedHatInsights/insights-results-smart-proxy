@@ -477,6 +477,24 @@ var (
 		},
 	}
 
+	OverviewResponseManagedRules = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 1,
+			"hit_by_risk": map[string]int{
+				"1": 1,
+			},
+			"hit_by_tag": map[string]int{
+				"openshift":            1,
+				"osd_customer":         1,
+				"service_availability": 1,
+			},
+		},
+	}
+
 	OverviewResponseRule1DisabledRule2Enabled = struct {
 		Status   string                 `json:"status"`
 		Overview map[string]interface{} `json:"overview"`
@@ -735,6 +753,41 @@ var (
 		},
 	}
 
+	GetRecommendationsResponse2Rules2Clusters1Managed = struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}{
+		Status: "ok",
+		Recommendations: []types.RecommendationListView{
+			{
+				RuleID:              testdata.Rule1CompositeID,
+				Description:         testdata.RuleErrorKey1.Description,
+				Generic:             testdata.RuleErrorKey1.Generic,
+				PublishDate:         testdata.RuleErrorKey1.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey1.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey1.Likelihood),
+				Tags:                testdata.RuleErrorKey1.Tags,
+				Disabled:            false,
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 2,
+			},
+			{
+				RuleID:              testdata.Rule2CompositeID,
+				Description:         testdata.RuleErrorKey2.Description,
+				Generic:             testdata.RuleErrorKey2.Generic,
+				PublishDate:         testdata.RuleErrorKey2.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey2.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey2.Likelihood),
+				Tags:                testdata.RuleErrorKey2.Tags,
+				Disabled:            false,
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 0,
+			},
+		},
+	}
+
 	GetRecommendationsResponse3Rules1Cluster = struct {
 		Status          string                         `json:"status"`
 		Recommendations []types.RecommendationListView `json:"recommendations"`
@@ -988,6 +1041,41 @@ var (
 				HitsByTotalRisk: map[int]int{
 					1: 0,
 					2: 2,
+				},
+			},
+		},
+	}
+
+	// cluster data filled in in test cases
+	GetClustersResponse2ClusterWithHitsCluster1Managed = struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}{
+		Meta: map[string]interface{}{
+			"count": 2,
+		},
+		Status: "ok",
+		Clusters: []types.ClusterListView{
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimestamp,
+				TotalHitCount: 1,
+				// HitsByTotalRisk always has all unique total risks to have consistent response
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 0,
+				},
+			},
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimestamp,
+				TotalHitCount: 2,
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 1,
 				},
 			},
 		},

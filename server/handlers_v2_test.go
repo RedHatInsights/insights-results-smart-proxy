@@ -23,6 +23,7 @@ import (
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
@@ -417,6 +418,101 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 			Body:       expectedResponse,
 		},
 	)
+}
+
+func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+			clusterInfoList[i].Managed = true
+		}
+		clusters := types.GetClusterNames(clusterInfoList)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		impactedClustersResponse := `
+		{
+			"clusters":[],
+			"status":"ok"
+		}
+		`
+		// cluster 0 is managed, but the rule we're requesting is not, so the cluster is filtered
+		impactedClustersResponse = fmt.Sprintf(impactedClustersResponse, clusters[0])
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.RuleClusterDetailEndpoint,
+				EndpointArgs: []interface{}{testdata.Rule2CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       impactedClustersResponse,
+			},
+		)
+
+		disabledClustersResponse := `{
+			"clusters":[],
+			"status":"ok"
+		}`
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledClusters,
+				EndpointArgs: []interface{}{testdata.Rule2ID + dotReportRuleModuleSuffix, testdata.ErrorKey2, userIDOnGoodJWTAuthBearer},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledClustersResponse,
+			},
+		)
+
+		expectedResponse := `
+			{
+				"data": {
+					"enabled": [],
+					"disabled": []
+				},
+				"status":"ok"
+			}
+			`
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		// cluster is managed, but rule is not == must not show as hitting
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.ClustersDetail,
+				EndpointArgs:       []interface{}{testdata.Rule2CompositeID},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+	}, testTimeout)
 }
 
 // TestHTTPServer_ClustersDetailEndpointAggregatorResponse400 verifies that
