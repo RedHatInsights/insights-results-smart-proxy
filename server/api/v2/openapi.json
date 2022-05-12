@@ -859,6 +859,11 @@
                               "last_checked_at": {
                                 "format": "date-time",
                                 "type": "string"
+                              },
+                              "cluster_version": {
+                                "type": "string",
+                                "description": "Version of OpenShift in the cluster",
+                                "example": "4.7"
                               }
                             }
                           }
