@@ -1405,7 +1405,8 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 	return response.DisabledRules, nil
 }
 
-// Method readListOfClusterDisabledRules returns user disabled rules for given cluster list
+// getClusterListAndUserData returns a list of clusters, rule hits for these clusters from
+// aggregator, as well as rule acknowledgements and user disabled rules
 func (server *HTTPServer) getClusterListAndUserData(
 	writer http.ResponseWriter,
 	orgID types.OrgID,
