@@ -97,13 +97,18 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 			{
 				"cluster":"%v",
 				"cluster_name": "%v",
-				"last_checked_at":""
+				"last_checked_at":"",
+				"meta": {
+					"cluster_version": "%v"
+				}
 			}
 		],
 		"status":"ok"
 	}
 	`
-	impactedClustersResponse = fmt.Sprintf(impactedClustersResponse, clusters[0], "")
+	impactedClustersResponse = fmt.Sprintf(
+		impactedClustersResponse, clusters[0], "", testdata.ClusterVersion,
+	)
 	helpers.GockExpectAPIRequest(
 		t,
 		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
@@ -160,7 +165,10 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 				{
 					"cluster": "%v",
 					"cluster_name": "%v",
-					"last_checked_at": ""
+					"last_checked_at": "",
+					"meta": {
+						"cluster_version": "%v"
+					}
 				}
 			],
 			"disabled": [
@@ -176,7 +184,8 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 	}
 	`
 
-	expectedResponse = fmt.Sprintf(expectedResponse, clusters[0], data.ClusterDisplayName1,
+	expectedResponse = fmt.Sprintf(
+		expectedResponse, clusters[0], data.ClusterDisplayName1, testdata.ClusterVersion,
 		clusters[1], data.ClusterDisplayName2, disabledAt, justificationNote,
 	)
 
@@ -390,7 +399,10 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 				{
 					"cluster": "%v",
 					"cluster_name": "%v",
-					"last_checked_at":""
+					"last_checked_at":"",
+					"meta": {
+						"cluster_version": ""
+					}
 				}
 			],
 			"disabled": []
