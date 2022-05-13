@@ -33,6 +33,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	// we just have to import this package in order to expose pprof
 	// interface in debug mode
@@ -854,20 +855,14 @@ func (server HTTPServer) buildReportEndpointResponse(
 	writer http.ResponseWriter, request *http.Request,
 	aggregatorResponse *ctypes.ReportResponse,
 	clusterID types.ClusterName,
+	osdFlag bool,
 ) (visibleRules []types.RuleWithContentResponse, rulesCount int, err error) {
 	includeDisabled, err := readGetDisabledParam(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
-
-	osdFlag, err := readOSDEligible(request)
-	if err != nil {
-		log.Err(err).Msgf("Cluster ID: %v; Got error while parsing `%s` value", clusterID, OSDEligibleParam)
-	}
-
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
-	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
 
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
@@ -885,7 +880,9 @@ func (server HTTPServer) buildReportEndpointResponse(
 
 	systemWideRuleDisables := generateRuleAckMap(acks)
 
-	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables)
+	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(
+		aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables,
+	)
 	log.Info().Msgf("Cluster ID: %v; visible rules %d, no content rules %d, disabled rules %d", clusterID, len(visibleRules), noContentRulesCnt, disabledRulesCnt)
 
 	if err != nil {
@@ -920,9 +917,16 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 		},
 	}
 
-	var err error
+	osdFlag, err := readOSDEligible(request)
+	if err != nil {
+		log.Err(err).Msgf("Cluster ID: %v; Got error while parsing `%s` value", clusterID, OSDEligibleParam)
+	}
+	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
+
+	// osdFlag == true apparently means the cluster is NOT managed
+	// this is a bug, but API consumers already use it this way, so we apply the GIGO principle here...
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
-		writer, request, aggregatorResponse, clusterID); err == nil {
+		writer, request, aggregatorResponse, clusterID, osdFlag); err == nil {
 		sendReportReponse(writer, report)
 	}
 }
@@ -941,7 +945,7 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 	var err error
 
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
-		writer, request, aggregatorResponse, clusterID); err == nil {
+		writer, request, aggregatorResponse, clusterID, report.Meta.Managed); err == nil {
 
 		// fill in timestamps
 		report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
@@ -1399,4 +1403,51 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 	}
 
 	return response.DisabledRules, nil
+}
+
+// getClusterListAndUserData returns a list of clusters, rule hits for these clusters from
+// aggregator, as well as rule acknowledgements and user disabled rules
+func (server *HTTPServer) getClusterListAndUserData(
+	writer http.ResponseWriter,
+	orgID types.OrgID,
+	userID types.UserID,
+) (
+	clusterInfoList []types.ClusterInfo,
+	clusterRecommendationMap ctypes.ClusterRecommendationMap,
+	ackedRulesMap map[ctypes.RuleID]bool,
+	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
+) {
+	// get list of clusters from AMS API or aggregator
+	clusterInfoList, err := server.readClusterInfoForOrgID(orgID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
+		handleServerError(writer, err)
+		return
+	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+		"getClusterListAndUserData number of clusters before processing %d", len(clusterInfoList),
+	)
+
+	tStartImpacting := time.Now()
+	clusterRecommendationMap, err = server.getClustersAndRecommendations(writer, orgID, userID, types.GetClusterNames(clusterInfoList))
+	if err != nil {
+		log.Error().
+			Err(err).
+			Int(orgIDTag, int(orgID)).
+			Str(userIDTag, string(userID)).
+			Msgf("problem getting clusters and impacting recommendations from aggregator for cluster list: %v", clusterInfoList)
+
+		return
+	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+		"getClusterListAndUserData getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
+	)
+
+	// get a map of acknowledged rules
+	ackedRulesMap = server.getRuleAcksMap(orgID, userID)
+
+	// retrieve list of cluster IDs and single disabled rules for each cluster
+	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(userID)
+
+	return
 }

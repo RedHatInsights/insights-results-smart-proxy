@@ -216,7 +216,7 @@ namespace types {
         + Internal bool
         + Generic string
         + Tags []string
-        + NotRequireAdmin bool
+        + OSDCustomer bool
 
     }
     class RuleWithContentResponse << (S,Aquamarine) >> {

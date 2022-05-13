@@ -36,10 +36,11 @@ func GetClusterNames(clustersInfo []ClusterInfo) []ClusterName {
 
 // ClusterInfoArrayToMap convert an array of ClusterInfo elements into a map using
 // ClusterName as key
-func ClusterInfoArrayToMap(clustersInfo []ClusterInfo) (retval map[ctypes.ClusterName]string) {
-	retval = make(map[ctypes.ClusterName]string)
+func ClusterInfoArrayToMap(clustersInfo []ClusterInfo) (retval map[ctypes.ClusterName]ClusterInfo) {
+	retval = make(map[ctypes.ClusterName]ClusterInfo)
+
 	for _, clusterInfo := range clustersInfo {
-		retval[clusterInfo.ID] = clusterInfo.DisplayName
+		retval[clusterInfo.ID] = clusterInfo
 	}
 
 	return

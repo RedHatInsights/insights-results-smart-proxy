@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 
@@ -162,96 +162,95 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 	}
 }
 
+func (server HTTPServer) getOrganizationOverview(
+	clusterInfoList []sptypes.ClusterInfo,
+	clusterRecommendationsMap ctypes.ClusterRecommendationMap,
+	systemWideDisabledRules map[ctypes.RuleID]bool,
+	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
+) (
+	sptypes.OrgOverviewResponse, error,
+) {
+	overview := sptypes.OrgOverviewResponse{
+		ClustersHitByTotalRisk: make(map[int]int),
+		ClustersHitByTag:       make(map[string]int),
+	}
+
+	// iterates over clusters and their hitting recommendations, accesses map to the get rule severity
+	for i := range clusterInfoList {
+		clusterInfo := &clusterInfoList[i]
+
+		// check if there are any hitting recommendations
+		hittingRecommendations, any := clusterRecommendationsMap[clusterInfo.ID]
+		if !any {
+			continue
+		}
+
+		// filter out acked and disabled rules
+		enabledOnlyRecommendations := filterOutDisabledRules(
+			hittingRecommendations.Recommendations, clusterInfo.ID,
+			systemWideDisabledRules, disabledRulesPerCluster,
+		)
+
+		var filteredRecommendations int
+		for _, ruleID := range enabledOnlyRecommendations {
+			ruleContent, err := content.GetContentForRecommendation(ruleID)
+			if err != nil {
+				if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+					return overview, err
+				}
+				// missing rule content, simply omit the rule as we can't display anything
+				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+				filteredRecommendations++
+				continue
+			}
+
+			if clusterInfo.Managed && !ruleContent.OSDCustomer {
+				// cluster is managed, therefore must count only managed rules
+				filteredRecommendations++
+				continue
+			}
+
+			overview.ClustersHitByTotalRisk[ruleContent.TotalRisk]++
+
+			for _, tag := range ruleContent.Tags {
+				overview.ClustersHitByTag[tag]++
+			}
+		}
+
+		// to avoid edge case where all rules are filtered
+		if len(enabledOnlyRecommendations)-filteredRecommendations > 0 {
+			overview.ClustersHit++
+		}
+	}
+
+	return overview, nil
+}
+
 // overviewEndpoint returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *http.Request) {
 	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
 	if err != nil {
-		handleServerError(writer, err)
+		log.Err(err).Msg(orgIDTokenError)
 		return
 	}
+	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
 
-	clusters, err := server.readClusterIDsForOrgID(orgID)
-	if err != nil {
-		if _, ok := err.(*url.Error); ok {
-			log.Error().Err(err).Msg("Aggregator service is unavailable")
-			handleServerError(writer, &AggregatorServiceUnavailableError{})
-		} else {
-			handleServerError(writer, err)
-		}
-		return
-	}
-	log.Info().Msgf("Retrieving overview for org_id %v and its clusters: %v", orgID, clusters)
+	clusterList, clusterRuleHits, ackedRulesMap, disabledRules := server.getClusterListAndUserData(
+		writer,
+		orgID,
+		userID,
+	)
 
-	// TODO: For every cluster retrieved from AMS API above, generate a cluster list and
-	// retrieve all the reports from Aggregator
-	// The aggregator should include in different keys the error IDs (wrong UUID or belonging to other org)
-	// The missing ones (clusters registered in the list but no report available)
-	// The available ones with the whole report
-
-	// retrieve rule acknowledgements (disable/enable)
-	acks, err := server.readListOfAckedRules(orgID, userID)
-	if err != nil {
-		log.Error().Err(err).Msg(ackedRulesError)
-		// server error has been handled already
-		return
-	}
-	orgWideDisabledRules := generateRuleAckMap(acks)
-
-	authToken, _ := server.GetAuthToken(request)
-	r, err := server.getOverviewForClusters(writer, clusters, authToken, orgWideDisabledRules)
+	overview, err := server.getOrganizationOverview(clusterList, clusterRuleHits, ackedRulesMap, disabledRules)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
 
-	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", r)); err != nil {
+	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("overview", overview)); err != nil {
 		handleServerError(writer, err)
 		return
 	}
-}
-
-// getOverviewForClusters gets the overview for all clusters
-func (server HTTPServer) getOverviewForClusters(
-	writer http.ResponseWriter,
-	clusters []types.ClusterName,
-	authToken *types.Identity,
-	orgWideDisabledRules map[types.RuleID]bool,
-) (sptypes.OrgOverviewResponse, error) {
-	clustersHits := 0
-	hitsByTotalRisk := make(map[int]int)
-	hitsByTags := make(map[string]int)
-
-	for _, clusterID := range clusters {
-		overview, err := server.getOverviewPerCluster(writer, clusterID, authToken, orgWideDisabledRules)
-		if err != nil {
-			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
-				return sptypes.OrgOverviewResponse{}, err
-			}
-			log.Error().Err(err).Msgf("Problem handling report for cluster %s.", clusterID)
-			continue
-		}
-
-		if overview == nil {
-			log.Error().Msgf("Overview for cluster %v is empty. Skipping.", clusterID)
-			continue
-		}
-
-		clustersHits++
-		for _, totalRisk := range overview.TotalRisksHit {
-			hitsByTotalRisk[totalRisk]++
-		}
-
-		for _, tag := range overview.TagsHit {
-			hitsByTags[tag]++
-		}
-	}
-
-	r := sptypes.OrgOverviewResponse{
-		ClustersHit:            clustersHits,
-		ClustersHitByTotalRisk: hitsByTotalRisk,
-		ClustersHitByTag:       hitsByTags,
-	}
-	return r, nil
 }
 
 // overviewEndpointWithClusterIDs returns a map with an overview of number of clusters hit by rules

@@ -221,6 +221,21 @@ func (s *RulesWithContentStorage) GetExternalRuleSeverities() (
 	return
 }
 
+// GetExternalRulesManagedInfo returns a map of rule IDs and the information whether a rule is managed
+// (has osd_customer tag) or not
+func (s *RulesWithContentStorage) GetExternalRulesManagedInfo() (managedMap map[ctypes.RuleID]bool) {
+	s.Lock()
+	defer s.Unlock()
+
+	managedMap = make(map[ctypes.RuleID]bool)
+
+	for _, ruleID := range s.externalRuleIDs {
+		managedMap[ruleID] = s.recommendationsWithContent[ruleID].OSDCustomer
+	}
+
+	return
+}
+
 // RuleContentDirectoryTimeoutError is used, when the content directory is empty for too long time
 type RuleContentDirectoryTimeoutError struct{}
 
@@ -390,6 +405,21 @@ func GetExternalRuleSeverities() (
 	return severityMap, uniqueSeverities, nil
 }
 
+// GetExternalRulesManagedInfo returns a map of rule IDs and the information whether a rule is managed
+// (has osd_customer tag) or not
+func GetExternalRulesManagedInfo() (
+	map[ctypes.RuleID]bool, error,
+) {
+	err := WaitForContentDirectoryToBeReady()
+
+	if err != nil {
+		return nil, err
+	}
+
+	managedMap := rulesWithContentStorage.GetExternalRulesManagedInfo()
+	return managedMap, nil
+}
+
 // GetAllContentV1 returns content for all the loaded rules.
 func GetAllContentV1() ([]types.RuleContentV1, error) {
 	// to be sure the data is there
@@ -483,7 +513,7 @@ func FetchRuleContent(rule ctypes.RuleOnReport, OSDEligible bool) (
 		return
 	}
 
-	if OSDEligible && !ruleWithContent.NotRequireAdmin {
+	if OSDEligible && !ruleWithContent.OSDCustomer {
 		osdFiltered = true
 		return
 	}

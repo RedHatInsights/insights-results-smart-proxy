@@ -26,10 +26,7 @@ import (
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-operator-utils/responses"
-	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
-	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
@@ -480,6 +477,24 @@ var (
 		},
 	}
 
+	OverviewResponseManagedRules = struct {
+		Status   string                 `json:"status"`
+		Overview map[string]interface{} `json:"overview"`
+	}{
+		Status: "ok",
+		Overview: map[string]interface{}{
+			"clusters_hit": 1,
+			"hit_by_risk": map[string]int{
+				"1": 1,
+			},
+			"hit_by_tag": map[string]int{
+				"openshift":            1,
+				"osd_customer":         1,
+				"service_availability": 1,
+			},
+		},
+	}
+
 	OverviewResponseRule1DisabledRule2Enabled = struct {
 		Status   string                 `json:"status"`
 		Overview map[string]interface{} `json:"overview"`
@@ -734,6 +749,41 @@ var (
 				Disabled:            false,
 				RiskOfChange:        0,
 				ImpactedClustersCnt: 1,
+			},
+		},
+	}
+
+	GetRecommendationsResponse2Rules2Clusters1Managed = struct {
+		Status          string                         `json:"status"`
+		Recommendations []types.RecommendationListView `json:"recommendations"`
+	}{
+		Status: "ok",
+		Recommendations: []types.RecommendationListView{
+			{
+				RuleID:              testdata.Rule1CompositeID,
+				Description:         testdata.RuleErrorKey1.Description,
+				Generic:             testdata.RuleErrorKey1.Generic,
+				PublishDate:         testdata.RuleErrorKey1.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey1.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey1.Likelihood),
+				Tags:                testdata.RuleErrorKey1.Tags,
+				Disabled:            false,
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 2,
+			},
+			{
+				RuleID:              testdata.Rule2CompositeID,
+				Description:         testdata.RuleErrorKey2.Description,
+				Generic:             testdata.RuleErrorKey2.Generic,
+				PublishDate:         testdata.RuleErrorKey2.PublishDate,
+				TotalRisk:           uint8(calculateTotalRisk(testdata.RuleErrorKey2.Impact, testdata.RuleErrorKey2.Likelihood)),
+				Impact:              uint8(testdata.RuleErrorKey2.Impact),
+				Likelihood:          uint8(testdata.RuleErrorKey2.Likelihood),
+				Tags:                testdata.RuleErrorKey2.Tags,
+				Disabled:            false,
+				RiskOfChange:        0,
+				ImpactedClustersCnt: 0,
 			},
 		},
 	}
@@ -997,6 +1047,41 @@ var (
 	}
 
 	// cluster data filled in in test cases
+	GetClustersResponse2ClusterWithHitsCluster1Managed = struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}{
+		Meta: map[string]interface{}{
+			"count": 2,
+		},
+		Status: "ok",
+		Clusters: []types.ClusterListView{
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimestamp,
+				TotalHitCount: 1,
+				// HitsByTotalRisk always has all unique total risks to have consistent response
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 0,
+				},
+			},
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimestamp,
+				TotalHitCount: 2,
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 1,
+				},
+			},
+		},
+	}
+
+	// cluster data filled in in test cases
 	GetClustersResponse2ClusterWithHits1Rule = struct {
 		Meta     map[string]interface{}  `json:"meta"`
 		Status   string                  `json:"status"`
@@ -1181,56 +1266,6 @@ func TestAddCORSHeaders(t *testing.T) {
 			"Access-Control-Allow-Headers":     "X-Csrf-Token,Content-Type,Content-Length",
 		},
 	})
-}
-
-// TestHTTPServer_OverviewEndpointWithFallback
-func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
-	defer content.ResetContent()
-	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
-	assert.Nil(t, err)
-
-	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		defer helpers.CleanAfterGock(t)
-
-		// prepare list of organizations response
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ClustersForOrganizationEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", []string{string(testdata.ClusterName)})),
-		})
-
-		expectNoRulesDisabledSystemWide(&t)
-
-		// prepare report for cluster
-		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     ira_server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       testdata.Report3RulesExpectedResponse,
-		})
-
-		config := helpers.DefaultServerConfig
-		config.UseOrgClustersFallback = true
-		testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
-		iou_helpers.AssertAPIRequest(
-			t,
-			testServer,
-			helpers.DefaultServerConfig.APIv1Prefix,
-			&helpers.APIRequest{
-				Method:   http.MethodGet,
-				Endpoint: server.OverviewEndpoint,
-				OrgID:    testdata.OrgID,
-				UserID:   testdata.UserID,
-			}, &helpers.APIResponse{
-				StatusCode: http.StatusOK,
-				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
-			})
-	}, testTimeout)
 }
 
 func TestHTTPServer_SetAMSInfoInReportNoAMSClient(t *testing.T) {
