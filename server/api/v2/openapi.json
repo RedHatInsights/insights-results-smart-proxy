@@ -860,10 +860,15 @@
                                 "format": "date-time",
                                 "type": "string"
                               },
-                              "cluster_version": {
-                                "type": "string",
-                                "description": "Version of OpenShift in the cluster",
-                                "example": "4.7"
+                              "meta": {
+                                "type": "object",
+                                "properties": {
+                                  "cluster_version": {
+                                    "type": "string",
+                                    "description": "Version of OpenShift in the cluster",
+                                    "example": "4.7"
+                                  }
+                                }
                               }
                             }
                           }
