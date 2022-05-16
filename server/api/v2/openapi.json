@@ -858,7 +858,8 @@
                               },
                               "last_checked_at": {
                                 "format": "date-time",
-                                "type": "string"
+                                "type": "string",
+                                "description": "[Optional] Timestamp of the last analysis"
                               },
                               "meta": {
                                 "type": "object",
@@ -1131,7 +1132,8 @@
           },
           "last_checked_at": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "description": "[Optional] Timestamp of the last analysis"
           },
           "gathered_at": {
             "format": "date-time",
@@ -1424,7 +1426,7 @@
             "last_checked_at": {
               "format": "date-time",
               "type": "string",
-              "description": "Last time of analysis for given cluster."
+              "description": "[Optional] Last time of analysis for given cluster."
             },
             "total_hit_count": {
               "type": "integer",
