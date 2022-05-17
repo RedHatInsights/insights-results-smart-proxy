@@ -3236,6 +3236,94 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1Managed(t *testing
 	}, testTimeout)
 }
 
+func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1WithVersion(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{
+				testdata.RuleContent1,
+				testdata.RuleContent2,
+				testdata.RuleContent3,
+				RuleContentInternal1,
+			},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := data.GetRandomClusterInfoList(2)
+
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// cluster 1 is managed, so must only show managed rule 1
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v","%v"],
+					"meta": {
+						"cluster_version": "%v"
+					}
+				},
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v","%v"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID, testdata.Rule2CompositeID, testdata.ClusterVersion,
+			clusterInfoList[1].ID, testTimeStr, testdata.Rule1CompositeID, testdata.Rule2CompositeID,
+		)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+
+		resp := GetClustersResponse2ClusterWithHitsCluster1WithVersion
+		for i := range clusterInfoList {
+			resp.Clusters[i].ClusterID = clusterInfoList[i].ID
+			resp.Clusters[i].ClusterName = clusterInfoList[i].DisplayName
+			resp.Clusters[i].Managed = clusterInfoList[i].Managed
+		}
+
+		// cluster 1 is managed, so must only show 1 rule. cluster 2 will show both rules.
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ClustersRecommendationsEndpoint,
+			AuthorizationToken: goodJWTAuthBearer,
+		}, &helpers.APIResponse{
+			StatusCode:  http.StatusOK,
+			Body:        helpers.ToJSONString(resp),
+			BodyChecker: clusterInResponseChecker,
+		})
+	}, testTimeout)
+}
+
 // TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule tests clusters with an acked rule hitting both
 func TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule(t *testing.T) {
 	defer content.ResetContent()

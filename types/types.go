@@ -217,7 +217,7 @@ type ClusterListView struct {
 	LastCheckedAt   Timestamp         `json:"last_checked_at,omitempty"`
 	TotalHitCount   uint32            `json:"total_hit_count"`
 	HitsByTotalRisk map[int]int       `json:"hits_by_total_risk"`
-	Version         types.Version     `json:"cluster_version",omitempty`
+	Version         types.Version     `json:"cluster_version,omitempty"`
 }
 
 // RuleRating structure with the rule identifier and the rating

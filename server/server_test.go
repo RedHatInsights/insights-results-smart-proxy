@@ -1081,6 +1081,41 @@ var (
 		},
 	}
 
+	GetClustersResponse2ClusterWithHitsCluster1WithVersion = struct {
+		Meta     map[string]interface{}  `json:"meta"`
+		Status   string                  `json:"status"`
+		Clusters []types.ClusterListView `json:"data"`
+	}{
+		Meta: map[string]interface{}{
+			"count": 2,
+		},
+		Status: "ok",
+		Clusters: []types.ClusterListView{
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimestamp,
+				TotalHitCount: 1,
+				// HitsByTotalRisk always has all unique total risks to have consistent response
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 0,
+				},
+				Version: testdata.ClusterVersion,
+			},
+			{
+				ClusterID:     "",
+				ClusterName:   "",
+				LastCheckedAt: testTimestamp,
+				TotalHitCount: 2,
+				HitsByTotalRisk: map[int]int{
+					1: 1,
+					2: 1,
+				},
+			},
+		},
+	}
+
 	// cluster data filled in in test cases
 	GetClustersResponse2ClusterWithHits1Rule = struct {
 		Meta     map[string]interface{}  `json:"meta"`

@@ -451,6 +451,7 @@ func matchClusterInfoAndUserData(
 			clusterViewItem.LastCheckedAt = types.Timestamp(
 				hittingRecommendations.CreatedAt.UTC().Format(time.RFC3339),
 			)
+			clusterViewItem.Version = hittingRecommendations.Meta.Version
 
 			// filter out acked and disabled rules
 			enabledOnlyRecommendations := filterOutDisabledRules(
