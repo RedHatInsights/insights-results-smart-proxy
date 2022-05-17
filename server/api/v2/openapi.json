@@ -1443,7 +1443,7 @@
             },
             "cluster_version": {
               "type": "string",
-              "description": "Cluster version",
+              "description": "[Optional] Cluster version",
               "example": "4.7"
             }
           },
