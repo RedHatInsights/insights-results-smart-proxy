@@ -682,7 +682,8 @@
                             },
                             "last_checked_at": {
                               "format": "date-time",
-                              "type": "string"
+                              "type": "string",
+                              "description": "[Optional] Timestamp of the last analysis"
                             }
                           },
                           "example": {
@@ -738,7 +739,7 @@
                         "last_checked_at": {
                           "type": "string",
                           "format": "date-time",
-                          "description": "Timestamp when the report has been produced.",
+                          "description": "[Optional] Timestamp when the report has been produced.",
                           "example": "2020-01-23T16:15:59.478901889Z"
                         },
                         "stored_at": {
