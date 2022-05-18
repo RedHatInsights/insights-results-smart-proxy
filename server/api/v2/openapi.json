@@ -1440,6 +1440,11 @@
                 "3": 0,
                 "4": 0
               }
+            },
+            "cluster_version": {
+              "type": "string",
+              "description": "[Optional] Cluster version",
+              "example": "4.7"
             }
           },
           "example": [
