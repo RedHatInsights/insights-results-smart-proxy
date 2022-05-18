@@ -2,6 +2,7 @@ title: Insights Results Smart Proxy
 description: Smart Proxy service for Openshift insights results
 baseurl: "/insights-results-smart-proxy"
 url: "https://redhatinsights.github.io"
+repository: "RedHatInsights/insights-results-smart-proxy"
 
 heading_anchors: true
 search_enabled: false
