@@ -94,6 +94,13 @@ func (*AggregatorServiceUnavailableError) Error() string {
 	return "Aggregator service is unreachable"
 }
 
+// AMSAPIUnavailableError error is used when AMS API is not available and is the only source of data
+type AMSAPIUnavailableError struct{}
+
+func (*AMSAPIUnavailableError) Error() string {
+	return "AMS API is unreachable"
+}
+
 // ParamsParsingError error meaning that the cluster name cannot be handled
 type ParamsParsingError struct{}
 
@@ -116,7 +123,8 @@ func handleServerError(writer http.ResponseWriter, err error) {
 		respErr = responses.SendNotFound(writer, err.Error())
 	case *AuthenticationError:
 		respErr = responses.SendForbidden(writer, err.Error())
-	case *ContentServiceUnavailableError, *AggregatorServiceUnavailableError, *content.RuleContentDirectoryTimeoutError:
+	case *ContentServiceUnavailableError, *AggregatorServiceUnavailableError,
+		*AMSAPIUnavailableError, *content.RuleContentDirectoryTimeoutError:
 		respErr = responses.SendServiceUnavailable(writer, err.Error())
 	default:
 		respErr = responses.SendInternalServerError(writer, "Internal Server Error")
