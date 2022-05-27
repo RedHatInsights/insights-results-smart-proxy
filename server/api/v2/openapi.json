@@ -104,6 +104,76 @@
         }
       }
     },
+    "/cluster/{clusterId}/info": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "summary": "Returns relevant information about the cluster available in AMS API.",
+        "description": "Cluster ID is given in URL. Organization ID in token must match the one under which the cluster is registered in AMS.",
+        "operationId": "getInfoForCluster",
+        "parameters": [
+          {
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
+            "name": "clusterId",
+            "description": "ID of the cluster which must conform to UUID format.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information about the given cluster retrieved from AMS API.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response data type for GET /clusters/{clusterId}/report endpoint",
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "cluster_id": {
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36,
+                        "format": "uuid"
+                      },
+                      "display_name": {
+                        "type": "string",
+                        "description": "An human-readable name for the cluster",
+                        "example": "Production cluster 1"
+                      },
+                      "managed": {
+                        "type": "bool",
+                        "description": "Indicates whether cluster is managed or not (has 'managed' flag in AMS)",
+                        "example": true
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Status of the cluster, such as Active, Deprovisioned, etc",
+                        "example": "Active"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Cluster info was not returned from AMS API for given organization."
+          }
+        }
+      }
+    },
     "/content": {
       "get": {
         "tags": [
