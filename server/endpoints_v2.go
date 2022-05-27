@@ -28,6 +28,9 @@ const (
 	// ReportEndpointV2 https://issues.redhat.com/browse/CCXDEV-5097
 	ReportEndpointV2 = "cluster/{cluster}/reports"
 
+	// ClusterInfoEndpoint provides information about given cluster retrieved from AMS API
+	ClusterInfoEndpoint = "cluster/{cluster}/info"
+
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
 	ClustersDetail = "rule/{rule_selector}/clusters_detail"
 
@@ -111,7 +114,7 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 // return cluster report or reports to client
 func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseURL string) {
 	router.HandleFunc(apiPrefix+ReportEndpointV2, server.reportEndpointV2).Methods(http.MethodGet, http.MethodOptions)
-
+	router.HandleFunc(apiPrefix+ClusterInfoEndpoint, server.getSingleClusterInfo).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RecommendationsListEndpoint, server.getRecommendations).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ClustersRecommendationsEndpoint, server.getClustersView).Methods(http.MethodGet)
 }

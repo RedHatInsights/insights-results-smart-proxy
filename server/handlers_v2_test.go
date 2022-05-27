@@ -716,3 +716,76 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse500(t *testing.T) {
 		},
 	)
 }
+
+func TestHTTPServer_GetSingleClusterInfo(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := data.GetRandomClusterInfoList(3)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		expectedResponse := `
+		{
+			"cluster": {
+				"cluster_id": "%s",
+				"display_name": "%s",
+				"managed": %t,
+				"status": "%s"
+			},
+			"status":"ok"
+		}
+		`
+		expectedResponse = fmt.Sprintf(expectedResponse, clusterInfoList[0].ID, clusterInfoList[0].DisplayName,
+			clusterInfoList[0].Managed, clusterInfoList[0].Status,
+		)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.ClusterInfoEndpoint,
+				EndpointArgs:       []interface{}{clusterInfoList[0].ID},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetSingleClusterInfoClusterNotFound(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			[]types.ClusterInfo{},
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.ClusterInfoEndpoint,
+				EndpointArgs:       []interface{}{testdata.ClusterName},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+			},
+		)
+	}, testTimeout)
+}

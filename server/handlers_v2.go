@@ -410,6 +410,49 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	}
 }
 
+// getSingleClusterInfo retrieves information about given cluster from AMS API, such as the user defined display name
+func (server HTTPServer) getSingleClusterInfo(writer http.ResponseWriter, request *http.Request) {
+	if server.amsClient == nil {
+		log.Error().Msgf("AMS API connection is not initialized")
+		handleServerError(writer, &AMSAPIUnavailableError{})
+		return
+	}
+
+	authToken, err := server.GetAuthToken(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	orgID := authToken.Internal.OrgID
+
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	// error handled by function
+	if !successful {
+		return
+	}
+
+	clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
+	if err != nil {
+		log.Error().Err(err).Msg("problem retrieving cluster info from AMS API")
+		handleServerError(writer, err)
+		return
+	}
+
+	// retrieval failed, but error is nil
+	if clusterInfo.ID == "" {
+		err := &utypes.ItemNotFoundError{ItemID: clusterID}
+		log.Error().Err(err).Msg("unexpected problem retrieving cluster info from AMS API")
+		handleServerError(writer, err)
+		return
+	}
+
+	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("cluster", clusterInfo)); err != nil {
+		log.Error().Err(err).Msgf(problemSendingResponseError)
+		handleServerError(writer, err)
+		return
+	}
+}
+
 // matchClusterInfoAndUserData matches data from AMS API, rule hits from aggregator + user data from aggregator
 // regarding disabled rules and calculates the numbers of hitting rules based on their severity (total risk)
 func matchClusterInfoAndUserData(
