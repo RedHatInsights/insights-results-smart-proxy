@@ -23,6 +23,7 @@ import (
 	accMgmt "github.com/openshift-online/ocm-sdk-go/accountsmgmt/v1"
 	"github.com/rs/zerolog/log"
 
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
@@ -31,10 +32,11 @@ const (
 	defaultPageSize = 500
 
 	// strings for logging and errors
-	orgNoInternalID     = "Organization doesn't have proper internal ID"
-	orgMoreInternalOrgs = "More than one internal organization for the given orgID"
-	orgIDTag            = "OrgID"
-	clusterIDTag        = "ClusterID"
+	orgNoInternalID              = "Organization doesn't have proper internal ID"
+	orgMoreInternalOrgs          = "More than one internal organization for the given orgID"
+	subscriptionListRequestError = "problem executing subscription list request"
+	orgIDTag                     = "OrgID"
+	clusterIDTag                 = "ClusterID"
 
 	// StatusDeprovisioned indicates the corresponding cluster subscription status
 	StatusDeprovisioned = "Deprovisioned"
@@ -61,6 +63,9 @@ type AMSClient interface {
 	)
 	GetClusterDetailsFromExternalClusterID(types.ClusterName) (
 		clusterInfo types.ClusterInfo,
+	)
+	GetSingleClusterInfoForOrganization(types.OrgID, types.ClusterName) (
+		types.ClusterInfo, error,
 	)
 }
 
@@ -137,7 +142,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 
 	clusterInfoList, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg("problem executing subscription list request")
+		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg(subscriptionListRequestError)
 		return
 	}
 
@@ -158,7 +163,7 @@ func (c *amsClientImpl) GetClusterDetailsFromExternalClusterID(externalID types.
 
 	clusterInfoList, err := c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Str(clusterIDTag, string(externalID)).Msg("problem executing subscription list request")
+		log.Error().Err(err).Str(clusterIDTag, string(externalID)).Msg(subscriptionListRequestError)
 		return
 	}
 	if clusterInfoList == nil {
@@ -168,6 +173,34 @@ func (c *amsClientImpl) GetClusterDetailsFromExternalClusterID(externalID types.
 	clusterInfo = clusterInfoList[0]
 	log.Info().Str(clusterIDTag, string(externalID)).Msgf("GetClustersForOrganization from AMS API took %s", time.Since(tStart))
 	return
+}
+
+func (c *amsClientImpl) GetSingleClusterInfoForOrganization(orgID types.OrgID, clusterID types.ClusterName) (
+	clusterInfo types.ClusterInfo, err error,
+) {
+	tStart := time.Now()
+
+	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
+	if err != nil {
+		return
+	}
+
+	searchQuery := fmt.Sprintf("organization_id = '%s' and external_cluster_id = '%s'", internalOrgID, clusterID)
+
+	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
+	clusterInfoList, err := c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
+	if err != nil {
+		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg(subscriptionListRequestError)
+		return
+	}
+	if clusterInfoList == nil {
+		return clusterInfo, &utypes.ItemNotFoundError{ItemID: clusterID}
+	}
+
+	log.Info().Str(clusterIDTag, string(clusterID)).Msgf(
+		"GetSingleClusterInfoForOrganization from AMS API took %s", time.Since(tStart),
+	)
+	return clusterInfoList[0], nil
 }
 
 // GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API
@@ -212,7 +245,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 		subscriptionListRequest = subscriptionListRequest.
 			Size(c.pageSize).
 			Page(pageNum).
-			Fields("external_cluster_id,display_name,cluster_id,managed").
+			Fields("external_cluster_id,display_name,cluster_id,managed,status").
 			Search(searchQuery)
 
 		response, err := subscriptionListRequest.Send()
@@ -249,11 +282,17 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 				log.Warn().Str(clusterIDTag, clusterIDstr).Msg("cluster has no managed attribute")
 			}
 
+			status, ok := item.GetStatus()
+			if !ok {
+				log.Warn().Str(clusterIDTag, clusterIDstr).Msg("cannot retrieve status of cluster")
+			}
+
 			clusterID := types.ClusterName(clusterIDstr)
 			clusterInfoList = append(clusterInfoList, types.ClusterInfo{
 				ID:          clusterID,
 				DisplayName: displayName,
 				Managed:     managed,
+				Status:      status,
 			})
 		}
 	}
