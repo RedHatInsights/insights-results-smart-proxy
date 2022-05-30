@@ -34,6 +34,9 @@ const (
 	InternalClusterName1 string = "1ABCD2abEFcdefGhijkH3lmnopI"
 	// InternalClusterName2 represents the AMS internal name for ClusterName2
 	InternalClusterName2 string = "9ZYXW8zyVUxwvuTtsrqS7ponmlR"
+
+	// ActiveStatus default status for testing AMS clusters
+	ActiveStatus = "Active"
 )
 
 var (
@@ -82,12 +85,14 @@ var (
 				"external_cluster_id": ClusterName1,
 				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
 				"managed":             true,
+				"status":              ActiveStatus,
 			},
 			{
 				"display_name":        ClusterDisplayName2,
 				"external_cluster_id": ClusterName2,
 				"id":                  "1YfQLCOCZZOEXgOp8uIbqe5i5z2",
 				"managed":             false,
+				"status":              ActiveStatus,
 			},
 		},
 	}
@@ -106,18 +111,21 @@ var (
 				"external_cluster_id": ClusterName1,
 				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
 				"managed":             true,
+				"status":              ActiveStatus,
 			},
 			{
 				"display_name":        ClusterDisplayName2,
 				"external_cluster_id": "",
 				"id":                  "1QfQ9bR7LTDz24YzfFmaCdeBf86",
 				"managed":             false,
+				"status":              ActiveStatus,
 			},
 			{
 				"display_name":        "",
 				"external_cluster_id": "",
 				"id":                  "", // cover edge case condition
 				"managed":             false,
+				"status":              ActiveStatus,
 			},
 		},
 	}
@@ -137,11 +145,13 @@ var (
 			ID:          ClusterName1,
 			DisplayName: ClusterDisplayName1,
 			Managed:     true,
+			Status:      ActiveStatus,
 		},
 		{
 			ID:          ClusterName2,
 			DisplayName: ClusterDisplayName2,
 			Managed:     false,
+			Status:      ActiveStatus,
 		},
 	}
 )

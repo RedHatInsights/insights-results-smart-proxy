@@ -107,6 +107,7 @@ func GetRandomClusterInfo() types.ClusterInfo {
 	return types.ClusterInfo{
 		ID:          clusterID,
 		DisplayName: string(clusterID),
+		Status:      ActiveStatus,
 	}
 }
 

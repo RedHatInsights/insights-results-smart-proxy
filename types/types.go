@@ -253,6 +253,7 @@ type ClusterInfo struct {
 	ID          ClusterName `json:"cluster_id"`
 	DisplayName string      `json:"display_name"`
 	Managed     bool        `json:"managed"`
+	Status      string      `json:"status"`
 }
 
 // ClustersDetailData is the inner data structure for /clusters_detail
