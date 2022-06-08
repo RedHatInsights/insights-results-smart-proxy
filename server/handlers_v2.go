@@ -876,7 +876,9 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 func getImpactedClustersFromAggregator(
 	url string,
 	activeClusters []ctypes.ClusterName,
+	useAggregatorFallback bool,
 ) (resp *http.Response, err error) {
+
 	if len(activeClusters) < 1 {
 		// #nosec G107
 		resp, err = http.Get(url)
@@ -912,10 +914,17 @@ func (server HTTPServer) getImpactedClusters(
 	userID ctypes.UserID,
 	selector ctypes.RuleSelector,
 	activeClustersInfo []types.ClusterInfo,
+	useAggregatorFallback bool,
 ) (
 	[]ctypes.HittingClustersData,
 	error,
 ) {
+	activeClusters := types.GetClusterNames(activeClustersInfo)
+	if len(activeClusters) == 0 && !useAggregatorFallback {
+		// empty list from AMS is valid
+		return []ctypes.HittingClustersData{}, nil
+	}
+
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.RuleClusterDetailEndpoint,
@@ -924,8 +933,7 @@ func (server HTTPServer) getImpactedClusters(
 		userID,
 	)
 
-	activeClusters := types.GetClusterNames(activeClustersInfo)
-	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters)
+	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters, useAggregatorFallback)
 	// if http.Get fails for whatever reason
 	if err != nil {
 		handleServerError(writer, err)
@@ -953,6 +961,8 @@ func (server HTTPServer) getImpactedClusters(
 // By default returns only those recommendations that currently hit at least one cluster, but it's
 // possible to show all recommendations by passing a URL parameter `impacting`
 func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, request *http.Request) {
+	var useAggregatorFallback bool
+
 	selector, successful := httputils.ReadRuleSelector(writer, request)
 	if !successful {
 		return
@@ -973,7 +983,8 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	// Get list of clusters for given organization
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster IDs from AMS API. Using empty list.")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster IDs from AMS API. Will retrieve cluster list from aggregator.")
+		useAggregatorFallback = true
 	}
 
 	// if the recommendation is not intended to be used with OpenShift Dedicated ("managed") clusters, we must exclude them
@@ -991,7 +1002,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	}
 
 	// get the list of clusters affected by given rule from aggregator and
-	impactedClusters, err := server.getImpactedClusters(writer, orgID, userID, selector, activeClustersInfo)
+	impactedClusters, err := server.getImpactedClusters(writer, orgID, userID, selector, activeClustersInfo, useAggregatorFallback)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
 			Msg("Couldn't get impacted clusters for given rule selector")
