@@ -456,27 +456,6 @@ func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
 			clusterInfoList,
 		)
 
-		impactedClustersResponse := `
-		{
-			"clusters":[],
-			"status":"ok"
-		}
-		`
-		// cluster 0 is managed, but the rule we're requesting is not, so the cluster is filtered
-		helpers.GockExpectAPIRequest(
-			t,
-			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
-			&helpers.APIRequest{
-				Method:       http.MethodGet,
-				Endpoint:     ira_server.RuleClusterDetailEndpoint,
-				EndpointArgs: []interface{}{testdata.Rule2CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
-			},
-			&helpers.APIResponse{
-				StatusCode: http.StatusOK,
-				Body:       impactedClustersResponse,
-			},
-		)
-
 		disabledClustersResponse := `{
 			"clusters":[],
 			"status":"ok"
