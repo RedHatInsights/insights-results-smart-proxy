@@ -176,6 +176,7 @@ objects:
           - name: internal-rules-organizations
             secret:
               secretName: internal-rules-organizations
+              optional: true
 - kind: Service
   apiVersion: v1
   metadata:
