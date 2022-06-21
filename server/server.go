@@ -203,7 +203,13 @@ func (server *HTTPServer) Start() error {
 	address := server.Config.Address
 	log.Info().Msgf("Starting HTTP server at '%s'", address)
 	router := server.Initialize()
-	server.Serv = &http.Server{Addr: address, Handler: router}
+	server.Serv = &http.Server{
+		Addr:              address,
+		Handler:           router,
+		ReadTimeout:       1 * time.Minute,
+		ReadHeaderTimeout: 5 * time.Second,
+		WriteTimeout:      30 * time.Second,
+	}
 	var err error
 
 	if server.Config.UseHTTPS {
