@@ -1203,6 +1203,14 @@
         "description": "",
         "type": "object",
         "properties": {
+          "cluster_name": {
+            "type": "string",
+            "description": "The display name of the cluster"
+          },
+          "managed": {
+            "type": "boolean",
+            "description": "Flag indicating if the cluster is managed or not"
+          },
           "count": {
             "format": "int32",
             "type": "integer"
@@ -1218,6 +1226,7 @@
           }
         },
         "example": {
+          "managed": false,
           "count": 9,
           "last_checked_at": "2020-12-08T09:45:23Z"
         }
@@ -1232,138 +1241,6 @@
           },
           "status": {
             "description": "",
-            "type": "string"
-          }
-        }
-      },
-      "reportsResponse": {
-        "description": "Reports for a set of clusters",
-        "type": "object",
-        "properties": {
-          "clusters": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "errors": {
-            "type": "string",
-            "nullable": true
-          },
-          "reports": {
-            "type": "object",
-            "additionalProperties": {
-              "description": "",
-              "type": "object",
-              "properties": {
-                "analysis_metadata": {
-                  "type": "object",
-                  "properties": {
-                    "execution_context": {
-                      "description": "",
-                      "type": "string"
-                    },
-                    "finish": {
-                      "format": "date-time",
-                      "description": "",
-                      "type": "string"
-                    },
-                    "plugin_sets": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "object",
-                        "properties": {
-                          "commit": {
-                            "type": "string",
-                            "nullable": true
-                          },
-                          "version": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "example": {
-                        "insights-core": {
-                          "commit": "placeholder",
-                          "version": "insights-core-3.0.176-1"
-                        }
-                      }
-                    },
-                    "start": {
-                      "format": "date-time",
-                      "description": "",
-                      "type": "string"
-                    }
-                  }
-                },
-                "fingerprints": {
-                  "description": "",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "info": {
-                  "description": "",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/reportsComponent"
-                  }
-                },
-                "reports": {
-                  "description": "",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/reportsComponent"
-                  }
-                },
-                "skips": {
-                  "type": "array",
-                  "items": {
-                    "title": "Root Type for reportsSkipsDetails",
-                    "type": "object",
-                    "properties": {
-                      "details": {
-                        "type": "string"
-                      },
-                      "reason": {
-                        "type": "string"
-                      },
-                      "rule_fqdn": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    },
-                    "example": {
-                      "details": "All: ['ccx_rules_ocp.external.rules.container_max_root_partition_size.check_container_runtime_config'] Any: ",
-                      "reason": "MISSING_REQUIREMENTS",
-                      "rule_fqdn": "ccx_rules_ocp.external.rules.container_max_root_partition_size.report",
-                      "type": "skip"
-                    }
-                  }
-                },
-                "system": {
-                  "description": "",
-                  "type": "object",
-                  "properties": {
-                    "hostname": {
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "metadata": {
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "generated_at": {
-            "type": "string"
-          },
-          "status": {
             "type": "string"
           }
         }
@@ -1667,50 +1544,6 @@
           "meta": {
             "$ref": "#/components/schemas/reportMeta",
             "description": ""
-          }
-        }
-      },
-      "reportsComponent": {
-        "description": "",
-        "type": "object",
-        "properties": {
-          "component": {
-            "description": "",
-            "type": "string"
-          },
-          "details": {
-            "type": "object"
-          },
-          "info_id": {
-            "type": "string"
-          },
-          "key": {
-            "description": "",
-            "type": "string"
-          },
-          "rule_id": {
-            "description": "",
-            "type": "string"
-          },
-          "tags": {
-            "description": "",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "type": {
-            "description": "",
-            "type": "string"
-          },
-          "links": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                  "type": "string"
-                }
-            }
           }
         }
       },
