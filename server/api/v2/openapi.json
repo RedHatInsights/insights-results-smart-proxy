@@ -1118,6 +1118,10 @@
             "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base.",
             "type": "string"
           },
+          "more_info": {
+            "description": "Non essential information.",
+            "type": "string"
+          },
           "total_risk": {
             "description": "Total risk - calculated from rule impact and likelihood.",
             "enum": [
