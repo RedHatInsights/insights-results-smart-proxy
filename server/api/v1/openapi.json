@@ -867,16 +867,6 @@
   },
   "components": {
     "schemas": {
-      "status": {
-        "description": "To be used for allOf once #453 in openapi-generator is fixed",
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "ok"
-          }
-        }
-      },
       "ruleContent": {
         "type": "object",
         "properties": {
