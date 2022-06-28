@@ -842,7 +842,7 @@
                   }
                 }
               },
-              "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+              "example": "{\"clusters\": [\"34c3ecc5-624a-49a5-bab8-4fdc5e51a266\"]}"
             }
           },
           "required": true
