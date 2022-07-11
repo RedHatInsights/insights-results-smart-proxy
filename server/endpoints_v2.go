@@ -103,6 +103,8 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 	// Prometheus metrics
 	router.Handle(apiV2Prefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
 
+	router.HandleFunc(apiV2Prefix+InfoEndpoint, server.infoMap).Methods(http.MethodGet, http.MethodOptions)
+
 	// OpenAPI specs
 	router.HandleFunc(
 		openAPIv2URL,
