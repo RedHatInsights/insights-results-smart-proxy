@@ -144,7 +144,8 @@ func (server *HTTPServer) Initialize() http.Handler {
 	metricsURL := apiPrefix + MetricsEndpoint
 	openAPIv1URL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
 	openAPIv2URL := server.Config.APIv2Prefix + filepath.Base(server.Config.APIv2SpecFile)
-
+	infoV1URL := apiPrefix + InfoEndpoint
+	infoV2URL := server.Config.APIv2Prefix + InfoEndpoint
 	// enable authentication, but only if it is setup in configuration
 	if server.Config.Auth {
 		// we have to enable authentication for all endpoints,
@@ -156,6 +157,8 @@ func (server *HTTPServer) Initialize() http.Handler {
 			metricsURL,
 			openAPIv1URL,
 			openAPIv2URL,
+			infoV1URL,
+			infoV2URL,
 			metricsURL + "?",   // to be able to test using Frisby
 			openAPIv1URL + "?", // to be able to test using Frisby
 			openAPIv2URL + "?", // to be able to test using Frisby

@@ -52,6 +52,54 @@
         }
       }
     },
+    "/info": {
+      "get": {
+        "summary": "Returns basic information about Smart Proxy, Insights Results Aggregator, and Content Service.",
+        "description": "InfoEndpoint returns basic information about Smart Proxy, Insights Results Aggregator, and Content Service version, utils repository version, commit hash etc.",
+        "operationId": "InfoEndpoint",
+        "responses": {
+          "200": {
+            "description": "An object containing information about Smart Proxy, Insights Results Aggregator, and Content Service.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "info": {
+                      "type": "object",
+                      "properties": {
+                        "SmartProxy": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "Aggregator": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "ContentService": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/metrics": {
       "get": {
         "operationId": "getMetrics",
@@ -134,7 +182,7 @@
                   "properties": {
                     "cluster": {
                       "type": "object",
-                      "properties":{
+                      "properties": {
                         "cluster_id": {
                           "type": "string",
                           "minLength": 36,
@@ -268,24 +316,24 @@
                       }
                     },
                     "groups": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "title": {
-                                    "type": "string"
-                                },
-                                "description": {
-                                    "type": "string"
-                                },
-                                "tags": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
                             }
+                          }
                         }
+                      }
                     },
                     "status": {
                       "type": "string",
@@ -438,11 +486,11 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                  "properties": {
-                    "justification": {
-                      "type": "string"
-                    }
+                "properties": {
+                  "justification": {
+                    "type": "string"
                   }
+                }
               }
             }
           },
@@ -635,24 +683,24 @@
                       }
                     },
                     "groups": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "title": {
-                                    "type": "string"
-                                },
-                                "description": {
-                                    "type": "string"
-                                },
-                                "tags": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
                             }
+                          }
                         }
+                      }
                     },
                     "status": {
                       "type": "string",
@@ -816,24 +864,24 @@
                       }
                     },
                     "groups": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "title": {
-                                    "type": "string"
-                                },
-                                "description": {
-                                    "type": "string"
-                                },
-                                "tags": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
                             }
+                          }
                         }
+                      }
                     },
                     "status": {
                       "type": "string",
@@ -969,8 +1017,8 @@
                                 "example": "Production cluster 1"
                               },
                               "disabled_at": {
-                                  "format": "date-time",
-                                  "type": "string"
+                                "format": "date-time",
+                                "type": "string"
                               },
                               "justification": {
                                 "type": "string",
