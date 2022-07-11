@@ -97,6 +97,21 @@ var (
 		EnableCORS:    true,
 	}
 
+	// DefaultServerConfigAuth is data structure that represents default
+	// server configuration with auth enabled
+	DefaultServerConfigAuth = server.Configuration{
+		Address:       ":8081",
+		APIdbgPrefix:  "/api/dbg/",
+		APIv1Prefix:   "/api/v1/",
+		APIv2Prefix:   "/api/v2/",
+		APIv1SpecFile: "server/api/v1/openapi.json",
+		APIv2SpecFile: "server/api/v2/openapi.json",
+		Debug:         true,
+		Auth:          true,
+		AuthType:      "xrh",
+		UseHTTPS:      false,
+	}
+
 	// DefaultServicesConfig is data structure that represents default
 	// services configuration
 	DefaultServicesConfig = services.Configuration{

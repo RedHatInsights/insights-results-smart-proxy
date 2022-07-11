@@ -1324,6 +1324,26 @@ func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }
 
+// TestInfoEndpointNoAuth checks that the info endpoint can be accessed without authenticating
+func TestInfoEndpointNoAuth(t *testing.T) {
+	t.Run("test the info endpoint v1", func(t *testing.T) {
+		helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigAuth, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: server.InfoEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+		})
+	})
+	t.Run("test the info endpoint v2", func(t *testing.T) {
+		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigAuth, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: server.InfoEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+		})
+	})
+}
+
 func ruleIDsChecker(t testing.TB, expected, got []byte) {
 	type Response struct {
 		Status string   `json:"status"`
