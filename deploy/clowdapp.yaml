@@ -130,16 +130,6 @@ objects:
                   optional: true
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__PAGE_SIZE
               value: ${AMS_API_PAGESIZE}
-            - name: HABERDASHER_EMITTER
-              value: ${HABERDASHER_EMITTER}
-            - name: HABERDASHER_KAFKA_BOOTSTRAP
-              value: ${HABERDASHER_KAFKA_BOOTSTRAP}
-            - name: HABERDASHER_KAFKA_TOPIC
-              value: ${HABERDASHER_KAFKA_TOPIC}
-            - name: HABERDASHER_LABELS
-              value: ${HABERDASHER_LABELS}
-            - name: HABERDASHER_TAGS
-              value: ${HABERDASHER_TAGS}
           image: ${IMAGE}:${IMAGE_TAG}
           livenessProbe:
             failureThreshold: 3
@@ -232,21 +222,6 @@ parameters:
   value: "http://ccx-insights-content-service:10000/api/v1/"
 - name: INSIGHTS_CONTENT_SERVICE_POLL_TIME
   value: "60s"
-- name: HABERDASHER_EMITTER
-  description: Emitter for haberdasher logs [stderr|kafka]
-  value: stderr
-- name: HABERDASHER_KAFKA_BOOTSTRAP
-  description: Bootstrap server for haberdasher kafka emitter
-  value: "mq-kafka:29092"
-- name: HABERDASHER_KAFKA_TOPIC
-  description: Kafka topic for haberdasher kafka emitter
-  value: "platform.logging.logs"
-- name: HABERDASHER_TAGS
-  description: Haberdasher tags for unstructured logs
-  value: '["ccx"]'
-- name: HABERDASHER_LABELS
-  description: Haberdasher labels for unstructured logs
-  value: '{"app": "ccx-smart-proxy"}'
 - name: IRSP_API_DBG_PREFIX
   required: true
   value: /api/insights-results-aggregator/dbg/
