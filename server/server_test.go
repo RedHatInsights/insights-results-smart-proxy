@@ -1442,6 +1442,10 @@ func TestFillImpacted(t *testing.T) {
 		RuleID:   "rid1",
 		ErrorKey: "ek1",
 	}
+	resp2 := types.RuleWithContentResponse{
+		RuleID:   "rid2",
+		ErrorKey: "ek2",
+	}
 	respNa := types.RuleWithContentResponse{
 		RuleID:   "111",
 		ErrorKey: "111",
@@ -1452,19 +1456,29 @@ func TestFillImpacted(t *testing.T) {
 		CreatedAt: types.Timestamp(time.Now().UTC().Format(time.RFC3339)),
 	}
 	report1 := ctypes.RuleOnReport{
-		Module:   "rid1",
-		ErrorKey: "ek1",
+		Module:    "rid1",
+		ErrorKey:  "ek1",
+		CreatedAt: types.Timestamp(time.Time{}.UTC().Format(time.RFC3339)),
+	}
+	report2 := ctypes.RuleOnReport{
+		Module:    "rid2",
+		ErrorKey:  "ek2",
+		CreatedAt: "wrong time format",
 	}
 	reportNa := ctypes.RuleOnReport{
 		Module:   "000",
 		ErrorKey: "000",
 	}
 
-	response = append(response, resp0, resp1, respNa)
-	aggregatorReport = append(aggregatorReport, report0, report1, reportNa)
+	response = append(response, resp0, resp1, resp2, respNa)
+	aggregatorReport = append(aggregatorReport, report0, report1, report2, reportNa)
 
 	server.FillImpacted(response, aggregatorReport)
 	assert.Equal(t, response[0].Impacted, report0.CreatedAt)
 	assert.True(t, len(response[1].Impacted) == 0)
 	assert.True(t, len(response[2].Impacted) == 0)
+
+	jsonResp, err := json.Marshal(response)
+	assert.NoError(t, err)
+	assert.NotContains(t, string(jsonResp), "0001-01-01T00:00:00Z")
 }
