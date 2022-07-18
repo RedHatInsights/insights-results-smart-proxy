@@ -67,6 +67,7 @@ type RuleWithContentResponse struct {
 	UserVote        types.UserVote  `json:"user_vote"`
 	TemplateData    interface{}     `json:"extra_data"`
 	Tags            []string        `json:"tags"`
+	Impacted        Timestamp       `json:"impacted,omitempty"`
 }
 
 // RecommendationContent is a rule content struct used for Insights Advisor,

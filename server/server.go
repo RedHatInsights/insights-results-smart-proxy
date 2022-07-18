@@ -894,11 +894,9 @@ func (server HTTPServer) buildReportEndpointResponse(
 	)
 	log.Info().Msgf("Cluster ID: %v; visible rules %d, no content rules %d, disabled rules %d", clusterID, len(visibleRules), noContentRulesCnt, disabledRulesCnt)
 
-	if err != nil {
-		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
-			handleServerError(writer, err)
-			return nil, 0, err
-		}
+	if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+		handleServerError(writer, err)
+		return nil, 0, err
 	}
 
 	rulesCount = server.getRuleCount(visibleRules, noContentRulesCnt, disabledRulesCnt, clusterID)
@@ -959,7 +957,29 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 		// fill in timestamps
 		report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
 		report.Meta.GatheredAt = aggregatorResponse.Meta.GatheredAt
+
+		fillImpacted(report.Data, aggregatorResponse.Report)
 		sendReportReponse(writer, report)
+	}
+}
+
+func fillImpacted(
+	responses []types.RuleWithContentResponse,
+	aggregatorReports []ctypes.RuleOnReport) {
+
+	idReport := make(map[string]ctypes.RuleOnReport, len(aggregatorReports))
+
+	for _, v := range aggregatorReports {
+		id := string(v.ErrorKey) + string(v.Module)
+		idReport[id] = v
+	}
+
+	for i, resp := range responses {
+		id := string(resp.ErrorKey) + string(resp.RuleID)
+		if report, ok := idReport[id]; ok {
+			resp.Impacted = report.CreatedAt
+			responses[i] = resp
+		}
 	}
 }
 
@@ -1101,12 +1121,10 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 }
 
 func handleFetchRuleContentError(writer http.ResponseWriter, err error, filtered bool) {
-	if err != nil {
-		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
-			log.Error().Err(err)
-			handleServerError(writer, err)
-			return
-		}
+	if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+		log.Error().Err(err)
+		handleServerError(writer, err)
+		return
 	}
 	err = responses.SendNotFound(writer, "Rule was not found")
 	if err != nil {
