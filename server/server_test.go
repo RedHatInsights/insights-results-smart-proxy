@@ -1429,3 +1429,42 @@ func clusterInResponseChecker(t testing.TB, expected, got []byte) {
 
 	assert.ElementsMatch(t, expectedResp.Clusters, gotResp.Clusters)
 }
+
+func TestFillImpacted(t *testing.T) {
+	var response []types.RuleWithContentResponse
+	var aggregatorReport []ctypes.RuleOnReport
+
+	resp0 := types.RuleWithContentResponse{
+		RuleID:   "rid0",
+		ErrorKey: "ek0",
+	}
+	resp1 := types.RuleWithContentResponse{
+		RuleID:   "rid1",
+		ErrorKey: "ek1",
+	}
+	respNa := types.RuleWithContentResponse{
+		RuleID:   "111",
+		ErrorKey: "111",
+	}
+	report0 := ctypes.RuleOnReport{
+		Module:    "rid0",
+		ErrorKey:  "ek0",
+		CreatedAt: types.Timestamp(time.Now().UTC().Format(time.RFC3339)),
+	}
+	report1 := ctypes.RuleOnReport{
+		Module:   "rid1",
+		ErrorKey: "ek1",
+	}
+	reportNa := ctypes.RuleOnReport{
+		Module:   "000",
+		ErrorKey: "000",
+	}
+
+	response = append(response, resp0, resp1, respNa)
+	aggregatorReport = append(aggregatorReport, report0, report1, reportNa)
+
+	server.FillImpacted(response, aggregatorReport)
+	assert.Equal(t, response[0].Impacted, report0.CreatedAt)
+	assert.True(t, len(response[1].Impacted) == 0)
+	assert.True(t, len(response[2].Impacted) == 0)
+}
