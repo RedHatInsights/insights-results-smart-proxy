@@ -976,7 +976,13 @@ func fillImpacted(
 
 	for i, resp := range responses {
 		id := string(resp.ErrorKey) + string(resp.RuleID)
-		if report, ok := idReport[id]; ok {
+		report, ok := idReport[id]
+		CreatedAtTime, err := time.Parse(time.RFC3339, string(report.CreatedAt))
+		if err != nil {
+			log.Warn().Err(err).Msgf("fillImpacted: invalid time format %v", report.CreatedAt)
+			continue
+		}
+		if ok && !CreatedAtTime.IsZero() {
 			resp.Impacted = report.CreatedAt
 			responses[i] = resp
 		}
