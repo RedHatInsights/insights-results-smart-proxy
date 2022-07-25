@@ -1605,10 +1605,11 @@ func TestInternalOrganizations(t *testing.T) {
 			unparsableJWTAuthBearer,
 		},
 		{
-			// This scenario is managed by 3scale, we don't need to check if the token is complete
-			"Internal organizations enabled, Request allowed even with incomplete token",
+			// Even though this scenario is covered by 3scale in real environments, we should check if the token is complete
+			// for local development purposes
+			"Internal organizations enabled, Request not allowed even incomplete token",
 			&serverConfigInternalOrganizations1,
-			http.StatusOK,
+			http.StatusForbidden,
 			incompleteJWTAuthBearer,
 		},
 		{
