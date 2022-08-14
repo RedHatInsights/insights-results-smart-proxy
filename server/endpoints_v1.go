@@ -154,42 +154,42 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 	router.HandleFunc(apiPrefix+LikeRuleEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.LikeRuleEndpoint),
+			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.LikeRuleEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+DislikeRuleEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DislikeRuleEndpoint),
+			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.DislikeRuleEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+ResetVoteOnRuleEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.ResetVoteOnRuleEndpoint),
+			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.ResetVoteOnRuleEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+DisableRuleForClusterEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DisableRuleForClusterEndpoint),
+			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.DisableRuleForClusterEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+EnableRuleForClusterEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.EnableRuleForClusterEndpoint),
+			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.EnableRuleForClusterEndpoint),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
 	router.HandleFunc(apiPrefix+DisableRuleFeedbackEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
-			server.newExtractUserIDFromTokenToURLRequestModifier(ira_server.DisableRuleFeedbackEndpoint),
+			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.DisableRuleFeedbackEndpoint),
 		}},
 	)).Methods(http.MethodPost, http.MethodOptions)
 }
