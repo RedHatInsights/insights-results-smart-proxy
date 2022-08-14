@@ -1191,6 +1191,29 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 	}
 }
 
+func (server HTTPServer) extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
+	return func(request *http.Request) (*http.Request, error) {
+		identity, err := server.GetAuthToken(request)
+		if err != nil {
+			return nil, err
+		}
+
+		vars := mux.Vars(request)
+		vars["user_id"] = string(identity.AccountNumber)
+		vars["org_id"] = fmt.Sprintf("%v", identity.Internal.OrgID)
+
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
+		request.URL, err = url.Parse(newURL)
+		if err != nil {
+			return nil, &ParamsParsingError{}
+		}
+
+		request.RequestURI = request.URL.RequestURI()
+
+		return request, nil
+	}
+}
+
 // getGroupsConfig retrieves the groups configuration from a channel to get the
 // latest valid one
 func (server HTTPServer) getGroupsConfig() (
