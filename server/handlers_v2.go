@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -739,7 +739,7 @@ func (server HTTPServer) getImpactingRecommendations(
 		return nil, err
 	}
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		log.Error().Err(err).Msgf("getImpactingRecommendations problem reading response body")
 		handleServerError(writer, err)
@@ -804,7 +804,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 		return nil, err
 	}
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		log.Error().Err(err).Msgf("getClustersAndRecommendations problem reading response body")
 		handleServerError(writer, err)

@@ -29,7 +29,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -344,7 +344,7 @@ func (server HTTPServer) sendRequest(
 		}
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error while retrieving content from request to %s", req.RequestURI)
 		return nil, nil, err
@@ -503,7 +503,7 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 		Status string                 `json:"status"`
 	}
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
@@ -557,7 +557,7 @@ func (server HTTPServer) readAggregatorReportMetainfoForClusterID(
 		Status   string                         `json:"status"`
 	}
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
@@ -603,7 +603,7 @@ func (server HTTPServer) readAggregatorReportForClusterList(
 
 	var aggregatorResponse ctypes.ClusterReports
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
@@ -636,7 +636,7 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 		orgID,
 	)
 
-	body, err := ioutil.ReadAll(request.Body)
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
@@ -665,7 +665,7 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 func handleReportsResponse(response *http.Response, writer http.ResponseWriter) (*ctypes.ClusterReports, bool) {
 	var aggregatorResponse ctypes.ClusterReports
 
-	responseBytes, err := ioutil.ReadAll(response.Body)
+	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
@@ -719,7 +719,7 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 		Status string               `json:"status"`
 	}
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
@@ -1178,6 +1178,29 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 
 		vars := mux.Vars(request)
 		vars["user_id"] = string(identity.AccountNumber)
+
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
+		request.URL, err = url.Parse(newURL)
+		if err != nil {
+			return nil, &ParamsParsingError{}
+		}
+
+		request.RequestURI = request.URL.RequestURI()
+
+		return request, nil
+	}
+}
+
+func (server HTTPServer) extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
+	return func(request *http.Request) (*http.Request, error) {
+		identity, err := server.GetAuthToken(request)
+		if err != nil {
+			return nil, err
+		}
+
+		vars := mux.Vars(request)
+		vars["user_id"] = string(identity.AccountNumber)
+		vars["org_id"] = fmt.Sprintf("%v", identity.Internal.OrgID)
 
 		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
 		request.URL, err = url.Parse(newURL)

@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
@@ -69,7 +69,7 @@ func (server HTTPServer) postRatingToAggregator(
 		userID,
 	)
 
-	body, err := ioutil.ReadAll(request.Body)
+	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
@@ -128,7 +128,7 @@ func (server HTTPServer) getRatingForRecommendation(
 		return
 	}
 
-	responseBytes, err := ioutil.ReadAll(aggregatorResp.Body)
+	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		log.Error().Err(err).Msgf("problem reading response from URL %v from aggregator", aggregatorURL)
 		return
