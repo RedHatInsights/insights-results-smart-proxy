@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
@@ -451,7 +451,7 @@ func readInfoAPIEndpoint(url string) (map[string]string, error) {
 		}
 	}()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		err = errors.New("Problem reading response from /info endpoint")
 		return nil, err

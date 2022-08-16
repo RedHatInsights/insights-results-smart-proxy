@@ -17,7 +17,6 @@ limitations under the License.
 package conf_test
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -164,7 +163,7 @@ str
 }
 
 func GetTmpConfigFile(configData string) (string, error) {
-	tmpFile, err := ioutil.TempFile("/tmp", "tmp_config_*.toml")
+	tmpFile, err := os.CreateTemp("/tmp", "tmp_config_*.toml")
 	if err != nil {
 		return "", err
 	}

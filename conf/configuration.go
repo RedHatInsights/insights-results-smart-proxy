@@ -35,7 +35,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -235,7 +234,7 @@ func getInternalRulesOrganizations() []types.OrgID {
 		log.Fatal().Msgf("Internal organizations enabled, but none supplied")
 	}
 
-	internalRulesCSVData, err := ioutil.ReadFile(Config.SetupConf.InternalRulesOrganizationsCSVFile)
+	internalRulesCSVData, err := os.ReadFile(Config.SetupConf.InternalRulesOrganizationsCSVFile)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Internal organizations file could not be opened")
 	}
