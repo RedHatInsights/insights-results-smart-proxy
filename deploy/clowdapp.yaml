@@ -153,11 +153,11 @@ objects:
             timeoutSeconds: 1
           resources:
             requests:
-              cpu: 100m
-              memory: 300Mi
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
             limits:
-              cpu: 250m
-              memory: 600Mi
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
           volumeMounts:
           - mountPath: /internal-rules-organizations
             name: internal-rules-organizations
@@ -208,6 +208,15 @@ parameters:
 - description: Minimum number of pods to use when autoscaling is enabled
   name: MAX_REPLICAS
   value: '1'
+- name: CPU_LIMIT
+  value: 100m
+- name: MEMORY_LIMIT
+  value: 300Mi
+- name: CPU_REQUEST
+  value: 50m
+- name: MEMORY_REQUEST
+  value: 150Mi
+
 - name: DEBUG
   value: "true"
 - name: AUTH
