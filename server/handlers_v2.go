@@ -280,7 +280,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	ackedRulesMap := server.getRuleAcksMap(orgID, userID)
 
 	// retrieve user disabled rules for given list of active clusters
-	disabledClustersForRules := server.getRuleDisabledClusters(writer, userID, clusterIDList)
+	disabledClustersForRules := server.getRuleDisabledClusters(writer, orgID, clusterIDList)
 	if err != nil {
 		log.Error().Err(err).Msg("problem getting user disabled rules for list of clusters")
 		// server error has been handled already
@@ -336,14 +336,14 @@ func (server HTTPServer) getRuleAcksMap(orgID types.OrgID, userID types.UserID) 
 
 func (server HTTPServer) getRuleDisabledClusters(
 	writer http.ResponseWriter,
-	userID types.UserID,
+	orgID types.OrgID,
 	clusterList []ctypes.ClusterName,
 ) (
 	ruleDisabledClusters map[types.RuleID][]types.ClusterName,
 ) {
 	ruleDisabledClusters = make(map[types.RuleID][]types.ClusterName)
 
-	listOfDisabledRules, err := server.readListOfDisabledRulesForClusters(writer, userID, clusterList)
+	listOfDisabledRules, err := server.readListOfDisabledRulesForClusters(writer, orgID, clusterList)
 	if err != nil {
 		log.Error().Err(err).Msg("error reading disabled rules from aggregator")
 		// server error has been handled already
@@ -418,12 +418,11 @@ func (server HTTPServer) getSingleClusterInfo(writer http.ResponseWriter, reques
 		return
 	}
 
-	authToken, err := server.GetAuthToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
-	orgID := authToken.Internal.OrgID
 
 	clusterID, successful := httputils.ReadClusterName(writer, request)
 	// error handled by function
@@ -558,10 +557,10 @@ func filterOutDisabledRules(
 }
 
 // Method getUserDisabledRulesPerCluster returns a map of cluster IDs with a list of disabled rules for each cluster
-func (server *HTTPServer) getUserDisabledRulesPerCluster(userID types.UserID) (
+func (server *HTTPServer) getUserDisabledRulesPerCluster(orgID types.OrgID) (
 	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
 ) {
-	listOfDisabledRules, err := server.readListOfClusterDisabledRules(userID)
+	listOfDisabledRules, err := server.readListOfClusterDisabledRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg("error retrieving list of disabled rules")
 		return
@@ -1010,7 +1009,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		return
 	}
 
-	disabledClusters, err := server.getListOfDisabledClusters(orgID, userID, selector)
+	disabledClusters, err := server.getListOfDisabledClusters(orgID, selector)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
 			Msg("Couldn't retrieve disabled clusters for given rule selector")
@@ -1029,7 +1028,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 
 // getListOfDisabledClusters reads list of disabled clusters from aggregator
 func (server *HTTPServer) getListOfDisabledClusters(
-	orgID types.OrgID, userID types.UserID, ruleSelector ctypes.RuleSelector,
+	orgID types.OrgID, ruleSelector ctypes.RuleSelector,
 ) ([]ctypes.DisabledClusterInfo, error) {
 	var response struct {
 		Status           string                       `json:"status"`
@@ -1045,7 +1044,7 @@ func (server *HTTPServer) getListOfDisabledClusters(
 		ira_server.ListOfDisabledClusters,
 		splitRuleID[0]+dotReport,
 		splitRuleID[1],
-		userID,
+		orgID,
 	)
 
 	// #nosec G107
