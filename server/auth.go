@@ -74,6 +74,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		tkV2 := &types.TokenV2{}
 
 		// if we took JWT token, it has different structure than x-rh-identity
+		// JWT isn't/can't used in any real environment
 		if server.Config.AuthType == "jwt" {
 			jwtPayload := &types.JWTPayload{}
 			err = json.Unmarshal(decoded, jwtPayload)
@@ -88,6 +89,9 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 				AccountNumber: jwtPayload.AccountNumber,
 				Internal: types.Internal{
 					OrgID: jwtPayload.OrgID,
+				},
+				User: types.User{
+					UserID: jwtPayload.UserID,
 				},
 			}
 		} else {
@@ -142,18 +146,36 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 
 // GetCurrentUserID retrieves current user's id from request
 func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID, error) {
-	i := request.Context().Value(types.ContextKeyUser)
-
-	if i == nil {
-		return "", &AuthenticationError{errString: "user id is not provided"}
+	identity, err := server.GetAuthToken(request)
+	if err != nil {
+		return types.UserID(""), err
 	}
 
-	identity, ok := i.(types.Identity)
-	if !ok {
-		return "", &AuthenticationError{errString: "contextKeyUser has wrong type"}
+	return identity.User.UserID, nil
+}
+
+// GetCurrentOrgID retrieves the ID of the organization the user belongs to
+func (server *HTTPServer) GetCurrentOrgID(request *http.Request) (types.OrgID, error) {
+	identity, err := server.GetAuthToken(request)
+	if err != nil {
+		return types.OrgID(0), err
 	}
 
-	return identity.AccountNumber, nil
+	return identity.Internal.OrgID, nil
+}
+
+// GetCurrentOrgIDUserID retrieves the ID of the organization the user belongs to and
+// the ID of the specific user
+func (server *HTTPServer) GetCurrentOrgIDUserID(request *http.Request) (
+	types.OrgID, types.UserID, error,
+) {
+	identity, err := server.GetAuthToken(request)
+	if err != nil {
+		log.Err(err).Msg("error retrieving identity from token")
+		return types.OrgID(0), types.UserID("0"), err
+	}
+
+	return identity.Internal.OrgID, identity.User.UserID, nil
 }
 
 // GetAuthToken returns current authentication token

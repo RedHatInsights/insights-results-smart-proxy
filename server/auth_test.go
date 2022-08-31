@@ -31,12 +31,21 @@ type testCase struct {
 	expectedError    string
 	expectedIdentity types.Identity
 	expectedUserID   types.UserID
+	expectedOrgID    types.OrgID
 }
 
 var (
-	validIdentity = types.Identity{
-		AccountNumber: types.UserID("a user"),
+	validIdentityXRH = types.Identity{
+		AccountNumber: types.UserID("1"),
 		Internal:      types.Internal{OrgID: 1},
+		User: types.User{
+			UserID: types.UserID("1"),
+		},
+	}
+	validIdentityJWT = types.JWTPayload{
+		AccountNumber: types.UserID("a user"),
+		OrgID:         types.OrgID(1),
+		UserID:        types.UserID("1"),
 	}
 )
 
@@ -46,7 +55,7 @@ func TestGetAuthToken(t *testing.T) {
 			name:             "valid token",
 			identity:         "valid",
 			expectedError:    "",
-			expectedIdentity: validIdentity,
+			expectedIdentity: validIdentityXRH,
 		},
 		{
 			name:          "no token",
@@ -83,12 +92,12 @@ func TestGetCurrentUserID(t *testing.T) {
 			name:           "valid token",
 			identity:       "valid",
 			expectedError:  "",
-			expectedUserID: validIdentity.AccountNumber,
+			expectedUserID: validIdentityXRH.User.UserID,
 		},
 		{
 			name:          "no token",
 			identity:      "empty",
-			expectedError: "user id is not provided",
+			expectedError: "token is not provided",
 		},
 		{
 			name:          "invalid token",
@@ -114,6 +123,90 @@ func TestGetCurrentUserID(t *testing.T) {
 	}
 }
 
+func TestGetCurrentOrgID(t *testing.T) {
+	testCases := []testCase{
+		{
+			name:          "valid token",
+			identity:      "valid",
+			expectedError: "",
+			expectedOrgID: validIdentityXRH.Internal.OrgID,
+		},
+		{
+			name:          "no token",
+			identity:      "empty",
+			expectedError: "token is not provided",
+		},
+		{
+			name:          "invalid token",
+			identity:      "bad",
+			expectedError: "contextKeyUser has wrong type",
+		},
+	}
+
+	testServer := server.HTTPServer{}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := getRequest(t, tc.identity)
+
+			orgID, err := testServer.GetCurrentOrgID(req)
+			if tc.expectedError == "" {
+				require.NoError(t, err)
+				assert.Equal(t, tc.expectedOrgID, orgID)
+			} else {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.expectedError)
+			}
+		})
+	}
+}
+
+func TestGetCurrentOrgIDUserID(t *testing.T) {
+	testCases := []testCase{
+		{
+			name:           "valid token",
+			identity:       "valid",
+			expectedError:  "",
+			expectedOrgID:  validIdentityXRH.Internal.OrgID,
+			expectedUserID: validIdentityXRH.User.UserID,
+		},
+		{
+			name:          "no token",
+			identity:      "empty",
+			expectedError: "token is not provided",
+		},
+		{
+			name:          "invalid token",
+			identity:      "bad",
+			expectedError: "contextKeyUser has wrong type",
+		},
+	}
+
+	testServer := server.HTTPServer{}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := getRequest(t, tc.identity)
+
+			userID, err := testServer.GetCurrentUserID(req)
+			if tc.expectedError == "" {
+				require.NoError(t, err)
+				assert.Equal(t, tc.expectedUserID, userID)
+			} else {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.expectedError)
+			}
+
+			orgID, err := testServer.GetCurrentOrgID(req)
+			if tc.expectedError == "" {
+				require.NoError(t, err)
+				assert.Equal(t, tc.expectedOrgID, orgID)
+			} else {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.expectedError)
+			}
+		})
+	}
+}
+
 func getRequest(t *testing.T, identity string) *http.Request {
 	t.Helper()
 
@@ -121,7 +214,7 @@ func getRequest(t *testing.T, identity string) *http.Request {
 	assert.NoError(t, err)
 
 	if identity == "valid" {
-		ctx := context.WithValue(req.Context(), types.ContextKeyUser, validIdentity)
+		ctx := context.WithValue(req.Context(), types.ContextKeyUser, validIdentityXRH)
 		req = req.WithContext(ctx)
 	}
 
