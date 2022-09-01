@@ -74,8 +74,8 @@ var (
 		APIv1SpecFile:                    "server/api/v1/openapi.json",
 		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
-		Auth:                             false,
-		AuthType:                         "",
+		Auth:                             true,
+		AuthType:                         "jwt",
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: false,
@@ -91,8 +91,8 @@ var (
 		APIv1SpecFile: "server/api/v1/openapi.json",
 		APIv2SpecFile: "server/api/v2/openapi.json",
 		Debug:         true,
-		Auth:          false,
-		AuthType:      "",
+		Auth:          true,
+		AuthType:      "jwt",
 		UseHTTPS:      false,
 		EnableCORS:    true,
 	}
@@ -108,7 +108,7 @@ var (
 		APIv2SpecFile: "server/api/v2/openapi.json",
 		Debug:         true,
 		Auth:          true,
-		AuthType:      "xrh",
+		AuthType:      "jwt",
 		UseHTTPS:      false,
 	}
 

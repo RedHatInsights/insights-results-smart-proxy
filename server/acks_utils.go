@@ -79,7 +79,7 @@ func readRuleSelectorAndJustificationFromBody(writer http.ResponseWriter, reques
 }
 
 // readOrgIDAndUserIDFromToken helper method reads organization ID and user ID
-// (account number) from the token
+// from the token
 func (server *HTTPServer) readOrgIDAndUserIDFromToken(writer http.ResponseWriter, request *http.Request) (
 	types.OrgID, types.UserID, error) {
 	// auth. token contains organization ID and user ID we need to use
@@ -90,7 +90,7 @@ func (server *HTTPServer) readOrgIDAndUserIDFromToken(writer http.ResponseWriter
 	}
 	// Organization ID and user ID are to be provided in the token
 	orgID := authToken.Internal.OrgID
-	userID := authToken.AccountNumber
+	userID := authToken.User.UserID
 	return orgID, userID, nil
 }
 

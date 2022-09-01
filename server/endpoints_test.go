@@ -70,11 +70,12 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 				})
 
 				helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-					Method:       testCase.method,
-					Endpoint:     testCase.endpoint,
-					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-					UserID:       testdata.UserID,
-					OrgID:        testdata.OrgID,
+					Method:             testCase.method,
+					Endpoint:           testCase.endpoint,
+					EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+					UserID:             testdata.UserID,
+					OrgID:              testdata.OrgID,
+					AuthorizationToken: goodJWTAuthBearer,
 				}, &helpers.APIResponse{
 					StatusCode: http.StatusOK,
 					Body:       `{"status": "ok"}`,
@@ -89,11 +90,12 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 func TestHTTPServer_ProxyTo_VoteEndpointBadCharacter(t *testing.T) {
 	badClusterName := "00000000000000000000000000000000000%1F"
 	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfig, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
-		Method:       http.MethodPut,
-		Endpoint:     server.LikeRuleEndpoint,
-		EndpointArgs: []interface{}{badClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-		UserID:       testdata.UserID,
-		OrgID:        testdata.OrgID,
+		Method:             http.MethodPut,
+		Endpoint:           server.LikeRuleEndpoint,
+		EndpointArgs:       []interface{}{badClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+		UserID:             testdata.UserID,
+		OrgID:              testdata.OrgID,
+		AuthorizationToken: goodJWTAuthBearer,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusBadRequest,
 		Body:       `{"status":"the parameters contains invalid characters and cannot be used"}`,

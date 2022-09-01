@@ -752,14 +752,11 @@ func (server HTTPServer) fetchAggregatorReport(
 		return
 	}
 
-	authToken, err := server.GetAuthToken(request)
+	orgID, userID, err := server.GetCurrentOrgIDUserID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
-
-	userID := authToken.AccountNumber
-	orgID := authToken.Internal.OrgID
 
 	aggregatorResponse, successful = server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
 	if !successful {
@@ -779,14 +776,11 @@ func (server HTTPServer) fetchAggregatorReportMetainfo(
 		return
 	}
 
-	authToken, err := server.GetAuthToken(request)
+	orgID, userID, err := server.GetCurrentOrgIDUserID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
-
-	userID := authToken.AccountNumber
-	orgID := authToken.Internal.OrgID
 
 	aggregatorResponse, successful = server.readAggregatorReportMetainfoForClusterID(orgID, clusterID, userID, writer)
 	if !successful {
@@ -808,13 +802,11 @@ func (server HTTPServer) fetchAggregatorReports(
 		return nil, false
 	}
 
-	authToken, err := server.GetAuthToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
 	}
-
-	orgID := authToken.Internal.OrgID
 
 	aggregatorResponse, successful := server.readAggregatorReportForClusterList(orgID, clusterList, writer)
 	if !successful {
@@ -829,14 +821,11 @@ func (server HTTPServer) fetchAggregatorReports(
 func (server HTTPServer) fetchAggregatorReportsUsingRequestBodyClusterList(
 	writer http.ResponseWriter, request *http.Request,
 ) (*ctypes.ClusterReports, bool) {
-	// auth token from request headers
-	authToken, err := server.GetAuthToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
 	}
-
-	orgID := authToken.Internal.OrgID
 
 	aggregatorResponse, successful := server.readAggregatorReportForClusterListFromBody(orgID, request, writer)
 	if !successful {
@@ -1074,14 +1063,11 @@ func (server HTTPServer) fetchAggregatorReportRule(
 		return nil, false
 	}
 
-	authToken, err := server.GetAuthToken(request)
+	orgID, userID, err := server.GetCurrentOrgIDUserID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
 	}
-
-	userID := authToken.AccountNumber
-	orgID := authToken.Internal.OrgID
 
 	aggregatorResponse, successful := server.readAggregatorRuleForClusterID(orgID, clusterID, userID, ruleID, errorKey, writer)
 	if !successful {
@@ -1148,12 +1134,11 @@ func (server HTTPServer) checkInternalRulePermissions(request *http.Request) err
 		return nil
 	}
 
-	authToken, err := server.GetAuthToken(request)
+	requestOrgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
+		log.Error().Err(err).Msg("error retrieving org_id from token")
 		return err
 	}
-
-	requestOrgID := ctypes.OrgID(authToken.Internal.OrgID)
 
 	log.Info().Msgf("Checking internal rule permissions for Organization ID: %v", requestOrgID)
 	for _, allowedID := range server.Config.InternalRulesOrganizations {
@@ -1177,7 +1162,7 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 		}
 
 		vars := mux.Vars(request)
-		vars["user_id"] = string(identity.AccountNumber)
+		vars["user_id"] = string(identity.User.UserID)
 
 		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
 		request.URL, err = url.Parse(newURL)
@@ -1193,14 +1178,14 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 
 func (server HTTPServer) extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
 	return func(request *http.Request) (*http.Request, error) {
-		identity, err := server.GetAuthToken(request)
+		orgID, userID, err := server.GetCurrentOrgIDUserID(request)
 		if err != nil {
-			return nil, err
+			return nil, &ParamsParsingError{}
 		}
 
 		vars := mux.Vars(request)
-		vars["user_id"] = string(identity.AccountNumber)
-		vars["org_id"] = fmt.Sprintf("%v", identity.Internal.OrgID)
+		vars["user_id"] = string(userID)
+		vars["org_id"] = fmt.Sprintf("%v", orgID)
 
 		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
 		request.URL, err = url.Parse(newURL)
@@ -1261,7 +1246,7 @@ func (server HTTPServer) getOverviewPerCluster(
 	orgWideDisabledRules map[types.RuleID]bool,
 ) (*types.ClusterOverview, error) {
 
-	userID := authToken.AccountNumber
+	userID := authToken.User.UserID
 	orgID := authToken.Internal.OrgID
 	aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterName, userID, writer)
 	if !successful {
@@ -1376,7 +1361,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 
 // Method readListOfClusterDisabledRules returns rules with a list of clusters for which the user had
 // disabled the rule (if any)
-func (server *HTTPServer) readListOfClusterDisabledRules(userID types.UserID) ([]ctypes.DisabledRule, error) {
+func (server *HTTPServer) readListOfClusterDisabledRules(orgID types.OrgID) ([]ctypes.DisabledRule, error) {
 	// wont be used anywhere else
 	var response struct {
 		Status        string                `json:"status"`
@@ -1386,7 +1371,7 @@ func (server *HTTPServer) readListOfClusterDisabledRules(userID types.UserID) ([
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ListOfDisabledRules,
-		userID,
+		orgID,
 	)
 
 	// #nosec G107
@@ -1412,7 +1397,7 @@ func (server *HTTPServer) readListOfClusterDisabledRules(userID types.UserID) ([
 // Method readListOfClusterDisabledRules returns user disabled rules for given cluster list
 func (server *HTTPServer) readListOfDisabledRulesForClusters(
 	writer http.ResponseWriter,
-	userID ctypes.UserID,
+	orgID ctypes.OrgID,
 	clusterList []ctypes.ClusterName,
 ) ([]ctypes.DisabledRule, error) {
 
@@ -1425,7 +1410,7 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ListOfDisabledRulesForClusters,
-		userID,
+		orgID,
 	)
 
 	jsonMarshalled, err := json.Marshal(clusterList)
@@ -1503,7 +1488,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 	ackedRulesMap = server.getRuleAcksMap(orgID, userID)
 
 	// retrieve list of cluster IDs and single disabled rules for each cluster
-	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(userID)
+	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(orgID)
 
 	return
 }

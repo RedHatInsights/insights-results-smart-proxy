@@ -56,18 +56,19 @@ var (
 	// {
 	// 	"account_number": "5213476",
 	// 	"org_id": "1",
+	// 	"user_id": "1",
 	// 	"jti": "05443b99-d824-480b-a4be-37977405f093",
 	// 	"iat": 1594126340,
 	// 	"exp": 1594141847
 	// }
-	goodJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"
+	goodJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJqdGkiOiIwNTQ0M2I5OS1kODI0LTQ4MGItYTRiZS0zNzk3NzQwNWYwOTMiLCJpYXQiOjE1OTQxMjYzNDAsImV4cCI6MTU5NDE0MTg0N30K.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"
 	// unparsableJWTAuthBearer cannot be parsed
 	unparsableJWTAuthBearer = "Bearer this_is^not.a-token"
-	// incompleteJWTAuthBearer is goodJWTAuthBearer without account_number
+	// incompleteJWTAuthBearer is goodJWTAuthBearer without account_number and user_id
 	incompleteJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcmdfaWQiOiIxIiwianRpIjoiMDU0NDNiOTktZDgyNC00ODBiLWE0YmUtMzc5Nzc0MDVmMDkzIiwiaWF0IjoxNTk0MTI2MzQwLCJleHAiOjE1OTQxNDE4NDd9.P6-6BJ4hUpLzCqsmGHthe0B1opU3Tz6nMtCQ-Yvuea4"
 	// invalidJWTAuthBearer is goodJWTAuthBearer with the org_id type set as int
 	invalidJWTAuthBearer      = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOjEsImp0aSI6IjA1NDQzYjk5LWQ4MjQtNDgwYi1hNGJlLTM3OTc3NDA1ZjA5MyIsImlhdCI6MTU5NDEyNjM0MCwiZXhwIjoxNTk0MTQxODQ3fQ.GndJUWNaG4IWm8OkKBs_1uvD1-vaJqL2Xvf9QiGvlRw"
-	userIDOnGoodJWTAuthBearer = 5213476
+	userIDOnGoodJWTAuthBearer = "1"
 	testTimeStr               = "2021-01-02T15:04:05Z"
 	testTimestamp             = types.Timestamp(testTimeStr)
 

@@ -309,7 +309,7 @@ func expectNoRulesDisabledPerCluster(t *testing.TB, orgID types.OrgID, userID ty
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledRules,
-			EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{orgID},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusOK,
@@ -338,11 +338,12 @@ func TestHTTPServer_ReportEndpoint(t *testing.T) {
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3Rules),
@@ -374,11 +375,12 @@ func TestHTTPServer_ReportEndpoint_UnavailableContentService(t *testing.T) {
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
@@ -408,11 +410,12 @@ func TestHTTPServer_ReportEndpointNoContent(t *testing.T) {
 
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse1RuleNoContent),
@@ -587,11 +590,12 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 
 		// 1 rule returned, but count = 3
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3Rules2NoContent),
@@ -619,11 +623,12 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint + "?" + server.OSDEligibleParam + "=true",
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint + "?" + server.OSDEligibleParam + "=true",
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesWithOnlyOSD),
@@ -653,11 +658,12 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 		}
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=false",
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint + "?" + server.GetDisabledParam + "=false",
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesOnlyEnabled),
@@ -665,11 +671,12 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 
 		// Not using the parameter gets the same result as using with =false
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesOnlyEnabled),
@@ -677,11 +684,12 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 
 		// Enabling the parameter
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=true",
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint + "?" + server.GetDisabledParam + "=true",
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesAll),
@@ -709,11 +717,12 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForClusterAndMissingContent(
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1EmptyResponseDisabledRulesMissingContent),
@@ -749,11 +758,12 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 		}
 		// Get report with get_disabled = false
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=false",
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint + "?" + server.GetDisabledParam + "=false",
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportRule1),
@@ -761,11 +771,12 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 
 		// Get report without specifying get_disabled => same result as above
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportRule1),
@@ -774,11 +785,12 @@ func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *test
 		// Get report with get_disabled = true
 		// => Report contains disabled rules for cluster and org-wide disabled rules
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportEndpoint + "?" + server.GetDisabledParam + "=true",
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint + "?" + server.GetDisabledParam + "=true",
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3RulesAll),
@@ -817,11 +829,12 @@ func TestHTTPServer_ReportMetainfoEndpointNoReports(t *testing.T) {
 
 		// check the Smart Proxy report/info endpoint
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportMetainfoEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportMetainfoEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseNoReports),
@@ -860,11 +873,12 @@ func TestHTTPServer_ReportMetainfoEndpointTwoReports(t *testing.T) {
 
 		// check the Smart Proxy report/info endpoint
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportMetainfoEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportMetainfoEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseTwoReports),
@@ -891,11 +905,12 @@ func TestHTTPServer_ReportMetainfoEndpointForbidden(t *testing.T) {
 		})
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportMetainfoEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportMetainfoEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusForbidden,
 		})
@@ -925,11 +940,12 @@ func TestHTTPServer_ReportMetainfoEndpointImproperJSON(t *testing.T) {
 
 		// check the Smart Proxy report/info endpoint
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportMetainfoEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportMetainfoEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusBadRequest,
 			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseInvalidJSON),
@@ -970,11 +986,12 @@ func TestHTTPServer_ReportMetainfoEndpointWrongClusterName(t *testing.T) {
 
 		// check the Smart Proxy report/info endpoint
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.ReportMetainfoEndpoint,
-			EndpointArgs: []interface{}{clusterName},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportMetainfoEndpoint,
+			EndpointArgs:       []interface{}{clusterName},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusBadRequest,
 			Body:       helpers.ToJSONString(ReportMetainfoAPIResponseInvalidClusterName),
@@ -1006,11 +1023,12 @@ func TestHTTPServer_RuleEndpoint(t *testing.T) {
 		})
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.SingleRuleEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.SingleRuleEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse3SingleRule),
@@ -1046,11 +1064,12 @@ func TestHTTPServer_RuleEndpoint_UnavailableContentService(t *testing.T) {
 		})
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.SingleRuleEndpoint,
-			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.SingleRuleEndpoint,
+			EndpointArgs:       []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
@@ -1081,11 +1100,12 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 		})
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
-			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
+			EndpointArgs:       []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey1.RuleModule, testdata.RuleErrorKey1.ErrorKey)},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse3SingleRule),
@@ -1116,11 +1136,12 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 		})
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:       http.MethodGet,
-			Endpoint:     server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
-			EndpointArgs: []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey2.RuleModule, testdata.RuleErrorKey2.ErrorKey)},
-			UserID:       testdata.UserID,
-			OrgID:        testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.SingleRuleEndpoint + "?" + server.OSDEligibleParam + "=true",
+			EndpointArgs:       []interface{}{testdata.ClusterName, fmt.Sprintf("%v|%v", testdata.RuleErrorKey2.RuleModule, testdata.RuleErrorKey2.ErrorKey)},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusNotFound,
 			Body:       helpers.ToJSONString(SmartProxyReportResponse3NoRuleFound),
@@ -1136,8 +1157,9 @@ func TestHTTPServer_GetContent(t *testing.T) {
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: server.Content,
+			Method:             http.MethodGet,
+			Endpoint:           server.Content,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetContentResponse3Rules),
@@ -1566,10 +1588,11 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:   http.MethodGet,
-				Endpoint: server.OverviewEndpoint,
-				OrgID:    testdata.OrgID,
-				UserID:   ctypes.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+				Method:             http.MethodGet,
+				Endpoint:           server.OverviewEndpoint,
+				OrgID:              testdata.OrgID,
+				UserID:             ctypes.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
@@ -1752,11 +1775,12 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:   http.MethodPost,
-			Endpoint: server.OverviewEndpoint,
-			OrgID:    testdata.OrgID,
-			UserID:   testdata.UserID,
-			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+			Method:             http.MethodPost,
+			Endpoint:           server.OverviewEndpoint,
+			OrgID:              testdata.OrgID,
+			UserID:             testdata.UserID,
+			Body:               helpers.ToJSONString(data.ClusterIDListInReq),
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(OverviewResponsePostEndpoint),
@@ -1794,11 +1818,12 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:   http.MethodPost,
-			Endpoint: server.OverviewEndpoint,
-			OrgID:    testdata.OrgID,
-			UserID:   testdata.UserID,
-			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+			Method:             http.MethodPost,
+			Endpoint:           server.OverviewEndpoint,
+			OrgID:              testdata.OrgID,
+			UserID:             testdata.UserID,
+			Body:               helpers.ToJSONString(data.ClusterIDListInReq),
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
@@ -1839,11 +1864,12 @@ func TestHTTPServer_OverviewWithClusterIDsEndpointDisabledRules(t *testing.T) {
 		})
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:   http.MethodPost,
-			Endpoint: server.OverviewEndpoint,
-			OrgID:    testdata.OrgID,
-			UserID:   testdata.UserID,
-			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+			Method:             http.MethodPost,
+			Endpoint:           server.OverviewEndpoint,
+			OrgID:              testdata.OrgID,
+			UserID:             testdata.UserID,
+			Body:               helpers.ToJSONString(data.ClusterIDListInReq),
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(OverviewResponsePostEndpointRule1Disabled),
@@ -1874,11 +1900,12 @@ func TestHTTPServer_OverviewWithClusterIDsEndpointDisabledRules(t *testing.T) {
 		})
 
 		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:   http.MethodPost,
-			Endpoint: server.OverviewEndpoint,
-			OrgID:    testdata.OrgID,
-			UserID:   testdata.UserID,
-			Body:     helpers.ToJSONString(data.ClusterIDListInReq),
+			Method:             http.MethodPost,
+			Endpoint:           server.OverviewEndpoint,
+			OrgID:              testdata.OrgID,
+			UserID:             testdata.UserID,
+			Body:               helpers.ToJSONString(data.ClusterIDListInReq),
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(OverviewResponsePostEndpointRule2Disabled),
@@ -1940,7 +1967,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2049,7 +2076,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2126,7 +2153,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2193,7 +2220,7 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2264,7 +2291,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2335,7 +2362,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2410,7 +2437,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2490,7 +2517,7 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -2596,7 +2623,7 @@ func TestHTTPServer_RecommendationsListEndpointAMSManagedClusters(t *testing.T) 
 			&helpers.APIRequest{
 				Method:       http.MethodPost,
 				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 				Body:         reqBody,
 			},
 			&helpers.APIResponse{
@@ -3511,7 +3538,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledRuleSingleCluster(t 
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     ira_server.ListOfDisabledRules,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -3641,7 +3668,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     ira_server.ListOfDisabledRules,
-				EndpointArgs: []interface{}{userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -3691,9 +3718,10 @@ func TestHTTPServer_GroupsEndpoint(t *testing.T) {
 		}`
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		helpers.AssertAPIRequest(t, nil, nil, groupsChannel, errorFoundChannel, errorChannel, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: server.RuleGroupsEndpoint,
-			OrgID:    testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.RuleGroupsEndpoint,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       expectedBody,
@@ -3716,9 +3744,10 @@ func TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		helpers.AssertAPIRequest(t, nil, nil, groupsChannel, errorFoundChannel, errorChannel, &helpers.APIRequest{
-			Method:   http.MethodGet,
-			Endpoint: server.RuleGroupsEndpoint,
-			OrgID:    testdata.OrgID,
+			Method:             http.MethodGet,
+			Endpoint:           server.RuleGroupsEndpoint,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
