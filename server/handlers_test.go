@@ -1628,12 +1628,11 @@ func TestInternalOrganizations(t *testing.T) {
 			unparsableJWTAuthBearer,
 		},
 		{
-			// Even though this scenario is covered by 3scale in real environments, we should check if the token is complete
-			// for local development purposes
-			"Internal organizations enabled, Request not allowed even incomplete token",
+			// testing anemic tenant (user without account_number). must pass after EBS/org_id migration
+			"Internal organizations enabled, Request allowed for anemic tenant",
 			&serverConfigInternalOrganizations1,
-			http.StatusForbidden,
-			incompleteJWTAuthBearer,
+			http.StatusOK,
+			anemicJWTAuthBearer,
 		},
 		{
 			"Internal organizations enabled, Request denied due to invalid type in token",
