@@ -124,11 +124,16 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			log.Error().Msg("org_id not found on top level in token structure (old format)")
 		}
 
-		if tk.Identity.AccountNumber == "" || tk.Identity.Internal.OrgID == 0 {
-			msg := fmt.Sprintf("error retrieving requester data from token. org_id [%v], account_number [%v], user data [%+v]",
-				tk.Identity.Internal.OrgID,
+		if tk.Identity.AccountNumber == "" || tk.Identity.AccountNumber == "0" {
+			log.Info().Msgf("anemic tenant found! org_id %v, user data [%+v]",
+				tk.Identity.Internal.OrgID, tk.Identity.User,
+			)
+		}
+
+		if tk.Identity.Internal.OrgID == 0 {
+			msg := fmt.Sprintf("error retrieving requester org_id from token. account_number [%v], user data [%+v]",
 				tk.Identity.AccountNumber,
-				tkV2.IdentityV2.User,
+				tk.Identity.User,
 			)
 			log.Error().Msg(msg)
 			handleServerError(w, &AuthenticationError{errString: msg})
