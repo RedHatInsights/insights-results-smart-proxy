@@ -206,7 +206,7 @@
             <div style="box-sizing: border-box; font-size: 0; text-align: center; ">
               <div style="display: inline-block; font-size: 13px; font-family: Open Sans; color: #232F3E; line-height: 1.2; pointer-events: all; white-space: nowrap; ">
                 <div style="font-size: 13px">Kafka topic</div>
-                <div style="font-size: 13px">platform.upload.buckit</div>
+                <div style="font-size: 13px">platform.upload.announce</div>
               </div>
             </div>
           </div>
