@@ -479,6 +479,7 @@ func (server HTTPServer) getClusterDetailsFromAggregator(orgID ctypes.OrgID) ([]
 func (server HTTPServer) readAggregatorReportForClusterID(
 	orgID ctypes.OrgID, clusterID ctypes.ClusterName, userID ctypes.UserID, writer http.ResponseWriter,
 ) (*ctypes.ReportResponse, bool) {
+	log.Info().Msgf("readAggregatorReportForClusterID start for clusterID %v", clusterID)
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ReportEndpoint,
@@ -491,8 +492,10 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
 		if _, ok := err.(*url.Error); ok {
+			log.Info().Msgf("readAggregatorReportForClusterID aggregator unavailable for cluster %v", clusterID)
 			handleServerError(writer, &AggregatorServiceUnavailableError{})
 		} else {
+			log.Error().Err(err).Msgf("readAggregatorReportForClusterID unexpected error for cluster %v", clusterID)
 			handleServerError(writer, err)
 		}
 		return nil, false
@@ -505,11 +508,13 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
+		log.Info().Msgf("readAggregatorReportForClusterID error reading aggregator response for cluster %v", clusterID)
 		handleServerError(writer, err)
 		return nil, false
 	}
 
 	if aggregatorResp.StatusCode != http.StatusOK {
+		log.Info().Msgf("readAggregatorReportForClusterID aggregator status code %v for cluster %v", aggregatorResp.StatusCode, clusterID)
 		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 		if err != nil {
 			log.Error().Err(err).Msg(responseDataError)
@@ -519,6 +524,7 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
+		log.Error().Err(err).Msgf("readAggregatorReportForClusterID error unmarshaling response for cluster %v", clusterID)
 		handleServerError(writer, err)
 		return nil, false
 	}
@@ -746,22 +752,29 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 func (server HTTPServer) fetchAggregatorReport(
 	writer http.ResponseWriter, request *http.Request,
 ) (aggregatorResponse *ctypes.ReportResponse, successful bool, clusterID ctypes.ClusterName) {
+	log.Info().Msg("fetchAggregatorReport start")
 	clusterID, successful = httputils.ReadClusterName(writer, request)
 	// Error message handled by function
 	if !successful {
+		log.Info().Msg("fetchAggregatorReport unable to read clusterID")
 		return
 	}
+	log.Info().Msgf("fetchAggregatorReport clusterID retrieved %v", clusterID)
 
 	orgID, userID, err := server.GetCurrentOrgIDUserID(request)
 	if err != nil {
+		log.Info().Msgf("fetchAggregatorReport unable to get orgID or userID for cluster %v", clusterID)
 		handleServerError(writer, err)
 		return
 	}
+	log.Info().Msgf("fetchAggregatorReport orgID %v userID %v for cluster %v", orgID, userID, clusterID)
 
 	aggregatorResponse, successful = server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
 	if !successful {
+		log.Info().Msg("fetchAggregatorReport unable to get response from aggregator")
 		return
 	}
+	log.Info().Msgf("fetchAggregatorReport end for cluster %v", clusterID)
 	return
 }
 
@@ -929,10 +942,12 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 
 // reportEndpointV2 serves /report endpoint with cluster_name field in the metadata
 func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *http.Request) {
+	log.Info().Msg("reportEndpointV2 start")
 	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
 	if !successful {
 		return
 	}
+	log.Info().Msgf("reportEndpointV2 retrieved aggregator response for cluster %v", clusterID)
 
 	report := types.SmartProxyReportV2{}
 
@@ -948,6 +963,7 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 		report.Meta.GatheredAt = aggregatorResponse.Meta.GatheredAt
 
 		fillImpacted(report.Data, aggregatorResponse.Report)
+		log.Info().Msgf("reportEndpointV2 sending response for cluster %v", clusterID)
 		sendReportReponse(writer, report)
 	}
 }
