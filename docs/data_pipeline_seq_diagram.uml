@@ -33,7 +33,7 @@ participant "<$master>\nInsights operator" as operator
 participant "3Scale" as 3scale
 participant "Ingress\nservice" as ingress
 participant "Insights\nstorage broker" as isb
-queue "<$kafka>\nplatform.upload.buckit" as upload_topic
+queue "<$kafka>\nplatform.upload.announce" as upload_topic
 database "S3 bucket" as s3
 participant "CCX\nData pipeline" as pipeline #ff8080
 queue "<$kafka>\nccx.ocp.results" as results_topic
