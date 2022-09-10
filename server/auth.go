@@ -124,6 +124,13 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			log.Error().Msg("org_id not found on top level in token structure (old format)")
 		}
 
+		log.Info().Msgf("userID on top level [%v], userID nested [%v]", tkV2.IdentityV2.UserID, tkV2.IdentityV2.User.UserID)
+		log.Info().Msgf("username [%v], email [%v]", tkV2.IdentityV2.UserID, tkV2.IdentityV2.User.UserID)
+		if tkV2.IdentityV2.UserID != "" {
+			tkV2.IdentityV2.User.UserID = tkV2.IdentityV2.UserID
+			tk.Identity.User.UserID = tkV2.IdentityV2.UserID
+		}
+
 		if tk.Identity.AccountNumber == "" || tk.Identity.AccountNumber == "0" {
 			log.Info().Msgf("anemic tenant found! org_id %v, user data [%+v]",
 				tk.Identity.Internal.OrgID, tk.Identity.User,
