@@ -1177,8 +1177,13 @@ func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoi
 			return nil, err
 		}
 
+		userID := identity.User.UserID
+		if identity.User.UserID == "" {
+			userID = "0"
+		}
+
 		vars := mux.Vars(request)
-		vars["user_id"] = string(identity.User.UserID)
+		vars["user_id"] = fmt.Sprintf("%v", userID)
 
 		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
 		request.URL, err = url.Parse(newURL)

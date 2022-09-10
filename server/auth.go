@@ -185,6 +185,11 @@ func (server *HTTPServer) GetCurrentOrgIDUserID(request *http.Request) (
 		return types.OrgID(0), types.UserID("0"), err
 	}
 
+	if identity.User.UserID == "" {
+		log.Info().Msgf("empty userID for username [%v] email [%v]", identity.User.Username, identity.User.Email)
+		return identity.Internal.OrgID, types.UserID("0"), nil
+	}
+
 	return identity.Internal.OrgID, identity.User.UserID, nil
 }
 
