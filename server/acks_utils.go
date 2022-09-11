@@ -90,7 +90,7 @@ func (server *HTTPServer) readOrgIDAndUserIDFromToken(writer http.ResponseWriter
 	}
 	// Organization ID and user ID are to be provided in the token
 	if authToken.User.UserID == "" {
-		log.Info().Msgf("empty userID for username [%v] email [%v]", authToken.User.Username, authToken.User.Email)
+		log.Info().Msgf(missingUserIDMessage, authToken.User.Username, authToken.User.Email)
 		return authToken.Internal.OrgID, types.UserID("0"), nil
 	}
 
