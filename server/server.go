@@ -1260,57 +1260,6 @@ func (server HTTPServer) getGroupsConfig() (
 	return groupsConfig, nil
 }
 
-func (server HTTPServer) getOverviewPerCluster(
-	writer http.ResponseWriter,
-	clusterName ctypes.ClusterName,
-	authToken *ctypes.Identity,
-	orgWideDisabledRules map[types.RuleID]bool,
-) (*types.ClusterOverview, error) {
-
-	userID := authToken.User.UserID
-	orgID := authToken.Internal.OrgID
-	aggregatorResponse, successful := server.readAggregatorReportForClusterID(orgID, clusterName, userID, writer)
-	if !successful {
-		log.Info().Msgf("Aggregator doesn't have reports for cluster ID %s", clusterName)
-		return nil, nil
-	}
-
-	if aggregatorResponse.Meta.Count == 0 {
-		log.Info().Msgf("Cluster report doesn't have any hits. Skipping from overview.")
-		return nil, nil
-	}
-
-	totalRisks := make([]int, 0)
-	tags := make([]string, 0)
-
-	for _, rule := range aggregatorResponse.Report {
-		if isDisabledRule(rule, orgWideDisabledRules) {
-			continue
-		}
-		ruleID := rule.Module
-		errorKey := rule.ErrorKey
-		ruleWithContent, err := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
-		if err != nil {
-			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
-				log.Error().Err(err)
-				return nil, err
-			}
-			log.Error().Err(err).Msgf("Unable to retrieve content for rule %v|%v", ruleID, errorKey)
-			// this rule is not visible in OCM UI either, so we can continue calculating to be consistent
-			continue
-		}
-
-		totalRisks = append(totalRisks, ruleWithContent.TotalRisk)
-
-		tags = append(tags, ruleWithContent.Tags...)
-	}
-
-	return &types.ClusterOverview{
-		TotalRisksHit: totalRisks,
-		TagsHit:       tags,
-	}, nil
-}
-
 func isDisabledForOrgRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
 	if len(systemWideDisabledRules) > 0 {
 		selector := types.RuleID(
