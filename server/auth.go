@@ -35,6 +35,7 @@ const (
 	// #nosec G101
 	malformedTokenMessage = "Malformed authentication token"
 	invalidTokenMessage   = "Invalid/Malformed auth token"
+	missingUserIDMessage  = "empty userID for username [%v] email [%v]"
 )
 
 // Authentication middleware for checking auth rights
@@ -157,7 +158,7 @@ func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID,
 	}
 
 	if identity.User.UserID == "" {
-		log.Info().Msgf("empty userID for username [%v] email [%v]", identity.User.Username, identity.User.Email)
+		log.Info().Msgf(missingUserIDMessage, identity.User.Username, identity.User.Email)
 		return types.UserID("0"), nil
 	}
 
@@ -186,7 +187,7 @@ func (server *HTTPServer) GetCurrentOrgIDUserID(request *http.Request) (
 	}
 
 	if identity.User.UserID == "" {
-		log.Info().Msgf("empty userID for username [%v] email [%v]", identity.User.Username, identity.User.Email)
+		log.Info().Msgf(missingUserIDMessage, identity.User.Username, identity.User.Email)
 		return identity.Internal.OrgID, types.UserID("0"), nil
 	}
 
