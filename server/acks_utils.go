@@ -88,13 +88,9 @@ func (server *HTTPServer) readOrgIDAndUserIDFromToken(writer http.ResponseWriter
 		handleServerError(writer, err)
 		return types.OrgID(0), types.UserID(""), err
 	}
-	// Organization ID and user ID are to be provided in the token
-	if authToken.User.UserID == "" {
-		log.Info().Msgf(missingUserIDMessage, authToken.User.Username, authToken.User.Email)
-		return authToken.Internal.OrgID, types.UserID("0"), nil
-	}
 
-	return authToken.Internal.OrgID, authToken.User.UserID, nil
+	// Organization ID and user ID are to be provided in the token
+	return authToken.OrgID, authToken.User.UserID, nil
 }
 
 // returnRuleAckToClient returns information about selected rule ack to client.

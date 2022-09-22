@@ -228,9 +228,10 @@ func (server HTTPServer) getOrganizationOverview(
 
 // overviewEndpoint returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)
+		handleServerError(writer, err)
 		return
 	}
 	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
@@ -255,7 +256,7 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 
 // overviewEndpointWithClusterIDs returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return

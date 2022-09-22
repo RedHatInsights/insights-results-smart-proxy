@@ -33,8 +33,9 @@ import (
 func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.Request) {
 	log.Info().Msg("postRating")
 
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
+		handleServerError(writer, err)
 		return
 	}
 

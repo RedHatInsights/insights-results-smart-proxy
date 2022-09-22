@@ -94,9 +94,10 @@ func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter
 	err error,
 ) {
 
-	orgID, userID, err = server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err = server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)
+		handleServerError(writer, err)
 		return
 	}
 
