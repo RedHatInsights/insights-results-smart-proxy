@@ -74,6 +74,8 @@ objects:
               value: "xrh"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS
               value: "${IRSP_ENABLE_INTERNAL_ORGANIZATIONS}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ORG_CLUSTERS_FALLBACK
+              value: "${ORG_CLUSTERS_FALLBACK}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR
               value: ${INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT
@@ -254,3 +256,5 @@ parameters:
   value: "https://api.stage.openshift.com"
 - name: AMS_API_PAGESIZE
   value: "10000"
+- name: ORG_CLUSTERS_FALLBACK
+  value: "false"
