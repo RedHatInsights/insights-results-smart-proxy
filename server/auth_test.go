@@ -42,11 +42,6 @@ var (
 			UserID: types.UserID("1"),
 		},
 	}
-	validIdentityJWT = types.JWTPayload{
-		AccountNumber: types.UserID("a user"),
-		OrgID:         types.OrgID(1),
-		UserID:        types.UserID("1"),
-	}
 )
 
 func TestGetAuthToken(t *testing.T) {
