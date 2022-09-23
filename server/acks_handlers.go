@@ -18,8 +18,9 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/RedHatInsights/insights-operator-utils/generators"
 	"net/http"
+
+	"github.com/RedHatInsights/insights-operator-utils/generators"
 
 	"github.com/rs/zerolog/log"
 
@@ -63,10 +64,10 @@ const (
 // Please note that for the sake of simplicity we don't use links section as
 // pagination is not supported ATM.
 func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
-		// everything's handled already
+		handleServerError(writer, err)
 		return
 	}
 
@@ -112,10 +113,10 @@ func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.
 func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set(contentTypeHeader, JSONContentType)
 
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
-		// everything's handled already
+		handleServerError(writer, err)
 		return
 	}
 
@@ -175,10 +176,10 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set(contentTypeHeader, JSONContentType)
 
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
-		// everything's handled already
+		handleServerError(writer, err)
 		return
 	}
 
@@ -274,10 +275,10 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 // Additionally, if rule is not found, 404 is returned (not mentioned in
 // original REST API specification).
 func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
-		// everything's handled already
+		handleServerError(writer, err)
 		return
 	}
 
@@ -342,10 +343,10 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 // ID. If the ack existed, it is deleted and a 204 is returned. Otherwise, a
 // 404 is returned.
 func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
-		// everything's handled already
+		handleServerError(writer, err)
 		return
 	}
 

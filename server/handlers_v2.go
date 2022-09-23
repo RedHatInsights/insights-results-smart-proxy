@@ -150,9 +150,10 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 // getRecommendationContent retrieves the static content for the given ruleID tied
 // with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
 func (server HTTPServer) getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)
+		handleServerError(writer, err)
 		return
 	}
 
@@ -370,9 +371,10 @@ func (server HTTPServer) getRuleDisabledClusters(
 func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *http.Request) {
 	tStart := time.Now()
 
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)
+		handleServerError(writer, err)
 		return
 	}
 	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
@@ -966,9 +968,10 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	if !successful {
 		return
 	}
-	orgID, userID, err := server.readOrgIDAndUserIDFromToken(writer, request)
+	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)
+		handleServerError(writer, err)
 		return
 	}
 

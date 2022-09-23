@@ -24,7 +24,6 @@ import (
 
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/stretchr/testify/assert"
-	testify "github.com/stretchr/testify/assert"
 
 	main "github.com/RedHatInsights/insights-results-smart-proxy"
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
@@ -93,18 +92,18 @@ func TestFillInInfoParams(t *testing.T) {
 	m := make(map[string]string)
 
 	// preliminary test if Go Universe is still ok
-	testify.Empty(t, m, "Map should be empty at the beginning")
+	assert.Empty(t, m, "Map should be empty at the beginning")
 
 	// try to fill-in all info params
 	main.FillInInfoParams(m)
 
 	// preliminary test if Go Universe is still ok
-	testify.Len(t, m, 5, "Map should contains exactly five items")
+	assert.Len(t, m, 5, "Map should contains exactly five items")
 
 	// does the map contain all expected keys?
-	testify.Contains(t, m, "BuildVersion")
-	testify.Contains(t, m, "BuildTime")
-	testify.Contains(t, m, "BuildBranch")
-	testify.Contains(t, m, "BuildCommit")
-	testify.Contains(t, m, "UtilsVersion")
+	assert.Contains(t, m, "BuildVersion")
+	assert.Contains(t, m, "BuildTime")
+	assert.Contains(t, m, "BuildBranch")
+	assert.Contains(t, m, "BuildCommit")
+	assert.Contains(t, m, "UtilsVersion")
 }

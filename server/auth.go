@@ -35,7 +35,6 @@ const (
 	// #nosec G101
 	malformedTokenMessage = "Malformed authentication token"
 	invalidTokenMessage   = "Invalid/Malformed auth token"
-	missingUserIDMessage  = "empty userID for username [%v] email [%v]"
 )
 
 // Authentication middleware for checking auth rights
@@ -72,8 +71,6 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		}
 
 		tk := &types.Token{}
-		tkV2 := &types.TokenV2{}
-
 		// if we took JWT token, it has different structure than x-rh-identity
 		// JWT isn't/can't used in any real environment
 		if server.Config.AuthType == "jwt" {
@@ -88,26 +85,13 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			// Map JWT token to inner token
 			tk.Identity = types.Identity{
 				AccountNumber: jwtPayload.AccountNumber,
-				Internal: types.Internal{
-					OrgID: jwtPayload.OrgID,
-				},
+				OrgID:         jwtPayload.OrgID,
 				User: types.User{
 					UserID: jwtPayload.UserID,
 				},
 			}
 		} else {
 			// auth type is xrh (x-rh-identity header)
-
-			// unmarshal new token structure (org_id on top level)
-			err = json.Unmarshal(decoded, tkV2)
-			if err != nil {
-				// malformed token, returns with HTTP code 403 as usual
-				log.Error().Err(err).Msg(malformedTokenMessage)
-				handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
-				return
-			}
-
-			// unmarshal old token structure (org_id nested) too
 			err = json.Unmarshal(decoded, tk)
 			if err != nil {
 				// malformed token, returns with HTTP code 403 as usual
@@ -117,21 +101,13 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			}
 		}
 
-		if tkV2.IdentityV2.OrgID != 0 {
-			log.Info().Msg("org_id found on top level in token structure (new format)")
-			// fill in old types.Token because many places in smart-proxy and aggregator rely on it.
-			tk.Identity.Internal.OrgID = tkV2.IdentityV2.OrgID
-		} else {
-			log.Error().Msg("org_id not found on top level in token structure (old format)")
-		}
-
 		if tk.Identity.AccountNumber == "" || tk.Identity.AccountNumber == "0" {
 			log.Info().Msgf("anemic tenant found! org_id %v, user data [%+v]",
-				tk.Identity.Internal.OrgID, tk.Identity.User,
+				tk.Identity.OrgID, tk.Identity.User,
 			)
 		}
 
-		if tk.Identity.Internal.OrgID == 0 {
+		if tk.Identity.OrgID == 0 {
 			msg := fmt.Sprintf("error retrieving requester org_id from token. account_number [%v], user data [%+v]",
 				tk.Identity.AccountNumber,
 				tk.Identity.User,
@@ -139,6 +115,10 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			log.Error().Msg(msg)
 			handleServerError(w, &AuthenticationError{errString: msg})
 			return
+		}
+
+		if tk.Identity.User.UserID == "" {
+			tk.Identity.User.UserID = "0"
 		}
 
 		// Everything went well, proceed with the request and set the
@@ -157,11 +137,6 @@ func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID,
 		return types.UserID(""), err
 	}
 
-	if identity.User.UserID == "" {
-		log.Info().Msgf(missingUserIDMessage, identity.User.Username, identity.User.Email)
-		return types.UserID("0"), nil
-	}
-
 	return identity.User.UserID, nil
 }
 
@@ -172,12 +147,12 @@ func (server *HTTPServer) GetCurrentOrgID(request *http.Request) (types.OrgID, e
 		return types.OrgID(0), err
 	}
 
-	return identity.Internal.OrgID, nil
+	return identity.OrgID, nil
 }
 
-// GetCurrentOrgIDUserID retrieves the ID of the organization the user belongs to and
+// GetCurrentOrgIDUserIDFromToken retrieves the ID of the organization the user belongs to and
 // the ID of the specific user
-func (server *HTTPServer) GetCurrentOrgIDUserID(request *http.Request) (
+func (server *HTTPServer) GetCurrentOrgIDUserIDFromToken(request *http.Request) (
 	types.OrgID, types.UserID, error,
 ) {
 	identity, err := server.GetAuthToken(request)
@@ -186,12 +161,7 @@ func (server *HTTPServer) GetCurrentOrgIDUserID(request *http.Request) (
 		return types.OrgID(0), types.UserID("0"), err
 	}
 
-	if identity.User.UserID == "" {
-		log.Info().Msgf(missingUserIDMessage, identity.User.Username, identity.User.Email)
-		return identity.Internal.OrgID, types.UserID("0"), nil
-	}
-
-	return identity.Internal.OrgID, identity.User.UserID, nil
+	return identity.OrgID, identity.User.UserID, nil
 }
 
 // GetAuthToken returns current authentication token

@@ -78,25 +78,6 @@ func readRuleSelectorAndJustificationFromBody(writer http.ResponseWriter, reques
 	return parameters, nil
 }
 
-// readOrgIDAndUserIDFromToken helper method reads organization ID and user ID
-// from the token
-func (server *HTTPServer) readOrgIDAndUserIDFromToken(writer http.ResponseWriter, request *http.Request) (
-	types.OrgID, types.UserID, error) {
-	// auth. token contains organization ID and user ID we need to use
-	authToken, err := server.GetAuthToken(request)
-	if err != nil {
-		handleServerError(writer, err)
-		return types.OrgID(0), types.UserID(""), err
-	}
-	// Organization ID and user ID are to be provided in the token
-	if authToken.User.UserID == "" {
-		log.Info().Msgf(missingUserIDMessage, authToken.User.Username, authToken.User.Email)
-		return authToken.Internal.OrgID, types.UserID("0"), nil
-	}
-
-	return authToken.Internal.OrgID, authToken.User.UserID, nil
-}
-
 // returnRuleAckToClient returns information about selected rule ack to client.
 // This function also tries to process all errors.
 func returnRuleAckToClient(writer http.ResponseWriter, ack types.Acknowledgement) {

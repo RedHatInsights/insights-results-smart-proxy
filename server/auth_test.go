@@ -37,15 +37,10 @@ type testCase struct {
 var (
 	validIdentityXRH = types.Identity{
 		AccountNumber: types.UserID("1"),
-		Internal:      types.Internal{OrgID: 1},
+		OrgID:         1,
 		User: types.User{
 			UserID: types.UserID("1"),
 		},
-	}
-	validIdentityJWT = types.JWTPayload{
-		AccountNumber: types.UserID("a user"),
-		OrgID:         types.OrgID(1),
-		UserID:        types.UserID("1"),
 	}
 )
 
@@ -129,7 +124,7 @@ func TestGetCurrentOrgID(t *testing.T) {
 			name:          "valid token",
 			identity:      "valid",
 			expectedError: "",
-			expectedOrgID: validIdentityXRH.Internal.OrgID,
+			expectedOrgID: validIdentityXRH.OrgID,
 		},
 		{
 			name:          "no token",
@@ -160,13 +155,13 @@ func TestGetCurrentOrgID(t *testing.T) {
 	}
 }
 
-func TestGetCurrentOrgIDUserID(t *testing.T) {
+func TestGetCurrentOrgIDUserIDFromToken(t *testing.T) {
 	testCases := []testCase{
 		{
 			name:           "valid token",
 			identity:       "valid",
 			expectedError:  "",
-			expectedOrgID:  validIdentityXRH.Internal.OrgID,
+			expectedOrgID:  validIdentityXRH.OrgID,
 			expectedUserID: validIdentityXRH.User.UserID,
 		},
 		{
