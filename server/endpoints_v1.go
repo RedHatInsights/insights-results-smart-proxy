@@ -155,6 +155,7 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
 			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.LikeRuleEndpoint),
+			checkRuleIDAndErrorKeyAreValid(),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
@@ -162,6 +163,7 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
 			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.DislikeRuleEndpoint),
+			checkRuleIDAndErrorKeyAreValid(),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
@@ -169,6 +171,7 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
 			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.ResetVoteOnRuleEndpoint),
+			checkRuleIDAndErrorKeyAreValid(),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
@@ -176,6 +179,7 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
 			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.DisableRuleForClusterEndpoint),
+			checkRuleIDAndErrorKeyAreValid(),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
@@ -183,6 +187,7 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
 			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.EnableRuleForClusterEndpoint),
+			checkRuleIDAndErrorKeyAreValid(),
 		}},
 	)).Methods(http.MethodPut, http.MethodOptions)
 
@@ -190,6 +195,7 @@ func (server *HTTPServer) addV1RuleEndpointsToRouter(router *mux.Router, apiPref
 		aggregatorBaseEndpoint,
 		&ProxyOptions{RequestModifiers: []RequestModifier{
 			server.extractUserIDOrgIDFromTokenToURLRequestModifier(ira_server.DisableRuleFeedbackEndpoint),
+			checkRuleIDAndErrorKeyAreValid(),
 		}},
 	)).Methods(http.MethodPost, http.MethodOptions)
 }

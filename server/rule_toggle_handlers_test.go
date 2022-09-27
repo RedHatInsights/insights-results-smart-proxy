@@ -20,7 +20,9 @@ import (
 
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	"github.com/stretchr/testify/assert"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
@@ -28,6 +30,9 @@ import (
 func TestEnableEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
+		defer content.ResetContent()
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
 		expectedBody := `{"status": "ok"}`
 		helpers.GockExpectAPIRequest(
 			t,
@@ -68,6 +73,9 @@ func TestEnableEndpoint(t *testing.T) {
 func TestDisableEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
+		defer content.ResetContent()
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
 		expectedBody := `{"status": "ok"}`
 		helpers.GockExpectAPIRequest(
 			t,
