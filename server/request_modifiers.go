@@ -17,12 +17,59 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	ctypes "github.com/RedHatInsights/insights-results-types"
+	"github.com/gorilla/mux"
 )
+
+func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
+	return func(request *http.Request) (*http.Request, error) {
+		userID, err := server.GetCurrentUserID(request)
+		if err != nil {
+			return nil, err
+		}
+
+		vars := mux.Vars(request)
+		vars["user_id"] = fmt.Sprintf("%v", userID)
+
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
+		request.URL, err = url.Parse(newURL)
+		if err != nil {
+			return nil, &ParamsParsingError{}
+		}
+
+		request.RequestURI = request.URL.RequestURI()
+
+		return request, nil
+	}
+}
+
+func (server HTTPServer) extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
+	return func(request *http.Request) (*http.Request, error) {
+		orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+		if err != nil {
+			return nil, &ParamsParsingError{}
+		}
+
+		vars := mux.Vars(request)
+		vars["user_id"] = string(userID)
+		vars["org_id"] = fmt.Sprintf("%v", orgID)
+
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
+		request.URL, err = url.Parse(newURL)
+		if err != nil {
+			return nil, &ParamsParsingError{}
+		}
+
+		request.RequestURI = request.URL.RequestURI()
+
+		return request, nil
+	}
+}
 
 // checkRuleIDAndErrorKeyAreValid request modifier that only checks if
 // both rule_id and error_key are valid, given the rules and errors defined
