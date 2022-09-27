@@ -15,9 +15,11 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 )
@@ -27,7 +29,7 @@ import (
 // in the content service
 func checkRuleIDAndErrorKeyAreValid() RequestModifier {
 	return func(request *http.Request) (*http.Request, error) {
-		ruleID, err := httputils.GetRouterParam(request, "rule_id")
+		ruleID, err := httputils.GetRouterParam(request, RuleIDParamName)
 		if err != nil {
 			return nil, err
 		}
@@ -42,7 +44,7 @@ func checkRuleIDAndErrorKeyAreValid() RequestModifier {
 
 		// if valid, perform request to aggregator and return response as usual
 		if err != nil {
-			return nil, err
+			return nil, &utypes.ItemNotFoundError{ItemID: fmt.Sprintf("%s/%s", ruleID, errorKey)}
 		}
 
 		return request, nil
