@@ -1163,51 +1163,6 @@ func (server HTTPServer) checkInternalRulePermissions(request *http.Request) err
 	return &AuthenticationError{errString: message}
 }
 
-func (server HTTPServer) newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
-	return func(request *http.Request) (*http.Request, error) {
-		userID, err := server.GetCurrentUserID(request)
-		if err != nil {
-			return nil, err
-		}
-
-		vars := mux.Vars(request)
-		vars["user_id"] = fmt.Sprintf("%v", userID)
-
-		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
-		request.URL, err = url.Parse(newURL)
-		if err != nil {
-			return nil, &ParamsParsingError{}
-		}
-
-		request.RequestURI = request.URL.RequestURI()
-
-		return request, nil
-	}
-}
-
-func (server HTTPServer) extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
-	return func(request *http.Request) (*http.Request, error) {
-		orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
-		if err != nil {
-			return nil, &ParamsParsingError{}
-		}
-
-		vars := mux.Vars(request)
-		vars["user_id"] = string(userID)
-		vars["org_id"] = fmt.Sprintf("%v", orgID)
-
-		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
-		request.URL, err = url.Parse(newURL)
-		if err != nil {
-			return nil, &ParamsParsingError{}
-		}
-
-		request.RequestURI = request.URL.RequestURI()
-
-		return request, nil
-	}
-}
-
 // getGroupsConfig retrieves the groups configuration from a channel to get the
 // latest valid one
 func (server HTTPServer) getGroupsConfig() (

@@ -34,10 +34,12 @@ const (
 	GetDisabledParam = "get_disabled"
 	// ImpactingParam parameter used to show/hide recommendations not hitting any clusters
 	ImpactingParam = "impacting"
+	// RuleIDParamName parameter name in the URL
+	RuleIDParamName = "rule_id"
 )
 
 func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (ctypes.RuleID, ctypes.ErrorKey, error) {
-	ruleIDWithErrorKey, err := httputils.GetRouterParam(request, "rule_id")
+	ruleIDWithErrorKey, err := httputils.GetRouterParam(request, RuleIDParamName)
 	if err != nil {
 		const message = "unable to get rule id"
 		log.Error().Err(err).Msg(message)
@@ -48,7 +50,7 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleIDWithErrorKey))
 	if err != nil {
 		handleServerError(writer, &RouterParsingError{
-			paramName:  "rule_id",
+			paramName:  RuleIDParamName,
 			paramValue: ruleIDWithErrorKey,
 			errString:  err.Error(),
 		})
@@ -62,7 +64,7 @@ func readCompositeRuleID(request *http.Request) (
 	ruleID ctypes.RuleID,
 	err error,
 ) {
-	ruleIDParam, err := httputils.GetRouterParam(request, "rule_id")
+	ruleIDParam, err := httputils.GetRouterParam(request, RuleIDParamName)
 	if err != nil {
 		const message = "unable to get rule id"
 		log.Error().Err(err).Msg(message)
@@ -75,7 +77,7 @@ func readCompositeRuleID(request *http.Request) (
 	if !isCompositeRuleIDValid {
 		msg := fmt.Errorf("invalid composite rule ID. Must be in the format 'rule.plugin.module|ERROR_KEY'")
 		err = &RouterParsingError{
-			paramName:  "rule_id",
+			paramName:  RuleIDParamName,
 			paramValue: ruleIDParam,
 			errString:  msg.Error(),
 		}

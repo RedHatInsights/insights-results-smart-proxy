@@ -15,12 +15,15 @@
 package server_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	"github.com/stretchr/testify/assert"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
@@ -28,6 +31,9 @@ import (
 func TestEnableEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
+		defer content.ResetContent()
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
 		expectedBody := `{"status": "ok"}`
 		helpers.GockExpectAPIRequest(
 			t,
@@ -68,6 +74,9 @@ func TestEnableEndpoint(t *testing.T) {
 func TestDisableEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
+		defer content.ResetContent()
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
 		expectedBody := `{"status": "ok"}`
 		helpers.GockExpectAPIRequest(
 			t,
@@ -98,6 +107,64 @@ func TestDisableEndpoint(t *testing.T) {
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
+				Body:       expectedBody,
+			},
+		)
+
+	}, testTimeout)
+}
+
+func TestEnableEndpointBadErrorKey(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		expectedBody := fmt.Sprintf(
+			`{"status":"Item with ID %s/%s was not found in the storage"}`,
+			testdata.Rule1ID,
+			testdata.ErrorKey1,
+		)
+		helpers.AssertAPIRequest(
+			t,
+			&serverConfigJWT,
+			&helpers.DefaultServicesConfig,
+			nil,
+			nil,
+			nil,
+			&helpers.APIRequest{
+				Method:             http.MethodPut,
+				Endpoint:           server.EnableRuleForClusterEndpoint,
+				EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+				AuthorizationToken: goodJWTAuthBearer,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       expectedBody,
+			},
+		)
+
+	}, testTimeout)
+}
+
+func TestDisableEndpointBadErrorKey(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		expectedBody := fmt.Sprintf(
+			`{"status":"Item with ID %s/%s was not found in the storage"}`,
+			testdata.Rule1ID,
+			testdata.ErrorKey1,
+		)
+		helpers.AssertAPIRequest(
+			t,
+			&serverConfigJWT,
+			&helpers.DefaultServicesConfig,
+			nil,
+			nil,
+			nil,
+			&helpers.APIRequest{
+				Method:             http.MethodPut,
+				Endpoint:           server.DisableRuleForClusterEndpoint,
+				EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+				AuthorizationToken: goodJWTAuthBearer,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
 				Body:       expectedBody,
 			},
 		)
