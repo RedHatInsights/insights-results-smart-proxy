@@ -643,7 +643,7 @@
           },
           {
             "name": "get_disabled",
-            "description": "If true, disabled rules will be sent too.",
+            "description": "If true, only disabled rules will be sent. If false, only enabled rules will be sent. If ommitted, all rules will be sent.",
             "in": "query",
             "schema": {
               "type": "boolean",

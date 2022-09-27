@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	sdk "github.com/openshift-online/ocm-sdk-go"
 	accMgmt "github.com/openshift-online/ocm-sdk-go/accountsmgmt/v1"
 	"github.com/rs/zerolog/log"
@@ -269,6 +270,11 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 					log.Error().Msgf("No external or internal cluster ID. Cluster [%v]", item)
 				}
 
+				continue
+			}
+
+			if _, err := uuid.Parse(clusterIDstr); err != nil {
+				log.Error().Str(clusterIDTag, clusterIDstr).Msg("Invalid cluster UUID")
 				continue
 			}
 
