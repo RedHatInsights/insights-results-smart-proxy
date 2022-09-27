@@ -97,6 +97,29 @@ var (
 		},
 	}
 
+	// SubscriptionsResponseInvalidUUID contains a valid response for subscription from AMS, 2 clusters, one with invalid UUID
+	SubscriptionsResponseInvalidUUID map[string]interface{} = map[string]interface{}{
+		"kind":  "SubscriptionList",
+		"page":  1,
+		"size":  2,
+		"total": 2,
+		"items": []map[string]interface{}{
+			{
+				"display_name":        ClusterDisplayName1,
+				"external_cluster_id": ClusterName1,
+				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
+				"managed":             true,
+				"status":              ActiveStatus,
+			},
+			{
+				"display_name":        "",
+				"external_cluster_id": "not-uuid",
+				"id":                  "1YfQLCOCZZOEXgOp8uIbqe5i5z2",
+				"managed":             false,
+				"status":              ActiveStatus,
+			},
+		},
+	}
 	// SubscriptionsResponseEmptyClusterIDs contains a valid response for subscription from AMS, 3 clusters,
 	// but 2 of them are expected to be filtered out, even if they have display name and internal ID,
 	// as they don't have the external_cluster_id

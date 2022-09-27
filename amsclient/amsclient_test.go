@@ -319,6 +319,71 @@ func TestClusterForOrganizationWithEmptyClusterIDs(t *testing.T) {
 	assert.Equal(t, true, clusterList[0].Managed)
 }
 
+// TestClusterForOrganizationCCXDEV_8829_Reproducer reproducer for https://issues.redhat.com/browse/CCXDEV-8829
+func TestClusterForOrganizationCCXDEV_8829_Reproducer(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponse),
+	})
+
+	// prepare cluster list requests. Response has 2 invalid clusters and 1 valid one
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			1, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponseInvalidUUID),
+	})
+	// second and more requests will be done until the last one returns an empty response (0 sized)
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			2, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterList, err := c.GetClustersForOrganization(
+		testdata.ExternalOrgID,
+		nil,
+		nil,
+	)
+
+	helpers.FailOnError(t, err)
+	// we expect 1 cluster to be excluded because it has invalid UUID
+	assert.Equal(t, 1, len(clusterList))
+	// remaining cluster has the correct UUID
+	assert.Equal(t, types.ClusterName(testdata.ClusterName1), clusterList[0].ID)
+}
+
 func TestGetClustersForOrganizationOnError(t *testing.T) {
 	client, err := amsclient.NewAMSClient(defaultConfig)
 	helpers.FailOnError(t, err) // Doesn't fail because ocm-sdk doesn't perform any checks
