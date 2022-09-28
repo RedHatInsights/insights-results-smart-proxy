@@ -273,6 +273,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
         },
         "operationId": "addLikeToRule",
@@ -300,6 +306,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
         },
         "operationId": "addDislikeToRule",
@@ -327,6 +339,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
         },
         "operationId": "resetVoteForRule",
@@ -477,6 +495,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
         },
         "operationId": "disableRule",
@@ -536,6 +560,12 @@
               }
             },
             "description": "Status ok"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
         },
         "operationId": "disableRuleFeedback",
@@ -563,6 +593,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/status" 
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
         },
         "operationId": "enableRule",
