@@ -147,7 +147,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are ommitted by default unless the corresponding query param is provided.",
+            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are ommitted by default unless the get_disabled query param is provided.",
             "content": {
               "application/json": {
                 "schema": {
