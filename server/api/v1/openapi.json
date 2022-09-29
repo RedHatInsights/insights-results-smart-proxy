@@ -679,7 +679,7 @@
           },
           {
             "name": "get_disabled",
-            "description": "If true, only disabled rules will be sent. If false, only enabled rules will be sent. If ommitted, all rules will be sent.",
+            "description": "If true, disabled rules will be sent too.",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -690,7 +690,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster.",
+            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are ommitted by default unless the corresponding query param is provided.",
             "content": {
               "application/json": {
                 "schema": {
