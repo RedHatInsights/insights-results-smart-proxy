@@ -48,6 +48,7 @@ objects:
         webServices:
           public:
             enabled: true
+            apiPath: insights-results-aggregator
           private:
             enabled: true
           metrics:
