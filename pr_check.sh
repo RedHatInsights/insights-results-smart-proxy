@@ -33,33 +33,35 @@ export IQE_REQUIREMENTS_PRIORITY=""
 export IQE_TEST_IMPORTANCE=""
 export IQE_CJI_TIMEOUT="30m"
 
-# Temporary stub
-mkdir artifacts
-echo '<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.014" timestamp="2021-05-13T07:54:11.934144" hostname="thinkpad-t480s"><testcase classname="test" name="test_stub" time="0.000" /></testsuite></testsuites>' > artifacts/junit-stub.xml
-
-# TODO: Uncomment when smoke tests are fixed
-
-#function build_image() {
-#    source $CICD_ROOT/build.sh
-#}
-
-#function deploy_ephemeral() {
-#    source $CICD_ROOT/deploy_ephemeral_env.sh
-#}
-
-#function run_smoke_tests() {
-#    source $CICD_ROOT/cji_smoke_test.sh
-#}
+# NOTE: Uncomment to skip pull request integration tests and comment out
+#       the rest of the file.
+# mkdir artifacts
+# echo '<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="0.014" timestamp="2021-05-13T07:54:11.934144" hostname="thinkpad-t480s"><testcase classname="test" name="test_stub" time="0.000" /></testsuite></testsuites>' > artifacts/junit-stub.xml
 
 
-## Install bonfire repo/initialize
-#CICD_URL=https://raw.githubusercontent.com/RedHatInsights/bonfire/master/cicd
-#curl -s $CICD_URL/bootstrap.sh > .cicd_bootstrap.sh && source .cicd_bootstrap.sh
-#echo "creating PR image"
-#build_image
+function build_image() {
+   source $CICD_ROOT/build.sh
+}
 
-#echo "deploying to ephemeral"
-#deploy_ephemeral
+function deploy_ephemeral() {
+   source $CICD_ROOT/deploy_ephemeral_env.sh
+}
 
-#echo "PR smoke tests disabled"
-## run_smoke_tests
+function run_smoke_tests() {
+   source $CICD_ROOT/cji_smoke_test.sh
+   # source $CICD_ROOT/post_test_results.sh  # publish results in Ibutsu
+}
+
+
+# Install bonfire repo/initialize
+CICD_URL=https://raw.githubusercontent.com/RedHatInsights/bonfire/master/cicd
+curl -s $CICD_URL/bootstrap.sh > .cicd_bootstrap.sh && source .cicd_bootstrap.sh
+echo "creating PR image"
+build_image
+
+echo "deploying to ephemeral"
+deploy_ephemeral
+
+echo "PR smoke tests disabled"
+run_smoke_tests
+
