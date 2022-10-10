@@ -636,6 +636,114 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 	}, testTimeout)
 }
 
+func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentManagedCluster(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+			// clusters are managed
+			clusterInfoList[i].Managed = true
+		}
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, clusterInfoList[0].ID, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
+
+		ioUserAgent := fmt.Sprintf("insights-operator/one10time200gather184a34f6a168926d93c330 cluster/_%v_", clusterInfoList[0].ID)
+		extraHeaders := make(http.Header, 1)
+		extraHeaders["User-Agent"] = []string{ioUserAgent}
+
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv1Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
+			ExtraHeaders:       extraHeaders,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			// expecting the same response as if providing the osd_eligible flag
+			Body: helpers.ToJSONString(SmartProxyV1ReportResponse3RulesWithOnlyOSD),
+		})
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentNonManagedCluster(t *testing.T) {
+	defer content.ResetContent()
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 2)
+		for i := range clusterInfoList {
+			clusterInfoList[i] = data.GetRandomClusterInfo()
+			// clusters arent managed
+			clusterInfoList[i].Managed = false
+		}
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReportEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID, clusterInfoList[0].ID, testdata.UserID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       testdata.Report3RulesExpectedResponse,
+		})
+
+		expectNoRulesDisabledSystemWide(&t, testdata.OrgID, testdata.UserID)
+
+		// any other User Agent will get the same old v1 response
+		ioUserAgent := fmt.Sprintf("acm-operator/v2.3.0 cluster/%v", clusterInfoList[0].ID)
+		extraHeaders := make(http.Header, 1)
+		extraHeaders["User-Agent"] = []string{ioUserAgent}
+
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv1Prefix, &helpers.APIRequest{
+			Method:             http.MethodGet,
+			Endpoint:           server.ReportEndpoint,
+			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
+			UserID:             testdata.UserID,
+			OrgID:              testdata.OrgID,
+			AuthorizationToken: goodJWTAuthBearer,
+			ExtraHeaders:       extraHeaders,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3Rules),
+		})
+	}, testTimeout)
+}
+
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 	defer content.ResetContent()
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
