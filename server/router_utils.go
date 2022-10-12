@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ctypes "github.com/RedHatInsights/insights-results-types"
@@ -155,4 +156,19 @@ func readOSDEligible(request *http.Request) (bool, error) {
 // readImpactingParam returns the value of the "impacting" parameter in query if available
 func readImpactingParam(request *http.Request) (bool, error) {
 	return readQueryBoolParam(ImpactingParam, true, request)
+}
+
+// readUserAgentHeaderProduct returns the produt part of the standard User Agent syntax
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent#syntax
+func readUserAgentHeaderProduct(request *http.Request) (userAgentProduct string) {
+	userAgent := request.Header.Get(userAgentHeader)
+	if userAgent == "" {
+		return
+	}
+
+	userAgentSplit := strings.Split(userAgent, "/")
+
+	// we're only interested in the product name
+	userAgentProduct = userAgentSplit[0]
+	return
 }

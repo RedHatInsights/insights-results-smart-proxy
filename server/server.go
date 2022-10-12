@@ -61,6 +61,19 @@ const (
 	// contentTypeHeader represents Content-Type header name
 	contentTypeHeader = "Content-Type"
 
+	// userAgentHeader is used to retrieve the User Agent set in the request for special cases
+	userAgentHeader = "User-Agent"
+
+	// insightsOperatorUserAgent is a product name set in the requests made by the Insights Operator
+	// to be shown in the OCP Web console
+	insightsOperatorUserAgent = "insights-operator"
+
+	// acmUserAgent is a product name set in the requests to be shown in the Advanced Cluster Manager
+	acmUserAgent = "acm-operator"
+
+	// browserUserAgent is the standard product name set by web browsers (requests made via OCM, OCP Advisor, ..)
+	browserUserAgent = "Mozilla"
+
 	// JSONContentType represents the application/json content type
 	JSONContentType = "application/json; charset=utf-8"
 
@@ -908,8 +921,22 @@ func sendReportReponse(writer http.ResponseWriter, report interface{}) {
 	}
 }
 
-// reportEndpointV1 serves /report endpoint without cluster_name field in the metadata
+// reportEndpointV1 serves /report endpoint without cluster_name field in the metadata.
+// For requests made by the Insights Operator, we need to take managed clusters into account and
+// communicate with the AMS API to retrieve the information about the cluster. Other consumers of this
+// endpoints MUSTN'T be affected. From OCP v4.11, the IO uses the API v2 equivalent, which already works
+// as expected, but we must fix this behaviour for request made by earlier versions. For more info, see
+// https://issues.redhat.com/browse/CCXDEV-9393 and the linked issue.
 func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *http.Request) {
+	var managedCluster bool
+
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
 	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
 	if !successful {
 		return
@@ -922,16 +949,32 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 		},
 	}
 
-	osdFlag, err := readOSDEligible(request)
-	if err != nil {
-		log.Err(err).Msgf("Cluster ID: %v; Got error while parsing `%s` value", clusterID, OSDEligibleParam)
-	}
-	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, osdFlag)
+	// we need to differentiate between requests made by Insights Operator and all other requests
+	// see function comments for more info
+	userAgentProduct := server.getKnownUserAgentProduct(request)
 
-	// osdFlag == true apparently means the cluster is NOT managed
-	// this is a bug, but API consumers already use it this way, so we apply the GIGO principle here...
+	if userAgentProduct == insightsOperatorUserAgent {
+		// request made my insights-operator, we need to retrieve the managed status of a cluster from AMS
+		if server.amsClient != nil {
+			clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
+			if err != nil {
+				log.Error().Err(err).Msg("unable to retrieve info from AMS API")
+				handleServerError(writer, err)
+				return
+			}
+			managedCluster = clusterInfo.Managed
+		}
+	} else {
+		// request NOT made by Insights Operator, we're expecting the managed status in the URL param
+		managedCluster, err = readOSDEligible(request)
+		if err != nil {
+			log.Err(err).Msgf("Cluster ID: %v; Got error while parsing `%s` value", clusterID, OSDEligibleParam)
+		}
+		log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, managedCluster)
+	}
+
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
-		writer, request, aggregatorResponse, clusterID, osdFlag); err == nil {
+		writer, request, aggregatorResponse, clusterID, managedCluster); err == nil {
 		sendReportReponse(writer, report)
 	}
 }
@@ -985,6 +1028,25 @@ func fillImpacted(
 			responses[i] = resp
 		}
 	}
+}
+
+func (server HTTPServer) getKnownUserAgentProduct(request *http.Request) (userAgentProduct string) {
+	userAgentProduct = readUserAgentHeaderProduct(request)
+
+	switch userAgentProduct {
+	case insightsOperatorUserAgent:
+		log.Info().Msg("request made by Insights Operator to be shown in the OCP Web console")
+	case acmUserAgent:
+		log.Info().Msg("request made by ACM Operator to be shown in the the Advanced Cluster Management")
+	case browserUserAgent:
+		log.Info().Msg("request made by a regular web browser")
+	default:
+		log.Error().Str(userAgentHeader, request.Header.Get(userAgentHeader)).Msgf(
+			"improper or unknown user agent product [%v]", userAgentProduct,
+		)
+	}
+
+	return
 }
 
 // readMetainfo method retrieves metainformations for report stored in
