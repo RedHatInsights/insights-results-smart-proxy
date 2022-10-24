@@ -16,8 +16,10 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.21 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.238
 	github.com/prometheus/client_golang v1.11.0
+	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/rs/zerolog v1.26.1
+	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/viper v1.9.0
 	github.com/stretchr/testify v1.8.0
 	golang.org/x/net v0.1.0 // indirect
