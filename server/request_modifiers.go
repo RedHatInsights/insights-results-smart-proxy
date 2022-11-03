@@ -71,6 +71,28 @@ func (server HTTPServer) extractUserIDOrgIDFromTokenToURLRequestModifier(newEndp
 	}
 }
 
+func (server HTTPServer) extractOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier {
+	return func(request *http.Request) (*http.Request, error) {
+		orgID, err := server.GetCurrentOrgID(request)
+		if err != nil {
+			return nil, &ParamsParsingError{}
+		}
+
+		vars := mux.Vars(request)
+		vars["org_id"] = fmt.Sprintf("%v", orgID)
+
+		newURL := httputils.MakeURLToEndpointMapString(server.Config.APIv1Prefix, newEndpoint, vars)
+		request.URL, err = url.Parse(newURL)
+		if err != nil {
+			return nil, &ParamsParsingError{}
+		}
+
+		request.RequestURI = request.URL.RequestURI()
+
+		return request, nil
+	}
+}
+
 // checkRuleIDAndErrorKeyAreValid request modifier that only checks if
 // both rule_id and error_key are valid, given the rules and errors defined
 // in the content service
