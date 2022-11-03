@@ -41,7 +41,7 @@ func TestEnableEndpoint(t *testing.T) {
 			&helpers.APIRequest{
 				Method:       http.MethodPut,
 				Endpoint:     ira_server.EnableRuleForClusterEndpoint,
-				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -84,7 +84,7 @@ func TestDisableEndpoint(t *testing.T) {
 			&helpers.APIRequest{
 				Method:       http.MethodPut,
 				Endpoint:     ira_server.DisableRuleForClusterEndpoint,
-				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
