@@ -884,14 +884,14 @@ func (server HTTPServer) buildReportEndpointResponse(
 	}
 	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
 
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
 		handleServerError(writer, err)
 		return
 	}
 
-	acks, err := server.readListOfAckedRules(orgID, userID)
+	acks, err := server.readListOfAckedRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Unable to retrieve list of acked rules for given organization")
 		// server error has been handled already
@@ -1460,7 +1460,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 	)
 
 	// get a map of acknowledged rules
-	ackedRulesMap = server.getRuleAcksMap(orgID, userID)
+	ackedRulesMap = server.getRuleAcksMap(orgID)
 
 	// retrieve list of cluster IDs and single disabled rules for each cluster
 	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(orgID)

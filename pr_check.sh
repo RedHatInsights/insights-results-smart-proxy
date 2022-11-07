@@ -20,6 +20,7 @@ set -exv
 # Options that must be configured by app owner
 # --------------------------------------------
 APP_NAME="ccx-data-pipeline"  # name of app-sre "application" folder this component lives in
+REF_ENV="insights-stage"
 COMPONENT_NAME="insights-results-smart-proxy"  # name of app-sre "resourceTemplate" in deploy.yaml for this component
 IMAGE="quay.io/cloudservices/ccx-smart-proxy"
 COMPONENTS="ccx-data-pipeline ccx-insights-results insights-content-service insights-results-smart-proxy"  # space-separated list of components to laod

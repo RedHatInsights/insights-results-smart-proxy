@@ -256,7 +256,7 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 
 // overviewEndpointWithClusterIDs returns a map with an overview of number of clusters hit by rules
 func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -271,7 +271,7 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 	}
 
 	// retrieve rule acknowledgements (disable/enable)
-	acks, err := server.readListOfAckedRules(orgID, userID)
+	acks, err := server.readListOfAckedRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(ackedRulesError)
 		// server error has been handled already

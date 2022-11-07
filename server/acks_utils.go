@@ -98,7 +98,8 @@ func returnRuleAckToClient(writer http.ResponseWriter, ack types.Acknowledgement
 // ackRuleSystemWide method acknowledges rule via Insights Aggregator REST API
 func (server *HTTPServer) ackRuleSystemWide(
 	ruleID types.Component, errorKey types.ErrorKey,
-	orgID types.OrgID, userID types.UserID, justification string) error {
+	orgID types.OrgID, justification string,
+) error {
 	var j types.AcknowledgementJustification
 	j.Value = justification
 
@@ -106,7 +107,7 @@ func (server *HTTPServer) ackRuleSystemWide(
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.DisableRuleSystemWide,
-		ruleID, errorKey, orgID, userID,
+		ruleID, errorKey, orgID,
 	)
 
 	// generate payload in JSON format
@@ -141,7 +142,8 @@ func (server *HTTPServer) ackRuleSystemWide(
 // API
 func (server *HTTPServer) updateAckRuleSystemWide(
 	ruleID types.Component, errorKey types.ErrorKey,
-	orgID types.OrgID, userID types.UserID, justification string) error {
+	orgID types.OrgID, justification string,
+) error {
 	var j types.AcknowledgementJustification
 	j.Value = justification
 
@@ -149,7 +151,7 @@ func (server *HTTPServer) updateAckRuleSystemWide(
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.UpdateRuleSystemWide,
-		ruleID, errorKey, orgID, userID,
+		ruleID, errorKey, orgID,
 	)
 
 	// marshal data to be POSTed to Insights Aggregator
@@ -179,13 +181,14 @@ func (server *HTTPServer) updateAckRuleSystemWide(
 // Insights Aggregator REST API
 func (server *HTTPServer) deleteAckRuleSystemWide(
 	ruleID types.Component, errorKey types.ErrorKey,
-	orgID types.OrgID, userID types.UserID) error {
+	orgID types.OrgID,
+) error {
 
 	// try to ack rule via Insights Aggregator REST API
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.EnableRuleSystemWide,
-		ruleID, errorKey, orgID, userID,
+		ruleID, errorKey, orgID,
 	)
 
 	// call PUT method
@@ -212,7 +215,8 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 
 // Method readListOfAckedRules reads all rules that has been acked system-wide
 func (server *HTTPServer) readListOfAckedRules(
-	orgID types.OrgID, userID types.UserID) ([]types.SystemWideRuleDisable, error) {
+	orgID types.OrgID,
+) ([]types.SystemWideRuleDisable, error) {
 
 	// wont be used anywhere else
 	type responsePayload struct {
@@ -224,7 +228,7 @@ func (server *HTTPServer) readListOfAckedRules(
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ListOfDisabledRulesSystemWide,
-		orgID, userID,
+		orgID,
 	)
 
 	// #nosec G107
@@ -255,7 +259,8 @@ func (server *HTTPServer) readListOfAckedRules(
 // Insights Results Aggregator via REST API
 func (server *HTTPServer) readRuleDisableStatus(
 	ruleID types.Component, errorKey types.ErrorKey,
-	orgID types.OrgID, userID types.UserID) (types.Acknowledgement, bool, error) {
+	orgID types.OrgID,
+) (types.Acknowledgement, bool, error) {
 
 	// wont be used anywhere else
 	type responsePayload struct {
@@ -269,7 +274,7 @@ func (server *HTTPServer) readRuleDisableStatus(
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ReadRuleSystemWide,
-		ruleID, errorKey, orgID, userID,
+		ruleID, errorKey, orgID,
 	)
 
 	// #nosec G107
@@ -310,11 +315,9 @@ func formatNullTime(t sql.NullTime) string {
 	return t.Time.Format(time.RFC3339)
 }
 
-func logFullRuleSelector(orgID types.OrgID, userID types.UserID,
-	ruleID types.RuleID, errorKey types.ErrorKey) {
+func logFullRuleSelector(orgID types.OrgID, ruleID types.RuleID, errorKey types.ErrorKey) {
 	log.Info().
 		Int("org", int(orgID)).
-		Str("account", string(userID)).
 		Str("ruleID", string(ruleID)).
 		Str("errorKey", string(errorKey)).
 		Msg("Selector for rule acknowledgement")
