@@ -2917,7 +2917,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 					&helpers.APIRequest{
 						Method:       http.MethodGet,
 						Endpoint:     ira_server.GetRating,
-						EndpointArgs: []interface{}{testCase.RuleID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+						EndpointArgs: []interface{}{testCase.RuleID, testdata.OrgID},
 					},
 					&helpers.APIResponse{
 						StatusCode: http.StatusOK,
