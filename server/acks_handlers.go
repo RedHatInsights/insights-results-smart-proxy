@@ -64,14 +64,14 @@ const (
 // Please note that for the sake of simplicity we don't use links section as
 // pagination is not supported ATM.
 func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
 		handleServerError(writer, err)
 		return
 	}
 
-	acks, err := server.readListOfAckedRules(orgID, userID)
+	acks, err := server.readListOfAckedRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(ackedRulesError)
 		// server error has been handled already
@@ -113,7 +113,7 @@ func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.
 func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set(contentTypeHeader, JSONContentType)
 
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
 		handleServerError(writer, err)
@@ -128,10 +128,10 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 	}
 
 	// we seem to have all data -> let's display them
-	logFullRuleSelector(orgID, userID, ruleID, errorKey)
+	logFullRuleSelector(orgID, ruleID, errorKey)
 
 	// test if the rule has been acknowledged already
-	ruleAck, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
+	ruleAck, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -176,7 +176,7 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set(contentTypeHeader, JSONContentType)
 
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
 		handleServerError(writer, err)
@@ -192,7 +192,6 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	// we seem to have all data -> let's display them
 	log.Info().
 		Int("org", int(orgID)).
-		Str("account", string(userID)).
 		Str("rule", string(parameters.RuleSelector)).
 		Str("value", parameters.Value).
 		Msg("Proper payload provided")
@@ -213,7 +212,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 		Msg("Parsed rule selector")
 
 	// test if the rule has been acknowledged already
-	_, found, err := server.readRuleDisableStatus(ruleID, errorKey, orgID, userID)
+	_, found, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -230,7 +229,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 		log.Info().Msg("Rule has not been disabled previously")
 
 		// acknowledge rule
-		err := server.ackRuleSystemWide(ruleID, errorKey, orgID, userID, parameters.Value)
+		err := server.ackRuleSystemWide(ruleID, errorKey, orgID, parameters.Value)
 		if err != nil {
 			log.Error().Err(err).Msg(readRuleJustificationError)
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -240,7 +239,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 
 	// Aggregator REST API is source of truth - let's re-read rule status
 	// from it
-	updatedAcknowledgement, _, err := server.readRuleDisableStatus(ruleID, errorKey, orgID, userID)
+	updatedAcknowledgement, _, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -275,7 +274,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 // Additionally, if rule is not found, 404 is returned (not mentioned in
 // original REST API specification).
 func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
 		handleServerError(writer, err)
@@ -296,13 +295,13 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	}
 
 	// we seem to have all data -> let's display them
-	logFullRuleSelector(orgID, userID, ruleID, errorKey)
+	logFullRuleSelector(orgID, ruleID, errorKey)
 	log.Info().
 		Str("justification", parameters.Value).
 		Msg("Justification to be set")
 
 	// test if the rule has been acknowledged already
-	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
+	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -318,7 +317,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	}
 
 	// ok, rule has been found, so update it
-	err = server.updateAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, userID, parameters.Value)
+	err = server.updateAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, parameters.Value)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to update justification for rule acknowledgement")
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -327,7 +326,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 
 	// Aggregator REST API is source of truth - let's re-read rule status
 	// from it
-	updatedAcknowledgement, _, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
+	updatedAcknowledgement, _, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -343,7 +342,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 // ID. If the ack existed, it is deleted and a 204 is returned. Otherwise, a
 // 404 is returned.
 func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
 		handleServerError(writer, err)
@@ -358,10 +357,10 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	}
 
 	// we seem to have all data -> let's display them
-	logFullRuleSelector(orgID, userID, ruleID, errorKey)
+	logFullRuleSelector(orgID, ruleID, errorKey)
 
 	// test if the rule has been acknowledged already
-	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID, userID)
+	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -377,7 +376,7 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	// rule has been found -> let's delete the ACK
 	// delete acknowledgement for a rule
 	log.Info().Msg("About to delete ACK for a rule")
-	err = server.deleteAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, userID)
+	err = server.deleteAckRuleSystemWide(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to delete rule acknowledgement")
 		http.Error(writer, err.Error(), http.StatusBadRequest)

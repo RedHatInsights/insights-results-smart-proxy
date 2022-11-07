@@ -198,7 +198,6 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		ctypes.Component(ruleModule),
 		errorKey,
 		orgID,
-		userID,
 	)
 
 	// fill in user rating and other DB stuff from aggregator
@@ -249,7 +248,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		log.Error().Err(err).Msgf("problem reading necessary params from request")
 		return
 	}
-	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getRecommendations start")
+	log.Info().Int(orgIDTag, int(orgID)).Msg("getRecommendations start")
 
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
@@ -268,7 +267,6 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		log.Error().
 			Err(err).
 			Int(orgIDTag, int(orgID)).
-			Str(userIDTag, string(userID)).
 			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterIDList)
 
 		return
@@ -278,7 +276,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	)
 
 	// get a map of acknowledged rules
-	ackedRulesMap := server.getRuleAcksMap(orgID, userID)
+	ackedRulesMap := server.getRuleAcksMap(orgID)
 
 	// retrieve user disabled rules for given list of active clusters
 	disabledClustersForRules := server.getRuleDisabledClusters(writer, orgID, clusterIDList)
@@ -317,13 +315,13 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	}
 }
 
-func (server HTTPServer) getRuleAcksMap(orgID types.OrgID, userID types.UserID) (
+func (server HTTPServer) getRuleAcksMap(orgID types.OrgID) (
 	ackedRulesMap map[ctypes.RuleID]bool,
 ) {
 	ackedRulesMap = make(map[ctypes.RuleID]bool)
 
 	// retrieve rule acknowledgements (disable/enable for all clusters)
-	ackedRules, err := server.readListOfAckedRules(orgID, userID)
+	ackedRules, err := server.readListOfAckedRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(ackedRulesError)
 		// server error has been handled already

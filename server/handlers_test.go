@@ -2930,7 +2930,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 					&helpers.APIRequest{
 						Method:       http.MethodGet,
 						Endpoint:     ira_server.ReadRuleSystemWide,
-						EndpointArgs: []interface{}{ruleID, errorKey, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+						EndpointArgs: []interface{}{ruleID, errorKey, testdata.OrgID},
 					},
 					&helpers.APIResponse{
 						StatusCode: http.StatusNotFound,
