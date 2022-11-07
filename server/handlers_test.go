@@ -3750,7 +3750,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
-				EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,

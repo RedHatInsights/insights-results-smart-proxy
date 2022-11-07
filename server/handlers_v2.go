@@ -248,7 +248,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		log.Error().Err(err).Msgf("problem reading necessary params from request")
 		return
 	}
-	log.Info().Int(orgIDTag, int(orgID)).Msg("getRecommendations start")
+	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getRecommendations start")
 
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
