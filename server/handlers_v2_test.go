@@ -49,7 +49,7 @@ func TestHTTPServer_SetRating(t *testing.T) {
 		&helpers.APIRequest{
 			Method:       http.MethodPost,
 			Endpoint:     ira_server.Rating,
-			EndpointArgs: []interface{}{testdata.OrgID, userIDOnGoodJWTAuthBearer},
+			EndpointArgs: []interface{}{testdata.OrgID},
 			Body:         rating,
 		},
 		&helpers.APIResponse{

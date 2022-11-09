@@ -150,7 +150,7 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 // getRecommendationContent retrieves the static content for the given ruleID tied
 // with groups info. rule ID is expected to be the composite rule ID (rule.module|ERROR_KEY)
 func (server HTTPServer) getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) {
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)
 		handleServerError(writer, err)
@@ -171,7 +171,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		return
 	}
 
-	rating, err := server.getRatingForRecommendation(writer, orgID, userID, ruleID)
+	rating, err := server.getRatingForRecommendation(writer, orgID, ruleID)
 	if err != nil {
 		switch err.(type) {
 		case *utypes.ItemNotFoundError:

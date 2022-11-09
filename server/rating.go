@@ -33,15 +33,15 @@ import (
 func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.Request) {
 	log.Info().Msg("postRating")
 
-	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
+	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
 
-	log.Info().Int32("org_id", int32(orgID)).Str("user_id", string(userID)).Msg("Extracted user and org")
+	log.Info().Int32("org_id", int32(orgID)).Msg("Extracted user and org")
 
-	rating, successful := server.postRatingToAggregator(orgID, userID, request, writer)
+	rating, successful := server.postRatingToAggregator(orgID, request, writer)
 	if !successful {
 		log.Error().Msg("Unable to get response from aggregator")
 		// All errors already handled
@@ -61,13 +61,12 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 
 // postRatingToAggregator asks aggregator for update the rating for a given rule by the current user/org
 func (server HTTPServer) postRatingToAggregator(
-	orgID ctypes.OrgID, userID ctypes.UserID, request *http.Request, writer http.ResponseWriter,
+	orgID ctypes.OrgID, request *http.Request, writer http.ResponseWriter,
 ) (*ctypes.RuleRating, bool) {
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.Rating,
 		orgID,
-		userID,
 	)
 
 	body, err := io.ReadAll(request.Body)
@@ -100,7 +99,6 @@ func (server HTTPServer) postRatingToAggregator(
 func (server HTTPServer) getRatingForRecommendation(
 	writer http.ResponseWriter,
 	orgID ctypes.OrgID,
-	userID ctypes.UserID,
 	ruleID ctypes.RuleID,
 ) (
 	ruleRating ctypes.RuleRating,
@@ -119,7 +117,6 @@ func (server HTTPServer) getRatingForRecommendation(
 		ira_server.GetRating,
 		ruleID,
 		orgID,
-		userID,
 	)
 
 	// #nosec G107
@@ -136,15 +133,14 @@ func (server HTTPServer) getRatingForRecommendation(
 	}
 
 	if aggregatorResp.StatusCode == http.StatusNotFound {
-		log.Info().Msgf("rule rating for rule %v and user %v not found", ruleID, userID)
+		log.Info().Msgf("rule rating for rule %v not found", ruleID)
 		return ruleRating, &utypes.ItemNotFoundError{}
 	}
 
 	if aggregatorResp.StatusCode != http.StatusOK {
 		err = fmt.Errorf(
-			"problem retrieving rating from aggregator for rule %v and user %v. Status code: %v",
+			"problem retrieving rating from aggregator for rule %v. Status code: %v",
 			ruleID,
-			userID,
 			aggregatorResp.StatusCode,
 		)
 		log.Error().Err(err)
