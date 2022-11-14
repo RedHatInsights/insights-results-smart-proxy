@@ -9,7 +9,7 @@ default: build
 clean: ## Run go clean
 	@go clean
 
-build: ${BINARY} ## Keep this rule for compatibility
+build: ${BINARY} ## Build binary containing service executable
 
 ${BINARY}: ${SOURCES}
 	./build.sh

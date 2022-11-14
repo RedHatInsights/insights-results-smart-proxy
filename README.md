@@ -13,6 +13,7 @@ Smart proxy for insights results
 
 * [Description](#description)
 * [Documentation](#documentation)
+* [Makefile targets](#makefile-targets)
 * [Contribution](#contribution)
 * [Package manifest](#package-manifest)
 
@@ -33,6 +34,31 @@ from a single service.
 Documentation is hosted on Github Pages <https://redhatinsights.github.io/insights-results-smart-proxy/>.
 Sources are located in [docs](https://github.com/RedHatInsights/insights-results-smart-proxy/tree/master/docs).
 
+
+## Makefile targets
+
+```
+Usage: make <OPTIONS> ... <TARGETS>
+
+Available targets are:
+
+clean                Run go clean
+build                Build binary containing service executable
+fmt                  Run go fmt -w for all sources
+lint                 Run golint
+vet                  Run go vet. Report likely mistakes in source code
+cyclo                Run gocyclo
+ineffassign          Run ineffassign checker
+shellcheck           Run shellcheck
+errcheck             Run errcheck
+goconst              Run goconst checker
+gosec                Run gosec checker
+abcgo                Run ABC metrics checker
+style                Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
+run                  Build the project and executes the binary
+test                 Run the unit tests
+help                 Show this help screen
+```
 
 ## Contribution
 
