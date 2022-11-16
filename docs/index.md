@@ -8,7 +8,7 @@ data pipeline clients and the different services providing the required informat
 
 ## Overview
 
-* [Overall architecture](overall_architecture.md)
+* [Overall architecture](overall-architecture.html)
 * [Architecture](architecture.md)
 
 ## Deployment and consuming the service
