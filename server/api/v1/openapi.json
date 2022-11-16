@@ -1142,8 +1142,11 @@
             }
           },
           "errors": {
-            "type": "string",
-            "nullable": true
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
           },
           "reports": {
             "type": "object",
