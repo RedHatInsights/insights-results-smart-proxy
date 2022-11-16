@@ -906,6 +906,17 @@
                           "description": "Whether the rule has been disabled/acked for all clusters or not.",
                           "type": "boolean",
                           "example": "false"
+                        },
+                        "resolution_risk": {
+                          "description": "Indicates the impact of the resolution steps on the cluster and other associated risks. Behaves in the same way as total_risk, 0 is returned when the rule doesn't have a resolution_risk defined.",
+                          "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4
+                          ],
+                          "type": "integer"
                         }
                       }
                     },
@@ -1403,6 +1414,17 @@
                 3,
                 4
               ]
+            },
+            "resolution_risk": {
+              "description": "Indicates the impact of the resolution steps on the cluster and other associated risks. Behaves in the same way as total_risk, 0 is returned when the rule doesn't have a resolution_risk defined.",
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ],
+              "type": "integer"
             },
             "tags": {
               "description": "List of tags that the rule contains",
