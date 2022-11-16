@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 nav_order: 0
 ---
 
