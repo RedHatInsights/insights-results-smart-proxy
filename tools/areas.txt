@@ -1,0 +1,2 @@
+component 80 136 153 167 Customer cluster
+component 1086 599 128 120 Notification rules
