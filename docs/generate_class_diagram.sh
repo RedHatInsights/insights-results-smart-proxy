@@ -18,7 +18,7 @@ java -jar ~/tools/plantuml.jar class_diagram.uml
 java -jar ~/tools/plantuml.jar -tsvg class_diagram.uml
 xmllint --format class_diagram.svg > class_diagram_.svg
 mv class_diagram.uml docs/
-mv class_diagram.svg docs/
-mv class_diagram_.svg docs/
-mv class_diagram.png docs/
+mv class_diagram.svg docs/images/
+mv class_diagram_.svg docs/images/
+mv class_diagram.png docs/images/
 popd

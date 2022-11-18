@@ -28,4 +28,4 @@ the previous clients in order to get the information from the relevant services.
 
 ## Smart Proxy architecture
 
-![external-data-pipeline-arch](Smart%20proxy%20architecture.png "External Data Pipeline Architecture")
+![external-data-pipeline-arch](images/Smart%20proxy%20architecture.png "External Data Pipeline Architecture")
