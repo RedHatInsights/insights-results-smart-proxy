@@ -7,7 +7,7 @@ nav_order: 19
 
 The CCX team administers only Insights Advisor widget displayed on the homepage dashboard.
 
-![Insights widget in OCP WebConsole](insights-widget.png)
+![Insights widget in OCP WebConsole](images/insights-widget.png)
 
 The Insights Advisor plugin utilizes only Prometheus metrics as a source of data. The data is provided with `k8sresult` parameter sent to the widget.
 
