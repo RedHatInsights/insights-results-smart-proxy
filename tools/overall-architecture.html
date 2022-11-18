@@ -11,8 +11,63 @@
             <h1 id="overall-architecture">Overall architecture</h1>
             <img src="Overall_architecture.png" alt="External Data Pipeline Overall Architecture" usemap="#external-data-pipeline-overall-architecture">
             <map name="external-data-pipeline-overall-architecture">
-                <area shape="rect" coords="80, 136, 233, 303" title="Customer cluster" alt="Customer cluster" href="component/customer-cluster.html" />
-                <area shape="rect" coords="1086, 599, 1214, 719" title="Notification rules" alt="Notification rules" href="component/notification-rules.html" />
+                <area shape="rect" coords="80, 136, 233, 301" title="Customer cluster" alt="Customer cluster" href="component/customer-cluster.html" />
+                <area shape="rect" coords="438, 166, 543, 277" title="Ingress service" alt="Ingress service" href="component/ingress-service.html" />
+                <area shape="rect" coords="543, 166, 726, 277" title="platform.upload.announce" alt="platform.upload.announce" href="topic/platform.upload.announce.html" />
+                <area shape="rect" coords="452, 51, 700, 119" title="Insights storage broker" alt="Insights storage broker" href="component/insights-storage-broker.html" />
+                <area shape="rect" coords="700, 37, 798, 119" title="S3 Ingress S3 bucket" alt="S3 Ingress S3 bucket" href="storage/s3-ingress-s3-bucket.html" />
+                <area shape="rect" coords="233, 166, 438, 277" title="Insights archive" alt="Insights archive" href="channel/insights-archive.html" />
+                <area shape="rect" coords="726, 127, 773, 297" title="Event new insights archive" alt="Event new insights archive" href="channel/event-new-insights-archive.html" />
+                <area shape="rect" coords="901, 142, 995, 192" title="Insights archive" alt="Insights archive" href="channel/insights-archive.html" />
+                <area shape="rect" coords="798, 64, 856, 127" title="Insights archive" alt="Insights archive" href="channel/insights-archive.html" />
+                <area shape="rect" coords="856, 46, 1005, 113" title="archive.results" alt="archive.results" href="topic/archive.results.html" />
+                <area shape="rect" coords="1005, 46, 1130, 99" title="Images SHAs" alt="Images SHAs" href="channel/images-shas.html" />
+                <area shape="rect" coords="1046, 204, 1185, 249" title="Images SHAs" alt="Images SHAs" href="channel/images-shas.html" />
+                <area shape="rect" coords="773, 127, 901, 216" title="SHA extractor" alt="SHA extractor" href="component/sha-extractor.html" />
+                <area shape="rect" coords="1046, 99, 1185, 204" title="Archive DB writer" alt="Archive DB writer" href="component/archive-db-writer.html" />
+                <area shape="rect" coords="1046, 249, 1185, 345" title="CVE database" alt="CVE database" href="storage/cve-database.html" />
+                <area shape="rect" coords="773, 216, 901, 297" title="CCX data pipeline" alt="CCX data pipeline" href="component/ccx-data-pipeline.html" />
+                <area shape="rect" coords="901, 235, 1004, 284" title="Rule hits" alt="Rule hits" href="channel/rule-hits.html" />
+                <area shape="rect" coords="844, 284, 1004, 352" title="ccx.ocp.results" alt="ccx.ocp.results" href="topic/ccx.ocp.results.html" />
+                <area shape="rect" coords="865, 352, 945, 447" title="Rule hits to DB writer" alt="Rule hits to DB writer" href="channel/rule-hits-to-db-writer.html" />
+                <area shape="rect" coords="995, 352, 1075, 447" title="Rule hits to Notification writer" alt="Rule hits to Notification writer" href="channel/rule-hits-to-notification-writer.html" />
+                <area shape="rect" coords="1086, 600, 1214, 720" title="Notification rules" alt="Notification rules" href="component/notification-rules.html" />
+                <area shape="rect" coords="1086, 720, 1214, 810" title="Notification rules" alt="Notification rules" href="channel/notification-rules.html" />
+                <area shape="rect" coords="1063, 810, 1231, 941" title="Template renderer" alt="Template renderer" href="component/template-renderer.html" />
+                <area shape="rect" coords="820, 852, 999, 924" title="Markdown templates" alt="Markdown templates" href="channel/markdown-templates.html" />
+                <area shape="rect" coords="441, 320, 667, 437" title="Insights content service" alt="Insights content service" href="component/insights-content-service.html" />
+                <area shape="rect" coords="481, 437, 610, 536" title="Markdown templates" alt="Markdown templates" href="channel/markdown-templates.html" />
+                <area shape="rect" coords="667, 368, 809, 447" title="Markdown templates" alt="Markdown templates" href="channel/markdown-templates.html" />
+                <area shape="rect" coords="682, 447, 962, 536" title="Insights results DB writer" alt="Insights results DB writer" href="component/insights-results-db-writer.html" />
+                <area shape="rect" coords="962, 447, 1219, 536" title="Notification writer" alt="Notification writer" href="component/notification-writer.html" />
+                <area shape="rect" coords="854, 536, 954, 600" title="Rule hits to aggregator DB" alt="Rule hits to aggregator DB" href="channel/rule-hits-to-aggregator-db.html" />
+                <area shape="rect" coords="983, 536, 1077, 600" title="Rule hits to notification DB" alt="Rule hits to notification DB" href="channel/rule-hits-to-notification-db.html" />
+                <area shape="rect" coords="854, 600, 954, 720" title="Aggregator DB" alt="Aggregator DB" href="storage/aggregator-db.html" />
+                <area shape="rect" coords="983, 600, 1077, 720" title="Notification DB" alt="Notification DB" href="storage/notification-db.html" />
+                <area shape="rect" coords="915, 720, 1077, 780" title="Rule hits from notification DB" alt="Rule hits from notification DB" href="channel/rule-hits-from-notification-db.html" />
+                <area shape="rect" coords="692, 720, 879, 852" title="CCX Notification service" alt="CCX Notification service" href="component/ccx-notification-service.html" />
+                <area shape="rect" coords="483, 845, 615, 948" title="Service log" alt="Service log" href="component/service-log.html" />
+                <area shape="rect" coords="447, 745, 642, 845" title="platform.notifications.ingress" alt="platform.notifications.ingress" href="topic/platform.notifications.ingress.html" />
+                <area shape="rect" coords="642, 755, 692, 805" title="New rule hits" alt="New rule hits" href="channel/new-rule-hits.html" />
+                <area shape="rect" coords="642, 805, 692, 895" title="New rule hits in markdown" alt="New rule hits in markdown" href="channel/new-rule-hits-in-markdown.html" />
+                <area shape="rect" coords="655, 600, 764, 700" title="Insights results aggregator" alt="Insights results aggregator" href="component/insights-results-aggregator.html" />
+                <area shape="rect" coords="764, 600, 854, 650" title="Rule hits from aggregator DB" alt="Rule hits from aggregator DB" href="channel/rule-hits-from-aggregator-db.html" />
+                <area shape="rect" coords="764, 650, 854, 700" title="Rule disable and feedback" alt="Rule disable and feedback" href="channel/rule-disable-and-feedback.html" />
+                <area shape="rect" coords="495, 536, 708, 618" title="Smart proxy" alt="Smart proxy" href="component/smart-proxy.html" />
+                <area shape="rect" coords="499, 659, 593, 745" title="AMS" alt="AMS" href="component/ams.html" />
+                <area shape="rect" coords="389, 536, 495, 618" title="Smart proxy REST API" alt="Smart proxy REST API" href="interface/smart-proxy-rest-api.html" />
+                <area shape="rect" coords="321, 311, 372, 753" title="3Scale" alt="3Scale" href="interface/3scale.html" />
+                <area shape="rect" coords="149, 755, 447, 789" title="Notificatins from notification backend" alt="Notificatins from notification backend" href="channel/notificatins-from-notification-backend.html" />
+                <area shape="rect" coords="149, 789, 389, 850" title="Notifications in ServiceLog" alt="Notifications in ServiceLog" href="channel/notifications-in-servicelog.html" />
+                <area shape="rect" coords="33, 730, 149, 856" title="Customer" alt="Customer" href="component/customer.html" />
+                <area shape="rect" coords="9, 301, 171, 417" title="Insights Advisor" alt="Insights Advisor" href="component/insights-advisor.html" />
+                <area shape="rect" coords="21, 454, 167, 538" title="OCM" alt="OCM" href="component/ocm.html" />
+                <area shape="rect" coords="21, 538, 167, 622" title="ACM" alt="ACM" href="component/acm.html" />
+                <area shape="rect" coords="21, 622, 167, 706" title="curl" alt="curl" href="component/curl.html" />
+                <area shape="rect" coords="171, 301, 321, 358" title="Request to Smart proxy" alt="Request to Smart proxy" href="channel/request-to-smart-proxy.html" />
+                <area shape="rect" coords="171, 358, 321, 415" title="Response from Smart proxy" alt="Response from Smart proxy" href="channel/response-from-smart-proxy.html" />
+                <area shape="rect" coords="167, 528, 321, 585" title="Request to Smart proxy" alt="Request to Smart proxy" href="channel/request-to-smart-proxy.html" />
+                <area shape="rect" coords="167, 585, 321, 642" title="Response from Smart proxy" alt="Response from Smart proxy" href="channel/response-from-smart-proxy.html" />
             </map>
         </div>
     </body>
