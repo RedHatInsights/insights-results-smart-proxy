@@ -1,2 +1,57 @@
-component 80 136 153 167 Customer cluster
-component 1086 599 128 120 Notification rules
+component 80 136 153 165 Customer cluster
+component 438 166 105 111 Ingress service
+topic 543 166 183 111 platform.upload.announce
+component 452 51 248 68 Insights storage broker
+storage 700 37 98 82 S3 Ingress S3 bucket
+channel 233 166 205 111 Insights archive
+channel 726 127 47 170 Event new insights archive
+channel 901 142 94 50 Insights archive
+channel 798 64 58 63 Insights archive
+topic 856 46 149 67 archive.results
+channel 1005 46 125 53 Images SHAs
+channel 1046 204 139 45 Images SHAs
+component 773 127 128 89 SHA extractor
+component 1046 99 139 105 Archive DB writer
+storage 1046 249 139 96 CVE database
+component 773 216 128 81 CCX data pipeline
+channel 901 235 103 49 Rule hits
+topic 844 284 160 68 ccx.ocp.results
+channel 865 352 80 95 Rule hits to DB writer
+channel 995 352 80 95 Rule hits to Notification writer
+component 1086 600 128 120 Notification rules
+channel 1086 720 128 90 Notification rules
+component 1063 810 168 131 Template renderer
+channel 820 852 179 72 Markdown templates
+component 441 320 226 117 Insights content service
+channel 481 437 129 99 Markdown templates
+channel 667 368 142 79 Markdown templates
+component 682 447 280 89 Insights results DB writer
+component 962 447 257 89 Notification writer
+channel 854 536 100 64 Rule hits to aggregator DB
+channel 983 536 94 64 Rule hits to notification DB
+storage 854 600 100 120 Aggregator DB
+storage 983 600 94 120 Notification DB
+channel 915 720 162 60 Rule hits from notification DB
+component 692 720 187 132 CCX Notification service
+component 483 845 132 103 Service log
+topic 447 745 195 100 platform.notifications.ingress
+channel 642 755 50 50 New rule hits
+channel 642 805 50 90 New rule hits in markdown
+component 655 600 109 100 Insights results aggregator
+channel 764 600 90 50 Rule hits from aggregator DB
+channel 764 650 90 50 Rule disable and feedback
+component 495 536 213 82 Smart proxy
+component 499 659 94 86 AMS
+interface 389 536 106 82 Smart proxy REST API
+interface 321 311 51 442 3Scale
+channel 149 755 298 34 Notificatins from notification backend
+channel 149 789 240 61 Notifications in ServiceLog
+component 33 730 116 126 Customer
+component 9 301 162 116 Insights Advisor
+component 21 454 146 84 OCM
+component 21 538 146 84 ACM
+component 21 622 146 84 curl
+channel 171 301 150 57 Request to Smart proxy
+channel 171 358 150 57 Response from Smart proxy
+channel 167 528 154 57 Request to Smart proxy
+channel 167 585 154 57 Response from Smart proxy
