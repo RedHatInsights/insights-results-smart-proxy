@@ -3,9 +3,12 @@
 
 """Simple preprocessor for generating area maps for Overall Architecture page."""
 
+from pathlib import Path
+
 template_file = "overall-architecture-template.html"
 output_file = "overall-architecture.html"
 areas_file = "areas.txt"
+output_directory = ""
 
 
 def load_text_file(filename):
@@ -47,12 +50,22 @@ def generate_area_maps(areas):
     return area_maps
 
 
+def touch_files(directory, areas):
+    for area in areas:
+        splitted = area.split(" ")
+        node_type = splitted[0]
+        node = " ".join(splitted[5:])
+        path = Path(directory, make_href(node_type, node))
+        path.touch()
+
+
 def main():
     template = load_text_file(template_file)
     areas = load_file_as_lines(areas_file)
     area_maps = generate_area_maps(areas)
     html_page = template.replace("<map-areas />", area_maps[:-1])
     save_text_file(output_file, html_page)
+    touch_files(output_directory, areas)
 
 
 if __name__ == "__main__":
