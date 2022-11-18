@@ -3,12 +3,17 @@
 
 """Simple preprocessor for generating area maps for Overall Architecture page."""
 
+import PIL.Image as Image
+from PIL import ImageDraw
 from pathlib import Path
 
 template_file = "overall-architecture-template.html"
 output_file = "overall-architecture.html"
 areas_file = "areas.txt"
 output_directory = ""
+
+input_image = "Overall_architecture_in.png"
+output_image = "Overall_architecture.png"
 
 
 def load_text_file(filename):
@@ -50,6 +55,30 @@ def generate_area_maps(areas):
     return area_maps
 
 
+def draw_areas(input_image_file_name, output_image_file_name, areas):
+    colors = {
+            "component":"#80008020",
+            "channel":"#00800020",
+            "topic":"#00008020",
+            "storage":"#80000020",
+            "interface":"#80800020",
+            }
+    image = Image.open(input_image_file_name)
+    draw = ImageDraw.Draw(image, "RGBA")
+
+    for area in areas:
+        splitted = area.split(" ")
+        node_type = splitted[0]
+        x = int(splitted[1])
+        y = int(splitted[2])
+        width = int(splitted[3])
+        height = int(splitted[4])
+        color = colors[node_type]
+        draw.rectangle((x, y, x+width, y+height), outline="black", fill=color)
+
+    image.save(output_image_file_name)
+
+
 def touch_files(directory, areas):
     for area in areas:
         splitted = area.split(" ")
@@ -65,6 +94,7 @@ def main():
     area_maps = generate_area_maps(areas)
     html_page = template.replace("<map-areas />", area_maps[:-1])
     save_text_file(output_file, html_page)
+    draw_areas(input_image, output_image, areas)
     touch_files(output_directory, areas)
 
 
