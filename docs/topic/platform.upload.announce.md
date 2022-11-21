@@ -13,9 +13,9 @@ layout: default
 
 The records (messages) received from `platform.upload.announce` that are
 identified by header. Messages to be consumed by CCX Data Pipeline contain
-header `openshift` and are encoded using JSON format. Such messages are sent
-for every new tarball stored in S3 Bucket and each message consists of an
-object with various attributes described in schema.
+header with key `service` and value `openshift` and are encoded using JSON
+format. Such messages are sent for every new tarball stored in S3 Bucket and
+each message consists of an object with various attributes described in schema.
 
 
 
