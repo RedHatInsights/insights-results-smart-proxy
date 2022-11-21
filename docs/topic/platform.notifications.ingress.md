@@ -29,7 +29,7 @@ When changes (new issues) has been found in *CCX Notification Service*, notifica
 
 ## Schema description
 
-N/A at this moment
+* Schema is described on page [https://core-platform-apps.pages.redhat.com/notifications-docs/dev/user-guide/send-notification.html#_kafka](https://core-platform-apps.pages.redhat.com/notifications-docs/dev/user-guide/send-notification.html#_kafka)
 
 
 
