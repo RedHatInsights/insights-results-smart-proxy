@@ -16,7 +16,9 @@ package server_test
 
 import (
 	"context"
+	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
@@ -200,6 +202,49 @@ func TestGetCurrentOrgIDUserIDFromToken(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetAuthTokenHeaderMalformed(t *testing.T) {
+	s := helpers.CreateHTTPServer(
+		&helpers.DefaultServerConfig,
+		&helpers.DefaultServicesConfig,
+		nil, nil, nil, nil,
+	)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.GetAuthTokenHeader(s, w, r)
+	})
+
+	request, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
+	assert.NoError(t, err)
+	request.Header.Set("Authorization", "token")
+
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	assert.Equal(t, recorder.Code, http.StatusForbidden)
+	assert.Contains(t, recorder.Body.String(), "Invalid/Malformed auth token")
+}
+
+func TestGetAuthTokenHeaderMissing(t *testing.T) {
+	s := helpers.CreateHTTPServer(
+		&helpers.DefaultServerConfig,
+		&helpers.DefaultServicesConfig,
+		nil, nil, nil, nil,
+	)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.GetAuthTokenHeader(s, w, r)
+	})
+
+	request, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
+	assert.NoError(t, err)
+
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	assert.Equal(t, recorder.Code, http.StatusForbidden)
+	assert.Contains(t, recorder.Body.String(), "Missing auth token")
 }
 
 func getRequest(t *testing.T, identity string) *http.Request {

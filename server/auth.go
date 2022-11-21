@@ -35,6 +35,8 @@ const (
 	// #nosec G101
 	malformedTokenMessage = "Malformed authentication token"
 	invalidTokenMessage   = "Invalid/Malformed auth token"
+	// #nosec G101
+	missingTokenMessage = "Missing auth token"
 )
 
 // Authentication middleware for checking auth rights
@@ -190,6 +192,12 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 		// Grab the token from the header
 		tokenHeader = r.Header.Get("Authorization")
 
+		if tokenHeader == "" {
+			log.Error().Msg(missingTokenMessage)
+			handleServerError(w, &AuthenticationError{errString: missingTokenMessage})
+			return "", false
+		}
+
 		// The token normally comes in format `Bearer {token-body}`, we
 		// check if the retrieved token matched this requirement
 		splitted := strings.Split(tokenHeader, " ")
@@ -215,9 +223,8 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 	log.Info().Int("Length", len(tokenHeader)).Msg("Token retrieved")
 
 	if tokenHeader == "" {
-		const message = "Missing auth token"
-		log.Error().Msg(message)
-		handleServerError(w, &AuthenticationError{errString: message})
+		log.Error().Msg(missingTokenMessage)
+		handleServerError(w, &AuthenticationError{errString: missingTokenMessage})
 		return "", false
 	}
 
