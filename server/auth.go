@@ -35,7 +35,8 @@ const (
 	// #nosec G101
 	malformedTokenMessage = "Malformed authentication token"
 	invalidTokenMessage   = "Invalid/Malformed auth token"
-	missingTokenMessage   = "Missing auth token"
+	// #nosec G101
+	missingTokenMessage = "Missing auth token"
 )
 
 // Authentication middleware for checking auth rights

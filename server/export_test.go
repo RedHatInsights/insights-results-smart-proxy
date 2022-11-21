@@ -26,4 +26,7 @@ package server
 // https://medium.com/@robiplus/golang-trick-export-for-test-aa16cbd7b8cd
 // to see why this trick is needed.
 
-var FillImpacted = fillImpacted
+var (
+	FillImpacted       = fillImpacted
+	GetAuthTokenHeader = (*HTTPServer).getAuthTokenHeader
+)
