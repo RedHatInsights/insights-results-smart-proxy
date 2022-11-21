@@ -5,7 +5,7 @@ layout: default
 
 
 
-# Topic: `patform.upload.announce`
+# Topic: `platform.upload.announce`
 
 
 
