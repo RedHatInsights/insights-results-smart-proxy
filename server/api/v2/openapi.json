@@ -1551,7 +1551,10 @@
                 },
                 "updated_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "anyOf": [
+                    {"format": "date-time"},
+                    {"maxLength": 0}
+                  ]
                 }
               }
             }
