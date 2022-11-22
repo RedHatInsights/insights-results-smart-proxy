@@ -1238,7 +1238,8 @@
           },
           "impacted": {
             "description": "[Optional] Timestamp when the rule first started hitting",
-            "type": "date-time"
+            "format": "date-time",
+            "type": "string"
           }
         },
         "example": {
