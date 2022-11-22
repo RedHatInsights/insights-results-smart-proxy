@@ -205,7 +205,7 @@
                           "example": "Production cluster 1"
                         },
                         "managed": {
-                          "type": "bool",
+                          "type": "boolean",
                           "description": "Indicates whether cluster is managed or not (has 'managed' flag in AMS)",
                           "example": true
                         },
