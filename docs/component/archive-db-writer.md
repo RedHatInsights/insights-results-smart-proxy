@@ -31,5 +31,5 @@ all messages from such topic, and write list of images SHAs into CVEs database.
 
 ## Source code
 
-* Repository: N/A
-* Written in: N/A
+* Repository: [https://github.com/RedHatInsights/vuln4shift-backend](https://github.com/RedHatInsights/vuln4shift-backend)
+* Written in: Go
