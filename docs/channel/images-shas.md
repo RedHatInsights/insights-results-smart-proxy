@@ -5,7 +5,7 @@ layout: default
 
 
 
-# Channel: `images SHAs`
+# Channel: `images-shas`
 
 
 

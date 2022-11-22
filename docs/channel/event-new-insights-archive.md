@@ -5,7 +5,7 @@ layout: default
 
 
 
-# Channel: `New Insights archive`
+# Channel: `new-insights-archive`
 
 
 
