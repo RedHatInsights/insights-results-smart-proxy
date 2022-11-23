@@ -44,7 +44,7 @@ component 495 536 213 82 Smart proxy
 component 499 659 94 86 AMS
 interface 389 536 106 82 Smart proxy REST API
 interface 321 311 51 442 3Scale
-channel 149 755 298 34 Notificatins from notification backend
+channel 149 755 298 34 Notifications from notification backend
 channel 149 789 240 61 Notifications in ServiceLog
 component 33 730 116 126 Customer
 component 9 301 162 116 Insights Advisor
