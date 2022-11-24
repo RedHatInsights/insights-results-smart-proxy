@@ -28,6 +28,7 @@ complexity > 9
 * `abcgo` to measure ABC metrics for Go source code and check if the metrics
   does not exceed specified threshold
 * `errcheck` for checking for all unchecked errors in go programs
+* `golangci-lint` as Go linters aggregator with lot of linters enabled: https://golangci-lint.run/usage/linters/
 
 Additionally `shellcheck` is run against all shell scripts found in this
 repository. For more info about this checker please visit its home page
