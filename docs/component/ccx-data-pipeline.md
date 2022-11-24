@@ -24,12 +24,21 @@ generate a report with the rules hit by the content of the archive.
 This report is published back in order to be consumed by other services.
 
 
+
 ## Interfaces
 
 * Input:
     - Archives send by *Insights Operator*
 * Output:
     - rule report in JSON format
+
+
+
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/ccx-data-pipeline/ccx-data-pipeline?orgId=1&refresh=1m](https://grafana.app-sre.devshift.net/d/ccx-data-pipeline/ccx-data-pipeline?orgId=1&refresh=1m)
+
+
 
 ## Source code
 
