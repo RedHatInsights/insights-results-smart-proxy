@@ -18,3 +18,9 @@ layout: default
 ## Description
 
 Tarball containing data gathered by *Insights Operator* running on OpenShift cluster.
+
+
+
+## Schema
+
+[https://redhatinsights.github.io/insights-data-schemas/external-pipeline/raw_data_S3_bucket.html](https://redhatinsights.github.io/insights-data-schemas/external-pipeline/raw_data_S3_bucket.html)
