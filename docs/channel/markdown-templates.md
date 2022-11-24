@@ -21,3 +21,9 @@ Insights Content Service provides metadata information about rules that are bein
 consumed by Openshift Cluster Manager. That metadata information contains rule title, description,
 remmediations, tags and also groups, that will be consumed primarily by
 [Insights Results Smart Proxy](https://github.com/RedHatInsights/insights-results-smart-proxy).
+
+
+
+## Schema
+
+[https://redhatinsights.github.io/insights-data-schemas/external-pipeline/content_service.html](https://redhatinsights.github.io/insights-data-schemas/external-pipeline/content_service.html)
