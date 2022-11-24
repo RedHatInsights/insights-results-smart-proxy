@@ -30,6 +30,14 @@ on *Insights Core Messaging* framework.
 * Output:
     - SHAs of images produced into Kafka topic
 
+
+
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/shaextractor/ccx-insights-sha-extractor?orgId=1&refresh=30m](https://grafana.app-sre.devshift.net/d/shaextractor/ccx-insights-sha-extractor?orgId=1&refresh=30m)
+
+
+
 ## Source code
 
 * Repository: [https://gitlab.cee.redhat.com/ccx/ccx-sha-extractor](https://gitlab.cee.redhat.com/ccx/ccx-sha-extractor)
