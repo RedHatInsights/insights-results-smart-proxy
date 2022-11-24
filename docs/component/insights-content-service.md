@@ -33,6 +33,12 @@ remmediations, tags and also groups, that will be consumed primarily by
 
 
 
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/JkLN3tvVk/ccx-insights-content-service?orgId=1&refresh=30m](https://grafana.app-sre.devshift.net/d/JkLN3tvVk/ccx-insights-content-service?orgId=1&refresh=30m)
+
+
+
 ## Source code
 
 * Repository: [https://github.com/RedHatInsights/insights-content-service/](https://github.com/RedHatInsights/insights-content-service/)
