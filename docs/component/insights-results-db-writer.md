@@ -32,6 +32,14 @@ for the same cluster.
 * Output:
     - Rule reports stored in multiple tables in different formats
 
+
+
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/C4vK5h2Wk/ccx-insights-results-db-writer?orgId=1&refresh=1m](https://grafana.app-sre.devshift.net/d/C4vK5h2Wk/ccx-insights-results-db-writer?orgId=1&refresh=1m)
+
+
+
 ## Source code
 
 * Repository: [https://github.com/RedHatInsights/insights-results-aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
