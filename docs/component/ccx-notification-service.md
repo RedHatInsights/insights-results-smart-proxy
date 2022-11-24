@@ -45,6 +45,12 @@ repository](https://github.com/RedHatInsights/ccx-notification-writer).
 
 
 
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/ERzLEqdnk/ccx-notification-services?orgId=1&refresh=30m](https://grafana.app-sre.devshift.net/d/ERzLEqdnk/ccx-notification-services?orgId=1&refresh=30m)
+
+
+
 ## Source code
 
 * Repository: [https://github.com/RedHatInsights/ccx-notification-service](https://github.com/RedHatInsights/ccx-notification-service)

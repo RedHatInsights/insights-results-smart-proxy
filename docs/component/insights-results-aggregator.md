@@ -41,6 +41,12 @@ exposed via REST API endpoints.
 
 
 
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/ruvKwhqWk/ccx-insights-results-aggregator?orgId=1&refresh=30m](https://grafana.app-sre.devshift.net/d/ruvKwhqWk/ccx-insights-results-aggregator?orgId=1&refresh=30m)
+
+
+
 ## Source code
 
 * Repository: [https://github.com/RedHatInsights/insights-results-aggregator](https://github.com/RedHatInsights/insights-results-aggregator)

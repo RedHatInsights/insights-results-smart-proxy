@@ -35,6 +35,14 @@ from a single service.
 * Output:
     - REST API interface available for external access
 
+
+
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/5RvvwGqW0/ccx-smart-proxy?orgId=1&refresh=30m](https://grafana.app-sre.devshift.net/d/5RvvwGqW0/ccx-smart-proxy?orgId=1&refresh=30m)
+
+
+
 ## Source code
 
 * Repository: [https://github.com/RedHatInsights/insights-results-smart-proxy](https://github.com/RedHatInsights/insights-results-smart-proxy)

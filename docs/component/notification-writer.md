@@ -41,6 +41,12 @@ remains relatively small.
 
 
 
+## Grafana dashboard
+
+* [https://grafana.app-sre.devshift.net/d/9mNv3nK7z/ccx-notification-writer?orgId=1&refresh=30m](https://grafana.app-sre.devshift.net/d/9mNv3nK7z/ccx-notification-writer?orgId=1&refresh=30m)
+
+
+
 ## Source code
 
 * Repository: [https://github.com/RedHatInsights/ccx-notification-writer](https://github.com/RedHatInsights/ccx-notification-writer)
