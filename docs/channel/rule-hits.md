@@ -29,3 +29,9 @@ record containing the URL to the archive).
 
 Other relevant information about *CCX Data Pipeline* can be found on address
 [https://redhatinsights.github.io/ccx-data-pipeline/](https://redhatinsights.github.io/ccx-data-pipeline/).
+
+
+
+## Schema
+
+[https://redhatinsights.github.io/insights-data-schemas/external-pipeline/ccx_data_pipeline.html](https://redhatinsights.github.io/insights-data-schemas/external-pipeline/ccx_data_pipeline.html)
