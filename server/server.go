@@ -1312,10 +1312,12 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		rule, filtered, err := content.FetchRuleContent(aggregatorRule, filterOSD)
 		if err != nil {
 			if !filtered {
+				// rule has not been filtered by OSDEligible field
 				log.Info().Msgf("no content rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 				noContentRulesCnt++
 			}
 			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
+				// error occured during communication with Content Service
 				log.Error().Err(err)
 				contentError = err
 				return
@@ -1324,6 +1326,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		}
 
 		if filtered {
+			// rule has been filtered by OSDEligible field
 			log.Info().Msgf("osd filtered rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 			continue
 		}
