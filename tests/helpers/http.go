@@ -122,17 +122,6 @@ var (
 	}
 )
 
-// AssertAPIRequestWithServer function uses the server argument, sends API request
-// and checks the API response (see docs for APIRequest and APIResponse)
-func AssertAPIRequestWithServer(
-	t testing.TB,
-	server *server.HTTPServer,
-	request *helpers.APIRequest,
-	expectedResponse *helpers.APIResponse,
-) {
-
-}
-
 // AssertAPIRequest function creates new server with provided
 // serverConfig, servicesConfig (you can leave them nil to use the default ones),
 // groupsChannel and errorChannel (can be set to nil as well)
