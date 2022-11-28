@@ -82,14 +82,14 @@ func readRuleSelectorAndJustificationFromBody(writer http.ResponseWriter, reques
 // This function also tries to process all errors.
 func returnRuleAckToClient(writer http.ResponseWriter, ack types.Acknowledgement) {
 	// serialize the above data structure into JSON format
-	bytes, err := json.MarshalIndent(ack, "", "\t")
+	serializedAck, err := json.MarshalIndent(ack, "", "\t")
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 		return
 	}
 
 	// and send the serialized structure to client
-	_, err = writer.Write(bytes)
+	_, err = writer.Write(serializedAck)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
