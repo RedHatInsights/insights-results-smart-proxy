@@ -1393,7 +1393,7 @@
             },
             "impacted_clusters_count": {
               "type": "integer",
-              "description": "The number of clusters impacted by this rule.",
+              "description": "The number of clusters impacted by this rule. Disabled clusters are excluded from the count. If the rule is acked, it is just marked as disabled:true and the count is still returned.",
               "example": 42
             }
           },
