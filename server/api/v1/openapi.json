@@ -624,10 +624,13 @@
           }
         },
         "operationId": "getOverviewForOrganization",
-        "summary": "Get relevant data for an overview of hitting rules in the clusters for this organziation",
-        "description": "Retrieves an overview data about the clusters being hit by rules"
+        "summary": "Retrieve an overview of rule hits affecting all clusters in an organization. Organization ID is retrieved from the auth token.",
+        "description": "Retrieves an overview data about the clusters being hit by rules. The cluster list is retrieved from the AMS API. Takes into account managed clusters and rules, acknowledged rules as well as disabled clusters."
       },
       "post": {
+        "operationId": "postOverviewForOrganization",
+        "summary": "DEPRACATED: Use GET instead. Retrieve an overview of rule hits affecting all clusters in an organization. Organization ID is retrieved from the auth token.",
+        "description": "DEPRACATED: Use GET instead. Retrieves an overview data about the clusters being hit by rules. This method doesn't take into account managed clusters, rules that were acked or clusters that were disabled. For this functionality, use GET method.",
         "requestBody": {
           "description": "List of cluster IDs. Each ID must conform to UUID format.",
           "content": {
