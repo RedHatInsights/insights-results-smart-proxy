@@ -250,6 +250,9 @@
                       "items": {
                         "type": "object",
                         "properties": {
+                          "generic": {
+                            "type": "string"
+                          },
                           "summary": {
                             "type": "string"
                           },
@@ -261,6 +264,9 @@
                           },
                           "more_info": {
                             "type": "string"
+                          },
+                          "HasReason": {
+                            "type": "boolean"
                           },
                           "plugin": {
                             "type": "object",
@@ -284,26 +290,24 @@
                             "additionalProperties": {
                               "type": "object",
                               "properties": {
-                                "generic": {
-                                  "type": "string"
-                                },
-                                "reason": {
-                                  "type": "string"
-                                },
                                 "metadata": {
                                   "type": "object",
                                   "properties": {
-                                    "condition": {
-                                      "type": "string"
-                                    },
                                     "description": {
                                       "type": "string"
                                     },
                                     "impact": {
-                                      "type": "integer"
+                                      "type": "string"
                                     },
                                     "likelihood": {
-                                      "type": "integer"
+                                      "type": "integer",
+                                      "enum": [
+                                        0,
+                                        1,
+                                        2,
+                                        3,
+                                        4
+                                      ]
                                     },
                                     "publish_date": {
                                       "type": "string"
@@ -313,11 +317,40 @@
                                     },
                                     "tags": {
                                       "type": "array",
+                                      "nullable": true,
                                       "items": {
                                         "type": "string"
                                       }
                                     }
                                   }
+                                },
+                                "total_risk": {
+                                  "type": "integer",
+                                  "enum": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                  ]
+                                },
+                                "generic": {
+                                  "type": "string"
+                                },
+                                "summary": {
+                                  "type": "string"
+                                },
+                                "resolution": {
+                                  "type": "string"
+                                },
+                                "more_info": {
+                                  "type": "string"
+                                },
+                                "reason": {
+                                  "type": "string"
+                                },
+                                "HasReason": {
+                                  "type": "boolean"
                                 }
                               }
                             }
@@ -1566,11 +1599,6 @@
         "description": "An information about rule that has been disabled for whole account",
         "type": "object",
         "properties": {
-          "status": {
-            "description": "Information about the operation status",
-            "type": "string",
-            "example": "ok"
-          },
           "rule": {
             "type": "string",
             "description": "Rule selector: rule ID + error key",
