@@ -740,6 +740,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the cluster ID is not registered and request come from Insights Operator."
           }
         },
         "deprecated": false,

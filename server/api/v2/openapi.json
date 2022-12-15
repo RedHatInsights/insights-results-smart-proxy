@@ -158,6 +158,9 @@
           },
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "404": {
+            "description": "Cluster report is not available, probably not connected cluster."
           }
         }
       }
