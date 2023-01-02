@@ -210,14 +210,16 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		Resolution:   ruleContent.Resolution,
 		MoreInfo:     ruleContent.MoreInfo,
 		TotalRisk:    uint8(ruleContent.TotalRisk),
-		RiskOfChange: uint8(ruleContent.RiskOfChange),
-		Impact:       uint8(ruleContent.Impact),
-		Likelihood:   uint8(ruleContent.Likelihood),
-		PublishDate:  ruleContent.PublishDate,
-		Rating:       rating.Rating,
-		AckedCount:   0,
-		Tags:         ruleContent.Tags,
-		Disabled:     ackFound,
+		// TODO replace RiskOfChange in favour of ResolutionRisk
+		RiskOfChange:   uint8(ruleContent.RiskOfChange),
+		ResolutionRisk: uint8(ruleContent.ResolutionRisk),
+		Impact:         uint8(ruleContent.Impact),
+		Likelihood:     uint8(ruleContent.Likelihood),
+		PublishDate:    ruleContent.PublishDate,
+		Rating:         rating.Rating,
+		AckedCount:     0,
+		Tags:           ruleContent.Tags,
+		Disabled:       ackFound,
 	}
 
 	// prepare data structure for building response
@@ -691,6 +693,7 @@ func getFilteredRecommendationsList(
 			Generic:             ruleContent.Generic,
 			PublishDate:         ruleContent.PublishDate,
 			TotalRisk:           uint8(ruleContent.TotalRisk),
+			ResolutionRisk:      uint8(ruleContent.ResolutionRisk),
 			Impact:              uint8(ruleContent.Impact),
 			Likelihood:          uint8(ruleContent.Likelihood),
 			Tags:                ruleContent.Tags,

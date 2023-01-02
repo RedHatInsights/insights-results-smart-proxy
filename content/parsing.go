@@ -74,16 +74,18 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 			rulesWithContentStorage.SetRule(ruleID, ruleTmp)
 
 			rulesWithContentStorage.SetRuleWithContent(ruleID, ctypes.ErrorKey(errorKey), &types.RuleWithContent{
-				Module:       ruleID,
-				Name:         rule.Plugin.Name,
-				Generic:      errorProperties.Generic,
-				Summary:      errorProperties.Summary,
-				Reason:       errorProperties.Reason,
-				Resolution:   errorProperties.Resolution,
-				MoreInfo:     errorProperties.MoreInfo,
-				ErrorKey:     ctypes.ErrorKey(errorKey),
-				Description:  errorProperties.Metadata.Description,
-				TotalRisk:    totalRisk,
+				Module:         ruleID,
+				Name:           rule.Plugin.Name,
+				Generic:        errorProperties.Generic,
+				Summary:        errorProperties.Summary,
+				Reason:         errorProperties.Reason,
+				Resolution:     errorProperties.Resolution,
+				MoreInfo:       errorProperties.MoreInfo,
+				ErrorKey:       ctypes.ErrorKey(errorKey),
+				Description:    errorProperties.Metadata.Description,
+				TotalRisk:      totalRisk,
+				ResolutionRisk: errorProperties.Metadata.ResolutionRisk,
+				// TODO replace RiskOfChange in favour of ResolutionRisk
 				RiskOfChange: calculateRiskOfChange(impact.Impact, errorProperties.Metadata.Likelihood),
 				Impact:       impact.Impact,
 				Likelihood:   errorProperties.Metadata.Likelihood,
