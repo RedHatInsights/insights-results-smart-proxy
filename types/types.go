@@ -91,21 +91,22 @@ type RecommendationContent struct {
 // related user data, such as rule acknowledging or rating, which requires access to DB/aggregator
 type RecommendationContentUserData struct {
 	// RuleSelector = rule.module|ERROR_KEY format
-	RuleSelector types.RuleSelector `json:"rule_id"`
-	Description  string             `json:"description"`
-	Generic      string             `json:"generic"`
-	Reason       string             `json:"reason"`
-	Resolution   string             `json:"resolution"`
-	MoreInfo     string             `json:"more_info"`
-	TotalRisk    uint8              `json:"total_risk"`
-	RiskOfChange uint8              `json:"risk_of_change"`
-	Impact       uint8              `json:"impact"`
-	Likelihood   uint8              `json:"likelihood"`
-	PublishDate  time.Time          `json:"publish_date"`
-	Tags         []string           `json:"tags"`
-	Rating       types.UserVote     `json:"rating"`
-	AckedCount   uint32             `json:"hosts_acked_count"`
-	Disabled     bool               `json:"disabled"`
+	RuleSelector   types.RuleSelector `json:"rule_id"`
+	Description    string             `json:"description"`
+	Generic        string             `json:"generic"`
+	Reason         string             `json:"reason"`
+	Resolution     string             `json:"resolution"`
+	MoreInfo       string             `json:"more_info"`
+	TotalRisk      uint8              `json:"total_risk"`
+	RiskOfChange   uint8              `json:"risk_of_change"`
+	Impact         uint8              `json:"impact"`
+	Likelihood     uint8              `json:"likelihood"`
+	PublishDate    time.Time          `json:"publish_date"`
+	Tags           []string           `json:"tags"`
+	Rating         types.UserVote     `json:"rating"`
+	AckedCount     uint32             `json:"hosts_acked_count"`
+	Disabled       bool               `json:"disabled"`
+	ResolutionRisk uint8              `json:"resolution_risk"`
 }
 
 // ReportResponseMetaV1 contains metadata for /report endpoint in v1
@@ -172,24 +173,25 @@ const (
 
 // RuleWithContent structure with rule and rule content
 type RuleWithContent struct {
-	Module       types.RuleID   `json:"module"`
-	Name         string         `json:"name"`
-	Summary      string         `json:"summary"`
-	Reason       string         `json:"reason"`
-	Resolution   string         `json:"resolution"`
-	MoreInfo     string         `json:"more_info"`
-	ErrorKey     types.ErrorKey `json:"error_key"`
-	Description  string         `json:"description"`
-	TotalRisk    int            `json:"total_risk"`
-	RiskOfChange int            `json:"risk_of_change"`
-	Impact       int            `json:"impact"`
-	Likelihood   int            `json:"likelihood"`
-	PublishDate  time.Time      `json:"publish_date"`
-	Active       bool           `json:"active"`
-	Internal     bool           `json:"internal"`
-	Generic      string         `json:"generic"`
-	Tags         []string       `json:"tags"`
-	OSDCustomer  bool           `json:"osd_customer"`
+	Module         types.RuleID   `json:"module"`
+	Name           string         `json:"name"`
+	Summary        string         `json:"summary"`
+	Reason         string         `json:"reason"`
+	Resolution     string         `json:"resolution"`
+	MoreInfo       string         `json:"more_info"`
+	ErrorKey       types.ErrorKey `json:"error_key"`
+	Description    string         `json:"description"`
+	TotalRisk      int            `json:"total_risk"`
+	ResolutionRisk int            `json:"resolution_risk"`
+	RiskOfChange   int            `json:"risk_of_change"`
+	Impact         int            `json:"impact"`
+	Likelihood     int            `json:"likelihood"`
+	PublishDate    time.Time      `json:"publish_date"`
+	Active         bool           `json:"active"`
+	Internal       bool           `json:"internal"`
+	Generic        string         `json:"generic"`
+	Tags           []string       `json:"tags"`
+	OSDCustomer    bool           `json:"osd_customer"`
 }
 
 // RecommendationListView represents the API response for Advisor /rule/ related endpoints
@@ -202,6 +204,7 @@ type RecommendationListView struct {
 	Generic             string       `json:"generic"`
 	PublishDate         time.Time    `json:"publish_date"`
 	TotalRisk           uint8        `json:"total_risk"`
+	ResolutionRisk      uint8        `json:"resolution_risk"`
 	Impact              uint8        `json:"impact"`
 	Likelihood          uint8        `json:"likelihood"`
 	Tags                []string     `json:"tags"`
