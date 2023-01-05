@@ -7,7 +7,7 @@ require (
 	github.com/RedHatInsights/insights-content-service v0.0.0-20221024073309-fabee4bcb06e
 	github.com/RedHatInsights/insights-operator-utils v1.24.5
 	github.com/RedHatInsights/insights-results-aggregator v1.3.4
-	github.com/RedHatInsights/insights-results-aggregator-data v1.3.7
+	github.com/RedHatInsights/insights-results-aggregator-data v1.3.8
 	github.com/RedHatInsights/insights-results-types v1.3.21
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/google/uuid v1.3.0
