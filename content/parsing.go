@@ -26,7 +26,10 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
-const internalRuleStr = "internal"
+const (
+	internalRuleStr = "internal"
+	ocsRuleStr      = "ocs"
+)
 
 var (
 	timeParseFormats = []string{
@@ -173,11 +176,12 @@ func getActiveStatus(status string) (active, success, missing bool) {
 
 // IsRuleInternal tries to look for the word "internal" in the ruleID / rule module,
 // because it's currently not specified anywhere on it's own
-// TODO: add field indicating restricted/internal status to one of Rule structs in content-service
 func IsRuleInternal(ruleID ctypes.RuleID) bool {
 	splitRuleID := strings.Split(string(ruleID), ".")
 	for _, ruleIDPart := range splitRuleID {
-		if ruleIDPart == internalRuleStr {
+		if ruleIDPart == internalRuleStr ||
+			ruleIDPart == ocsRuleStr {
+
 			return true
 		}
 	}
