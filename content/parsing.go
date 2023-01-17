@@ -85,15 +85,13 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 				Description:    errorProperties.Metadata.Description,
 				TotalRisk:      totalRisk,
 				ResolutionRisk: errorProperties.Metadata.ResolutionRisk,
-				// TODO replace RiskOfChange in favour of ResolutionRisk
-				RiskOfChange: calculateRiskOfChange(impact.Impact, errorProperties.Metadata.Likelihood),
-				Impact:       impact.Impact,
-				Likelihood:   errorProperties.Metadata.Likelihood,
-				PublishDate:  publishDate,
-				Active:       active,
-				Internal:     IsRuleInternal(ruleID),
-				Tags:         errorProperties.Metadata.Tags,
-				OSDCustomer:  collections.StringInSlice("osd_customer", errorProperties.Metadata.Tags),
+				Impact:         impact.Impact,
+				Likelihood:     errorProperties.Metadata.Likelihood,
+				PublishDate:    publishDate,
+				Active:         active,
+				Internal:       IsRuleInternal(ruleID),
+				Tags:           errorProperties.Metadata.Tags,
+				OSDCustomer:    collections.StringInSlice("osd_customer", errorProperties.Metadata.Tags),
 			})
 		}
 	}
@@ -103,12 +101,6 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 // is the default behaviour in Go
 func calculateTotalRisk(impact, likelihood int) int {
 	return (impact + likelihood) / 2
-}
-
-// TODO: move to utils
-func calculateRiskOfChange(impact, likelihood int) int {
-	// TODO: actually calculate
-	return 0
 }
 
 // TODO: move to utils

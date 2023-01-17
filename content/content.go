@@ -527,7 +527,6 @@ func FetchRuleContent(rule ctypes.RuleOnReport, OSDEligible bool) (
 		Resolution:      ruleWithContent.Resolution,
 		MoreInfo:        ruleWithContent.MoreInfo,
 		TotalRisk:       ruleWithContent.TotalRisk,
-		RiskOfChange:    ruleWithContent.RiskOfChange,
 		RuleID:          ruleID,
 		TemplateData:    rule.TemplateData,
 		Tags:            ruleWithContent.Tags,

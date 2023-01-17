@@ -126,7 +126,6 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 		Resolution:   ruleContent.Resolution,
 		MoreInfo:     ruleContent.MoreInfo,
 		TotalRisk:    uint8(ruleContent.TotalRisk),
-		RiskOfChange: uint8(ruleContent.RiskOfChange),
 		Impact:       uint8(ruleContent.Impact),
 		Likelihood:   uint8(ruleContent.Likelihood),
 		PublishDate:  ruleContent.PublishDate,
@@ -203,15 +202,13 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 	// fill in user rating and other DB stuff from aggregator
 	contentResponse := types.RecommendationContentUserData{
 		// RuleID in rule.module|ERROR_KEY format
-		RuleSelector: ctypes.RuleSelector(ruleID),
-		Description:  ruleContent.Description,
-		Generic:      ruleContent.Generic,
-		Reason:       ruleContent.Reason,
-		Resolution:   ruleContent.Resolution,
-		MoreInfo:     ruleContent.MoreInfo,
-		TotalRisk:    uint8(ruleContent.TotalRisk),
-		// TODO replace RiskOfChange in favour of ResolutionRisk
-		RiskOfChange:   uint8(ruleContent.RiskOfChange),
+		RuleSelector:   ctypes.RuleSelector(ruleID),
+		Description:    ruleContent.Description,
+		Generic:        ruleContent.Generic,
+		Reason:         ruleContent.Reason,
+		Resolution:     ruleContent.Resolution,
+		MoreInfo:       ruleContent.MoreInfo,
+		TotalRisk:      uint8(ruleContent.TotalRisk),
 		ResolutionRisk: uint8(ruleContent.ResolutionRisk),
 		Impact:         uint8(ruleContent.Impact),
 		Likelihood:     uint8(ruleContent.Likelihood),
@@ -698,7 +695,6 @@ func getFilteredRecommendationsList(
 			Likelihood:          uint8(ruleContent.Likelihood),
 			Tags:                ruleContent.Tags,
 			Disabled:            ruleDisabled,
-			RiskOfChange:        uint8(ruleContent.RiskOfChange),
 			ImpactedClustersCnt: impactedClustersCnt,
 		})
 	}
