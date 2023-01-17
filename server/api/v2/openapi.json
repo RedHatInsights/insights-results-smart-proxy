@@ -681,17 +681,6 @@
                           ],
                           "type": "integer"
                         },
-                        "risk_of_change": {
-                          "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4
-                          ],
-                          "type": "integer"
-                        },
                         "impact": {
                           "type": "integer",
                           "description": "How much of an impact this rule has on a cluster.",
@@ -836,17 +825,6 @@
                         },
                         "total_risk": {
                           "description": "Total risk - calculated from rule impact and likelihood.",
-                          "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4
-                          ],
-                          "type": "integer"
-                        },
-                        "risk_of_change": {
-                          "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
                           "enum": [
                             0,
                             1,
@@ -1238,17 +1216,6 @@
             ],
             "type": "integer"
           },
-          "risk_of_change": {
-            "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
-            "enum": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "type": "integer"
-          },
           "disabled": {
             "description": "If this rule result disabled or not. This field can be used in the UI to show only specific set of rules results.",
             "type": "boolean"
@@ -1297,7 +1264,6 @@
           "reason": "",
           "resolution": "",
           "total_risk": 1,
-          "risk_of_change": 0,
           "disabled": false,
           "disable_feedback": "",
           "disabled_at": "",
@@ -1438,17 +1404,6 @@
               "type": "boolean",
               "example": true
             },
-            "risk_of_change": {
-              "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
-              "enum": [
-                0,
-                1,
-                2,
-                3,
-                4
-              ],
-              "type": "integer"
-            },
             "impacted_clusters_count": {
               "type": "integer",
               "description": "The number of clusters impacted by this rule. Disabled clusters are excluded from the count. If the rule is acked, it is just marked as disabled:true and the count is still returned.",
@@ -1466,7 +1421,6 @@
               "openshift",
               "service_availability"
             ],
-            "risk_of_change": 0,
             "disabled": false,
             "impacted_clusters_count": 42
           }

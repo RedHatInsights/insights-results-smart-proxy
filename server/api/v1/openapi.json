@@ -1067,17 +1067,6 @@
               4
             ]
           },
-          "risk_of_change": {
-            "description": "Risk of change - values paired with corresponding UI elements. 0 returned when not defined, therefore to hide the UI.",
-            "enum": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "type": "integer"
-          },
           "disabled": {
             "description": "If this rule result disabled or not. This field can be used in the UI to show only specific set of rules results.",
             "type": "boolean"
@@ -1121,7 +1110,6 @@
           "reason": "",
           "resolution": "",
           "total_risk": 1,
-          "risk_of_change": 0,
           "disabled": false,
           "disable_feedback": "",
           "disabled_at": "",
