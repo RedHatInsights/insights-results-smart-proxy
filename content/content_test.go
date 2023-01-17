@@ -36,6 +36,7 @@ const (
 	testTimeout = 10 * time.Second
 	internalStr = "internal"
 	externalStr = "external"
+	ocsStr      = "ocs"
 )
 
 var (
@@ -542,9 +543,11 @@ func TestGetInternalRuleIDs(t *testing.T) {
 	defer content.ResetContent()
 
 	internalRule1, internalRule2, externalRule1 := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	ocsRule := testdata.RuleContent1
 	fakeRuleAsInternal(&internalRule1)
 	fakeRuleAsInternal(&internalRule2)
 	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsOcs(&ocsRule)
 
 	ruleContentDirectory := ctypes.RuleContentDirectory{
 		Config: ctypes.GlobalRuleConfig{
@@ -554,6 +557,7 @@ func TestGetInternalRuleIDs(t *testing.T) {
 			"rc1": internalRule1,
 			"rc2": internalRule2,
 			"rc3": externalRule1,
+			"rc4": ocsRule,
 		},
 	}
 
@@ -561,17 +565,20 @@ func TestGetInternalRuleIDs(t *testing.T) {
 
 	internalRuleIDs, err := content.GetInternalRuleIDs()
 	assert.Nil(t, err)
-	assert.Equal(t, 2, len(internalRuleIDs))
+	assert.Equal(t, 3, len(internalRuleIDs))
 }
 
 // TestGetExternalRuleIDs tests if storage.externalRuleIDs is filled correctly
 func TestGetExternalRuleIDs(t *testing.T) {
 	defer content.ResetContent()
 
-	externalRule1, externalRule2, externalRule3 := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	externalRule1, externalRule2 := testdata.RuleContent1, testdata.RuleContent1
+	externalRule3, internalRule4, ocsRule := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
 	fakeRuleAsExternal(&externalRule1)
 	fakeRuleAsExternal(&externalRule2)
 	fakeRuleAsExternal(&externalRule3)
+	fakeRuleAsInternal(&internalRule4)
+	fakeRuleAsOcs(&ocsRule)
 
 	ruleContentDirectory := ctypes.RuleContentDirectory{
 		Config: ctypes.GlobalRuleConfig{
@@ -581,6 +588,8 @@ func TestGetExternalRuleIDs(t *testing.T) {
 			"rc1": externalRule1,
 			"rc2": externalRule2,
 			"rc3": externalRule3,
+			"rc4": internalRule4,
+			"rc5": ocsRule,
 		},
 	}
 
@@ -674,6 +683,9 @@ func fakeRuleAsExternal(ruleContent *ctypes.RuleContent) {
 	modifyPluginPythonModule(ruleContent, externalStr)
 }
 
+func fakeRuleAsOcs(ruleContent *ctypes.RuleContent) {
+	modifyPluginPythonModule(ruleContent, ocsStr)
+}
 func modifyPluginPythonModule(ruleContent *ctypes.RuleContent, injectStr string) {
 	ruleContentCopy := ruleContent
 	ruleContentCopy.Plugin.PythonModule = fmt.Sprintf("testcontent.%v.%v.rule", injectStr, random.Int())
