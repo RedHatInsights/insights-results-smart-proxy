@@ -59,7 +59,6 @@ type RuleWithContentResponse struct {
 	Resolution      string          `json:"resolution"`
 	MoreInfo        string          `json:"more_info"`
 	TotalRisk       int             `json:"total_risk"`
-	RiskOfChange    int             `json:"risk_of_change"`
 	Disabled        bool            `json:"disabled"`
 	DisableFeedback string          `json:"disable_feedback"`
 	DisabledAt      types.Timestamp `json:"disabled_at"`
@@ -80,7 +79,6 @@ type RecommendationContent struct {
 	Resolution   string             `json:"resolution"`
 	MoreInfo     string             `json:"more_info"`
 	TotalRisk    uint8              `json:"total_risk"`
-	RiskOfChange uint8              `json:"risk_of_change"`
 	Impact       uint8              `json:"impact"`
 	Likelihood   uint8              `json:"likelihood"`
 	PublishDate  time.Time          `json:"publish_date"`
@@ -98,7 +96,6 @@ type RecommendationContentUserData struct {
 	Resolution     string             `json:"resolution"`
 	MoreInfo       string             `json:"more_info"`
 	TotalRisk      uint8              `json:"total_risk"`
-	RiskOfChange   uint8              `json:"risk_of_change"`
 	Impact         uint8              `json:"impact"`
 	Likelihood     uint8              `json:"likelihood"`
 	PublishDate    time.Time          `json:"publish_date"`
@@ -183,7 +180,6 @@ type RuleWithContent struct {
 	Description    string         `json:"description"`
 	TotalRisk      int            `json:"total_risk"`
 	ResolutionRisk int            `json:"resolution_risk"`
-	RiskOfChange   int            `json:"risk_of_change"`
 	Impact         int            `json:"impact"`
 	Likelihood     int            `json:"likelihood"`
 	PublishDate    time.Time      `json:"publish_date"`
@@ -196,7 +192,6 @@ type RuleWithContent struct {
 
 // RecommendationListView represents the API response for Advisor /rule/ related endpoints
 // RuleStatus is based on acknowledgment table (enabled/disabled)
-// RiskOfChange == resolution risk, currently missing from rule content
 type RecommendationListView struct {
 	// RuleID is in "|" format
 	RuleID              types.RuleID `json:"rule_id"`
@@ -209,7 +204,6 @@ type RecommendationListView struct {
 	Likelihood          uint8        `json:"likelihood"`
 	Tags                []string     `json:"tags"`
 	Disabled            bool         `json:"disabled"`
-	RiskOfChange        uint8        `json:"risk_of_change"`
 	ImpactedClustersCnt uint32       `json:"impacted_clusters_count"`
 }
 

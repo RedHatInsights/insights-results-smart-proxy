@@ -65,7 +65,6 @@ var (
 			Resolution:   testdata.RuleErrorKey1.Resolution,
 			MoreInfo:     testdata.RuleErrorKey1.MoreInfo,
 			TotalRisk:    calculateTotalRisk(testdata.RuleErrorKey1.Impact, testdata.RuleErrorKey1.Likelihood),
-			RiskOfChange: 0,
 			Disabled:     testdata.Rule1Disabled,
 			UserVote:     types.UserVoteNone,
 			TemplateData: testdata.Rule1ExtraData,
