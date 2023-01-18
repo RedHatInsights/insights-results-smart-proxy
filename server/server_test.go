@@ -40,7 +40,7 @@ import (
 
 const (
 	testTimeout            = 10 * time.Second
-	internalTestRuleModule = "foo.rules.internal.bar"
+	internalTestRuleModule = "ccx_ocp_rules.internal.bar"
 	internalRuleID         = internalTestRuleModule + "|" + testdata.ErrorKey1
 )
 

@@ -1822,7 +1822,7 @@ func TestRuleNamesResponse(t *testing.T) {
 
 	expectedBody := `
 		{
-			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "foo.rules.internal.bar"],
+			"rules": ["ccx_rules_ocp.external.rules.node_installer_degraded", "ccx_ocp_rules.internal.bar"],
 			"status": "ok"
 		}
 	`
