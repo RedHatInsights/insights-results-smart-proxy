@@ -170,12 +170,7 @@ func getActiveStatus(status string) (active, success, missing bool) {
 // because it's currently not specified anywhere on it's own
 func IsRuleInternal(ruleID ctypes.RuleID) bool {
 	splitRuleID := strings.Split(string(ruleID), ".")
-	for _, ruleIDPart := range splitRuleID {
-		if ruleIDPart == internalRuleStr ||
-			ruleIDPart == ocsRuleStr {
-
-			return true
-		}
-	}
-	return false
+	return len(splitRuleID) > 1 &&
+		(splitRuleID[1] == internalRuleStr ||
+			splitRuleID[1] == ocsRuleStr)
 }
