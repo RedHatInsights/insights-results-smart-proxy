@@ -1,4 +1,4 @@
-// Copyright 2021 Red Hat, Inc
+// Copyright 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/RedHatInsights/insights-operator-utils/generators"
-	ctypes "github.com/RedHatInsights/insights-results-types"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 )
@@ -50,7 +49,7 @@ func logClustersReport(orgID types.OrgID, reports map[types.ClusterName]json.Raw
 }
 
 // generateCompositeRuleIDFromDisabled trims ".report" from given disabled rule module and generates composite rule ID
-func generateCompositeRuleIDFromDisabled(disabledRule ctypes.DisabledRule) (
+func generateCompositeRuleIDFromDisabled(disabledRule types.DisabledRule) (
 	compositeRuleID types.RuleID, err error,
 ) {
 	// the records in v1-related enable/disable DB tables contain ".report" suffix which needs to be
@@ -58,7 +57,7 @@ func generateCompositeRuleIDFromDisabled(disabledRule ctypes.DisabledRule) (
 	trimmedRuleModule := strings.TrimSuffix(string(disabledRule.RuleID), dotReport)
 
 	compositeRuleID, err = generators.GenerateCompositeRuleID(
-		ctypes.RuleFQDN(trimmedRuleModule),
+		types.RuleFQDN(trimmedRuleModule),
 		disabledRule.ErrorKey,
 	)
 	return
