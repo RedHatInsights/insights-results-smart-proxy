@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -457,7 +457,7 @@ func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
 			Method:             http.MethodGet,
 			Endpoint:           server.ReportEndpointV2,
 			EndpointArgs:       []interface{}{testdata.ClusterName},
-			UserID:             types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+			UserID:             types.UserID(userIDOnGoodJWTAuthBearer),
 			OrgID:              testdata.OrgID,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
@@ -507,7 +507,7 @@ func TestHTTPServer_ReportEndpointV2TestAMSData(t *testing.T) {
 			Method:             http.MethodGet,
 			Endpoint:           server.ReportEndpointV2,
 			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
-			UserID:             types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+			UserID:             types.UserID(userIDOnGoodJWTAuthBearer),
 			OrgID:              testdata.OrgID,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
@@ -557,7 +557,7 @@ func TestHTTPServer_ReportEndpointV2TestManagedClustersRules(t *testing.T) {
 			Method:             http.MethodGet,
 			Endpoint:           server.ReportEndpointV2,
 			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
-			UserID:             types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+			UserID:             types.UserID(userIDOnGoodJWTAuthBearer),
 			OrgID:              testdata.OrgID,
 			AuthorizationToken: goodJWTAuthBearer,
 		}, &helpers.APIResponse{
@@ -1336,7 +1336,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
@@ -1417,7 +1417,7 @@ func TestHTTPServer_OverviewEndpointManagedClustersRules(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		// managed cluster; 1 managed rule, 2 non-managed rules == only 1 rule must count
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
@@ -1496,7 +1496,7 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, helpers.DefaultServerConfig.APIv1Prefix, &helpers.APIRequest{
@@ -1569,7 +1569,7 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 			Body:       helpers.ToJSONString(ResponseRule2DisabledSystemWide),
 		})
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
@@ -1610,7 +1610,7 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 			Body:       helpers.ToJSONString(ResponseRule1DisabledSystemWide),
 		})
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -1685,7 +1685,7 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		config := helpers.DefaultServerConfig
 		config.UseOrgClustersFallback = true
@@ -1698,7 +1698,7 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 				Method:             http.MethodGet,
 				Endpoint:           server.OverviewEndpoint,
 				OrgID:              testdata.OrgID,
-				UserID:             ctypes.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)),
+				UserID:             ctypes.UserID(userIDOnGoodJWTAuthBearer),
 				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -2995,7 +2995,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoClusters(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
@@ -3046,7 +3046,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *t
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		resp := GetClustersResponse2ClusterNoHits
 		for i := range clusterInfoList {
@@ -3118,7 +3118,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		resp := GetClustersResponse2ClusterNoHits
 		for i := range clusterInfoList {
@@ -3177,7 +3177,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		resp := GetClustersResponse2ClusterNoArchiveInDB
 		for i := range clusterInfoList {
@@ -3263,7 +3263,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		resp := GetClustersResponse2ClusterWithHits
 		for i := range clusterInfoList {
@@ -3347,7 +3347,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1Managed(t *testing
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		resp := GetClustersResponse2ClusterWithHitsCluster1Managed
 		for i := range clusterInfoList {
@@ -3435,7 +3435,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1WithVersion(t *tes
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		resp := GetClustersResponse2ClusterWithHitsCluster1WithVersion
 		for i := range clusterInfoList {
@@ -3541,7 +3541,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule(t *testing.T) {
 			},
 		)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(fmt.Sprint(userIDOnGoodJWTAuthBearer)))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		resp := GetClustersResponse2ClusterWithHits1Rule
 		for i := range clusterInfoList {
