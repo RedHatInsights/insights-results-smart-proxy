@@ -23,7 +23,6 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
-	ctypes "github.com/RedHatInsights/insights-results-types"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 
@@ -164,9 +163,9 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 
 func (server HTTPServer) getOrganizationOverview(
 	clusterInfoList []sptypes.ClusterInfo,
-	clusterRecommendationsMap ctypes.ClusterRecommendationMap,
-	systemWideDisabledRules map[ctypes.RuleID]bool,
-	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
+	clusterRecommendationsMap types.ClusterRecommendationMap,
+	systemWideDisabledRules map[types.RuleID]bool,
+	disabledRulesPerCluster map[types.ClusterName][]types.RuleID,
 ) (
 	sptypes.OrgOverviewResponse, error,
 ) {
