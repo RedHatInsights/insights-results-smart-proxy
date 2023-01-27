@@ -10,11 +10,12 @@ require (
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.8
 	github.com/RedHatInsights/insights-results-types v1.3.22
 	github.com/golang-jwt/jwt/v4 v4.2.0
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/openshift-online/ocm-sdk-go v0.1.238
-	github.com/prometheus/client_golang v1.11.0
+	github.com/prometheus/client_golang v1.14.0
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/rs/zerolog v1.26.1
 	github.com/spf13/viper v1.9.0
