@@ -13,6 +13,7 @@ Smart proxy for insights results
 
 * [Description](#description)
 * [Documentation](#documentation)
+* [BDD tests](#bdd-tests)
 * [Makefile targets](#makefile-targets)
 * [Contribution](#contribution)
 * [Package manifest](#package-manifest)
@@ -33,6 +34,19 @@ from a single service.
 
 Documentation is hosted on Github Pages <https://redhatinsights.github.io/insights-results-smart-proxy/>.
 Sources are located in [docs](https://github.com/RedHatInsights/insights-results-smart-proxy/tree/master/docs).
+
+## BDD tests
+
+Behaviour tests for this service are included in [Insights Behavioral
+Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository.
+In order to run these tests, the following steps need to be made:
+
+1. clone the [Insights Behavioral Spec](https://github.com/RedHatInsights/insights-behavioral-spec) repository
+1. go into the cloned subdirectory `insights-behavioral-spec`
+1. run the `smart_proxy_tests.sh` from this subdirectory
+
+List of all test scenarios prepared for this service is available at
+<https://redhatinsights.github.io/insights-behavioral-spec/feature_list.html#smart-proxy>
 
 
 ## Makefile targets
