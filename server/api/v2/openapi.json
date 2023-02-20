@@ -237,6 +237,71 @@
         }
       }
     },
+    "/cluster/{clusterId}/upgrade-risks-prediction": {
+      "get": {
+        "summary": "",
+        "operationId": "getUpgradeRisksPrediction",
+        "description": "The title of the rule, a short description.",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "upgrade_recommendation": {
+                      "type": "object",
+                      "properties": {
+                        "upgrade_recommended": {
+                          "type": "boolean"
+                        },
+                        "upgrade_risks_predictors": {
+                          "type": "object",
+                          "properties": {
+                            "alerts": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minimum": 0
+                              }
+                            },
+                            "operator_conditions": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minimum": 0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/content": {
       "get": {
         "tags": [

@@ -68,6 +68,7 @@ type AMSClient interface {
 	GetSingleClusterInfoForOrganization(types.OrgID, types.ClusterName) (
 		types.ClusterInfo, error,
 	)
+	IsClusterInOrganization(types.OrgID, types.ClusterName) bool
 }
 
 // amsClientImpl is an implementation of the AMSClient interface
@@ -304,4 +305,10 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 	}
 
 	return
+}
+
+func (c *amsClientImpl) IsClusterInOrganization(orgID types.OrgID, clusterID types.ClusterName) bool {
+	clusterInfo, err := c.GetSingleClusterInfoForOrganization(orgID, clusterID)
+
+	return err == nil && clusterInfo.ID == clusterID
 }

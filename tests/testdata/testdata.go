@@ -33,6 +33,8 @@ const (
 	ClusterDisplayName2 = "Cluster 2"
 	ClusterDisplayName3 = "Cluster 3"
 
+	OrgID = testdata.OrgID
+
 	GeneratedAt = "2020-03-06T12:00:00Z"
 )
 

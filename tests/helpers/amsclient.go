@@ -73,6 +73,12 @@ func (m *mockAMSClient) GetSingleClusterInfoForOrganization(
 	return
 }
 
+func (m *mockAMSClient) IsClusterInOrganization(orgID types.OrgID, clusterID types.ClusterName) bool {
+	clusterInfo, err := m.GetSingleClusterInfoForOrganization(orgID, clusterID)
+
+	return err == nil && clusterInfo.ID == clusterID
+}
+
 // AMSClientWithOrgResults creates a mock of AMSClient interface that returns the results
 // defined by orgID and clusters parameters
 func AMSClientWithOrgResults(orgID types.OrgID, clusters []types.ClusterInfo) amsclient.AMSClient {

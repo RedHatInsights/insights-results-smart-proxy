@@ -31,6 +31,10 @@ const (
 	// ClusterInfoEndpoint provides information about given cluster retrieved from AMS API
 	ClusterInfoEndpoint = "cluster/{cluster}/info"
 
+	// UpgradeRisksPredictionEndpoint returns the prediction about upgrading
+	// the given cluster.
+	UpgradeRisksPredictionEndpoint = "cluster/{cluster}/upgrade-risks-prediction"
+
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
 	ClustersDetail = "rule/{rule_selector}/clusters_detail"
 
@@ -104,6 +108,7 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 	router.Handle(apiV2Prefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
 
 	router.HandleFunc(apiV2Prefix+InfoEndpoint, server.infoMap).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc(apiV2Prefix+UpgradeRisksPredictionEndpoint, server.upgradeRisksPrediction).Methods(http.MethodGet)
 
 	// OpenAPI specs
 	router.HandleFunc(

@@ -557,3 +557,55 @@ func TestGetSingleClusterInfoForOrganization(t *testing.T) {
 	assert.Equal(t, clusterInfo.Managed, true)
 	assert.Equal(t, clusterInfo.Status, testdata.ActiveStatus)
 }
+
+func TestIsClusterInOrganization(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponse),
+	})
+
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     singleClusterInfoEndpoint,
+		EndpointArgs: []interface{}{1, testdata.InternalOrgID, testdata.ClusterName1, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponse),
+	})
+
+	// second request will get an empty response (0 sized), so no more requests will be made
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     singleClusterInfoEndpoint,
+		EndpointArgs: []interface{}{2, testdata.InternalOrgID, testdata.ClusterName1, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	result := c.IsClusterInOrganization(
+		testdata.ExternalOrgID,
+		testdata.ClusterName1,
+	)
+	helpers.FailOnError(t, err)
+
+	assert.True(t, result)
+}
