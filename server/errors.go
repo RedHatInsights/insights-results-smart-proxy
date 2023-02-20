@@ -94,8 +94,6 @@ func (*AggregatorServiceUnavailableError) Error() string {
 	return "Aggregator service is unreachable"
 }
 
-// DataEngineeringServiceUnavailableError error is used when
-
 // AMSAPIUnavailableError error is used when AMS API is not available and is the only source of data
 type AMSAPIUnavailableError struct{}
 

@@ -267,6 +267,14 @@
                       "type": "string",
                       "example": "ok"
                     },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "last_checked_at": "string",
+                        "format": "date-time",
+                        "description": "[Optional] Last time of analysis for given cluster."
+                      }
+                    },
                     "upgrade_recommendation": {
                       "type": "object",
                       "properties": {
@@ -279,15 +287,41 @@
                             "alerts": {
                               "type": "array",
                               "items": {
-                                "type": "string",
-                                "minimum": 0
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "example": "APIRemovedInNextEUSReleaseInUse"
+                                  },
+                                  "namespace": {
+                                    "type": "string",
+                                    "example": "openshift-kube-apiserver"
+                                  },
+                                  "severity": {
+                                    "type": "string",
+                                    "example": "info"
+                                  }
+                                }
                               }
                             },
                             "operator_conditions": {
                               "type": "array",
                               "items": {
-                                "type": "string",
-                                "minimum": 0
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "example": "authentication"
+                                  },
+                                  "condition": {
+                                    "type": "string",
+                                    "example": "Failing"
+                                  },
+                                  "reason": {
+                                    "type": "string",
+                                    "example": "AsExpected"
+                                  }
+                                }
                               }
                             }
                           }

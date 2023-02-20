@@ -27,10 +27,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// UpgradeRisksPredictionServiceEndpoint endport for the upgrade prediction service
+// UpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction service
 const UpgradeRisksPredictionServiceEndpoint = "upgrade-risks-prediction/cluster/{cluster}"
 
-// method upgradeRisksPrediction return a recommendation to upgrade or not a cluster
+// method upgradeRisksPrediction returns a recommendation to upgrade or not a cluster
 // and a list of the alerts/operator conditions that were taken into account if the
 // upgrade is not recommended.
 //
@@ -39,8 +39,20 @@ const UpgradeRisksPredictionServiceEndpoint = "upgrade-risks-prediction/cluster/
 //	{
 //		"upgrade_recommended": false,
 //		"upgrade_risks_predictors": {
-//			"alerts": ["alert1", "alert2"],
-//			"operator_conditions": ["foc1", "foc2"]
+//			"alerts": [
+//				{
+//					"name": "APIRemovedInNextEUSReleaseInUse",
+//					"namespace": "openshift-kube-apiserver",
+//					"severity": "info"
+//				}
+//			],
+//			"operator_conditions": [
+//				{
+//					"name": "authentication",
+//					"condition": "Failing",
+//					"reason": "AsExpected"
+//				}
+//			]
 //		}
 //	}
 func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, request *http.Request) {
@@ -62,15 +74,13 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 		return
 	}
 
-	isOwner := server.amsClient.IsClusterInOrganization(orgID, clusterID)
-
-	if !isOwner {
+	if !server.amsClient.IsClusterInOrganization(orgID, clusterID) {
 		handleServerError(writer, &utypes.ItemNotFoundError{ItemID: clusterID})
 		return
 	}
 
 	// Request to Data Engineering Service to retrieve the result
-	predictionResponse, successful := server.fetchPrediction(clusterID, writer)
+	predictionResponse, successful := server.fetchUpgradePrediction(clusterID, writer)
 	if !successful || predictionResponse == nil {
 		// Error already handled or not OK status, already returned
 		return
@@ -83,13 +93,11 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 		),
 	)
 	if err != nil {
-		if err != nil {
-			log.Error().Err(err).Msg(responseDataError)
-		}
+		log.Error().Err(err).Msg(responseDataError)
 	}
 }
 
-func (server *HTTPServer) fetchPrediction(
+func (server *HTTPServer) fetchUpgradePrediction(
 	cluster types.ClusterName,
 	writer http.ResponseWriter,
 ) (*types.UpgradeRecommendation, bool) {
@@ -101,7 +109,7 @@ func (server *HTTPServer) fetchPrediction(
 
 	response, err := http.Get(dataEngURL)
 	if err != nil {
-		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("fetchPrediction unexpected error for cluster")
+		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("fetchUpgradePrediction unexpected error for cluster")
 		handleServerError(writer, err)
 		return nil, false
 	}
