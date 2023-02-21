@@ -25,12 +25,12 @@ var (
 		{
 			"upgrade_recommended": false,
 			"upgrade_risks_predictors": {
-				"alerts": ["` + AlertExample1 + `"],
-				"operator_conditions": ["` + OperatorConditionExample1 + `"]
+				"alerts": [` + AlertExample1 + `],
+				"operator_conditions": [` + OperatorConditionExample1 + `]
 			}
 		}
 	`
 
-	AlertExample1             = "alert1"
-	OperatorConditionExample1 = "foc1"
+	AlertExample1             = `{"name": "alert1", "namespace": "namespace1", "severity": "info"}`
+	OperatorConditionExample1 = `{"name": "foc1", "condition": "ExampleCondition", "reason": "Example reason"}`
 )

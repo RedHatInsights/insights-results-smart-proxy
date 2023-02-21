@@ -22,14 +22,13 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
-	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 )
 
 func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := data.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoList(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -86,7 +85,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := data.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoList(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -100,8 +99,20 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 			"upgrade_recommendation": {
 				"upgrade_recommended": false,
 				"upgrade_risks_predictors": {
-					"alerts": ["alert1"],
-					"operator_conditions": ["foc1"]
+					"alerts": [
+						{
+							"name": "alert1",
+							"namespace": "namespace1",
+							"severity": "info"
+						}
+					],
+					"operator_conditions": [
+						{
+							"name": "foc1",
+							"condition": "ExampleCondition",
+							"reason": "Example reason"
+						}
+					]
 				}
 			},
 			"status":"ok"
@@ -141,7 +152,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 
 func TestHTTPServer_GetUpgradeRisksPredictionOfflineAMS(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		cluster := data.GetRandomClusterInfoList(1)[0].ID
+		cluster := testdata.GetRandomClusterInfoList(1)[0].ID
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
@@ -164,8 +175,8 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterNotBelonging(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := data.GetRandomClusterInfoList(3)
-		cluster := data.GetRandomClusterInfoList(1)[0].ID
+		clusterInfoList := testdata.GetRandomClusterInfoList(3)
+		cluster := testdata.GetRandomClusterInfoList(1)[0].ID
 
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
@@ -194,7 +205,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotFound(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := data.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoList(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -236,7 +247,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := data.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoList(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -277,7 +288,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 
 func TestHTTPServer_GetUpgradeRisksPredictionUnavailableDataEngineering(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		clusterInfoList := data.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoList(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters

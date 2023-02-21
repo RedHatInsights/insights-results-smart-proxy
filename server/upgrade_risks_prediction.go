@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
@@ -80,8 +81,8 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 	}
 
 	// Request to Data Engineering Service to retrieve the result
-	predictionResponse, successful := server.fetchUpgradePrediction(clusterID, writer)
-	if !successful || predictionResponse == nil {
+	predictionResponse, err := server.fetchUpgradePrediction(clusterID, writer)
+	if err != nil || predictionResponse == nil {
 		// Error already handled or not OK status, already returned
 		return
 	}
@@ -100,24 +101,29 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 func (server *HTTPServer) fetchUpgradePrediction(
 	cluster types.ClusterName,
 	writer http.ResponseWriter,
-) (*types.UpgradeRecommendation, bool) {
+) (*types.UpgradeRecommendation, error) {
 	dataEngURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
 		UpgradeRisksPredictionServiceEndpoint,
 		cluster,
 	)
 
-	response, err := http.Get(dataEngURL)
+	httpClient := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	// #nosec G107
+	response, err := httpClient.Get(dataEngURL)
 	if err != nil {
 		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("fetchUpgradePrediction unexpected error for cluster")
 		handleServerError(writer, err)
-		return nil, false
+		return nil, err
 	}
 
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		handleServerError(writer, err)
-		return nil, false
+		return nil, err
 	}
 
 	if response.StatusCode != http.StatusOK {
@@ -125,15 +131,15 @@ func (server *HTTPServer) fetchUpgradePrediction(
 		if err != nil {
 			log.Error().Err(err).Msg(responseDataError)
 		}
-		return nil, false
+		return nil, err
 	}
 	responseData := &types.UpgradeRecommendation{}
 	err = json.Unmarshal(responseBytes, &responseData)
 	if err != nil {
 		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("error unmarshalling data-engineering response")
 		handleServerError(writer, err)
-		return nil, false
+		return nil, err
 	}
 
-	return responseData, true
+	return responseData, nil
 }
