@@ -35,6 +35,7 @@ const (
 	// strings for logging and errors
 	orgNoInternalID              = "Organization doesn't have proper internal ID"
 	orgMoreInternalOrgs          = "More than one internal organization for the given orgID"
+	orgIDRequestFailure          = "Request to get the organization info failed"
 	subscriptionListRequestError = "problem executing subscription list request"
 	orgIDTag                     = "OrgID"
 	clusterIDTag                 = "ClusterID"
@@ -68,7 +69,6 @@ type AMSClient interface {
 	GetSingleClusterInfoForOrganization(types.OrgID, types.ClusterName) (
 		types.ClusterInfo, error,
 	)
-	IsClusterInOrganization(types.OrgID, types.ClusterName) bool
 }
 
 // amsClientImpl is an implementation of the AMSClient interface
@@ -217,7 +217,7 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string,
 		Send()
 
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Error().Err(err).Msg(orgIDRequestFailure)
 		return "", err
 	}
 
@@ -305,10 +305,4 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 	}
 
 	return
-}
-
-func (c *amsClientImpl) IsClusterInOrganization(orgID types.OrgID, clusterID types.ClusterName) bool {
-	clusterInfo, err := c.GetSingleClusterInfoForOrganization(orgID, clusterID)
-
-	return err == nil && clusterInfo.ID == clusterID
 }

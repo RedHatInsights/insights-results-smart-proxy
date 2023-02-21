@@ -75,7 +75,13 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 		return
 	}
 
-	if !server.amsClient.IsClusterInOrganization(orgID, clusterID) {
+	clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
+
+	if err != nil {
+		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("failure retrieving the cluster's organization")
+		handleServerError(writer, err)
+	} else if clusterInfo.ID != clusterID {
+		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
 		handleServerError(writer, &utypes.ItemNotFoundError{ItemID: clusterID})
 		return
 	}
