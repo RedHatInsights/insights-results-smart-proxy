@@ -261,20 +261,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
+                  "description": "Response data type for GET /cluster/{clusterId}/upgrade-risks-prediction",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    },
-                    "meta": {
-                      "type": "object",
-                      "properties": {
-                        "last_checked_at": "string",
-                        "format": "date-time",
-                        "description": "[Optional] Last time of analysis for given cluster."
-                      }
-                    },
                     "upgrade_recommendation": {
                       "type": "object",
                       "properties": {
@@ -327,6 +315,20 @@
                           }
                         }
                       }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "last_checked_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "[Optional] Last time of analysis for given cluster."
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
                     }
                   }
                 }
