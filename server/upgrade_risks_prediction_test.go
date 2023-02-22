@@ -15,6 +15,8 @@
 package server_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -22,7 +24,45 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
+	"github.com/stretchr/testify/assert"
 )
+
+func checkBodyWithoutTimestamps(t testing.TB, expected, got []byte) {
+	var expectedObj, gotObj map[string]interface{}
+
+	err := json.Unmarshal(expected, &expectedObj)
+	if err != nil {
+		err = fmt.Errorf(`expected is not JSON. value = "%v", err = "%v"`, string(expected), err)
+	}
+	assert.NoError(t, err)
+
+	err = json.Unmarshal(got, &gotObj)
+	if err != nil {
+		err = fmt.Errorf(`got is not JSON. value = "%v", err = "%v"`, string(got), err)
+	}
+	assert.NoError(t, err)
+
+	var gotMetaObj map[string]interface{}
+
+	// v, ok := in.(map[string]*Book)
+	gotMetaObj, ok := gotObj["meta"].(map[string]interface{})
+	if !ok {
+		delete(gotObj, "meta")
+	} else {
+		delete(gotMetaObj, "last_checked_at")
+		// gotObj["meta"] = gotMetaObj
+	}
+
+	assert.Equal(
+		t,
+		expectedObj,
+		gotObj,
+		fmt.Sprintf(`%v
+and
+%v
+should represent the same json`, string(expected), string(got)),
+	)
+}
 
 func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
@@ -46,6 +86,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 					"operator_conditions": null
 				}
 			},
+			"meta": {},
 			"status":"ok"
 		}
 		`
@@ -74,8 +115,9 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 				EndpointArgs:       []interface{}{cluster},
 				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
-				StatusCode: http.StatusOK,
-				Body:       expectedResponse,
+				StatusCode:  http.StatusOK,
+				Body:        expectedResponse,
+				BodyChecker: checkBodyWithoutTimestamps,
 			},
 		)
 	}, testTimeout)
@@ -115,6 +157,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 					]
 				}
 			},
+			"meta": {},
 			"status":"ok"
 		}
 		`
@@ -143,8 +186,9 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 				EndpointArgs:       []interface{}{cluster},
 				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
-				StatusCode: http.StatusOK,
-				Body:       expectedResponse,
+				StatusCode:  http.StatusOK,
+				Body:        expectedResponse,
+				BodyChecker: checkBodyWithoutTimestamps,
 			},
 		)
 	}, testTimeout)

@@ -93,11 +93,19 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 		return
 	}
 
+	response := make(map[string]interface{})
+	response["upgrade_recommendation"] = predictionResponse
+	response["status"] = OkMsg
+
+	// TODO: Currently DataEng service doesn't return any timestamp
+	// Getting current time to avoid returning an empty string
+	response["meta"] = types.UpgradeRisksMeta{
+		LastCheckedAt: types.Timestamp(time.Now().UTC().Format(time.RFC3339)),
+	}
+
 	err = responses.SendOK(
 		writer,
-		responses.BuildOkResponseWithData(
-			"upgrade_recommendation", predictionResponse,
-		),
+		response,
 	)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)

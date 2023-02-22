@@ -28,19 +28,19 @@ type OperatorCondition struct {
 	Reason    string `json:"reason"`
 }
 
-// UpgradeRiskPredictors data structure to store the predictors returned by the data engineering service
-type UpgradeRiskPredictors struct {
+// UpgradeRisksPredictors data structure to store the predictors returned by the data engineering service
+type UpgradeRisksPredictors struct {
 	Alerts             []Alert             `json:"alerts"`
 	OperatorConditions []OperatorCondition `json:"operator_conditions"`
 }
 
 // UpgradeRecommendation is the inner data structure for the UpgradeRiskPredictionResponse
 type UpgradeRecommendation struct {
-	Recommended     bool                  `json:"upgrade_recommended"`
-	RisksPredictors UpgradeRiskPredictors `json:"upgrade_risks_predictors"`
+	Recommended     bool                   `json:"upgrade_recommended"`
+	RisksPredictors UpgradeRisksPredictors `json:"upgrade_risks_predictors"`
 }
 
-// UpgradeRiskPredictionResponse is a data structure used as the response for UpgradeRisksPrediction endpoint
-type UpgradeRiskPredictionResponse struct {
-	UpgradeRecommendation UpgradeRecommendation `json:"upgrade_recommendation"`
+// UpgradeRisksMeta is a data structure to store metainformation regarding the prediction
+type UpgradeRisksMeta struct {
+	LastCheckedAt Timestamp `json:"last_checked_at"`
 }
