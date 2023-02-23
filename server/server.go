@@ -20,7 +20,6 @@ limitations under the License.
 // Please note that API_PREFIX is part of server configuration (see
 // Configuration). Also please note that JSON format is used to transfer data
 // between server and clients.
-
 package server
 
 import (
