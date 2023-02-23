@@ -35,6 +35,7 @@ const (
 	// strings for logging and errors
 	orgNoInternalID              = "Organization doesn't have proper internal ID"
 	orgMoreInternalOrgs          = "More than one internal organization for the given orgID"
+	orgIDRequestFailure          = "Request to get the organization info failed"
 	subscriptionListRequestError = "problem executing subscription list request"
 	orgIDTag                     = "OrgID"
 	clusterIDTag                 = "ClusterID"
@@ -216,7 +217,7 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string,
 		Send()
 
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Error().Err(err).Msg(orgIDRequestFailure)
 		return "", err
 	}
 

@@ -237,6 +237,107 @@
         }
       }
     },
+    "/cluster/{clusterId}/upgrade-risks-prediction": {
+      "get": {
+        "summary": "",
+        "operationId": "getUpgradeRisksPrediction",
+        "description": "The title of the rule, a short description.",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response data type for GET /cluster/{clusterId}/upgrade-risks-prediction",
+                  "properties": {
+                    "upgrade_recommendation": {
+                      "type": "object",
+                      "properties": {
+                        "upgrade_recommended": {
+                          "type": "boolean"
+                        },
+                        "upgrade_risks_predictors": {
+                          "type": "object",
+                          "properties": {
+                            "alerts": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "example": "APIRemovedInNextEUSReleaseInUse"
+                                  },
+                                  "namespace": {
+                                    "type": "string",
+                                    "example": "openshift-kube-apiserver"
+                                  },
+                                  "severity": {
+                                    "type": "string",
+                                    "example": "info"
+                                  }
+                                }
+                              }
+                            },
+                            "operator_conditions": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "example": "authentication"
+                                  },
+                                  "condition": {
+                                    "type": "string",
+                                    "example": "Failing"
+                                  },
+                                  "reason": {
+                                    "type": "string",
+                                    "example": "AsExpected"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "last_checked_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "[Optional] Last time of analysis for given cluster."
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/content": {
       "get": {
         "tags": [

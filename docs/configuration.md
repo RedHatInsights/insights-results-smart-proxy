@@ -70,12 +70,15 @@ Services configuration is in section `[services]` in the configuration file.
 [services]
 aggregator = "http://localhost:8080/api/v1/"
 content = "http://localhost:8082/api/v1/"
+upgrade_risks_prediction = "http://localhost:8083/"
 groups_poll_time = "60s"
 ```
 
 * `aggregator` is the base endpoint to the Insights Results Aggregator service
   to be used
 * `content` is the base endpoint to the Insights Content Service to be used
+* `upgrade_risks_prediction` is the base endpoint to the Data Engineering Service,
+  which is the one that will return the upgrade risks prediction results.
 * `groups_poll_time` is the time between polls to the content service to
   retrieve updated static content, like groups or rule contents
   
