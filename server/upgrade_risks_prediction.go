@@ -29,7 +29,7 @@ import (
 )
 
 // UpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction service
-const UpgradeRisksPredictionServiceEndpoint = "upgrade-risks-prediction/cluster/{cluster}"
+const UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-prediction"
 
 // method upgradeRisksPrediction returns a recommendation to upgrade or not a cluster
 // and a list of the alerts/operator conditions that were taken into account if the
