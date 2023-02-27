@@ -97,7 +97,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "upgrade-risks-prediction/cluster/{clusterId}",
+				Endpoint:     "cluster/{clusterId}/upgrade-risks-prediction",
 				EndpointArgs: []interface{}{cluster},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -168,7 +168,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "upgrade-risks-prediction/cluster/{clusterId}",
+				Endpoint:     "cluster/{clusterId}/upgrade-risks-prediction",
 				EndpointArgs: []interface{}{cluster},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -264,7 +264,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotFound(t *testing.T) {
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "upgrade-risks-prediction/cluster/{clusterId}",
+				Endpoint:     "cluster/{clusterId}/upgrade-risks-prediction",
 				EndpointArgs: []interface{}{cluster},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusNotFound,
@@ -306,7 +306,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "upgrade-risks-prediction/cluster/{clusterId}",
+				Endpoint:     "cluster/{clusterId}/upgrade-risks-prediction",
 				EndpointArgs: []interface{}{cluster},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
