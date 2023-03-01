@@ -18,6 +18,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/RedHatInsights/insights-operator-utils/generators"
@@ -125,7 +126,8 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 	ruleAck, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err = errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
 	}
 
