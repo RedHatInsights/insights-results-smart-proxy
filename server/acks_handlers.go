@@ -44,12 +44,6 @@ const (
 //   "meta": {
 //     "count": 0
 //   },
-//   "links": {
-//     "first": "string",
-//     "previous": "string",
-//     "next": "string",
-//     "last": "string"
-//   },
 //   "data": [
 //     {
 //       "rule": "string",
@@ -60,9 +54,6 @@ const (
 //     }
 //   ]
 // }
-//
-// Please note that for the sake of simplicity we don't use links section as
-// pagination is not supported ATM.
 func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
@@ -74,7 +65,7 @@ func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.
 	acks, err := server.readListOfAckedRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(ackedRulesError)
-		// server error has been handled already
+		handleServerError(writer, err)
 		return
 	}
 
