@@ -235,7 +235,7 @@ parameters:
 - name: INSIGHTS_CONTENT_SERVICE_URL
   value: "http://ccx-insights-content-service:10000/api/v1/"
 - name: INSIGHTS_DATA_ENGINEERING_URL
-  value: "http://ccx-upgrades-data-eng:8000/"
+  value: "http://ccx-upgrades-data-eng-svc:8000/"
 - name: INSIGHTS_CONTENT_SERVICE_POLL_TIME
   value: "60s"
 - name: IRSP_API_DBG_PREFIX
