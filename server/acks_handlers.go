@@ -365,7 +365,8 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
 	}
 
@@ -381,7 +382,8 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	err = server.deleteAckRuleSystemWide(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to delete rule acknowledgement")
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
 	}
 
