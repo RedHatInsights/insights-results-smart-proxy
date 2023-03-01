@@ -360,3 +360,264 @@ func TestHTTPServer_TestReadAckListUnparsableAggregatorJSON(t *testing.T) {
 		StatusCode: http.StatusInternalServerError,
 	})
 }
+
+func TestHTTPServer_TestGetAcknowledgeNotFound(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{},
+		"status":"ok"
+	}
+	`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+
+	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:             http.MethodGet,
+		Endpoint:           server.AckGetEndpoint,
+		AuthorizationToken: goodJWTAuthBearer,
+		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusNotFound,
+	})
+}
+
+func TestHTTPServer_TestGetAcknowledgeAggregatorError(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusInternalServerError,
+		},
+	)
+
+	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:             http.MethodGet,
+		Endpoint:           server.AckGetEndpoint,
+		AuthorizationToken: goodJWTAuthBearer,
+		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusInternalServerError,
+	})
+}
+
+func TestHTTPServer_TestGetAcknowledgeUnparsableAggregatorJSON(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       "{invalid json body",
+		},
+	)
+
+	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:             http.MethodGet,
+		Endpoint:           server.AckGetEndpoint,
+		AuthorizationToken: goodJWTAuthBearer,
+		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+	}, &helpers.APIResponse{
+		// also 500, but testing different condition
+		StatusCode: http.StatusInternalServerError,
+	})
+}
+
+func TestHTTPServer_TestGetAcknowledgeFound(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	disabledAt := time.Now()
+	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
+	justificationNote := "justification test"
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{
+			"rule_id": "%v",
+			"error_key": "%v",
+			"justification": "%v",
+			"created_by": "",
+			"created_at": {
+				"Time": "%v",
+				"Valid": true
+			},
+			"updated_at": {
+				"Time": "%v",
+				"Valid": true
+			}
+		},
+		"status":"ok"
+	}
+	`
+	ackedRuleAggregatorResponse = fmt.Sprintf(ackedRuleAggregatorResponse,
+		testdata.Rule1ID, testdata.ErrorKey1, justificationNote, disabledAtRFC, disabledAtRFC,
+	)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+
+	expectedResponse := `
+	{
+		"rule": "%v",
+		"justification": "%v",
+		"created_by": "",
+		"created_at": "%v",
+		"updated_at": "%v"
+	}
+	`
+	expectedResponse = fmt.Sprintf(expectedResponse,
+		testdata.Rule1CompositeID, justificationNote, disabledAtRFC, disabledAtRFC,
+	)
+
+	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:             http.MethodGet,
+		Endpoint:           server.AckGetEndpoint,
+		AuthorizationToken: goodJWTAuthBearer,
+		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Body:       expectedResponse,
+	})
+}
+
+func TestHTTPServer_TestGetAcknowledgeInvalidRuleIDBadRequest(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	disabledAt := time.Now()
+	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
+	justificationNote := "justification test"
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{
+			"rule_id": "%v",
+			"error_key": "%v",
+			"justification": "%v",
+			"created_by": "",
+			"created_at": {
+				"Time": "%v",
+				"Valid": true
+			},
+			"updated_at": {
+				"Time": "%v",
+				"Valid": true
+			}
+		},
+		"status":"ok"
+	}
+	`
+	ackedRuleAggregatorResponse = fmt.Sprintf(ackedRuleAggregatorResponse,
+		testdata.Rule1ID, testdata.ErrorKey1, justificationNote, disabledAtRFC, disabledAtRFC,
+	)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+
+	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:             http.MethodGet,
+		Endpoint:           server.AckGetEndpoint,
+		AuthorizationToken: goodJWTAuthBearer,
+		// invalid composite rule ID
+		EndpointArgs: []interface{}{testdata.Rule1ID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusBadRequest,
+	})
+}
+
+func TestHTTPServer_TestGetAcknowledgeInvalidToken(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	defer content.ResetContent()
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+		},
+	)
+
+	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:             http.MethodGet,
+		Endpoint:           server.AckGetEndpoint,
+		AuthorizationToken: invalidJWTAuthBearer,
+		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusForbidden,
+	})
+}
