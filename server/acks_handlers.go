@@ -205,20 +205,19 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 		Msg("Parsed rule selector")
 
 	// test if the rule has been acknowledged already
-	_, found, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
+	_, previouslyAcked, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err = errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
 	}
 
 	// if acknowledgement has been found -> return 200 OK with the existing rule ack
 	// if acknowledgement has NOT been found -> return 201 Created with the created rule ack
-	if found {
-		writer.WriteHeader(http.StatusOK)
+	if previouslyAcked {
 		log.Info().Msg("Rule has been already disabled")
 	} else {
-		writer.WriteHeader(http.StatusCreated)
 		log.Info().Msg("Rule has not been disabled previously")
 
 		// acknowledge rule
@@ -235,8 +234,14 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	updatedAcknowledgement, _, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
+	}
+
+	if !previouslyAcked {
+		// client is expecting 201 CREATED to indicate new entry
+		writer.WriteHeader(http.StatusCreated)
 	}
 
 	// we have the metadata about rule, let's send it into client in
