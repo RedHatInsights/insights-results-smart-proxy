@@ -22,6 +22,7 @@ import (
 	"net/http"
 
 	"github.com/RedHatInsights/insights-operator-utils/generators"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 
 	"github.com/rs/zerolog/log"
 
@@ -288,7 +289,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 
 	parameters, err := readJustificationFromBody(writer, request)
 	if err != nil {
-		// everything's handled already
+		handleServerError(writer, err)
 		return
 	}
 
@@ -302,15 +303,16 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
 	}
 
 	// if acknowledgement has NOT been found -> return 404 NotFound
 	if !found {
-		writer.WriteHeader(http.StatusCreated)
 		log.Info().Msg("Rule ack can not be found")
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := &utypes.ItemNotFoundError{ItemID: (ruleID + "|" + types.RuleID(errorKey))}
+		handleServerError(writer, err)
 		return
 	}
 
@@ -318,7 +320,8 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	err = server.updateAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, parameters.Value)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to update justification for rule acknowledgement")
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
 	}
 
@@ -327,7 +330,8 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	updatedAcknowledgement, _, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New("Problem retrieving response from aggregator endpoint")
+		handleServerError(writer, err)
 		return
 	}
 
