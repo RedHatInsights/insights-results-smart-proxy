@@ -36,6 +36,7 @@ const (
 	improperRuleSelectorFormat = "improper rule selector format"
 	readRuleStatusError        = "read rule status error"
 	readRuleJustificationError = "can not retrieve rule disable justification from Aggregator"
+	aggregatorResponseError    = "Problem retrieving response from aggregator endpoint"
 )
 
 // method readAckList list acks from this account where the rule is active.
@@ -127,7 +128,7 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 	ruleAck, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		err = errors.New("Problem retrieving response from aggregator endpoint")
+		err = errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -209,7 +210,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	_, previouslyAcked, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		err = errors.New("Problem retrieving response from aggregator endpoint")
+		err = errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -235,7 +236,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	updatedAcknowledgement, _, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
-		err := errors.New("Problem retrieving response from aggregator endpoint")
+		err := errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -303,7 +304,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		err := errors.New("Problem retrieving response from aggregator endpoint")
+		err := errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -320,7 +321,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	err = server.updateAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, parameters.Value)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to update justification for rule acknowledgement")
-		err := errors.New("Problem retrieving response from aggregator endpoint")
+		err := errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -330,7 +331,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	updatedAcknowledgement, _, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
-		err := errors.New("Problem retrieving response from aggregator endpoint")
+		err := errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -365,7 +366,7 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		err := errors.New("Problem retrieving response from aggregator endpoint")
+		err := errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -382,7 +383,7 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	err = server.deleteAckRuleSystemWide(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to delete rule acknowledgement")
-		err := errors.New("Problem retrieving response from aggregator endpoint")
+		err := errors.New(aggregatorResponseError)
 		handleServerError(writer, err)
 		return
 	}
