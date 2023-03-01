@@ -23,6 +23,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -46,10 +47,10 @@ func readJustificationFromBody(writer http.ResponseWriter, request *http.Request
 	var parameters types.AcknowledgementJustification
 	err := json.NewDecoder(request.Body).Decode(&parameters)
 
+	// JSON Decode() will not throw an error when a field isn't present. This is NOT strict decoding.
 	if err != nil {
 		log.Error().Err(err).Msg("wrong payload (not justification) provided by client")
-		// return HTTP code 400 to client
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := &RouterMissingParamError{paramName: "justification"}
 		return parameters, err
 	}
 
@@ -248,6 +249,7 @@ func (server *HTTPServer) readListOfAckedRules(
 	// decode the response payload
 	err = json.NewDecoder(response.Body).Decode(&payload)
 	if err != nil {
+		err = errors.New("Problem unmarshalling JSON response from aggregator endpoint")
 		return nil, err
 	}
 
