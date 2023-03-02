@@ -853,7 +853,7 @@ func TestHTTPServer_TestAcknowledgePostMissingParam(t *testing.T) {
 		"justification": "%v"
 	}
 	`
-	reqBody = fmt.Sprintf(reqBody, testdata.Rule1CompositeID, justificationNote)
+	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 		Method:             http.MethodPost,
@@ -880,7 +880,7 @@ func TestHTTPServer_TestAcknowledgePostBadCompositeRuleID(t *testing.T) {
 		"justification": "%v"
 	}
 	`
-	reqBody = fmt.Sprintf(reqBody, testdata.Rule1CompositeID, justificationNote)
+	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 		Method:             http.MethodPost,
@@ -1080,7 +1080,7 @@ func TestHTTPServer_TestAcknowledgeUpdateNotFound(t *testing.T) {
 		"justification": "%v"
 	}
 	`
-	reqBody = fmt.Sprintf(reqBody, testdata.Rule1CompositeID, justificationNote)
+	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 		Method:             http.MethodPut,
@@ -1244,7 +1244,7 @@ func TestHTTPServer_TestAcknowledgeUpdateBadCompositeRuleID(t *testing.T) {
 		"justification": "%v"
 	}
 	`
-	reqBody = fmt.Sprintf(reqBody, testdata.Rule1CompositeID, justificationNote)
+	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
 		Method:             http.MethodPut,
