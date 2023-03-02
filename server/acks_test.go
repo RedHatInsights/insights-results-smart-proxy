@@ -1244,6 +1244,7 @@ func TestHTTPServer_TestAcknowledgeUpdateBadCompositeRuleID(t *testing.T) {
 		"justification": "%v"
 	}
 	`
+
 	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
