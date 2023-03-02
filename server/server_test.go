@@ -1419,6 +1419,23 @@ func clusterInResponseChecker(t testing.TB, expected, got []byte) {
 	assert.ElementsMatch(t, expectedResp.Clusters, gotResp.Clusters)
 }
 
+func ackInResponseChecker(t testing.TB, expected, got []byte) {
+	var expectedResp, gotResp ctypes.AcknowledgementsResponse
+
+	if err := json.Unmarshal(expected, &expectedResp); err != nil {
+		err = fmt.Errorf(`"expected" is not JSON. value = "%v", err = "%v"`, expected, err)
+		helpers.FailOnError(t, err)
+	}
+
+	if err := json.Unmarshal(got, &gotResp); err != nil {
+		err = fmt.Errorf(`"got" is not JSON. value = "%v", err = "%v"`, got, err)
+		helpers.FailOnError(t, err)
+	}
+
+	assert.ElementsMatch(t, expectedResp.Data, gotResp.Data)
+	assert.Equal(t, expectedResp.Metadata.Count, gotResp.Metadata.Count)
+}
+
 func TestFillImpacted(t *testing.T) {
 	var response []types.RuleWithContentResponse
 	var aggregatorReport []ctypes.RuleOnReport

@@ -18,9 +18,11 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/RedHatInsights/insights-operator-utils/generators"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 
 	"github.com/rs/zerolog/log"
 
@@ -34,6 +36,7 @@ const (
 	improperRuleSelectorFormat = "improper rule selector format"
 	readRuleStatusError        = "read rule status error"
 	readRuleJustificationError = "can not retrieve rule disable justification from Aggregator"
+	aggregatorResponseError    = "Problem retrieving response from aggregator endpoint"
 )
 
 // method readAckList list acks from this account where the rule is active.
@@ -43,12 +46,6 @@ const (
 // {
 //   "meta": {
 //     "count": 0
-//   },
-//   "links": {
-//     "first": "string",
-//     "previous": "string",
-//     "next": "string",
-//     "last": "string"
 //   },
 //   "data": [
 //     {
@@ -60,9 +57,6 @@ const (
 //     }
 //   ]
 // }
-//
-// Please note that for the sake of simplicity we don't use links section as
-// pagination is not supported ATM.
 func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
@@ -74,7 +68,7 @@ func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.
 	acks, err := server.readListOfAckedRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(ackedRulesError)
-		// server error has been handled already
+		handleServerError(writer, err)
 		return
 	}
 
@@ -134,7 +128,8 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 	ruleAck, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err = errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
 	}
 
@@ -212,20 +207,19 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 		Msg("Parsed rule selector")
 
 	// test if the rule has been acknowledged already
-	_, found, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
+	_, previouslyAcked, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err = errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
 	}
 
 	// if acknowledgement has been found -> return 200 OK with the existing rule ack
 	// if acknowledgement has NOT been found -> return 201 Created with the created rule ack
-	if found {
-		writer.WriteHeader(http.StatusOK)
+	if previouslyAcked {
 		log.Info().Msg("Rule has been already disabled")
 	} else {
-		writer.WriteHeader(http.StatusCreated)
 		log.Info().Msg("Rule has not been disabled previously")
 
 		// acknowledge rule
@@ -242,8 +236,14 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	updatedAcknowledgement, _, err := server.readRuleDisableStatus(ruleID, errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
+	}
+
+	if !previouslyAcked {
+		// client is expecting 201 CREATED to indicate new entry
+		writer.WriteHeader(http.StatusCreated)
 	}
 
 	// we have the metadata about rule, let's send it into client in
@@ -290,7 +290,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 
 	parameters, err := readJustificationFromBody(writer, request)
 	if err != nil {
-		// everything's handled already
+		handleServerError(writer, err)
 		return
 	}
 
@@ -304,15 +304,16 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
 	}
 
 	// if acknowledgement has NOT been found -> return 404 NotFound
 	if !found {
-		writer.WriteHeader(http.StatusCreated)
 		log.Info().Msg("Rule ack can not be found")
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := &utypes.ItemNotFoundError{ItemID: (ruleID + "|" + types.RuleID(errorKey))}
+		handleServerError(writer, err)
 		return
 	}
 
@@ -320,7 +321,8 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	err = server.updateAckRuleSystemWide(types.Component(ruleID), errorKey, orgID, parameters.Value)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to update justification for rule acknowledgement")
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
 	}
 
@@ -329,7 +331,8 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 	updatedAcknowledgement, _, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleJustificationError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
 	}
 
@@ -363,7 +366,8 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	_, found, err := server.readRuleDisableStatus(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(readRuleStatusError)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
 	}
 
@@ -379,7 +383,8 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 	err = server.deleteAckRuleSystemWide(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to delete rule acknowledgement")
-		http.Error(writer, err.Error(), http.StatusBadRequest)
+		err := errors.New(aggregatorResponseError)
+		handleServerError(writer, err)
 		return
 	}
 
