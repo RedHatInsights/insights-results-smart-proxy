@@ -352,7 +352,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionUnavailableDataEngineering(t *testi
 				EndpointArgs:       []interface{}{cluster},
 				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
-				StatusCode: http.StatusInternalServerError,
+				StatusCode: http.StatusServiceUnavailable,
 			},
 		)
 	}, testTimeout)
