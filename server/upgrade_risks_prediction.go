@@ -80,9 +80,18 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 	if err != nil {
 		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("failure retrieving the cluster's organization")
 		handleServerError(writer, err)
+		return
 	} else if clusterInfo.ID != clusterID {
 		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
 		handleServerError(writer, &utypes.ItemNotFoundError{ItemID: clusterID})
+		return
+	}
+
+	if clusterInfo.Managed {
+		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
+		handleServerError(writer, &utypes.NoContentError{
+			ErrString: "the upgrade failure prediction service is not available for managed clusters",
+		})
 		return
 	}
 
@@ -129,13 +138,20 @@ func (server *HTTPServer) fetchUpgradePrediction(
 	// #nosec G107
 	response, err := httpClient.Get(dataEngURL)
 	if err != nil {
-		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("fetchUpgradePrediction unexpected error for cluster")
-		handleServerError(writer, err)
+		log.Error().
+			Str(clusterIDTag, string(cluster)).
+			Err(err).
+			Msg("error reaching the data-eng service")
+		handleServerError(writer, &UpgradesDataEngServiceUnavailableError{})
 		return nil, err
 	}
 
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
+		log.Error().
+			Str(clusterIDTag, string(cluster)).
+			Err(err).
+			Msg("unable to read the body of the response")
 		handleServerError(writer, err)
 		return nil, err
 	}

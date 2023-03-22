@@ -5,12 +5,11 @@ go 1.16
 require (
 	github.com/BurntSushi/toml v0.4.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20221024073309-fabee4bcb06e
-	github.com/RedHatInsights/insights-operator-utils v1.24.5
+	github.com/RedHatInsights/insights-operator-utils v1.24.6
 	github.com/RedHatInsights/insights-results-aggregator v1.3.4
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.8
 	github.com/RedHatInsights/insights-results-types v1.3.22
 	github.com/golang-jwt/jwt/v4 v4.2.0
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
