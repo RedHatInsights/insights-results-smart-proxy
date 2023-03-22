@@ -68,7 +68,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := testdata.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -127,7 +127,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := testdata.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -196,7 +196,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 
 func TestHTTPServer_GetUpgradeRisksPredictionOfflineAMS(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		cluster := testdata.GetRandomClusterInfoList(1)[0].ID
+		cluster := testdata.GetRandomClusterInfoListAllUnManaged(1)[0].ID
 		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
@@ -219,8 +219,8 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterNotBelonging(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := testdata.GetRandomClusterInfoList(3)
-		cluster := testdata.GetRandomClusterInfoList(1)[0].ID
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
+		cluster := testdata.GetRandomClusterInfoListAllUnManaged(1)[0].ID
 
 		// prepare response from amsclient for list of clusters
 		amsClientMock := helpers.AMSClientWithOrgResults(
@@ -249,7 +249,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotFound(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := testdata.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -291,7 +291,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		clusterInfoList := testdata.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -332,7 +332,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 
 func TestHTTPServer_GetUpgradeRisksPredictionUnavailableDataEngineering(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		clusterInfoList := testdata.GetRandomClusterInfoList(3)
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
 		cluster := clusterInfoList[0].ID
 
 		// prepare response from amsclient for list of clusters
@@ -353,6 +353,37 @@ func TestHTTPServer_GetUpgradeRisksPredictionUnavailableDataEngineering(t *testi
 				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusServiceUnavailable,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetUpgradeRisksPredictionManagedCluster(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := testdata.GetRandomClusterInfoListAllManaged(1)
+		cluster := clusterInfoList[0].ID
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.UpgradeRisksPredictionEndpoint,
+				EndpointArgs:       []interface{}{cluster},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNoContent,
 			},
 		)
 	}, testTimeout)

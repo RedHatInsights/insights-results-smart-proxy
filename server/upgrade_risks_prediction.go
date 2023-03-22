@@ -80,9 +80,18 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 	if err != nil {
 		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("failure retrieving the cluster's organization")
 		handleServerError(writer, err)
+		return
 	} else if clusterInfo.ID != clusterID {
 		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
 		handleServerError(writer, &utypes.ItemNotFoundError{ItemID: clusterID})
+		return
+	}
+
+	if clusterInfo.Managed {
+		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
+		handleServerError(writer, &utypes.NoContentError{
+			ErrString: "the upgrade failure prediction service is not available for managed clusters",
+		})
 		return
 	}
 

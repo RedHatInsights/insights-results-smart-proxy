@@ -128,6 +128,8 @@ func handleServerError(writer http.ResponseWriter, err error) {
 		respErr = responses.SendBadRequest(writer, "bad type in json data")
 	case *types.ItemNotFoundError:
 		respErr = responses.SendNotFound(writer, err.Error())
+	case *types.NoContentError:
+		respErr = responses.SendNoContent(writer, err.Error())
 	case *AuthenticationError:
 		respErr = responses.SendForbidden(writer, err.Error())
 	case *ContentServiceUnavailableError, *AggregatorServiceUnavailableError,
