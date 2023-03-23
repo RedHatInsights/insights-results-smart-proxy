@@ -129,7 +129,7 @@ func handleServerError(writer http.ResponseWriter, err error) {
 	case *types.ItemNotFoundError:
 		respErr = responses.SendNotFound(writer, err.Error())
 	case *types.NoContentError:
-		respErr = responses.SendNoContent(writer, err.Error())
+		respErr = responses.SendNoContent(writer)
 	case *AuthenticationError:
 		respErr = responses.SendForbidden(writer, err.Error())
 	case *ContentServiceUnavailableError, *AggregatorServiceUnavailableError,
