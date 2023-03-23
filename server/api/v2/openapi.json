@@ -334,6 +334,9 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": " Status NoContent: happens when the cluster is managed. The upgrade risks prediction is not available for this kind of clusters."
           }
         }
       }
