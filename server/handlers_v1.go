@@ -27,6 +27,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	sptypes "github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
@@ -430,12 +431,15 @@ func infoFromService(url string) map[string]string {
 // returned response
 func readInfoAPIEndpoint(url string) (map[string]string, error) {
 	// perform GET request to given service
+	// nolint:bodyclose
 	response, err := http.Get(url) // #nosec G107
 
 	// error happening during GET request
 	if err != nil {
 		return nil, err
 	}
+
+	defer services.CloseResponseBody(response)
 
 	// check the status code
 	if response.StatusCode != http.StatusOK {
@@ -444,13 +448,6 @@ func readInfoAPIEndpoint(url string) (map[string]string, error) {
 	}
 
 	// try to read response body
-	defer func() {
-		err = response.Body.Close()
-		if err != nil {
-			log.Error().Err(err).Msg("Closing response body failed")
-		}
-	}()
-
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		err = errors.New("Problem reading response from /info endpoint")

@@ -37,6 +37,7 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
@@ -730,12 +731,15 @@ func (server HTTPServer) getImpactingRecommendations(
 	}
 
 	// #nosec G107
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
 		log.Error().Err(err).Msgf("getImpactingRecommendations problem getting response from aggregator")
 		handleServerError(writer, err)
 		return nil, err
 	}
+
+	defer services.CloseResponseBody(aggregatorResp)
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
@@ -791,6 +795,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 	}
 
 	// #nosec G107
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
 		log.Error().Err(err).Msgf("getClustersAndRecommendations problem getting response from aggregator")
@@ -801,6 +806,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 		}
 		return nil, err
 	}
+	defer services.CloseResponseBody(aggregatorResp)
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
@@ -931,12 +937,15 @@ func (server HTTPServer) getImpactedClusters(
 		userID,
 	)
 
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters, useAggregatorFallback)
 	// if http.Get fails for whatever reason
 	if err != nil {
 		handleServerError(writer, err)
 		return []ctypes.HittingClustersData{}, err
 	}
+
+	defer services.CloseResponseBody(aggregatorResp)
 
 	if aggregatorResp.StatusCode == http.StatusOK {
 		var response struct {
@@ -1048,10 +1057,13 @@ func (server *HTTPServer) getListOfDisabledClusters(
 	)
 
 	// #nosec G107
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	resp, err := http.Get(aggregatorURL)
 	if err != nil {
 		return nil, err
 	}
+
+	defer services.CloseResponseBody(resp)
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
 		err := fmt.Errorf("error reading disabled clusters from aggregator: %v", resp.StatusCode)
