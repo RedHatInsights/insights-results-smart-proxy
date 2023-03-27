@@ -121,6 +121,6 @@ func CloseResponseBody(response *http.Response) {
 	}
 	err := response.Body.Close()
 	if err != nil {
-		log.Warn().Err(err).Msg("error closing acking response")
+		log.Error().Err(err).Msg("error closing acking response")
 	}
 }
