@@ -32,6 +32,7 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	types "github.com/RedHatInsights/insights-results-types"
 )
 
@@ -125,10 +126,12 @@ func (server *HTTPServer) ackRuleSystemWide(
 
 	req.Header.Set(contentTypeHeader, JSONContentType)
 	client := &http.Client{}
-	response, err := client.Do(req)
+	response, err := client.Do(req) //nolint:bodyclose
 	if err != nil {
 		return err
 	}
+
+	defer services.CloseResponseBody(response)
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK {
@@ -162,11 +165,14 @@ func (server *HTTPServer) updateAckRuleSystemWide(
 	}
 
 	// do POST request and read response from Insights Aggregator
+	// nolint:bodyclose
 	response, err := http.Post(aggregatorURL, JSONContentType,
 		bytes.NewBuffer(jsonData)) // #nosec G107
 	if err != nil {
 		return err
 	}
+
+	defer services.CloseResponseBody(response)
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK {
@@ -200,10 +206,12 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 
 	req.Header.Set(contentTypeHeader, JSONContentType)
 	client := &http.Client{}
-	response, err := client.Do(req)
+	response, err := client.Do(req) //nolint:bodyclose
 	if err != nil {
 		return err
 	}
+
+	defer services.CloseResponseBody(response)
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK {
@@ -233,10 +241,12 @@ func (server *HTTPServer) readListOfAckedRules(
 	)
 
 	// #nosec G107
-	response, err := http.Get(aggregatorURL)
+	response, err := http.Get(aggregatorURL) //nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}
+
+	defer services.CloseResponseBody(response)
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK {
@@ -280,10 +290,12 @@ func (server *HTTPServer) readRuleDisableStatus(
 	)
 
 	// #nosec G107
-	response, err := http.Get(aggregatorURL)
+	response, err := http.Get(aggregatorURL) //nolint:bodyclose
 	if err != nil {
 		return acknowledgement, false, err
 	}
+
+	defer services.CloseResponseBody(response)
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusNotFound {

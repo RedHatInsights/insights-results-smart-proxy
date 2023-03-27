@@ -65,12 +65,14 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 
 	log.Info().Msg("Updating groups information")
 
-	resp, err := getFromURL(conf.ContentBaseEndpoint + GroupsEndpoint)
+	resp, err := getFromURL(conf.ContentBaseEndpoint + GroupsEndpoint) //nolint:bodyclose
 
 	if err != nil {
 		// Log already shown
 		return nil, err
 	}
+
+	defer CloseResponseBody(resp)
 
 	err = json.NewDecoder(resp.Body).Decode(&receivedMsg)
 
@@ -86,11 +88,13 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 // GetContent get the static rule content from content-service
 func GetContent(conf Configuration) (*types.RuleContentDirectory, error) {
 	log.Info().Msg("getting rules static content")
-	resp, err := getFromURL(conf.ContentBaseEndpoint + ContentEndpoint)
+	resp, err := getFromURL(conf.ContentBaseEndpoint + ContentEndpoint) //nolint:bodyclose
 
 	if err != nil {
 		return nil, err
 	}
+
+	defer CloseResponseBody(resp)
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -107,4 +111,14 @@ func GetContent(conf Configuration) (*types.RuleContentDirectory, error) {
 	log.Info().Msgf("Got %d rules from content-service", len(receivedContent.Rules))
 
 	return &receivedContent, nil
+}
+
+func CloseResponseBody(response *http.Response) {
+	if response == nil {
+		return
+	}
+	err := response.Body.Close()
+	if err != nil {
+		log.Warn().Err(err).Msg("error closing acking response")
+	}
 }

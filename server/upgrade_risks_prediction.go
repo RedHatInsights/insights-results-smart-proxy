@@ -23,6 +23,7 @@ import (
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 
 	"github.com/rs/zerolog/log"
@@ -136,6 +137,7 @@ func (server *HTTPServer) fetchUpgradePrediction(
 	}
 
 	// #nosec G107
+	// nolint:bodyclose
 	response, err := httpClient.Get(dataEngURL)
 	if err != nil {
 		log.Error().
@@ -145,6 +147,8 @@ func (server *HTTPServer) fetchUpgradePrediction(
 		handleServerError(writer, &UpgradesDataEngServiceUnavailableError{})
 		return nil, err
 	}
+
+	defer services.CloseResponseBody(response)
 
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {

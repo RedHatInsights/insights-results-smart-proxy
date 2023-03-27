@@ -25,6 +25,7 @@ import (
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 )
@@ -75,11 +76,14 @@ func (server HTTPServer) postRatingToAggregator(
 		return nil, false
 	}
 	// #nosec G107
+	// nolint:bodyclose
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
 	if err != nil {
 		handleServerError(writer, err)
 		return nil, false
 	}
+
+	defer services.CloseResponseBody(aggregatorResp)
 
 	var aggregatorResponse struct {
 		Rating ctypes.RuleRating `json:"ratings"`
@@ -120,11 +124,14 @@ func (server HTTPServer) getRatingForRecommendation(
 	)
 
 	// #nosec G107
+	// nolint:bodyclose
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
 		log.Error().Err(err).Msgf("problem getting URL %v from aggregator", aggregatorURL)
 		return
 	}
+
+	defer services.CloseResponseBody(aggregatorResp)
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
