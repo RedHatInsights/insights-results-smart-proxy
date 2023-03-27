@@ -731,7 +731,7 @@ func (server HTTPServer) getImpactingRecommendations(
 	}
 
 	// #nosec G107
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
 		log.Error().Err(err).Msgf("getImpactingRecommendations problem getting response from aggregator")
@@ -795,7 +795,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 	}
 
 	// #nosec G107
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
 		log.Error().Err(err).Msgf("getClustersAndRecommendations problem getting response from aggregator")
@@ -937,7 +937,7 @@ func (server HTTPServer) getImpactedClusters(
 		userID,
 	)
 
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters, useAggregatorFallback)
 	// if http.Get fails for whatever reason
 	if err != nil {
@@ -1057,7 +1057,7 @@ func (server *HTTPServer) getListOfDisabledClusters(
 	)
 
 	// #nosec G107
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	resp, err := http.Get(aggregatorURL)
 	if err != nil {
 		return nil, err

@@ -126,7 +126,7 @@ func (server *HTTPServer) ackRuleSystemWide(
 
 	req.Header.Set(contentTypeHeader, JSONContentType)
 	client := &http.Client{}
-	response, err := client.Do(req) //nolint:bodyclose
+	response, err := client.Do(req) //nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (server *HTTPServer) updateAckRuleSystemWide(
 	}
 
 	// do POST request and read response from Insights Aggregator
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	response, err := http.Post(aggregatorURL, JSONContentType,
 		bytes.NewBuffer(jsonData)) // #nosec G107
 	if err != nil {
@@ -206,7 +206,7 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 
 	req.Header.Set(contentTypeHeader, JSONContentType)
 	client := &http.Client{}
-	response, err := client.Do(req) //nolint:bodyclose
+	response, err := client.Do(req) //nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	if err != nil {
 		return err
 	}
@@ -241,7 +241,7 @@ func (server *HTTPServer) readListOfAckedRules(
 	)
 
 	// #nosec G107
-	response, err := http.Get(aggregatorURL) //nolint:bodyclose
+	response, err := http.Get(aggregatorURL) //nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +290,7 @@ func (server *HTTPServer) readRuleDisableStatus(
 	)
 
 	// #nosec G107
-	response, err := http.Get(aggregatorURL) //nolint:bodyclose
+	response, err := http.Get(aggregatorURL) //nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	if err != nil {
 		return acknowledgement, false, err
 	}

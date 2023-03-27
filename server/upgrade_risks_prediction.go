@@ -137,7 +137,7 @@ func (server *HTTPServer) fetchUpgradePrediction(
 	}
 
 	// #nosec G107
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	response, err := httpClient.Get(dataEngURL)
 	if err != nil {
 		log.Error().

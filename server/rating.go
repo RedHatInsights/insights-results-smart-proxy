@@ -76,7 +76,7 @@ func (server HTTPServer) postRatingToAggregator(
 		return nil, false
 	}
 	// #nosec G107
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
 	if err != nil {
 		handleServerError(writer, err)
@@ -124,7 +124,7 @@ func (server HTTPServer) getRatingForRecommendation(
 	)
 
 	// #nosec G107
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
 		log.Error().Err(err).Msgf("problem getting URL %v from aggregator", aggregatorURL)
