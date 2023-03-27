@@ -113,6 +113,8 @@ func GetContent(conf Configuration) (*types.RuleContentDirectory, error) {
 	return &receivedContent, nil
 }
 
+// CloseResponseBody is used to close the response body so that there are no
+// memory leaks in the TCP socket: CCXDEV-10514
 func CloseResponseBody(response *http.Response) {
 	if response == nil {
 		return
