@@ -42,6 +42,16 @@ jobs:
         - openapi-generator-cli validate -i server/api/v1/openapi.json
         - openapi-generator-cli validate -i server/api/v2/openapi.json
         - openapi-generator-cli validate -i server/api/dbg/openapi.json
+    - stage: bdd tests
+      services:
+        - docker
+      before_script:
+        - ./build.sh
+        - cid=$(docker run -itd quay.io/ccxdev/insights-behavioral-spec:ci sh -c "sleep infinity")
+        - docker cp insights-results-smart-proxy $cid:`docker exec $cid bash -c 'echo "$VIRTUAL_ENV_BIN/."'`
+        - docker exec -u root $cid /bin/bash -c 'chmod +x $VIRTUAL_ENV_BIN/insights-results-smart-proxy'
+      script:
+        - docker exec -it $cid /bin/bash -c 'env && make smart-proxy-tests'
     - stage: integration tests
       script:
         - make integration_tests
@@ -51,4 +61,5 @@ stages:
   - style
   - unit tests
   - openapi-checks
+  - bdd tests
   - integration tests
