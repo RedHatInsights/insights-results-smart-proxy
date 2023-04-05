@@ -135,6 +135,8 @@ objects:
                   optional: true
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__PAGE_SIZE
               value: ${AMS_API_PAGESIZE}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__TOKEN
+              value: ${AMS_TOKEN}
           image: ${IMAGE}:${IMAGE_TAG}
           livenessProbe:
             failureThreshold: 3
@@ -263,3 +265,5 @@ parameters:
   value: "10000"
 - name: ORG_CLUSTERS_FALLBACK
   value: "false"
+- name: AMS_TOKEN
+  value: ""
