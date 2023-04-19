@@ -31,6 +31,6 @@ var (
 		}
 	`
 
-	AlertExample1             = `{"name": "alert1", "namespace": "namespace1", "severity": "info"}`
-	OperatorConditionExample1 = `{"name": "foc1", "condition": "ExampleCondition", "reason": "Example reason"}`
+	AlertExample1             = `{"name": "alert1", "namespace": "namespace1", "severity": "info", "url": "https://my-cluster.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=alert1"}`
+	OperatorConditionExample1 = `{"name": "foc1", "condition": "ExampleCondition", "reason": "Example reason", "url": "https://my-cluster.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/foc1"}`
 )

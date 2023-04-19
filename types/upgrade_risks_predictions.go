@@ -19,6 +19,7 @@ type Alert struct {
 	Name      string `json:"name"`
 	Namespace string `json:"namespace"`
 	Severity  string `json:"severity"`
+	URL       string `json:"url"`
 }
 
 // OperatorCondition data structure representing a single operator condition
@@ -26,6 +27,7 @@ type OperatorCondition struct {
 	Name      string `json:"name"`
 	Condition string `json:"condition"`
 	Reason    string `json:"reason"`
+	URL       string `json:"url"`
 }
 
 // UpgradeRisksPredictors data structure to store the predictors returned by the data engineering service

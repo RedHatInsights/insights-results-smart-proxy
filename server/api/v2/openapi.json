@@ -288,6 +288,10 @@
                                   "severity": {
                                     "type": "string",
                                     "example": "info"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "example": "https://my-cluster.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=APIRemovedInNextEUSReleaseInUse"
                                   }
                                 }
                               }
@@ -308,6 +312,10 @@
                                   "reason": {
                                     "type": "string",
                                     "example": "AsExpected"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "example": "https://my-cluster.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/authentication"
                                   }
                                 }
                               }
