@@ -45,14 +45,16 @@ const UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-p
 //				{
 //					"name": "APIRemovedInNextEUSReleaseInUse",
 //					"namespace": "openshift-kube-apiserver",
-//					"severity": "info"
+//					"severity": "info",
+//                  "url": "${CONSOLE_URL}/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=${ALERT_NAME}"
 //				}
 //			],
 //			"operator_conditions": [
 //				{
 //					"name": "authentication",
 //					"condition": "Failing",
-//					"reason": "AsExpected"
+//					"reason": "AsExpected",
+//                  "url": "${CONSOLE_URL}/k8s/cluster/config.openshift.io~v1~ClusterOperator/${OPERATOR_NAME}"
 //				}
 //			]
 //		}

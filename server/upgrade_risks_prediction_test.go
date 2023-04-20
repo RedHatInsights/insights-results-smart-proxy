@@ -64,6 +64,10 @@ should represent the same json`, string(expected), string(got)),
 	)
 }
 
+func checkBodyRaw(t testing.TB, expected, got []byte) {
+	assert.Equal(t, expected, got)
+}
+
 func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -145,14 +149,16 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 						{
 							"name": "alert1",
 							"namespace": "namespace1",
-							"severity": "info"
+							"severity": "info",
+							"url": "https://my-cluster.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=alert1"
 						}
 					],
 					"operator_conditions": [
 						{
 							"name": "foc1",
 							"condition": "ExampleCondition",
-							"reason": "Example reason"
+							"reason": "Example reason",
+							"url": "https://my-cluster.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/foc1"
 						}
 					]
 				}
@@ -325,6 +331,51 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 				AuthorizationToken: goodJWTAuthBearer,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusBadRequest,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetUpgradeRisksPredictionClusterHasNoData(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
+		cluster := clusterInfoList[0].ID
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "cluster/{clusterId}/upgrade-risks-prediction",
+				EndpointArgs: []interface{}{cluster},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       "No data for the cluster",
+			},
+		)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.UpgradeRisksPredictionEndpoint,
+				EndpointArgs:       []interface{}{cluster},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode:  http.StatusNotFound,
+				Body:        `No data for the cluster`,
+				BodyChecker: checkBodyRaw,
 			},
 		)
 	}, testTimeout)
