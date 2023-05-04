@@ -395,30 +395,6 @@ func (server HTTPServer) getClusterInfoFromAMS(orgID ctypes.OrgID) (
 	return
 }
 
-// readClusterIDsForOrgID reads the list of clusters for a given
-// organization from aggregator
-func (server HTTPServer) readClusterIDsForOrgID(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
-	if server.amsClient != nil {
-		clusterInfoList, err := server.getClusterInfoFromAMS(orgID)
-		if err != nil {
-			log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving cluster IDs from AMS API")
-			return []ctypes.ClusterName{}, err
-		}
-
-		clusterNames := types.GetClusterNames(clusterInfoList)
-		return clusterNames, err
-	}
-
-	if !server.Config.UseOrgClustersFallback {
-		err := fmt.Errorf("amsclient not initialized")
-		log.Error().Err(err).Msg("")
-		return nil, err
-	}
-
-	log.Info().Msg("amsclient not initialized. Using fallback mechanism")
-	return server.getClusterDetailsFromAggregator(orgID)
-}
-
 // readClusterInfoForOrgID returns a list of cluster info types and a map of cluster display names
 func (server HTTPServer) readClusterInfoForOrgID(orgID ctypes.OrgID) (
 	[]types.ClusterInfo,
