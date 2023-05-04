@@ -192,6 +192,7 @@
               "application/json": {
                 "schema": {
                   "description": "Response data type for GET /clusters/{clusterId}/info endpoint",
+                  "type": "object",
                   "properties": {
                     "cluster": {
                       "type": "object",
@@ -261,6 +262,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "object",
                   "description": "Response data type for GET /cluster/{clusterId}/upgrade-risks-prediction",
                   "properties": {
                     "upgrade_recommendation": {
