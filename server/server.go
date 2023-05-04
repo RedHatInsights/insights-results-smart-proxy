@@ -359,6 +359,8 @@ func (server HTTPServer) sendRequest(
 		}
 	}
 
+	defer services.CloseResponseBody(response)
+
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Error().Err(err).Msgf("Error while retrieving content from request to %s", req.RequestURI)
@@ -460,6 +462,8 @@ func (server HTTPServer) getClusterDetailsFromAggregator(orgID ctypes.OrgID) ([]
 		Clusters []ctypes.ClusterName `json:"clusters"`
 	}
 
+	defer services.CloseResponseBody(response)
+
 	err = json.NewDecoder(response.Body).Decode(&recvMsg)
 	return recvMsg.Clusters, err
 }
@@ -494,6 +498,8 @@ func (server HTTPServer) readAggregatorReportForClusterID(
 		Report *ctypes.ReportResponse `json:"report"`
 		Status string                 `json:"status"`
 	}
+
+	defer services.CloseResponseBody(aggregatorResp)
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
@@ -550,6 +556,8 @@ func (server HTTPServer) readAggregatorReportMetainfoForClusterID(
 		Status   string                         `json:"status"`
 	}
 
+	defer services.CloseResponseBody(aggregatorResp)
+
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
 		handleServerError(writer, err)
@@ -595,6 +603,8 @@ func (server HTTPServer) readAggregatorReportForClusterList(
 	}
 
 	var aggregatorResponse ctypes.ClusterReports
+
+	defer services.CloseResponseBody(aggregatorResp)
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
@@ -658,6 +668,8 @@ func (server HTTPServer) readAggregatorReportForClusterListFromBody(
 func handleReportsResponse(response *http.Response, writer http.ResponseWriter) (*ctypes.ClusterReports, bool) {
 	var aggregatorResponse ctypes.ClusterReports
 
+	defer services.CloseResponseBody(response)
+
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		handleServerError(writer, err)
@@ -711,6 +723,8 @@ func (server HTTPServer) readAggregatorRuleForClusterID(
 		Report *ctypes.RuleOnReport `json:"report"`
 		Status string               `json:"status"`
 	}
+
+	defer services.CloseResponseBody(aggregatorResp)
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
@@ -1339,6 +1353,8 @@ func (server *HTTPServer) readListOfClusterDisabledRules(orgID types.OrgID) ([]c
 		return nil, err
 	}
 
+	defer services.CloseResponseBody(resp)
+
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		return nil, err
@@ -1390,6 +1406,8 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 		err := fmt.Errorf("error reading disabled rules from aggregator: %v", resp.StatusCode)
 		return nil, err
 	}
+
+	defer services.CloseResponseBody(resp)
 
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
