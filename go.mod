@@ -3,7 +3,7 @@ module github.com/RedHatInsights/insights-results-smart-proxy
 go 1.16
 
 require (
-	github.com/BurntSushi/toml v0.4.1
+	github.com/BurntSushi/toml v1.2.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20221024073309-fabee4bcb06e
 	github.com/RedHatInsights/insights-operator-utils v1.24.7
 	github.com/RedHatInsights/insights-results-aggregator v1.3.4
