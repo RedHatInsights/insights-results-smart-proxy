@@ -412,6 +412,8 @@ github.com/RedHatInsights/cloudwatch v0.0.0-20210111105023-1df2bdfe3291/go.mod h
 github.com/RedHatInsights/insights-content-service v0.0.0-20200619153839-23a428468a08/go.mod h1:CSzDwoJXMIPnRNOZfYn68YbXejRqSr0i4uqtB6oLYt4=
 github.com/RedHatInsights/insights-content-service v0.0.0-20221024073309-fabee4bcb06e h1:vyw0nkzMTnBB4rP7z5HpdH1bWI4CywSvxHd+ECs8uTU=
 github.com/RedHatInsights/insights-content-service v0.0.0-20221024073309-fabee4bcb06e/go.mod h1:9bnb8zbE7ocCmrvVpmIRgCOcb2ew7ovEcReMB953Pbo=
+github.com/RedHatInsights/insights-content-service v0.0.0-20230426130444-139b3a63ca0a h1:pUKg/NAXZvbzQf+/3Vj8q8up84ij+3/eDAB4XHRODos=
+github.com/RedHatInsights/insights-content-service v0.0.0-20230426130444-139b3a63ca0a/go.mod h1:6nihzwhfwTZHM8ClPwISTntuYPf6W2UzcI+yPeUPMRk=
 github.com/RedHatInsights/insights-operator-utils v1.0.1/go.mod h1:gRzYBMY4csuOXgrxUuC10WUkz6STOm3mqVsQCb+AGOQ=
 github.com/RedHatInsights/insights-operator-utils v1.0.2-0.20200610143236-c868b2f93d2a/go.mod h1:0rhk13kn0BB+yKdfZjpMoQy0lXdXY3i4NJ1xGwGMcII=
 github.com/RedHatInsights/insights-operator-utils v1.4.1-0.20200729093922-bca68530a5ef/go.mod h1:F7KKAdWFR70H+3fa89ciXqimNycHdqO9HjLWRdZwOug=
@@ -443,6 +445,7 @@ github.com/RedHatInsights/insights-results-aggregator-data v1.3.8/go.mod h1:YOti
 github.com/RedHatInsights/insights-results-types v1.2.0/go.mod h1:6VVdMTGU/BAS2cW0KrHAUiDyocpyKqpPpEyp6AJ1tk8=
 github.com/RedHatInsights/insights-results-types v1.3.7/go.mod h1:6VVdMTGU/BAS2cW0KrHAUiDyocpyKqpPpEyp6AJ1tk8=
 github.com/RedHatInsights/insights-results-types v1.3.20/go.mod h1:6VVdMTGU/BAS2cW0KrHAUiDyocpyKqpPpEyp6AJ1tk8=
+github.com/RedHatInsights/insights-results-types v1.3.21/go.mod h1:6VVdMTGU/BAS2cW0KrHAUiDyocpyKqpPpEyp6AJ1tk8=
 github.com/RedHatInsights/insights-results-types v1.3.22 h1:bQgFSG3RbcusnUjVti6l9C0IN4NzG1Q0IRQut9FdD8o=
 github.com/RedHatInsights/insights-results-types v1.3.22/go.mod h1:6VVdMTGU/BAS2cW0KrHAUiDyocpyKqpPpEyp6AJ1tk8=
 github.com/RedHatInsights/kafka-zerolog v0.0.0-20210304172207-928f026dc7ec/go.mod h1:HJul5oCsCRNiRlh/ayJDGdW3PzGlid/5aaQwJBn7was=
