@@ -44,13 +44,11 @@ func checkBodyWithoutTimestamps(t testing.TB, expected, got []byte) {
 
 	var gotMetaObj map[string]interface{}
 
-	// v, ok := in.(map[string]*Book)
 	gotMetaObj, ok := gotObj["meta"].(map[string]interface{})
 	if !ok {
 		delete(gotObj, "meta")
 	} else {
 		delete(gotMetaObj, "last_checked_at")
-		// gotObj["meta"] = gotMetaObj
 	}
 
 	assert.Equal(
