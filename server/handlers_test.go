@@ -1476,7 +1476,7 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 		// prepare list of organizations response
 		amsClientMock := helpers.AMSClientWithOrgResults(
 			testdata.OrgID,
-			//data.ClusterInfoResult,
+			// data.ClusterInfoResult,
 			clusterInfoList,
 		)
 
