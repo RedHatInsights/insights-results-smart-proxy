@@ -52,6 +52,7 @@ type ruleIDAndErrorKey struct {
 // RulesWithContentStorage is a key:value structure to store processed rules.
 // It's thread safe
 type RulesWithContentStorage struct {
+	// TODO: consider naming this attribute
 	sync.RWMutex
 	rules            map[ctypes.RuleID]*ctypes.RuleContent
 	rulesWithContent map[ruleIDAndErrorKey]*types.RuleWithContent
