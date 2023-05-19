@@ -431,7 +431,7 @@ func infoFromService(url string) map[string]string {
 // returned response
 func readInfoAPIEndpoint(url string) (map[string]string, error) {
 	// perform GET request to given service
-	// nolint:bodyclose
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	response, err := http.Get(url) // #nosec G107
 
 	// error happening during GET request
