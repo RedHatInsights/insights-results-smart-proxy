@@ -308,7 +308,7 @@ func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(htt
 
 		copyHeader(request.Header, req.Header)
 
-		response, body, err := server.sendRequest(client, req, options, writer)
+		response, body, err := sendRequest(client, req, options, writer)
 		if err != nil {
 			server.evaluateProxyError(writer, err, baseURL)
 			return
@@ -341,7 +341,7 @@ func (server HTTPServer) evaluateProxyError(writer http.ResponseWriter, err erro
 	}
 }
 
-func (server HTTPServer) sendRequest(
+func sendRequest(
 	client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter,
 ) (*http.Response, []byte, error) {
 	log.Debug().Msgf("Connecting to %s", req.URL.RequestURI())
