@@ -280,7 +280,7 @@ func modifyResponse(responseModifiers []ResponseModifier, response *http.Respons
 
 // proxyTo method constructs proxy function to proxy request to another
 // service.
-func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(http.ResponseWriter, *http.Request) {
+func (server *HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		if options != nil {
 			var err error
