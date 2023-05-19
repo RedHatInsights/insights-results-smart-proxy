@@ -280,7 +280,7 @@ func modifyResponse(responseModifiers []ResponseModifier, response *http.Respons
 
 // proxyTo method constructs proxy function to proxy request to another
 // service.
-func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(http.ResponseWriter, *http.Request) {
+func (server *HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(http.ResponseWriter, *http.Request) {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		if options != nil {
 			var err error
@@ -308,7 +308,7 @@ func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(htt
 
 		copyHeader(request.Header, req.Header)
 
-		response, body, err := server.sendRequest(client, req, options, writer)
+		response, body, err := sendRequest(client, req, options, writer)
 		if err != nil {
 			server.evaluateProxyError(writer, err, baseURL)
 			return
@@ -326,7 +326,7 @@ func (server HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(htt
 
 // evaluateProxyError handles detected error in proxyTo
 // according to its type and the requested baseURL
-func (server HTTPServer) evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) {
+func (server *HTTPServer) evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) {
 	if _, ok := err.(*url.Error); ok {
 		switch baseURL {
 		case server.ServicesConfig.AggregatorBaseEndpoint:
@@ -341,7 +341,7 @@ func (server HTTPServer) evaluateProxyError(writer http.ResponseWriter, err erro
 	}
 }
 
-func (server HTTPServer) sendRequest(
+func sendRequest(
 	client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter,
 ) (*http.Response, []byte, error) {
 	log.Debug().Msgf("Connecting to %s", req.URL.RequestURI())
@@ -370,7 +370,7 @@ func (server HTTPServer) sendRequest(
 	return response, body, nil
 }
 
-func (server HTTPServer) composeEndpoint(baseEndpoint, currentEndpoint string) (*url.URL, error) {
+func (server *HTTPServer) composeEndpoint(baseEndpoint, currentEndpoint string) (*url.URL, error) {
 	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIv1Prefix)
 	return url.Parse(baseEndpoint + endpoint)
 }
@@ -1189,7 +1189,7 @@ func handleFetchRuleContentError(writer http.ResponseWriter, err error, filtered
 // rules are enabled if so, retrieves the org_id from request/token and returns
 // whether that ID is on the list of allowed organizations to access internal
 // rules
-func (server HTTPServer) checkInternalRulePermissions(request *http.Request) error {
+func (server *HTTPServer) checkInternalRulePermissions(request *http.Request) error {
 	if !server.Config.EnableInternalRulesOrganizations || !server.Config.Auth {
 		return nil
 	}
