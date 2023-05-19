@@ -370,7 +370,7 @@ func (server HTTPServer) sendRequest(
 	return response, body, nil
 }
 
-func (server HTTPServer) composeEndpoint(baseEndpoint, currentEndpoint string) (*url.URL, error) {
+func (server *HTTPServer) composeEndpoint(baseEndpoint, currentEndpoint string) (*url.URL, error) {
 	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIv1Prefix)
 	return url.Parse(baseEndpoint + endpoint)
 }
