@@ -994,7 +994,7 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 }
 
 func fillImpacted(
-	responses []types.RuleWithContentResponse,
+	rulesWithContent []types.RuleWithContentResponse,
 	aggregatorReports []ctypes.RuleOnReport) {
 
 	idReport := make(map[string]ctypes.RuleOnReport, len(aggregatorReports))
@@ -1004,8 +1004,8 @@ func fillImpacted(
 		idReport[id] = v
 	}
 
-	for i, resp := range responses {
-		id := string(resp.ErrorKey) + string(resp.RuleID)
+	for i, ruleWithContent := range rulesWithContent {
+		id := string(ruleWithContent.ErrorKey) + string(ruleWithContent.RuleID)
 		report, ok := idReport[id]
 		CreatedAtTime, err := time.Parse(time.RFC3339, string(report.CreatedAt))
 		if err != nil {
@@ -1013,8 +1013,8 @@ func fillImpacted(
 			continue
 		}
 		if ok && !CreatedAtTime.IsZero() {
-			resp.Impacted = report.CreatedAt
-			responses[i] = resp
+			ruleWithContent.Impacted = report.CreatedAt
+			rulesWithContent[i] = ruleWithContent
 		}
 	}
 }
