@@ -326,7 +326,7 @@ func (server *HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(ht
 
 // evaluateProxyError handles detected error in proxyTo
 // according to its type and the requested baseURL
-func (server HTTPServer) evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) {
+func (server *HTTPServer) evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) {
 	if _, ok := err.(*url.Error); ok {
 		switch baseURL {
 		case server.ServicesConfig.AggregatorBaseEndpoint:
