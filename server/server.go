@@ -1189,7 +1189,7 @@ func handleFetchRuleContentError(writer http.ResponseWriter, err error, filtered
 // rules are enabled if so, retrieves the org_id from request/token and returns
 // whether that ID is on the list of allowed organizations to access internal
 // rules
-func (server HTTPServer) checkInternalRulePermissions(request *http.Request) error {
+func (server *HTTPServer) checkInternalRulePermissions(request *http.Request) error {
 	if !server.Config.EnableInternalRulesOrganizations || !server.Config.Auth {
 		return nil
 	}
