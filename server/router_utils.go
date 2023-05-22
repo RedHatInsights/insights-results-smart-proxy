@@ -90,7 +90,7 @@ func readCompositeRuleID(request *http.Request) (
 	return
 }
 
-func (server HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (
+func (server *HTTPServer) readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (
 	userID ctypes.UserID,
 	orgID ctypes.OrgID,
 	impactingFlag types.ImpactingFlag,
