@@ -1151,7 +1151,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	if err != nil {
 		log.Err(err).Msgf("Got error while parsing `%s` value", OSDEligibleParam)
 	}
-	rule, filtered, err = content.FetchRuleContent(*aggregatorResponse, osdFlag)
+	rule, filtered, err = content.FetchRuleContent(aggregatorResponse, osdFlag)
 
 	if err != nil || filtered {
 		handleFetchRuleContentError(writer, err, filtered)
@@ -1298,7 +1298,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 			continue
 		}
 
-		rule, filtered, err := content.FetchRuleContent(aggregatorRule, filterOSD)
+		rule, filtered, err := content.FetchRuleContent(&aggregatorRule, filterOSD)
 		if err != nil {
 			if !filtered {
 				// rule has not been filtered by OSDEligible field
