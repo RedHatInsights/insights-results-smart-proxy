@@ -1291,7 +1291,8 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 	okRules = []types.RuleWithContentResponse{}
 	disabledRulesCnt, noContentRulesCnt = 0, 0
 
-	for _, aggregatorRule := range aggregatorReport {
+	for i := range aggregatorReport {
+		aggregatorRule := aggregatorReport[i]
 		if !getDisabled && isDisabledRule(aggregatorRule, systemWideDisabledRules) {
 			log.Info().Msgf("disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 			disabledRulesCnt++
