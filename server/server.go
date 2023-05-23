@@ -1151,7 +1151,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	if err != nil {
 		log.Err(err).Msgf("Got error while parsing `%s` value", OSDEligibleParam)
 	}
-	rule, filtered, err = content.FetchRuleContent(*aggregatorResponse, osdFlag)
+	rule, filtered, err = content.FetchRuleContent(aggregatorResponse, osdFlag)
 
 	if err != nil || filtered {
 		handleFetchRuleContentError(writer, err, filtered)
@@ -1291,14 +1291,15 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 	okRules = []types.RuleWithContentResponse{}
 	disabledRulesCnt, noContentRulesCnt = 0, 0
 
-	for _, aggregatorRule := range aggregatorReport {
+	for i := range aggregatorReport {
+		aggregatorRule := aggregatorReport[i]
 		if !getDisabled && isDisabledRule(aggregatorRule, systemWideDisabledRules) {
 			log.Info().Msgf("disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 			disabledRulesCnt++
 			continue
 		}
 
-		rule, filtered, err := content.FetchRuleContent(aggregatorRule, filterOSD)
+		rule, filtered, err := content.FetchRuleContent(&aggregatorRule, filterOSD)
 		if err != nil {
 			if !filtered {
 				// rule has not been filtered by OSDEligible field

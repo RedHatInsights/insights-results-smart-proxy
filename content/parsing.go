@@ -74,7 +74,7 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 				ruleTmp.ErrorKeys[errorKey] = ruleTmpErrorKey
 			}
 			// sets "plugin" level, containing usual fields + list of error keys
-			rulesWithContentStorage.SetRule(ruleID, ruleTmp)
+			rulesWithContentStorage.SetRule(ruleID, &ruleTmp)
 
 			rulesWithContentStorage.SetRuleWithContent(ruleID, ctypes.ErrorKey(errorKey), &types.RuleWithContent{
 				Module:         ruleID,

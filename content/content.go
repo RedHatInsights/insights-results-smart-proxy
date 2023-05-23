@@ -1,4 +1,4 @@
-// Copyright 2020 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -147,12 +147,12 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 
 // SetRule sets content for rule
 func (s *RulesWithContentStorage) SetRule(
-	ruleID ctypes.RuleID, ruleContent ctypes.RuleContent,
+	ruleID ctypes.RuleID, ruleContent *ctypes.RuleContent,
 ) {
 	s.Lock()
 	defer s.Unlock()
 
-	s.rules[ruleID] = &ruleContent
+	s.rules[ruleID] = ruleContent
 }
 
 // ResetContent clear all the contents
@@ -495,7 +495,7 @@ func UpdateContent(servicesConf services.Configuration) {
 //   - Structure with rules and content
 //   - return true if the rule has been filtered by OSDElegible field. False otherwise
 //   - return error if the one occurred during retrieval
-func FetchRuleContent(rule ctypes.RuleOnReport, OSDEligible bool) (
+func FetchRuleContent(rule *ctypes.RuleOnReport, OSDEligible bool) (
 	ruleWithContentResponse *types.RuleWithContentResponse,
 	osdFiltered bool,
 	err error,

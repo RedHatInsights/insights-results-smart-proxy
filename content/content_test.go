@@ -1,4 +1,4 @@
-// Copyright 2020, 2021, 2022 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -241,7 +241,7 @@ func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
 		content.UpdateContent(helpers.DefaultServicesConfig)
 
 		rule := testdata.RuleOnReport1
-		ruleContent, osdFiltered, err := content.FetchRuleContent(rule, true)
+		ruleContent, osdFiltered, err := content.FetchRuleContent(&rule, true)
 		assert.False(t, osdFiltered)
 		assert.NotNil(t, ruleContent)
 		assert.Nil(t, err)
@@ -288,7 +288,7 @@ func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
 		content.UpdateContent(helpers.DefaultServicesConfig)
 
 		rule := testdata.RuleOnReport1
-		ruleContent, osdFiltered, err := content.FetchRuleContent(rule, false)
+		ruleContent, osdFiltered, err := content.FetchRuleContent(&rule, false)
 		assert.False(t, osdFiltered)
 		assert.NotNil(t, ruleContent)
 		assert.Nil(t, err)
@@ -344,7 +344,7 @@ func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
 			TemplateData:    testdata.Rule1ExtraData,
 		}
 
-		ruleContent, osdFiltered, err := content.FetchRuleContent(rule, false)
+		ruleContent, osdFiltered, err := content.FetchRuleContent(&rule, false)
 		assert.False(t, osdFiltered)
 		assert.NotNil(t, ruleContent)
 		assert.Nil(t, err)
@@ -376,7 +376,7 @@ func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
 			TemplateData:    nil,
 		}
 
-		ruleContent, _, err := content.FetchRuleContent(rule, false)
+		ruleContent, _, err := content.FetchRuleContent(&rule, false)
 		assert.Nil(t, ruleContent)
 		assert.NotNil(t, err)
 
