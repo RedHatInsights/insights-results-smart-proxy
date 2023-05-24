@@ -416,6 +416,8 @@ github.com/RedHatInsights/insights-content-service v0.0.0-20230426130444-139b3a6
 github.com/RedHatInsights/insights-content-service v0.0.0-20230426130444-139b3a63ca0a/go.mod h1:6nihzwhfwTZHM8ClPwISTntuYPf6W2UzcI+yPeUPMRk=
 github.com/RedHatInsights/insights-content-service v0.0.0-20230511070817-a817ca38ed6f h1:DrYW9ie4LJLWmrhYv1w1wJ+/rNdP4U77eaAy8Ypazg8=
 github.com/RedHatInsights/insights-content-service v0.0.0-20230511070817-a817ca38ed6f/go.mod h1:6nihzwhfwTZHM8ClPwISTntuYPf6W2UzcI+yPeUPMRk=
+github.com/RedHatInsights/insights-content-service v0.0.0-20230515093827-cefc7fd75fc7 h1:AThInRdoEUbWkdgo+VsgFzbHP27tnblMPFgE9MzXgTY=
+github.com/RedHatInsights/insights-content-service v0.0.0-20230515093827-cefc7fd75fc7/go.mod h1:6nihzwhfwTZHM8ClPwISTntuYPf6W2UzcI+yPeUPMRk=
 github.com/RedHatInsights/insights-operator-utils v1.0.1/go.mod h1:gRzYBMY4csuOXgrxUuC10WUkz6STOm3mqVsQCb+AGOQ=
 github.com/RedHatInsights/insights-operator-utils v1.0.2-0.20200610143236-c868b2f93d2a/go.mod h1:0rhk13kn0BB+yKdfZjpMoQy0lXdXY3i4NJ1xGwGMcII=
 github.com/RedHatInsights/insights-operator-utils v1.4.1-0.20200729093922-bca68530a5ef/go.mod h1:F7KKAdWFR70H+3fa89ciXqimNycHdqO9HjLWRdZwOug=
