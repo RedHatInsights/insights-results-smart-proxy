@@ -25,5 +25,6 @@ package services
 // to see why this trick is needed for using package internal
 // symbols (externally invisible) in unit tests.
 var (
-	GetFromURL = getFromURL
+	GetFromURL        = getFromURL
+	CreateRedisClient = createRedisClient
 )

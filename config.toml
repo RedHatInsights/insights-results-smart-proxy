@@ -42,3 +42,8 @@ broker = ""
 topic = ""
 cert_path = ""
 level = ""
+
+[redis]
+endpoint = "localhost:6379"
+database = 0
+timeout_seconds = 30

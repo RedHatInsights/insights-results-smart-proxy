@@ -32,3 +32,8 @@ internal_rules_organizations_csv_file = ""
 
 [metrics]
 namespace = "smart_proxy"
+
+[redis]
+endpoint = "localhost:6379"
+database = 0
+timeout_seconds = 30

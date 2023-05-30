@@ -20,13 +20,18 @@ import (
 	"time"
 )
 
-// Configuration represents configuration of REST API HTTP server
+// RedisConfiguration represents configuration of Redis client
+type RedisConfiguration struct {
+	RedisEndpoint       string `mapstructure:"endpoint" toml:"endpoint"`
+	RedisDatabase       int    `mapstructure:"database" toml:"database"`
+	RedisTimeoutSeconds int    `mapstructure:"timeout_seconds" toml:"timeout_seconds"`
+}
+
+// Configuration represents configuration of services on which smart-proxy depends.
 type Configuration struct {
-	AggregatorBaseEndpoint string `mapstructure:"aggregator" toml:"aggregator"`
-	ContentBaseEndpoint    string `mapstructure:"content" toml:"content"`
-
-	UpgradeRisksPredictionEndpoint string `mapstructure:"upgrade_risks_prediction" toml:"upgrade_risks_prediction"`
-
-	GroupsPollingTime       time.Duration `mapstructure:"groups_poll_time" toml:"groups_poll_time"`
-	ContentDirectoryTimeout time.Duration `mapstructure:"content_directory_timeout" toml:"content_directory_timeout"`
+	AggregatorBaseEndpoint         string        `mapstructure:"aggregator" toml:"aggregator"`
+	ContentBaseEndpoint            string        `mapstructure:"content" toml:"content"`
+	UpgradeRisksPredictionEndpoint string        `mapstructure:"upgrade_risks_prediction" toml:"upgrade_risks_prediction"`
+	GroupsPollingTime              time.Duration `mapstructure:"groups_poll_time" toml:"groups_poll_time"`
+	ContentDirectoryTimeout        time.Duration `mapstructure:"content_directory_timeout" toml:"content_directory_timeout"`
 }
