@@ -16,10 +16,11 @@ package server_test
 
 import (
 	"context"
-	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	types "github.com/RedHatInsights/insights-results-types"
@@ -208,7 +209,7 @@ func TestGetAuthTokenHeaderMalformed(t *testing.T) {
 	s := helpers.CreateHTTPServer(
 		&helpers.DefaultServerConfig,
 		&helpers.DefaultServicesConfig,
-		nil, nil, nil, nil,
+		nil, nil, nil, nil, nil,
 	)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -230,7 +231,7 @@ func TestGetAuthTokenHeaderMissing(t *testing.T) {
 	s := helpers.CreateHTTPServer(
 		&helpers.DefaultServerConfig,
 		&helpers.DefaultServicesConfig,
-		nil, nil, nil, nil,
+		nil, nil, nil, nil, nil,
 	)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

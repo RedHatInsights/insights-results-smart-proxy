@@ -92,7 +92,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 			"status":"ok"
 		}
 		`
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -165,7 +165,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 			"status":"ok"
 		}
 		`
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -201,7 +201,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 func TestHTTPServer_GetUpgradeRisksPredictionOfflineAMS(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		cluster := testdata.GetRandomClusterInfoListAllUnManaged(1)[0].ID
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -232,7 +232,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterNotBelonging(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -261,7 +261,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotFound(t *testing.T) {
 			testdata.OrgID,
 			clusterInfoList,
 		)
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -304,7 +304,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
@@ -347,7 +347,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterHasNoData(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
@@ -390,7 +390,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionUnavailableDataEngineering(t *testi
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -420,7 +420,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionManagedCluster(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
