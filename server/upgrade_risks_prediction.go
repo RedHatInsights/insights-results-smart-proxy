@@ -38,27 +38,27 @@ const UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-p
 //
 // Response format should look like:
 //
-//	{
-//		"upgrade_recommended": false,
-//		"upgrade_risks_predictors": {
-//			"alerts": [
-//				{
-//					"name": "APIRemovedInNextEUSReleaseInUse",
-//					"namespace": "openshift-kube-apiserver",
-//					"severity": "info",
-//                  "url": "${CONSOLE_URL}/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=${ALERT_NAME}"
-//				}
-//			],
-//			"operator_conditions": [
-//				{
-//					"name": "authentication",
-//					"condition": "Failing",
-//					"reason": "AsExpected",
-//                  "url": "${CONSOLE_URL}/k8s/cluster/config.openshift.io~v1~ClusterOperator/${OPERATOR_NAME}"
-//				}
-//			]
+//		{
+//			"upgrade_recommended": false,
+//			"upgrade_risks_predictors": {
+//				"alerts": [
+//					{
+//						"name": "APIRemovedInNextEUSReleaseInUse",
+//						"namespace": "openshift-kube-apiserver",
+//						"severity": "info",
+//	                 "url": "${CONSOLE_URL}/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=${ALERT_NAME}"
+//					}
+//				],
+//				"operator_conditions": [
+//					{
+//						"name": "authentication",
+//						"condition": "Failing",
+//						"reason": "AsExpected",
+//	                 "url": "${CONSOLE_URL}/k8s/cluster/config.openshift.io~v1~ClusterOperator/${OPERATOR_NAME}"
+//					}
+//				]
+//			}
 //		}
-//	}
 func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, request *http.Request) {
 	if server.amsClient == nil {
 		log.Error().Msgf("AMS API connection is not initialized")
