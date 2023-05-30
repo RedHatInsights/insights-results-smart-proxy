@@ -52,7 +52,7 @@ func createRedisClient(conf RedisConfiguration) (*redisV9.Client, error) {
 		return nil, err
 	}
 
-	if conf.RedisDatabase < 0 || conf.RedisDatabase >= 2^4 {
+	if conf.RedisDatabase < 0 || conf.RedisDatabase > 15 {
 		err := errors.New("Redis selected database must be a value in the range 0-15")
 		log.Error().Err(err)
 		return nil, err
