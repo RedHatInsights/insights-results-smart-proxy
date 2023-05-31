@@ -147,7 +147,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are ommitted by default unless the get_disabled query param is provided.",
+            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are omitted by default unless the get_disabled query param is provided.",
             "content": {
               "application/json": {
                 "schema": {
@@ -353,6 +353,473 @@
           },
           "503": {
             "description": "Status NotAvailable: happens when the AMS API or the Upgrade Risks Prediction service is not available."
+          }
+        }
+      }
+    },
+    "/cluster/{clusterId}/requests": {
+      "get": {
+        "tags": [
+          "on-demand"
+        ],
+        "summary": "List of requests for given cluster",
+        "description": "Provides a list of all the recorded requests for the cluster with given ID, if any.",
+        "operationId": "getRequestsForCluster",
+        "parameters": [
+          {
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
+            "name": "clusterId",
+            "description": "ID of the cluster in valid UUID format.",
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of requests available (last 24 hours) for the given organization and cluster and their status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "type": "string"
+                    },
+                    "requests": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "requestID": {
+                            "type": "string"
+                          },
+                          "valid": {
+                            "type": "boolean"
+                          },
+                          "received": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "processed": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "requestID",
+                          "valid",
+                          "received",
+                          "processed"
+                        ]
+                      }
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requests",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g cluster ID with unexpected format)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cluster not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "on-demand"
+        ],
+        "summary": "Filtered list of stored requests for given cluster ID",
+        "description": "A list of requests for given cluster, filtered by the provided request IDs, if any.",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "description": "ID of the cluster in valid UUID format.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "List of request IDs",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestIDs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "requestIDs"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of requests available (last 24 hours) for the given organization and cluster and their status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "type": "string"
+                    },
+                    "requests": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "requestID": {
+                            "type": "string"
+                          },
+                          "valid": {
+                            "type": "boolean"
+                          },
+                          "received": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "processed": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "requestID",
+                          "valid",
+                          "received",
+                          "processed"
+                        ]
+                      }
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requests",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g cluster ID with unexpected format) or payload (empty body or not a list of strings)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cluster ID not found or no requests found in storage for provided IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cluster/{clusterId}/request/{requestId}/status": {
+      "get": {
+        "tags": [
+          "on-demand"
+        ],
+        "summary": "Check status of a given cluster's request",
+        "operationId": "getRequestStatusForCluster",
+        "description": "The status of the request with given ID if found. The cluster ID is required so only requests for the given cluster are returned, if any",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "description": "ID of the cluster in valid UUID format.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "description": "Request ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stored status for the given cluster and request IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "type": "string"
+                    },
+                    "requestID": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requestID",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or invalid cluster ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Request ID or cluster ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cluster/{clusterId}/request/{requestId}/report": {
+      "get": {
+        "tags": [
+          "on-demand"
+        ],
+        "summary": "Retrieve simplified reports for a given cluster and request IDs if available",
+        "operationId": "getReportForRequest",
+        "description": "For the given cluster and request IDs, return the simplified report, if any",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "description": "ID of the cluster in valid UUID format.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "description": "Request ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Simplified report for given cluster and request IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "type": "string"
+                    },
+                    "requestID": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "report": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rule_fqdn": {
+                            "type": "string"
+                          },
+                          "error_key": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "total_risk": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "rule_fqdn",
+                          "error_key",
+                          "description",
+                          "total_risk"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requestID",
+                    "status",
+                    "report"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or invalid cluster ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cluster or request ID not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
           }
         }
       }
