@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	redisExecutionFailedMsg = "failed to execute command against Redis server"
+	redisExecutionFailedMsg = "unexpected response from Redis server"
 )
 
 // RedisInterface represents interface for functions executed against a Redis server
@@ -36,7 +36,7 @@ type RedisInterface interface {
 
 // RedisClient is an implementation of the Redis client for Redis server
 type RedisClient struct {
-	client *redisV9.Client
+	Client *redisV9.Client
 }
 
 // explicit checks for config params are done because the go-redis package lets us create a client
@@ -77,7 +77,7 @@ func NewRedisClient(conf RedisConfiguration) (RedisInterface, error) {
 	}
 
 	return &RedisClient{
-		client: client,
+		Client: client,
 	}, nil
 }
 
@@ -86,9 +86,10 @@ func (redis *RedisClient) HealthCheck() (err error) {
 	ctx := context.Background()
 
 	// .Result() gets value and error of executed command at once
-	res, err := redis.client.Ping(ctx).Result()
+	res, err := redis.Client.Ping(ctx).Result()
 	if err != nil || res != "PONG" {
 		log.Error().Err(err).Msg("Redis PING command failed")
+		return errors.New(redisExecutionFailedMsg)
 	}
 
 	return

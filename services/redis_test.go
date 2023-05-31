@@ -18,10 +18,12 @@ package services_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/go-redis/redismock/v9"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,6 +40,22 @@ func init() {
 		RedisEndpoint:       "localhost:6379",
 		RedisDatabase:       0,
 		RedisTimeoutSeconds: 30,
+	}
+}
+
+func getMockRedis() (
+	mockClient services.RedisClient, mockServer redismock.ClientMock,
+) {
+	client, mockServer := redismock.NewClientMock()
+	mockClient = services.RedisClient{
+		Client: client,
+	}
+	return
+}
+
+func redisExpectationsMet(t *testing.T, mock redismock.ClientMock) {
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err)
 	}
 }
 
@@ -85,23 +103,35 @@ func TestCreateRedisClientDBIndexOutOfRange(t *testing.T) {
 }
 
 func TestRedisHealthCheckOK(t *testing.T) {
-	client, err := services.NewRedisClient(defaultRedisConf)
-	assert.NotNil(t, client)
+	client, server := getMockRedis()
+
+	server.ExpectPing().SetVal("PONG")
+
+	err := client.HealthCheck()
 	assert.NoError(t, err)
 
-	err = client.HealthCheck()
-	assert.NoError(t, err)
+	redisExpectationsMet(t, server)
 }
 
 func TestRedisHealthCheckError(t *testing.T) {
-	conf := defaultRedisConf
-	// wrong address, it lets us create the client without issues, but subsequent command executions will fail
-	conf.RedisEndpoint = ":8080"
+	client, server := getMockRedis()
 
-	client, err := services.NewRedisClient(conf)
-	assert.NotNil(t, client)
-	assert.NoError(t, err)
+	server.ExpectPing().SetErr(errors.New("mock error"))
 
-	err = client.HealthCheck()
+	err := client.HealthCheck()
 	assert.Error(t, err)
+
+	redisExpectationsMet(t, server)
+}
+
+func TestRedisHealthCheckBadResponse(t *testing.T) {
+	client, server := getMockRedis()
+
+	// cover 2nd condition
+	server.ExpectPing().SetVal("ka-boom")
+
+	err := client.HealthCheck()
+	assert.Error(t, err)
+
+	redisExpectationsMet(t, server)
 }
