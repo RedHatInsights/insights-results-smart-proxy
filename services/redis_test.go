@@ -39,6 +39,7 @@ func init() {
 	defaultRedisConf = services.RedisConfiguration{
 		RedisEndpoint:       "localhost:6379",
 		RedisDatabase:       0,
+		RedisPassword:       "psw",
 		RedisTimeoutSeconds: 30,
 	}
 }
@@ -82,6 +83,7 @@ func TestCreateRedisClientOK(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, options.Addr, defaultRedisConf.RedisEndpoint)
 	assert.Equal(t, options.DB, defaultRedisConf.RedisDatabase)
+	assert.Equal(t, options.Password, defaultRedisConf.RedisPassword)
 	assert.Equal(t, options.ReadTimeout, time.Duration(defaultRedisConf.RedisTimeoutSeconds)*time.Second)
 }
 

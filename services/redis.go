@@ -62,6 +62,7 @@ func createRedisClient(conf RedisConfiguration) (*redisV9.Client, error) {
 	c := redisV9.NewClient(&redisV9.Options{
 		Addr:        conf.RedisEndpoint,
 		DB:          conf.RedisDatabase,
+		Password:    conf.RedisPassword,
 		ReadTimeout: time.Duration(conf.RedisTimeoutSeconds) * time.Second,
 	})
 

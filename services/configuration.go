@@ -25,6 +25,7 @@ type RedisConfiguration struct {
 	RedisEndpoint       string `mapstructure:"endpoint" toml:"endpoint"`
 	RedisDatabase       int    `mapstructure:"database" toml:"database"`
 	RedisTimeoutSeconds int    `mapstructure:"timeout_seconds" toml:"timeout_seconds"`
+	RedisPassword       string `mapstructure:"password" toml:"password"`
 }
 
 // Configuration represents configuration of services on which smart-proxy depends.
