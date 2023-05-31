@@ -13,40 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-function cleanup() {
-    if [ -z "$CI" ]; then
-        echo "Stopping Redis container"
-        $COMPOSER down > /dev/null
-    fi
-}
-
 function run_unit_tests() {
     # shellcheck disable=SC2046
     if ! go test -coverprofile coverage.out $(go list ./... | grep -v tests | tr '\n' ' ')
     then
         echo "unit tests failed"
-        cleanup
         exit 1
     fi
 }
-
-function check_composer() {
-    if command -v docker-compose > /dev/null; then
-        COMPOSER=docker-compose
-    elif command -v podman-compose > /dev/null; then
-        COMPOSER=podman-compose
-    else
-        echo "Please install docker-compose or podman-compose to run this tests"
-        exit 1
-    fi
-}
-
-if [ -z "$CI" ]; then
-    echo "Running Redis container locally"
-    check_composer
-    $COMPOSER up -d > /dev/null
-fi
 
 run_unit_tests
-
-cleanup
