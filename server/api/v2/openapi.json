@@ -89,8 +89,7 @@
                       }
                     },
                     "status": {
-                      "type": "string",
-                      "example": "ok"
+                      "$ref": "#/components/schemas/statusResponse"
                     }
                   }
                 }
@@ -127,9 +126,8 @@
           {
             "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
-            "description": "ID of the cluster which must conform to UUID format.",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/clusterId"
             },
             "in": "path",
             "required": true
@@ -147,7 +145,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are ommitted by default unless the get_disabled query param is provided.",
+            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are omitted by default unless the get_disabled query param is provided.",
             "content": {
               "application/json": {
                 "schema": {
@@ -177,9 +175,8 @@
           {
             "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
             "name": "clusterId",
-            "description": "ID of the cluster which must conform to UUID format.",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/clusterId"
             },
             "in": "path",
             "required": true
@@ -198,10 +195,7 @@
                       "type": "object",
                       "properties": {
                         "cluster_id": {
-                          "type": "string",
-                          "minLength": 36,
-                          "maxLength": 36,
-                          "format": "uuid"
+                          "$ref": "#/components/schemas/clusterId"
                         },
                         "display_name": {
                           "type": "string",
@@ -221,8 +215,7 @@
                       }
                     },
                     "status": {
-                      "type": "string",
-                      "example": "ok"
+                      "$ref": "#/components/schemas/statusResponse"
                     }
                   }
                 }
@@ -249,10 +242,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "format": "uuid"
+              "$ref": "#/components/schemas/clusterId"
             }
           }
         ],
@@ -337,8 +327,7 @@
                       }
                     },
                     "status": {
-                      "type": "string",
-                      "example": "ok"
+                      "$ref": "#/components/schemas/statusResponse"
                     }
                   }
                 }
@@ -353,6 +342,254 @@
           },
           "503": {
             "description": "Status NotAvailable: happens when the AMS API or the Upgrade Risks Prediction service is not available."
+          }
+        }
+      }
+    },
+    "/cluster/{clusterId}/requests": {
+      "get": {
+        "summary": "List of requests for given cluster",
+        "description": "Provides a list of all the recorded requests for the cluster with given ID, if any.",
+        "operationId": "getRequestsForCluster",
+        "parameters": [
+          {
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
+            "name": "clusterId",
+            "schema": {
+              "$ref": "#/components/schemas/clusterId"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of requests available (last 24 hours) for the given organization and cluster and their status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "$ref": "#/components/schemas/clusterId"
+                    },
+                    "requests": {
+                      "$ref": "#/components/schemas/gatheringRequests"
+                    },
+                    "status": {
+                      "$ref": "#/components/schemas/statusResponse"
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requests",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g cluster ID with unexpected format)"
+          },
+          "404": {
+            "description": "Cluster not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Filtered list of stored requests for given cluster ID",
+        "description": "A list of requests for given cluster, filtered by the provided request IDs, if any.",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/clusterId"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "List of request IDs",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestIDs": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/requestId"
+                    }
+                  }
+                },
+                "required": [
+                  "requestIDs"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of requests available (last 24 hours) for the given organization and cluster and their status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "$ref": "#/components/schemas/clusterId"
+                    },
+                    "requests": {
+                      "$ref": "#/components/schemas/gatheringRequests"
+                    },
+                    "status": {
+                      "$ref": "#/components/schemas/statusResponse"
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requests",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g cluster ID with unexpected format) or payload (empty body or not a list of strings)"
+          },
+          "404": {
+            "description": "Cluster ID not found or no requests found in storage for provided IDs"
+          }
+        }
+      }
+    },
+    "/cluster/{clusterId}/request/{requestId}/status": {
+      "get": {
+        "summary": "Check status of a given cluster's request",
+        "operationId": "getRequestStatusForCluster",
+        "description": "The status of the request with given ID if found. The cluster ID is required so only requests for the given cluster are returned, if any",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/clusterId"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "description": "Request ID",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/requestId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stored status for the given cluster and request IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "$ref": "#/components/schemas/clusterId"
+                    },
+                    "requestID": {
+                      "$ref": "#/components/schemas/requestId"
+                    },
+                    "status": {
+                      "$ref": "#/components/schemas/statusResponse"
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requestID",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or invalid cluster ID"
+          },
+          "404": {
+            "description": "Request ID or cluster ID not found"
+          }
+        }
+      }
+    },
+    "/cluster/{clusterId}/request/{requestId}/report": {
+      "get": {
+        "tags": [
+          "on-demand"
+        ],
+        "summary": "Retrieve simplified reports for a given cluster and request IDs if available",
+        "operationId": "getReportForRequest",
+        "description": "For the given cluster and request IDs, return the simplified report, if any",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/clusterId"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/requestId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Simplified report for given cluster and request IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "$ref": "#/components/schemas/clusterId"
+                    },
+                    "requestID": {
+                      "$ref": "#/components/schemas/requestId"
+                    },
+                    "status": {
+                      "$ref": "#/components/schemas/statusResponse"
+                    },
+                    "report": {
+                      "$ref": "#/components/schemas/simplifiedReport"
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requestID",
+                    "status",
+                    "report"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or invalid cluster ID"
+          },
+          "404": {
+            "description": "Cluster or request ID not found"
           }
         }
       }
@@ -502,8 +739,7 @@
                       }
                     },
                     "status": {
-                      "type": "string",
-                      "example": "ok"
+                      "$ref": "#/components/schemas/statusResponse"
                     }
                   }
                 }
@@ -858,8 +1094,7 @@
                       }
                     },
                     "status": {
-                      "type": "string",
-                      "example": "ok"
+                      "$ref": "#/components/schemas/statusResponse"
                     }
                   }
                 }
@@ -1039,8 +1274,7 @@
                       }
                     },
                     "status": {
-                      "type": "string",
-                      "example": "ok"
+                      "$ref": "#/components/schemas/statusResponse"
                     }
                   }
                 }
@@ -1186,8 +1420,7 @@
                       }
                     },
                     "status": {
-                      "type": "string",
-                      "example": "ok"
+                      "$ref": "#/components/schemas/statusResponse"
                     }
                   }
                 }
@@ -1293,6 +1526,13 @@
   },
   "components": {
     "schemas": {
+      "clusterId": {
+        "description": "ID of the cluster in valid UUID format",
+        "type": "string",
+        "minLength": 36,
+        "maxLength": 36,
+        "format": "uuid"
+      },
       "reportData": {
         "description": "/clusters/{clusterId}/report returns an array of ruleHit instances",
         "type": "object",
@@ -1685,8 +1925,12 @@
                 "updated_at": {
                   "type": "string",
                   "anyOf": [
-                    {"format": "date-time"},
-                    {"maxLength": 0}
+                    {
+                      "format": "date-time"
+                    },
+                    {
+                      "maxLength": 0
+                    }
                   ]
                 }
               }
@@ -1744,6 +1988,32 @@
           }
         }
       },
+      "simplifiedReport": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rule_fqdn": {
+              "type": "string"
+            },
+            "error_key": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "total_risk": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "rule_fqdn",
+            "error_key",
+            "description",
+            "total_risk"
+          ]
+        }
+      },
       "ratingSchema": {
         "description": "",
         "type": "object",
@@ -1754,6 +2024,46 @@
           "rating": {
             "type": "integer"
           }
+        }
+      },
+      "statusResponse": {
+        "description": "response status for the processed request",
+        "type": "string",
+        "example": "ok"
+      },
+      "requestId" : {
+        "description": "request ID",
+        "type": "string",
+        "format": "x-rh-insights-request-id",
+        "example": "6d2eede257644308a8949c4ec251c5c4"
+      },
+      "gatheringRequests": {
+        "description": "List of stored requests for given orgId + clusterId",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "requestID": {
+              "$ref": "#/components/schemas/requestId"
+            },
+            "valid": {
+              "type": "boolean"
+            },
+            "received": {
+              "type": "string",
+              "format": "RFC339Nano"
+            },
+            "processed": {
+              "type": "string",
+              "format": "RFC339Nano"
+            }
+          },
+          "required": [
+            "requestID",
+            "valid",
+            "received",
+            "processed"
+          ]
         }
       }
     },
