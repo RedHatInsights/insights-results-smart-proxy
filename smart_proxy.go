@@ -131,7 +131,6 @@ func startServer() ExitCode {
 
 	redisClient, err := services.NewRedisClient(redisConf)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create Redis client")
 		redisClient = nil
 	} else {
 		// PING Redis server

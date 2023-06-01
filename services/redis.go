@@ -42,10 +42,6 @@ type RedisClient struct {
 // explicit checks for config params are done because the go-redis package lets us create a client
 // with incorrect params, so errors are only found during subsequent command executions
 func createRedisClient(conf RedisConfiguration) (*redisV9.Client, error) {
-	log.Info().Msgf("creating redis client. endpoint %v, selected DB %d, timeout seconds %d",
-		conf.RedisEndpoint, conf.RedisDatabase, conf.RedisTimeoutSeconds,
-	)
-
 	if conf.RedisEndpoint == "" {
 		err := errors.New("Redis server address must not be empty")
 		log.Error().Err(err)
@@ -57,6 +53,10 @@ func createRedisClient(conf RedisConfiguration) (*redisV9.Client, error) {
 		log.Error().Err(err)
 		return nil, err
 	}
+
+	log.Info().Msgf("creating redis client. endpoint %v, selected DB %d, timeout seconds %d",
+		conf.RedisEndpoint, conf.RedisDatabase, conf.RedisTimeoutSeconds,
+	)
 
 	// DB is configurable in case we want to change data structure
 	c := redisV9.NewClient(&redisV9.Options{
@@ -73,7 +73,6 @@ func createRedisClient(conf RedisConfiguration) (*redisV9.Client, error) {
 func NewRedisClient(conf RedisConfiguration) (RedisInterface, error) {
 	client, err := createRedisClient(conf)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create Redis client")
 		return nil, err
 	}
 
