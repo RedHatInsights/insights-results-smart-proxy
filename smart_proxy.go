@@ -112,6 +112,7 @@ func startServer() ExitCode {
 	metricsCfg := conf.GetMetricsConfiguration()
 	servicesCfg := conf.GetServicesConfiguration()
 	amsConfig := conf.GetAMSClientConfiguration()
+	redisConf := conf.GetRedisConfiguration()
 	groupsChannel := make(chan []groups.Group)
 	errorFoundChannel := make(chan bool)
 	errorChannel := make(chan error)
@@ -128,7 +129,20 @@ func startServer() ExitCode {
 		log.Info().Msg("AMSClient successfully created")
 	}
 
-	serverInstance = server.New(serverCfg, servicesCfg, amsClient, groupsChannel, errorFoundChannel, errorChannel)
+	redisClient, err := services.NewRedisClient(redisConf)
+	if err != nil {
+		redisClient = nil
+	} else {
+		// PING Redis server
+		if err = redisClient.HealthCheck(); err != nil {
+			log.Error().Err(err).Msg("failed to ping Redis server")
+			redisClient = nil
+		} else {
+			log.Info().Msg("Redis client created, Redis server is responding")
+		}
+	}
+
+	serverInstance = server.New(serverCfg, servicesCfg, amsClient, redisClient, groupsChannel, errorFoundChannel, errorChannel)
 
 	// fill-in additional info used by /info endpoint handler
 	fillInInfoParams(serverInstance.InfoParams)

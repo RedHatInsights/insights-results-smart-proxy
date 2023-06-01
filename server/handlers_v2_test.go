@@ -191,7 +191,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		clusters[1], data.ClusterDisplayName2, disabledAt, justificationNote,
 	)
 
-	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 	iou_helpers.AssertAPIRequest(
 		t,
@@ -302,7 +302,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_ImpactedClusterDi
 
 	expectedResponse = fmt.Sprintf(expectedResponse, clusters[0], data.ClusterDisplayName1, disabledAt, justificationNote)
 
-	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 	iou_helpers.AssertAPIRequest(
 		t,
@@ -417,7 +417,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 	// 2nd cluster is there
 	expectedResponse = fmt.Sprintf(expectedResponse, clusters[1], data.ClusterDisplayName2)
 
-	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 	iou_helpers.AssertAPIRequest(
 		t,
@@ -487,7 +487,7 @@ func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
 				"status":"ok"
 			}
 			`
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		// cluster is managed, but rule is not == must not show as hitting
 		iou_helpers.AssertAPIRequest(
@@ -725,7 +725,7 @@ func TestHTTPServer_GetSingleClusterInfo(t *testing.T) {
 		expectedResponse = fmt.Sprintf(expectedResponse, clusterInfoList[0].ID, clusterInfoList[0].DisplayName,
 			clusterInfoList[0].Managed, clusterInfoList[0].Status,
 		)
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -754,7 +754,7 @@ func TestHTTPServer_GetSingleClusterInfoClusterNotFound(t *testing.T) {
 			[]types.ClusterInfo{},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,

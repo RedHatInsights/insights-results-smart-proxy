@@ -438,7 +438,7 @@ func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -484,7 +484,7 @@ func TestHTTPServer_ReportEndpointV2TestAMSData(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -533,7 +533,7 @@ func TestHTTPServer_ReportEndpointV2TestManagedClustersRules(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		// 3 rules, only 1 of which is managed
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -656,7 +656,7 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentManagedCluster(t *te
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -710,7 +710,7 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentNonManagedCluster(t 
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -1338,7 +1338,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -1420,7 +1420,7 @@ func TestHTTPServer_OverviewEndpointManagedClustersRules(t *testing.T) {
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		// managed cluster; 1 managed rule, 2 non-managed rules == only 1 rule must count
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -1498,7 +1498,7 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, helpers.DefaultServerConfig.APIv1Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.OverviewEndpoint,
@@ -1571,7 +1571,7 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -1689,7 +1689,7 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 
 		config := helpers.DefaultServerConfig
 		config.UseOrgClustersFallback = true
-		testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -2082,7 +2082,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -2192,7 +2192,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 		)
 
 		// one rule acked; one rule user disabled (not counted as impacting)
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -2268,7 +2268,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -2335,7 +2335,7 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -2406,7 +2406,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=true",
@@ -2477,7 +2477,7 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
@@ -2552,7 +2552,7 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -2632,7 +2632,7 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -2738,7 +2738,7 @@ func TestHTTPServer_RecommendationsListEndpointAMSManagedClusters(t *testing.T) 
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.RecommendationsListEndpoint,
@@ -2997,7 +2997,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoClusters(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3056,7 +3056,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *t
 			resp.Clusters[i].LastCheckedAt = "" // will be empty because we don't have the cluster in our DB
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3128,7 +3128,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 			resp.Clusters[i].LastCheckedAt = testTimestamp
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3187,7 +3187,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3272,7 +3272,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3357,7 +3357,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1Managed(t *testing
 		}
 
 		// cluster 1 is managed, so must only show 1 rule. cluster 2 will show both rules.
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3445,7 +3445,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1WithVersion(t *tes
 		}
 
 		// cluster 1 is managed, so must only show 1 rule. cluster 2 will show both rules.
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3550,7 +3550,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule(t *testing.T) {
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3659,7 +3659,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledRuleSingleCluster(t 
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,
@@ -3789,7 +3789,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
 			Method:             http.MethodGet,
 			Endpoint:           server.ClustersRecommendationsEndpoint,

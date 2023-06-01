@@ -85,6 +85,17 @@ objects:
               value: ${INSIGHTS_CONTENT_SERVICE_POLL_TIME}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__UPGRADE_RISKS_PREDICTION
               value: ${INSIGHTS_DATA_ENGINEERING_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__ENDPOINT
+              value: ${INSIGHTS_REDIS_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__DATABASE
+              value: ${INSIGHTS_REDIS_DATABASE}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cache-writer-redis-credentials
+                  key: password
+            - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__TIMEOUT_SECONDS
+              value: ${INSIGHTS_REDIS_TIMEOUT_SECONDS}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
               value: "${IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
@@ -242,6 +253,12 @@ parameters:
   value: "http://ccx-insights-content-service:10000/api/v1/"
 - name: INSIGHTS_DATA_ENGINEERING_URL
   value: "http://ccx-upgrades-data-eng-svc:8000/"
+- name: INSIGHTS_REDIS_URL
+  value: "ccx-redis:6379"
+- name: INSIGHTS_REDIS_DATABASE
+  value: "0"
+- name: INSIGHTS_REDIS_TIMEOUT_SECONDS
+  value: "30"
 - name: INSIGHTS_CONTENT_SERVICE_POLL_TIME
   value: "60s"
 - name: IRSP_API_DBG_PREFIX

@@ -14,11 +14,11 @@
 
 language: go
 go:
-- "1.17"
+- "1.18"
 
 jobs:
   include:
-    - name: "Build 1.17"
+    - name: "Build 1.18"
       stage: build
       script:
         - make

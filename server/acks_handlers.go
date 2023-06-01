@@ -43,20 +43,21 @@ const (
 // Will return an empty list if this account has no acks.
 //
 // Response format should look like:
-// {
-//   "meta": {
-//     "count": 0
-//   },
-//   "data": [
-//     {
-//       "rule": "string",
-//       "justification": "string",
-//       "created_by": "string",
-//       "created_at": "2021-09-04T17:11:35.130Z",
-//       "updated_at": "2021-09-04T17:11:35.130Z"
-//     }
-//   ]
-// }
+//
+//	{
+//	  "meta": {
+//	    "count": 0
+//	  },
+//	  "data": [
+//	    {
+//	      "rule": "string",
+//	      "justification": "string",
+//	      "created_by": "string",
+//	      "created_at": "2021-09-04T17:11:35.130Z",
+//	      "updated_at": "2021-09-04T17:11:35.130Z"
+//	    }
+//	  ]
+//	}
 func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
@@ -97,13 +98,13 @@ func (server *HTTPServer) readAckList(writer http.ResponseWriter, request *http.
 //
 // An example response:
 //
-// {
-//   "rule": "string",
-//   "justification": "string",  <- can not be set by this call!!!
-//   "created_by": "string",
-//   "created_at": "2021-09-04T17:52:48.976Z",
-//   "updated_at": "2021-09-04T17:52:48.976Z"
-// }
+//	{
+//	  "rule": "string",
+//	  "justification": "string",  <- can not be set by this call!!!
+//	  "created_by": "string",
+//	  "created_at": "2021-09-04T17:52:48.976Z",
+//	  "updated_at": "2021-09-04T17:52:48.976Z"
+//	}
 func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set(contentTypeHeader, JSONContentType)
 
@@ -151,20 +152,20 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 //
 // An example request:
 //
-// {
-//   "rule_id": "string",
-//   "justification": "string"
-// }
+//	{
+//	  "rule_id": "string",
+//	  "justification": "string"
+//	}
 //
 // An example response:
 //
-// {
-//   "rule": "string",
-//   "justification": "string",  <- can not be set by this call!!!
-//   "created_by": "string",
-//   "created_at": "2021-09-04T17:52:48.976Z",
-//   "updated_at": "2021-09-04T17:52:48.976Z"
-// }
+//	{
+//	  "rule": "string",
+//	  "justification": "string",  <- can not be set by this call!!!
+//	  "created_by": "string",
+//	  "created_at": "2021-09-04T17:52:48.976Z",
+//	  "updated_at": "2021-09-04T17:52:48.976Z"
+//	}
 //
 // HTTP/1.1 200 OK is returned if rule has been already acked
 // HTTP/1.1 201 Created is returned if rule has been acked by this call
@@ -257,19 +258,19 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 //
 // An example of request:
 //
-// {
-//    "justification": "string"
-// }
+//	{
+//	   "justification": "string"
+//	}
 //
 // An example response:
 //
-// {
-//   "rule": "string",
-//   "justification": "string",
-//   "created_by": "string",
-//   "created_at": "2021-09-04T17:52:48.976Z",
-//   "updated_at": "2021-09-04T17:52:48.976Z"
-// }
+//	{
+//	  "rule": "string",
+//	  "justification": "string",
+//	  "created_by": "string",
+//	  "created_at": "2021-09-04T17:52:48.976Z",
+//	  "updated_at": "2021-09-04T17:52:48.976Z"
+//	}
 //
 // Additionally, if rule is not found, 404 is returned (not mentioned in
 // original REST API specification).

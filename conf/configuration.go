@@ -76,6 +76,7 @@ type MetricsConfiguration struct {
 var Config struct {
 	ServerConf        server.Configuration              `mapstructure:"server" toml:"server"`
 	ServicesConf      services.Configuration            `mapstructure:"services" toml:"services"`
+	RedisConf         services.RedisConfiguration       `mapstructure:"redis" toml:"redis"`
 	SetupConf         SetupConfiguration                `mapstructure:"setup" toml:"setup"`
 	MetricsConf       MetricsConfiguration              `mapstructure:"metrics" toml:"metrics"`
 	LoggingConf       logger.LoggingConfiguration       `mapstructure:"logging" toml:"logging"`
@@ -202,6 +203,11 @@ func GetKafkaZerologConfiguration() logger.KafkaZerologConfiguration {
 // GetAMSClientConfiguration returns the amsclient configuration
 func GetAMSClientConfiguration() amsclient.Configuration {
 	return Config.AMSClientConf
+}
+
+// GetRedisConfiguration returns Redis configuration
+func GetRedisConfiguration() services.RedisConfiguration {
+	return Config.RedisConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,

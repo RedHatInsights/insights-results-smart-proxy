@@ -103,6 +103,7 @@ type HTTPServer struct {
 	ErrorFoundChannel chan bool
 	ErrorChannel      chan error
 	Serv              *http.Server
+	redis             services.RedisInterface
 }
 
 // RequestModifier is a type of function which modifies request when proxying
@@ -122,6 +123,7 @@ type ProxyOptions struct {
 func New(config Configuration,
 	servicesConfig services.Configuration,
 	amsClient amsclient.AMSClient,
+	redis services.RedisInterface,
 	groupsChannel chan []groups.Group,
 	errorFoundChannel chan bool,
 	errorChannel chan error,
@@ -132,6 +134,7 @@ func New(config Configuration,
 		InfoParams:        make(map[string]string),
 		ServicesConfig:    servicesConfig,
 		amsClient:         amsClient,
+		redis:             redis,
 		GroupsChannel:     groupsChannel,
 		ErrorFoundChannel: errorFoundChannel,
 		ErrorChannel:      errorChannel,

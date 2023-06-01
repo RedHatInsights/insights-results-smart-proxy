@@ -200,7 +200,8 @@ func assertAPIRequest(
 	testServer := CreateHTTPServer(
 		serverConfig,
 		servicesConfig,
-		nil,
+		nil, // AMS client
+		nil, // Redis client
 		groupsChannel,
 		errorFoundChannel,
 		errorChannel,
@@ -217,6 +218,7 @@ func CreateHTTPServer(
 	serverConfig *server.Configuration,
 	servicesConfig *services.Configuration,
 	amsClient amsclient.AMSClient,
+	redis services.RedisInterface,
 	groupsChannel chan []groups.Group,
 	errorFoundChannel chan bool,
 	errorChannel chan error,
@@ -239,6 +241,7 @@ func CreateHTTPServer(
 		*serverConfig,
 		*servicesConfig,
 		amsClient,
+		redis,
 		groupsChannel,
 		errorFoundChannel,
 		errorChannel,
