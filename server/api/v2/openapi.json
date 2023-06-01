@@ -530,9 +530,6 @@
     },
     "/cluster/{clusterId}/request/{requestId}/report": {
       "get": {
-        "tags": [
-          "on-demand"
-        ],
         "summary": "Retrieve simplified reports for a given cluster and request IDs if available",
         "operationId": "getReportForRequest",
         "description": "For the given cluster and request IDs, return the simplified report, if any",
