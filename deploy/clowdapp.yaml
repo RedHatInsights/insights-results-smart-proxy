@@ -94,7 +94,6 @@ objects:
                 secretKeyRef:
                   name: cache-writer-redis-credentials
                   key: password
-                  optional: true
             - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__TIMEOUT_SECONDS
               value: ${INSIGHTS_REDIS_TIMEOUT_SECONDS}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
