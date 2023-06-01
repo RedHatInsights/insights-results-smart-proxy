@@ -32,7 +32,7 @@ var (
 	defaultRedisConf services.RedisConfiguration
 )
 
-// set default conf
+// set default configuration
 func init() {
 	ctx = context.Background()
 
