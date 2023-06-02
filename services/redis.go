@@ -26,10 +26,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	redisExecutionFailedMsg = "unexpected response from Redis server"
-)
-
 var (
 	// RequestIDsScanPattern is a glob-style pattern to find all matching keys. Uses ?* instead of * to avoid
 	// matching "organization:%v:cluster:%v:request:"
