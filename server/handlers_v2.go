@@ -51,6 +51,13 @@ const (
 	// OkMsg is in status field with HTTP 200 response
 	OkMsg       = "ok"
 	selectorStr = "selector"
+	// StatusProcessed is a message returned for already processed reports stored in Redis
+	StatusProcessed = "processed"
+	// RequestsForClusterNotFound is a message returned when no request IDs were found for a given clusterID
+	RequestsForClusterNotFound = "Requests for cluster not found"
+	// RequestIDNotFound is returned when the requested request ID was not found in the list of request IDs
+	// for given cluster
+	RequestIDNotFound = "Request ID not found for given org_id and cluster_id"
 )
 
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
@@ -1119,4 +1126,71 @@ func (server *HTTPServer) processClustersDetailResponse(
 	}
 
 	return responses.Send(http.StatusOK, writer, response)
+}
+
+// readStatusOfRequestID method implements endpoint that should return a status
+// for given request ID.
+func (server *HTTPServer) readStatusOfRequestID(writer http.ResponseWriter, request *http.Request) {
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	if !successful {
+		// error handled by function
+		return
+	}
+
+	requestID, err := readRequestID(writer, request)
+	if err != nil {
+		// error handled by function
+		return
+	}
+
+	// get request ID list from Redis using SCAN command
+	requestIDsForCluster, err := server.redis.GetRequestIDsForClusterID(orgID, clusterID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	if len(requestIDsForCluster) == 0 {
+		err := responses.SendNotFound(writer, RequestsForClusterNotFound)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return
+	}
+
+	// try to find the required request ID in list of requests IDs from Redis
+	var found bool
+	for _, storedRequestID := range requestIDsForCluster {
+		if storedRequestID == requestID {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		err := responses.SendNotFound(writer, RequestIDNotFound)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return
+	}
+
+	// prepare data structure
+	responseData := map[string]interface{}{}
+	responseData["cluster"] = string(clusterID)
+	responseData["requestID"] = requestID
+	responseData["status"] = StatusProcessed
+
+	// send response to client
+	err = responses.SendOK(writer, responseData)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
 }

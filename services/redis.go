@@ -18,10 +18,11 @@ package services
 
 import (
 	"context"
-	"errors"
-	"time"
+	"fmt"
+	"strings"
 
-	redisV9 "github.com/redis/go-redis/v9"
+	"github.com/RedHatInsights/insights-operator-utils/redis"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -29,68 +30,77 @@ const (
 	redisExecutionFailedMsg = "unexpected response from Redis server"
 )
 
+var (
+	// RequestIDsScanPattern is a glob-style pattern to find all matching keys. Uses ?* instead of * to avoid
+	// matching "organization:%v:cluster:%v:request:"
+	RequestIDsScanPattern = "organization:%v:cluster:%v:request:?*"
+)
+
 // RedisInterface represents interface for functions executed against a Redis server
 type RedisInterface interface {
+	// HealthCheck defined in utils
 	HealthCheck() error
+	GetRequestIDsForClusterID(
+		types.OrgID,
+		types.ClusterName,
+	) ([]types.RequestID, error)
 }
 
-// RedisClient is an implementation of the Redis client for Redis server
+// RedisClient is a local type which embeds the imported redis.Client to include its own functionality
 type RedisClient struct {
-	Client *redisV9.Client
-}
-
-// explicit checks for config params are done because the go-redis package lets us create a client
-// with incorrect params, so errors are only found during subsequent command executions
-func createRedisClient(conf RedisConfiguration) (*redisV9.Client, error) {
-	if conf.RedisEndpoint == "" {
-		err := errors.New("Redis server address must not be empty")
-		log.Error().Err(err)
-		return nil, err
-	}
-
-	if conf.RedisDatabase < 0 || conf.RedisDatabase > 15 {
-		err := errors.New("Redis selected database must be a value in the range 0-15")
-		log.Error().Err(err)
-		return nil, err
-	}
-
-	log.Info().Msgf("creating redis client. endpoint %v, selected DB %d, timeout seconds %d",
-		conf.RedisEndpoint, conf.RedisDatabase, conf.RedisTimeoutSeconds,
-	)
-
-	// DB is configurable in case we want to change data structure
-	c := redisV9.NewClient(&redisV9.Options{
-		Addr:        conf.RedisEndpoint,
-		DB:          conf.RedisDatabase,
-		Password:    conf.RedisPassword,
-		ReadTimeout: time.Duration(conf.RedisTimeoutSeconds) * time.Second,
-	})
-
-	return c, nil
+	redis.Client
 }
 
 // NewRedisClient creates a new Redis client based on configuration and returns RedisInterface
 func NewRedisClient(conf RedisConfiguration) (RedisInterface, error) {
-	client, err := createRedisClient(conf)
+	client, err := redis.CreateRedisClient(
+		conf.RedisEndpoint,
+		conf.RedisDatabase,
+		conf.RedisPassword,
+		conf.RedisTimeoutSeconds,
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &RedisClient{
-		Client: client,
+		redis.Client{Connection: client},
 	}, nil
 }
 
-// HealthCheck executes PING command to check for liveness status of Redis server
-func (redis *RedisClient) HealthCheck() (err error) {
+// GetRequestIDsForClusterID retrieves a list of request IDs from Redis.
+// "List" of request IDs is in the form of keys with empty values in the following structure:
+// organization:{org_id}:cluster:{cluster_id}:request:{request_id1}.
+func (redis *RedisClient) GetRequestIDsForClusterID(
+	orgID types.OrgID,
+	clusterID types.ClusterName,
+) (requestIDs []types.RequestID, err error) {
 	ctx := context.Background()
 
-	// .Result() gets value and error of executed command at once
-	res, err := redis.Client.Ping(ctx).Result()
-	if err != nil || res != "PONG" {
-		log.Error().Err(err).Msg("Redis PING command failed")
-		return errors.New(redisExecutionFailedMsg)
+	scanKey := fmt.Sprintf(RequestIDsScanPattern, orgID, clusterID)
+
+	var cursor uint64
+	for {
+		var keys []string
+		var err error
+		keys, cursor, err = redis.Client.Connection.Scan(ctx, cursor, scanKey, 0).Result()
+		if err != nil {
+			log.Error().Err(err).Msgf("failed to execute SCAN command for key '%v' and cursor '%d'", scanKey, cursor)
+			return nil, err
+		}
+
+		// get last part of key == request_id
+		for _, key := range keys {
+			keySliced := strings.Split(key, ":")
+			requestID := keySliced[len(keySliced)-1]
+			requestIDs = append(requestIDs, types.RequestID(requestID))
+		}
+
+		if cursor == 0 {
+			break
+		}
 	}
+	log.Info().Msgf("retrieved %d request IDs for cluster_id %v: %v", len(requestIDs), clusterID, requestIDs)
 
 	return
 }

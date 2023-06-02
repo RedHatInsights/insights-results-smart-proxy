@@ -55,6 +55,13 @@ const (
 	// ContentV2 returns all the static content available for the user
 	ContentV2 = "content"
 
+	// Endpoints to manipulate with simplified rule results stored
+	// independently under "tracker_id" identifier in Redis
+
+	// StatusOfRequestID should return status of processing one given
+	// request ID
+	StatusOfRequestID = "clusters/{cluster}/request/{request_id}/status"
+
 	// Endpoints to acknowledge rule and to manipulate with
 	// acknowledgements.
 
@@ -104,6 +111,9 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 	// Rules related endpoints
 	server.addV2RuleEndpointsToRouter(router, apiV2Prefix, aggregatorBaseEndpoint)
 
+	// Endpoints requiring Redis to work
+	server.addV2RedisEndpointsToRouter(router, apiV2Prefix)
+
 	// Prometheus metrics
 	router.Handle(apiV2Prefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
 
@@ -115,6 +125,12 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 		openAPIv2URL,
 		httputils.CreateOpenAPIHandler(server.Config.APIv2SpecFile, server.Config.Debug, true),
 	).Methods(http.MethodGet)
+}
+
+// addV2RedisEndpointsToRouter method registers handlers for endpoints that depend on our Redis storage
+// to provide responses.
+func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPrefix string) {
+	router.HandleFunc(apiPrefix+StatusOfRequestID, server.readStatusOfRequestID).Methods(http.MethodGet)
 }
 
 // addV2ReportsEndpointsToRouter method registers handlers for endpoints that

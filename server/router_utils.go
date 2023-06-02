@@ -15,6 +15,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -37,6 +38,8 @@ const (
 	ImpactingParam = "impacting"
 	// RuleIDParamName parameter name in the URL
 	RuleIDParamName = "rule_id"
+	// RequestIDParam parameter name in the URL for request IDs
+	RequestIDParam = "request_id"
 )
 
 func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (ctypes.RuleID, ctypes.ErrorKey, error) {
@@ -171,4 +174,42 @@ func readUserAgentHeaderProduct(request *http.Request) (userAgentProduct string)
 	// we're only interested in the product name
 	userAgentProduct = userAgentSplit[0]
 	return
+}
+
+// ValidateRequestID checks that the request ID has proper format.
+// Converted request ID is returned if everything is okay, otherwise an error is returned.
+func ValidateRequestID(requestID string) (types.RequestID, error) {
+	IDValidator := regexp.MustCompile(`^[a-zA-Z0-9]+$`)
+
+	if !IDValidator.MatchString(requestID) {
+		message := fmt.Sprintf("invalid request ID: '%s'", requestID)
+		err := errors.New(message)
+		log.Error().Err(err).Msg(message)
+		return "", err
+	}
+
+	return types.RequestID(requestID), nil
+}
+
+// readRequestID retrieves request ID from request
+// if it's not possible, it writes http error to the writer and returns error
+func readRequestID(writer http.ResponseWriter, request *http.Request) (types.RequestID, error) {
+	requestID, err := httputils.GetRouterParam(request, RequestIDParam)
+	if err != nil {
+		handleServerError(writer, err)
+		return "", err
+	}
+
+	validatedRequestID, err := ValidateRequestID(requestID)
+	if err != nil {
+		err := &RouterParsingError{
+			paramName:  RequestIDParam,
+			paramValue: requestID,
+			errString:  err.Error(),
+		}
+		handleServerError(writer, err)
+		return "", err
+	}
+
+	return validatedRequestID, nil
 }

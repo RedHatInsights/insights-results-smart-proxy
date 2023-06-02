@@ -17,123 +17,128 @@
 package services_test
 
 import (
-	"context"
 	"errors"
+	"fmt"
 	"testing"
-	"time"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
-	"github.com/go-redis/redismock/v9"
+	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
+	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	ctx              context.Context
-	defaultRedisConf services.RedisConfiguration
-)
-
-// set default configuration
-func init() {
-	ctx = context.Background()
-
-	defaultRedisConf = services.RedisConfiguration{
-		RedisEndpoint:       "localhost:6379",
-		RedisDatabase:       0,
-		RedisPassword:       "psw",
-		RedisTimeoutSeconds: 30,
-	}
-}
-
-func getMockRedis() (
-	mockClient services.RedisClient, mockServer redismock.ClientMock,
-) {
-	client, mockServer := redismock.NewClientMock()
-	mockClient = services.RedisClient{
-		Client: client,
-	}
-	return
-}
-
-func redisExpectationsMet(t *testing.T, mock redismock.ClientMock) {
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Error(err)
-	}
-}
-
 func TestNewRedisClient(t *testing.T) {
-	client, err := services.NewRedisClient(defaultRedisConf)
+	client, err := services.NewRedisClient(helpers.DefaultRedisConf)
 	assert.NotNil(t, client)
 	assert.NoError(t, err)
 }
 
-func TestNewRedisClientFail(t *testing.T) {
-	conf := defaultRedisConf
-	conf.RedisDatabase = -1
-
+func TestNewRedisClientBadAddress(t *testing.T) {
+	conf := helpers.DefaultRedisConf
+	conf.RedisEndpoint = ""
+	// db index == -1
 	client, err := services.NewRedisClient(conf)
 	assert.Nil(t, client)
 	assert.Error(t, err)
 }
 
-func TestCreateRedisClientOK(t *testing.T) {
-	client, err := services.CreateRedisClient(defaultRedisConf)
-	assert.NoError(t, err)
-
-	options := client.Options()
-	assert.NoError(t, err)
-	assert.Equal(t, options.Addr, defaultRedisConf.RedisEndpoint)
-	assert.Equal(t, options.DB, defaultRedisConf.RedisDatabase)
-	assert.Equal(t, options.Password, defaultRedisConf.RedisPassword)
-	assert.Equal(t, options.ReadTimeout, time.Duration(defaultRedisConf.RedisTimeoutSeconds)*time.Second)
-}
-
-func TestCreateRedisClientBadAddress(t *testing.T) {
-	conf := defaultRedisConf
-	conf.RedisEndpoint = ""
-	client, err := services.CreateRedisClient(conf)
+func TestNewRedisClientDBIndexOutOfRange(t *testing.T) {
+	conf := helpers.DefaultRedisConf
+	conf.RedisDatabase = -1
+	// db index == -1
+	client, err := services.NewRedisClient(conf)
 	assert.Nil(t, client)
 	assert.Error(t, err)
 }
 
-func TestCreateRedisClientDBIndexOutOfRange(t *testing.T) {
-	conf := defaultRedisConf
-	// Redis supports "only" 16 different databases with indices 0-15
-	conf.RedisDatabase = 16
-	client, err := services.CreateRedisClient(conf)
-	assert.Nil(t, client)
-	assert.Error(t, err)
-}
+func TestRedisGetRequestIDsForClusterIDEmpty(t *testing.T) {
+	client, server := helpers.GetMockRedis()
 
-func TestRedisHealthCheckOK(t *testing.T) {
-	client, server := getMockRedis()
+	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
+	server.ExpectScan(0, expectedKey, 0).SetVal([]string{}, 0)
 
-	server.ExpectPing().SetVal("PONG")
-
-	err := client.HealthCheck()
+	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
 	assert.NoError(t, err)
+	assert.Len(t, requestIDs, 0)
 
-	redisExpectationsMet(t, server)
+	helpers.RedisExpectationsMet(t, server)
 }
 
-func TestRedisHealthCheckError(t *testing.T) {
-	client, server := getMockRedis()
+func TestRedisGetRequestIDsForClusterIDResultsSinglePage(t *testing.T) {
+	client, server := helpers.GetMockRedis()
 
-	server.ExpectPing().SetErr(errors.New("mock error"))
+	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
 
-	err := client.HealthCheck()
-	assert.Error(t, err)
+	expectedResponseKeys := make([]string, 2)
+	for i := range expectedResponseKeys {
+		expectedResponseKeys[i] = fmt.Sprintf("organization:%v:cluster:%v:request:requestID%v", testdata.OrgID, testdata.ClusterName1, i)
+	}
+	// all results are in a single page -- cursor == 0, so no more calls are expected
+	server.ExpectScan(0, expectedKey, 0).SetVal(expectedResponseKeys, 0)
 
-	redisExpectationsMet(t, server)
+	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
+	assert.NoError(t, err)
+	assert.Len(t, requestIDs, 2)
+	assert.ElementsMatch(t, requestIDs, []types.RequestID{"requestID0", "requestID1"})
+
+	helpers.RedisExpectationsMet(t, server)
 }
 
-func TestRedisHealthCheckBadResponse(t *testing.T) {
-	client, server := getMockRedis()
+func TestRedisGetRequestIDsForClusterIDResultsMultiplePages(t *testing.T) {
+	client, server := helpers.GetMockRedis()
 
-	// cover 2nd condition
-	server.ExpectPing().SetVal("ka-boom")
+	expectedResponseKeys := make([]string, 4)
+	for i := range expectedResponseKeys {
+		expectedResponseKeys[i] = fmt.Sprintf("organization:%v:cluster:%v:request:requestID%v", testdata.OrgID, testdata.ClusterName1, i)
+	}
 
-	err := client.HealthCheck()
+	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
+	server.ExpectScan(0, expectedKey, 0).SetVal([]string{expectedResponseKeys[0], expectedResponseKeys[1]}, 42)
+	// returned cursor is expected to be used in the next call
+	server.ExpectScan(42, expectedKey, 0).SetVal([]string{expectedResponseKeys[2]}, 8)
+	// returned cursor is expected to be used in the next call
+	server.ExpectScan(8, expectedKey, 0).SetVal([]string{expectedResponseKeys[3]}, 0)
+	// returned cursor == 0, so no more calls are expected
+
+	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
+	assert.NoError(t, err)
+	assert.Len(t, requestIDs, len(expectedResponseKeys))
+	assert.ElementsMatch(t, requestIDs, []types.RequestID{"requestID0", "requestID1", "requestID2", "requestID3"})
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestRedisGetRequestIDsForClusterIDError(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
+	server.ExpectScan(0, expectedKey, 0).SetErr(errors.New("ka-boom"))
+
+	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
 	assert.Error(t, err)
+	assert.Len(t, requestIDs, 0)
 
-	redisExpectationsMet(t, server)
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestRedisGetRequestIDsForClusterIDErrorInFollowingCalls(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
+
+	expectedResponseKeys := make([]string, 2)
+	for i := range expectedResponseKeys {
+		expectedResponseKeys[i] = fmt.Sprintf("organization:%v:cluster:%v:request:requestID%v", testdata.OrgID, testdata.ClusterName1, i)
+	}
+
+	server.ExpectScan(0, expectedKey, 0).SetVal([]string{expectedResponseKeys[0], expectedResponseKeys[1]}, 42)
+	server.ExpectScan(42, expectedKey, 0).SetErr(errors.New("ka-boom"))
+
+	// function should return empty list + error if we can't retrieve the whole data set
+	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
+	assert.Error(t, err)
+	assert.Len(t, requestIDs, 0)
+
+	helpers.RedisExpectationsMet(t, server)
 }

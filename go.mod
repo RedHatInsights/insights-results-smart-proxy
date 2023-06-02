@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20230515093827-cefc7fd75fc7
-	github.com/RedHatInsights/insights-operator-utils v1.24.7
+	github.com/RedHatInsights/insights-operator-utils v1.24.9
 	github.com/RedHatInsights/insights-results-aggregator v1.3.4
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.8
 	github.com/RedHatInsights/insights-results-types v1.3.22
@@ -17,7 +17,6 @@ require (
 	github.com/openshift-online/ocm-sdk-go v0.1.238
 	github.com/prometheus/client_golang v1.15.1
 	github.com/redhatinsights/app-common-go v1.6.3
-	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.3
@@ -53,7 +52,7 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/golang/snappy v0.0.2 // indirect
+	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
@@ -94,6 +93,7 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
+	github.com/redis/go-redis/v9 v9.0.5 // indirect
 	github.com/segmentio/kafka-go v0.4.10 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect

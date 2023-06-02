@@ -28,6 +28,7 @@ import (
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
@@ -769,5 +770,191 @@ func TestHTTPServer_GetSingleClusterInfoClusterNotFound(t *testing.T) {
 				StatusCode: http.StatusNotFound,
 			},
 		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReadStatusOfRequestID_NoRequestsForCluster(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
+		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{}, 0)
+
+		// no request IDs found
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.StatusOfRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       fmt.Sprintf(`{"status":"%v"}`, server.RequestsForClusterNotFound),
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReadStatusOfRequestID_RequestNotFound(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
+		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{"requestIDNotTheOne", "requestIDAlsoNotTheOne"}, 0)
+
+		// request IDs found but don't match the requested one
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.StatusOfRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       fmt.Sprintf(`{"status":"%v"}`, server.RequestIDNotFound),
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReadStatusOfRequestID_BadRequestClusterID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// invalid clusterID
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.StatusOfRequestID,
+				EndpointArgs:       []interface{}{testdata.BadClusterName, "requestID1"}, // bad cluster name
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status":"Error during parsing param 'cluster' with value 'aaaa'. Error: 'invalid UUID length: 4'"}`,
+			},
+		)
+
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReadStatusOfRequestID_BadRequestID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// invalid requestID in endpoint arg
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.StatusOfRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "_"}, // invalid requestID
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status":"Error during parsing param 'request_id' with value '_'. Error: 'invalid request ID: '_''"}`,
+			},
+		)
+
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReadStatusOfRequestID_SingleRequestID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
+		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{"requestID1"}, 0)
+
+		expectedResponse := fmt.Sprintf(`{"cluster":"%v","requestID":"%v","status":"processed"}`, testdata.ClusterName, "requestID1")
+
+		// given request ID found in the list
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.StatusOfRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_ReadStatusOfRequestID_RequestIDOnSecondPage(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
+		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{"requestID1"}, 42)
+		// requested request ID is found on the 2nd page returned from Redis (more Redis scenarios covered in services package)
+		redisServer.ExpectScan(42, expectedKey, 0).SetVal([]string{"requestID123"}, 0)
+
+		expectedResponse := fmt.Sprintf(`{"cluster":"%v","requestID":"%v","status":"processed"}`, testdata.ClusterName, "requestID123")
+
+		// given request ID found in the list
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.StatusOfRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID123"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
 	}, testTimeout)
 }
