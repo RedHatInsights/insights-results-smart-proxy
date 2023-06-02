@@ -3832,7 +3832,7 @@ func TestHTTPServer_GroupsEndpoint(t *testing.T) {
 			StatusCode: http.StatusOK,
 			Body:       expectedBody,
 		})
-	}, testTimeout)
+	}, 30*time.Second)
 }
 
 func TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
@@ -3858,7 +3858,7 @@ func TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
 		})
-	}, testTimeout)
+	}, 30*time.Second)
 }
 
 // TestServeInfoMap checks the REST API server behaviour for info endpoint
