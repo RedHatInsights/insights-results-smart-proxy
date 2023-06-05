@@ -54,7 +54,7 @@ const (
 	// StatusProcessed is a message returned for already processed reports stored in Redis
 	StatusProcessed = "processed"
 	// RequestsForClusterNotFound is a message returned when no request IDs were found for a given clusterID
-	RequestsForClusterNotFound = "No requests found for given cluster"
+	RequestsForClusterNotFound = "Requests for cluster not found"
 	// RequestIDNotFound is returned when the requested request ID was not found in the list of request IDs
 	// for given cluster
 	RequestIDNotFound = "Request ID not found for given org_id and cluster_id"
@@ -1186,6 +1186,101 @@ func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter,
 	responseData["cluster"] = string(clusterID)
 	responseData["requestID"] = requestID
 	responseData["status"] = StatusProcessed
+
+	// send response to client
+	err = responses.SendOK(writer, responseData)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getRequestsForCluster method implements endpoint that should return a list of
+// all request IDs and their details for given cluster
+func (server *HTTPServer) getRequestsForCluster(writer http.ResponseWriter, request *http.Request) {
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	if !successful {
+		// error handled by function
+		return
+	}
+
+	// get request ID list from Redis using SCAN command
+	requestIDsForCluster, err := server.redis.GetRequestIDsForClusterID(orgID, clusterID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	if len(requestIDsForCluster) == 0 {
+		err := responses.SendNotFound(writer, RequestsForClusterNotFound)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return
+	}
+
+	// get data for each request ID. Omit missing keys in case the data expired in the meantime
+	requestIDsData, err := server.redis.GetTimestampsForRequestIDs(orgID, clusterID, requestIDsForCluster, true)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// prepare data structure
+	responseData := map[string]interface{}{}
+	responseData["cluster"] = string(clusterID)
+	responseData["requests"] = requestIDsData
+	responseData["status"] = OkMsg
+
+	// send response to client
+	err = responses.SendOK(writer, responseData)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// getRequestsForCluster method implements endpoint that should return a list of
+// request IDs and their details for given cluster and given list of request IDs provided in request body
+func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseWriter, request *http.Request) {
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	if !successful {
+		// error handled by function
+		return
+	}
+
+	// get request ID list from request body
+	requestIDsForCluster, err := readRequestIDList(writer, request)
+	if err != nil {
+		// error handled by function
+		return
+	}
+
+	// get data for each request ID. Don't omit missing keys, because requester wants to know which are valid
+	requestIDsData, err := server.redis.GetTimestampsForRequestIDs(orgID, clusterID, requestIDsForCluster, false)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// prepare data structure
+	responseData := map[string]interface{}{}
+	responseData["cluster"] = string(clusterID)
+	responseData["requests"] = requestIDsData
+	responseData["status"] = OkMsg
 
 	// send response to client
 	err = responses.SendOK(writer, responseData)

@@ -15,6 +15,7 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -212,4 +213,41 @@ func readRequestID(writer http.ResponseWriter, request *http.Request) (types.Req
 	}
 
 	return validatedRequestID, nil
+}
+
+func readRequestIDList(writer http.ResponseWriter, request *http.Request) (
+	[]types.RequestID, error,
+) {
+	var requestList []string
+	// check if there's any body provided in the request sent by client
+	if request.ContentLength <= 0 {
+		err := &NoBodyError{}
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	err := json.NewDecoder(request.Body).Decode(&requestList)
+	if err != nil {
+		log.Error().Err(err).Msg("unable to retrieve request ID list from request body")
+		err := &BadBodyContent{}
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	var validatedRequestList []types.RequestID
+	for _, requestID := range requestList {
+		validatedRequestID, err := ValidateRequestID(requestID)
+		if err != nil {
+			err := &RouterParsingError{
+				paramName:  RequestIDParam,
+				paramValue: requestID,
+				errString:  err.Error(),
+			}
+			handleServerError(writer, err)
+			return nil, err
+		}
+
+		validatedRequestList = append(validatedRequestList, validatedRequestID)
+	}
+	return validatedRequestList, nil
 }
