@@ -54,7 +54,7 @@ const (
 	// StatusProcessed is a message returned for already processed reports stored in Redis
 	StatusProcessed = "processed"
 	// RequestsForClusterNotFound is a message returned when no request IDs were found for a given clusterID
-	RequestsForClusterNotFound = "Requests for cluster not found"
+	RequestsForClusterNotFound = "No requests found for given cluster"
 	// RequestIDNotFound is returned when the requested request ID was not found in the list of request IDs
 	// for given cluster
 	RequestIDNotFound = "Request ID not found for given org_id and cluster_id"
