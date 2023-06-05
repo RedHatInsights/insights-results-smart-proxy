@@ -17,6 +17,7 @@ require (
 	github.com/openshift-online/ocm-sdk-go v0.1.238
 	github.com/prometheus/client_golang v1.15.1
 	github.com/redhatinsights/app-common-go v1.6.3
+	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.3
@@ -93,7 +94,6 @@ require (
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
-	github.com/redis/go-redis/v9 v9.0.5 // indirect
 	github.com/segmentio/kafka-go v0.4.10 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
