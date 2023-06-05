@@ -48,6 +48,10 @@ type OrgID = types.OrgID
 // ImpactingFlag controls the behaviour of 'impacting' param on GET /rule/
 type ImpactingFlag int
 
+// RequestID is used to store the request ID supplied in input Kafka records as
+// a unique identifier of payloads. Empty string represents a missing request ID.
+type RequestID string
+
 // RuleWithContentResponse represents a single rule in the response of /report endpoint
 type RuleWithContentResponse struct {
 	RuleID          types.RuleID    `json:"rule_id"`
