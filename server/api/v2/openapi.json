@@ -400,6 +400,7 @@
       "post": {
         "summary": "Filtered list of stored requests for given cluster ID",
         "description": "A list of requests for given cluster, filtered by the provided request IDs, if any.",
+        "operationId": "getRequestsForClusterPostVariant",
         "parameters": [
           {
             "name": "clusterId",
