@@ -22,9 +22,6 @@ import (
 )
 
 func (s *RulesWithContentStorage) getRuleContent(ruleID ctypes.RuleID) (*ctypes.RuleContent, bool) {
-	s.RLock()
-	defer s.RUnlock()
-
 	res, found := s.rules[ruleID]
 	return res, found
 }
