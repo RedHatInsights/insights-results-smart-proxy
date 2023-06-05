@@ -1128,9 +1128,9 @@ func (server *HTTPServer) processClustersDetailResponse(
 	return responses.Send(http.StatusOK, writer, response)
 }
 
-// readStatusOfRequestID method implements endpoint that should return a status
+// getRequestStatusForCluster method implements endpoint that should return a status
 // for given request ID.
-func (server *HTTPServer) readStatusOfRequestID(writer http.ResponseWriter, request *http.Request) {
+func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)

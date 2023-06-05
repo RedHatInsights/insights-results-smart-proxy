@@ -773,7 +773,7 @@ func TestHTTPServer_GetSingleClusterInfoClusterNotFound(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReadStatusOfRequestID_NoRequestsForCluster(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_NoRequestsForCluster(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -804,7 +804,7 @@ func TestHTTPServer_ReadStatusOfRequestID_NoRequestsForCluster(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReadStatusOfRequestID_RequestNotFound(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_RequestNotFound(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -835,7 +835,7 @@ func TestHTTPServer_ReadStatusOfRequestID_RequestNotFound(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReadStatusOfRequestID_BadRequestClusterID(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_BadRequestClusterID(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -863,7 +863,7 @@ func TestHTTPServer_ReadStatusOfRequestID_BadRequestClusterID(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReadStatusOfRequestID_BadRequestID(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_BadRequestID(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -891,7 +891,7 @@ func TestHTTPServer_ReadStatusOfRequestID_BadRequestID(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReadStatusOfRequestID_SingleRequestID(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_SingleRequestID(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -924,7 +924,7 @@ func TestHTTPServer_ReadStatusOfRequestID_SingleRequestID(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_ReadStatusOfRequestID_RequestIDOnSecondPage(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_RequestIDOnSecondPage(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 

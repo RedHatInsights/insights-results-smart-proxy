@@ -130,7 +130,7 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 // addV2RedisEndpointsToRouter method registers handlers for endpoints that depend on our Redis storage
 // to provide responses.
 func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPrefix string) {
-	router.HandleFunc(apiPrefix+StatusOfRequestID, server.readStatusOfRequestID).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+StatusOfRequestID, server.getRequestStatusForCluster).Methods(http.MethodGet)
 }
 
 // addV2ReportsEndpointsToRouter method registers handlers for endpoints that
