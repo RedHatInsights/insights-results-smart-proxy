@@ -269,3 +269,11 @@ type ClustersDetailResponse struct {
 	Data   ClustersDetailData `json:"data"`
 	Status string             `json:"status"`
 }
+
+// RequestStatus contains description about one request ID
+type RequestStatus struct {
+	RequestID string `json:"requestID" redis:"request_id"`
+	Valid     bool   `json:"valid" redis:"-"`
+	Received  string `json:"received" redis:"received_timestamp"`
+	Processed string `json:"processed" redis:"processed_timestamp"`
+}
