@@ -1243,7 +1243,6 @@ func loadMockRuleContentDir(ruleContentDir *ctypes.RuleContentDirectory) error {
 	if err != nil {
 		return err
 	}
-	content.ResetContent()
 	content.LoadRuleContent(ruleContentDir)
 	return nil
 }

@@ -16,6 +16,7 @@ package server_test
 
 import (
 	"fmt"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 	"net/http"
 	"testing"
 
@@ -23,7 +24,6 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
@@ -31,7 +31,7 @@ import (
 func TestEnableEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
-		defer content.ResetContent()
+
 		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 		assert.Nil(t, err)
 		expectedBody := `{"status": "ok"}`
@@ -74,7 +74,7 @@ func TestEnableEndpoint(t *testing.T) {
 func TestDisableEndpoint(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
-		defer content.ResetContent()
+
 		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 		assert.Nil(t, err)
 		expectedBody := `{"status": "ok"}`
@@ -115,6 +115,8 @@ func TestDisableEndpoint(t *testing.T) {
 }
 
 func TestEnableEndpointBadErrorKey(t *testing.T) {
+	err := loadMockRuleContentDir(&ctypes.RuleContentDirectory{})
+	assert.Nil(t, err)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		expectedBody := fmt.Sprintf(
 			`{"status":"Item with ID %s/%s was not found in the storage"}`,
@@ -144,6 +146,8 @@ func TestEnableEndpointBadErrorKey(t *testing.T) {
 }
 
 func TestDisableEndpointBadErrorKey(t *testing.T) {
+	err := loadMockRuleContentDir(&ctypes.RuleContentDirectory{})
+	assert.Nil(t, err)
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		expectedBody := fmt.Sprintf(
 			`{"status":"Item with ID %s/%s was not found in the storage"}`,
