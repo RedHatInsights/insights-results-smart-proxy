@@ -28,7 +28,6 @@ import (
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
@@ -94,7 +93,6 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 	clusters := []types.ClusterName{data.ClusterInfoResult2Clusters[0].ID, data.ClusterInfoResult2Clusters[1].ID}
 
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -223,7 +221,6 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_ImpactedClusterDi
 	clusters := []types.ClusterName{data.ClusterInfoResult2Clusters[0].ID, data.ClusterInfoResult2Clusters[1].ID}
 
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -335,7 +332,6 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 	clusters := []types.ClusterName{testdata.ClusterName, data.ClusterInfoResult2Clusters[1].ID}
 
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -444,7 +440,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 }
 
 func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
-	defer content.ResetContent()
+
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
@@ -520,7 +516,6 @@ func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
 // forwarded to the client
 func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -585,7 +580,6 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
 // forwarded to the client
 func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -654,7 +648,6 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 // forwarded to the client
 func TestHTTPServer_ClustersDetailEndpointAggregatorResponse500(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)

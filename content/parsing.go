@@ -42,6 +42,7 @@ var (
 
 // LoadRuleContent loads the parsed rule content into the storage
 func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
+	s := getEmptyRulesWithContentMap()
 	for i, rule := range contentDir.Rules {
 		ruleID := ctypes.RuleID(rule.Plugin.PythonModule)
 
@@ -74,9 +75,9 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 				ruleTmp.ErrorKeys[errorKey] = ruleTmpErrorKey
 			}
 			// sets "plugin" level, containing usual fields + list of error keys
-			rulesWithContentStorage.SetRule(ruleID, &ruleTmp)
+			s.SetRule(ruleID, &ruleTmp)
 
-			rulesWithContentStorage.SetRuleWithContent(ruleID, ctypes.ErrorKey(errorKey), &types.RuleWithContent{
+			s.SetRuleWithContent(ruleID, ctypes.ErrorKey(errorKey), &types.RuleWithContent{
 				Module:         ruleID,
 				Name:           rule.Plugin.Name,
 				Generic:        errorProperties.Generic,
@@ -98,6 +99,7 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 			})
 		}
 	}
+	rulesWithContentStorage = s
 }
 
 // According to rule content specification, it's explicitly defined as floor((impact + likelihood) / 2), which

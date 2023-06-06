@@ -35,13 +35,9 @@ var (
 	ruleContentDirectory      *ctypes.RuleContentDirectory
 	ruleContentDirectoryReady = sync.NewCond(&sync.Mutex{})
 	stopUpdateContentLoop     = make(chan struct{})
-	rulesWithContentStorage   = RulesWithContentStorage{
-		rules:                      map[ctypes.RuleID]*ctypes.RuleContent{},
-		rulesWithContent:           map[ruleIDAndErrorKey]*types.RuleWithContent{},
-		recommendationsWithContent: map[ctypes.RuleID]*types.RuleWithContent{},
-	}
-	contentDirectoryTimeout = 5 * time.Second
-	dotReport               = ".report"
+	rulesWithContentStorage   = getEmptyRulesWithContentMap()
+	contentDirectoryTimeout   = 5 * time.Second
+	dotReport                 = ".report"
 )
 
 type ruleIDAndErrorKey struct {
@@ -52,8 +48,6 @@ type ruleIDAndErrorKey struct {
 // RulesWithContentStorage is a key:value structure to store processed rules.
 // It's thread safe
 type RulesWithContentStorage struct {
-	// TODO: consider naming this attribute
-	sync.RWMutex
 	rules            map[ctypes.RuleID]*ctypes.RuleContent
 	rulesWithContent map[ruleIDAndErrorKey]*types.RuleWithContent
 	// recommendationsWithContent map has the same contents as rulesWithContent but the keys
@@ -72,9 +66,6 @@ func SetRuleContentDirectory(contentDir *ctypes.RuleContentDirectory) {
 func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 	ruleID ctypes.RuleID, errorKey ctypes.ErrorKey,
 ) (*types.RuleWithContent, bool) {
-	s.RLock()
-	defer s.RUnlock()
-
 	res, found := s.rulesWithContent[ruleIDAndErrorKey{
 		RuleID:   ruleID,
 		ErrorKey: errorKey,
@@ -86,18 +77,12 @@ func (s *RulesWithContentStorage) GetRuleWithErrorKeyContent(
 func (s *RulesWithContentStorage) GetContentForRecommendation(
 	ruleID ctypes.RuleID,
 ) (*types.RuleWithContent, bool) {
-	s.RLock()
-	defer s.RUnlock()
-
 	res, found := s.recommendationsWithContent[ruleID]
 	return res, found
 }
 
 // GetAllContentV1 returns content for rule for api v1
 func (s *RulesWithContentStorage) GetAllContentV1() []types.RuleContentV1 {
-	s.RLock()
-	defer s.RUnlock()
-
 	res := make([]types.RuleContentV1, 0, len(s.rules))
 	for _, rule := range s.rules {
 		res = append(res, RuleContentToV1(rule))
@@ -108,9 +93,6 @@ func (s *RulesWithContentStorage) GetAllContentV1() []types.RuleContentV1 {
 
 // GetAllContentV2 returns content for api/v2
 func (s *RulesWithContentStorage) GetAllContentV2() []types.RuleContentV2 {
-	s.RLock()
-	defer s.RUnlock()
-
 	res := make([]types.RuleContentV2, 0, len(s.rules))
 	for _, rule := range s.rules {
 		res = append(res, RuleContentToV2(rule))
@@ -130,9 +112,6 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 		log.Error().Err(err).Msgf("Error generating composite rule ID for [%v] and [%v]", ruleID, errorKey)
 	}
 
-	s.Lock()
-	defer s.Unlock()
-
 	s.rulesWithContent[ruleIDAndErrorKey{
 		RuleID:   ruleID,
 		ErrorKey: errorKey,
@@ -149,29 +128,11 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 func (s *RulesWithContentStorage) SetRule(
 	ruleID ctypes.RuleID, ruleContent *ctypes.RuleContent,
 ) {
-	s.Lock()
-	defer s.Unlock()
-
 	s.rules[ruleID] = ruleContent
-}
-
-// ResetContent clear all the contents
-func (s *RulesWithContentStorage) ResetContent() {
-	s.Lock()
-	defer s.Unlock()
-
-	s.rules = make(map[ctypes.RuleID]*ctypes.RuleContent)
-	s.rulesWithContent = make(map[ruleIDAndErrorKey]*types.RuleWithContent)
-	s.recommendationsWithContent = make(map[ctypes.RuleID]*types.RuleWithContent)
-	s.internalRuleIDs = make([]ctypes.RuleID, 0)
-	s.externalRuleIDs = make([]ctypes.RuleID, 0)
 }
 
 // GetRuleIDs gets rule IDs for rules (rule modules)
 func (s *RulesWithContentStorage) GetRuleIDs() []string {
-	s.Lock()
-	defer s.Unlock()
-
 	ruleIDs := make([]string, 0, len(s.rules))
 
 	for _, ruleContent := range s.rules {
@@ -183,17 +144,11 @@ func (s *RulesWithContentStorage) GetRuleIDs() []string {
 
 // GetInternalRuleIDs returns the composite rule IDs ("| format") of internal rules
 func (s *RulesWithContentStorage) GetInternalRuleIDs() []ctypes.RuleID {
-	s.Lock()
-	defer s.Unlock()
-
 	return s.internalRuleIDs
 }
 
 // GetExternalRuleIDs returns the composite rule IDs ("| format") of external rules
 func (s *RulesWithContentStorage) GetExternalRuleIDs() []ctypes.RuleID {
-	s.Lock()
-	defer s.Unlock()
-
 	return s.externalRuleIDs
 }
 
@@ -203,9 +158,6 @@ func (s *RulesWithContentStorage) GetExternalRuleSeverities() (
 	severityMap map[ctypes.RuleID]int,
 	uniqueSeverities []int,
 ) {
-	s.Lock()
-	defer s.Unlock()
-
 	severityMap = make(map[ctypes.RuleID]int)
 	uniqueMap := make(map[int]interface{})
 
@@ -225,9 +177,6 @@ func (s *RulesWithContentStorage) GetExternalRuleSeverities() (
 // GetExternalRulesManagedInfo returns a map of rule IDs and the information whether a rule is managed
 // (has osd_customer tag) or not
 func (s *RulesWithContentStorage) GetExternalRulesManagedInfo() (managedMap map[ctypes.RuleID]bool) {
-	s.Lock()
-	defer s.Unlock()
-
 	managedMap = make(map[ctypes.RuleID]bool)
 
 	for _, ruleID := range s.externalRuleIDs {
@@ -351,9 +300,14 @@ func getRuleContent(ruleID ctypes.RuleID) (*ctypes.RuleContent, error) {
 	return res, nil
 }
 
-// ResetContent clear all the content cached
-func ResetContent() {
-	rulesWithContentStorage.ResetContent()
+func getEmptyRulesWithContentMap() *RulesWithContentStorage {
+	s := RulesWithContentStorage{}
+	s.rules = make(map[types.RuleID]*types.RuleContent)
+	s.rulesWithContent = make(map[ruleIDAndErrorKey]*types.RuleWithContent)
+	s.recommendationsWithContent = make(map[ctypes.RuleID]*types.RuleWithContent)
+	s.internalRuleIDs = make([]ctypes.RuleID, 0)
+	s.externalRuleIDs = make([]ctypes.RuleID, 0)
+	return &s
 }
 
 // GetRuleIDs returns a list of rule IDs (rule modules)
@@ -486,7 +440,6 @@ func UpdateContent(servicesConf services.Configuration) {
 	if err != nil {
 		return
 	}
-	ResetContent()
 	LoadRuleContent(ruleContentDirectory)
 }
 
