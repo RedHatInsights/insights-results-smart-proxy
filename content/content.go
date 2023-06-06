@@ -310,11 +310,6 @@ func getEmptyRulesWithContentMap() *RulesWithContentStorage {
 	return &s
 }
 
-// ResetContent clear all the content cached
-func ResetContent() {
-	rulesWithContentStorage = getEmptyRulesWithContentMap()
-}
-
 // GetRuleIDs returns a list of rule IDs (rule modules)
 func GetRuleIDs() ([]string, error) {
 	err := WaitForContentDirectoryToBeReady()

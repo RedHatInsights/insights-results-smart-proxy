@@ -27,3 +27,8 @@ package content
 var (
 	RuleContentDirectoryReady = ruleContentDirectoryReady
 )
+
+// ResetContent clear all the content cached
+func ResetContent() {
+	rulesWithContentStorage = getEmptyRulesWithContentMap()
+}

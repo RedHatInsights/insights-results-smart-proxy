@@ -24,14 +24,12 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
 
 func TestHTTPServer_TestReadAckListNoResult(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -77,7 +75,6 @@ func TestHTTPServer_TestReadAckListNoResult(t *testing.T) {
 
 func TestHTTPServer_TestReadAckList1Result(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -153,7 +150,6 @@ func TestHTTPServer_TestReadAckList1Result(t *testing.T) {
 
 func TestHTTPServer_TestReadAckList2Results(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -256,7 +252,6 @@ func TestHTTPServer_TestReadAckList2Results(t *testing.T) {
 
 func TestHTTPServer_TestReadAckListInvalidToken(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -299,7 +294,6 @@ func TestHTTPServer_TestReadAckListInvalidToken(t *testing.T) {
 
 func TestHTTPServer_TestReadAckListAggregatorError(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -328,7 +322,6 @@ func TestHTTPServer_TestReadAckListAggregatorError(t *testing.T) {
 
 func TestHTTPServer_TestReadAckListUnparsableAggregatorJSON(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -359,7 +352,6 @@ func TestHTTPServer_TestReadAckListUnparsableAggregatorJSON(t *testing.T) {
 
 func TestHTTPServer_TestGetAcknowledgeNotFound(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -397,7 +389,6 @@ func TestHTTPServer_TestGetAcknowledgeNotFound(t *testing.T) {
 
 func TestHTTPServer_TestGetAcknowledgeAggregatorError(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -427,7 +418,6 @@ func TestHTTPServer_TestGetAcknowledgeAggregatorError(t *testing.T) {
 
 func TestHTTPServer_TestGetAcknowledgeUnparsableAggregatorJSON(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -459,7 +449,6 @@ func TestHTTPServer_TestGetAcknowledgeUnparsableAggregatorJSON(t *testing.T) {
 
 func TestHTTPServer_TestGetAcknowledgeFound(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -531,7 +520,6 @@ func TestHTTPServer_TestGetAcknowledgeFound(t *testing.T) {
 
 func TestHTTPServer_TestGetAcknowledgeInvalidRuleIDBadRequest(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -590,7 +578,6 @@ func TestHTTPServer_TestGetAcknowledgeInvalidRuleIDBadRequest(t *testing.T) {
 
 func TestHTTPServer_TestGetAcknowledgeInvalidToken(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -620,7 +607,6 @@ func TestHTTPServer_TestGetAcknowledgeInvalidToken(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgePostFound(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -715,7 +701,6 @@ func TestHTTPServer_TestAcknowledgePostFound(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgePostNewAck(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -836,7 +821,6 @@ func TestHTTPServer_TestAcknowledgePostNewAck(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgePostMissingParam(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	justificationNote := "justification test"
 
@@ -863,7 +847,6 @@ func TestHTTPServer_TestAcknowledgePostMissingParam(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgePostBadCompositeRuleID(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	justificationNote := "justification test"
 
@@ -890,7 +873,6 @@ func TestHTTPServer_TestAcknowledgePostBadCompositeRuleID(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgePostAggregatorError1stCall(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	justificationNote := "justification test"
 
@@ -930,7 +912,6 @@ func TestHTTPServer_TestAcknowledgePostAggregatorError1stCall(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgePostAggregatorError2ndCall(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -1017,7 +998,6 @@ func TestHTTPServer_TestAcknowledgePostAggregatorError2ndCall(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgePostInvalidToken(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -1042,7 +1022,6 @@ func TestHTTPServer_TestAcknowledgePostInvalidToken(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeUpdateNotFound(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	justificationNote := "justification test"
 
@@ -1091,7 +1070,6 @@ func TestHTTPServer_TestAcknowledgeUpdateNotFound(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeUpdateFound(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -1228,7 +1206,6 @@ func TestHTTPServer_TestAcknowledgeUpdateFound(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeUpdateBadCompositeRuleID(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	justificationNote := "justification test"
 
@@ -1256,7 +1233,6 @@ func TestHTTPServer_TestAcknowledgeUpdateBadCompositeRuleID(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeUpdateAggregatorError1st(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	justificationUpdated := "justification updated"
 
@@ -1296,7 +1272,6 @@ func TestHTTPServer_TestAcknowledgeUpdateAggregatorError1st(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeUpdateAggregatorError2nd(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -1381,7 +1356,6 @@ func TestHTTPServer_TestAcknowledgeUpdateAggregatorError2nd(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeUpdateAggregatorError3rd(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -1480,7 +1454,6 @@ func TestHTTPServer_TestAcknowledgeUpdateAggregatorError3rd(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeUpdateInvalidToken(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -1505,7 +1478,6 @@ func TestHTTPServer_TestAcknowledgeUpdateInvalidToken(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeDeleteFound(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)
@@ -1577,7 +1549,6 @@ func TestHTTPServer_TestAcknowledgeDeleteFound(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeDeleteNotFound(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -1614,7 +1585,6 @@ func TestHTTPServer_TestAcknowledgeDeleteNotFound(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeDeleteBadRequest(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -1631,7 +1601,6 @@ func TestHTTPServer_TestAcknowledgeDeleteBadRequest(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeDeleteInvalidToken(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -1656,7 +1625,6 @@ func TestHTTPServer_TestAcknowledgeDeleteInvalidToken(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeDeleteAggregatorError1st(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
@@ -1693,7 +1661,6 @@ func TestHTTPServer_TestAcknowledgeDeleteAggregatorError1st(t *testing.T) {
 
 func TestHTTPServer_TestAcknowledgeDeleteAggregatorError2nd(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
-	defer content.ResetContent()
 
 	disabledAt := time.Now()
 	disabledAtRFC := disabledAt.UTC().Format(time.RFC3339)

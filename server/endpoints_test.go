@@ -23,7 +23,6 @@ import (
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 )
@@ -60,7 +59,6 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			helpers.RunTestWithTimeout(t, func(t testing.TB) {
 				defer helpers.CleanAfterGock(t)
-				defer content.ResetContent()
 				err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 				assert.Nil(t, err)
 
