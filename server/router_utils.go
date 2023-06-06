@@ -234,8 +234,8 @@ func readRequestIDList(writer http.ResponseWriter, request *http.Request) (
 		return nil, err
 	}
 
-	var validatedRequestList []types.RequestID
-	for _, requestID := range requestList {
+	validatedRequestList := make([]types.RequestID, len(requestList))
+	for i, requestID := range requestList {
 		validatedRequestID, err := ValidateRequestID(requestID)
 		if err != nil {
 			err := &RouterParsingError{
@@ -247,7 +247,8 @@ func readRequestIDList(writer http.ResponseWriter, request *http.Request) (
 			return nil, err
 		}
 
-		validatedRequestList = append(validatedRequestList, validatedRequestID)
+		validatedRequestList[i] = validatedRequestID
 	}
+
 	return validatedRequestList, nil
 }
