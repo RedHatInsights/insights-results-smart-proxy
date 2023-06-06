@@ -58,6 +58,11 @@ const (
 	// Endpoints to manipulate with simplified rule results stored
 	// independently under "tracker_id" identifier in Redis
 
+	// ListAllRequestIDs should return list of all request IDs detected for
+	// given cluster. In reality the list is refreshing as old request IDs
+	// are forgotten after 24 hours
+	ListAllRequestIDs = "cluster/{cluster}/requests"
+
 	// StatusOfRequestID should return status of processing one given
 	// request ID
 	StatusOfRequestID = "clusters/{cluster}/request/{request_id}/status"
@@ -130,6 +135,8 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 // addV2RedisEndpointsToRouter method registers handlers for endpoints that depend on our Redis storage
 // to provide responses.
 func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPrefix string) {
+	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForCluster).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForClusterPostVariant).Methods(http.MethodPost)
 	router.HandleFunc(apiPrefix+StatusOfRequestID, server.getRequestStatusForCluster).Methods(http.MethodGet)
 }
 

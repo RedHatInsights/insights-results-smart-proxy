@@ -23,13 +23,28 @@ import (
 
 	"github.com/RedHatInsights/insights-operator-utils/redis"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
+
+	redisV9 "github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
+)
+
+const (
+	// RequestIDFieldName represents the name of the field in Redis hash containing request_id
+	RequestIDFieldName = "request_id"
+	// ReceivedTimestampFieldName represents the name of the field in Redis hash containing received timestamp
+	ReceivedTimestampFieldName = "received_timestamp"
+	// ProcessedTimestampFieldName represents the name of the field in Redis hash containing processed timestamp
+	ProcessedTimestampFieldName = "processed_timestamp"
+	redisCmdExecutionFailedMsg  = "failed to execute command against Redis server"
 )
 
 var (
 	// RequestIDsScanPattern is a glob-style pattern to find all matching keys. Uses ?* instead of * to avoid
 	// matching "organization:%v:cluster:%v:request:"
 	RequestIDsScanPattern = "organization:%v:cluster:%v:request:?*"
+
+	// SimplifiedReportKey is a key under which the information about specific requests is stored
+	SimplifiedReportKey = "organization:%v:cluster:%v:request:%v:reports"
 )
 
 // RedisInterface represents interface for functions executed against a Redis server
@@ -40,6 +55,12 @@ type RedisInterface interface {
 		types.OrgID,
 		types.ClusterName,
 	) ([]types.RequestID, error)
+	GetTimestampsForRequestIDs(
+		types.OrgID,
+		types.ClusterName,
+		[]types.RequestID,
+		bool,
+	) ([]types.RequestStatus, error)
 }
 
 // RedisClient is a local type which embeds the imported redis.Client to include its own functionality
@@ -97,6 +118,67 @@ func (redis *RedisClient) GetRequestIDsForClusterID(
 		}
 	}
 	log.Info().Msgf("retrieved %d request IDs for cluster_id %v: %v", len(requestIDs), clusterID, requestIDs)
+
+	return
+}
+
+// GetTimestampsForRequestIDs retrieves the 'received' and 'processed' timestamps of each Request
+// for given list of Request IDs. It doesn't retrieve the whole Hash, but only the fields we need.
+// It utilizes Redis pipelines in order to avoid multiple client-server round trips.
+func (redis *RedisClient) GetTimestampsForRequestIDs(
+	orgID types.OrgID,
+	clusterID types.ClusterName,
+	requestIDs []types.RequestID,
+	omitMissing bool,
+) (requestStatuses []types.RequestStatus, err error) {
+	ctx := context.Background()
+
+	// prepare keys to be used in HMGet commands
+	keys := make([]string, len(requestIDs))
+	for i, requestID := range requestIDs {
+		keys[i] = fmt.Sprintf(SimplifiedReportKey, orgID, clusterID, requestID)
+	}
+
+	// queue commands in Redis pipeline. EXEC command is issued upon function exit
+	commands, err := redis.Client.Connection.Pipelined(ctx, func(pipe redisV9.Pipeliner) error {
+		for _, key := range keys {
+			pipe.HMGet(ctx, key, RequestIDFieldName, ReceivedTimestampFieldName, ProcessedTimestampFieldName)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Error().Err(err).Msg(redisCmdExecutionFailedMsg)
+		return requestStatuses, err
+	}
+
+	// iterate over results issued in pipeline. Even though we know len(commands),
+	// some keys might be missing and we might want to omit them, so we can't initialize slice safely
+	for i, cmd := range commands {
+		var report types.RequestStatus
+
+		err = cmd.(*redisV9.SliceCmd).Scan(&report)
+		if err != nil {
+			log.Error().Err(err).Msg(redisCmdExecutionFailedMsg)
+			return []types.RequestStatus{}, err
+		}
+
+		// omit missing data or invalidate the request
+		if report.RequestID == "" {
+			if omitMissing {
+				continue
+			} else {
+				// commands in Redis pipeline are guaranteed to be executed in the order they were issued in,
+				// therefore we can get the missing request ID from the original slice
+				report.RequestID = string(requestIDs[i])
+				report.Valid = false
+			}
+		} else {
+			report.Valid = true
+		}
+
+		// everything went fine, add to the response
+		requestStatuses = append(requestStatuses, report)
+	}
 
 	return
 }

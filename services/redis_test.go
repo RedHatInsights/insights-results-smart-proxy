@@ -20,12 +20,19 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	errTest                = errors.New("ka-boom")
+	receivedTimestampTest  = time.Now().Add(-time.Minute).UTC().Format(time.RFC3339)
+	processedTimestampTest = time.Now().UTC().Format(time.RFC3339)
 )
 
 func TestNewRedisClient(t *testing.T) {
@@ -52,7 +59,7 @@ func TestNewRedisClientDBIndexOutOfRange(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func TestRedisGetRequestIDsForClusterIDEmpty(t *testing.T) {
+func TestRedisGetRequestIDsForClusterID_Empty(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
 	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
@@ -65,7 +72,7 @@ func TestRedisGetRequestIDsForClusterIDEmpty(t *testing.T) {
 	helpers.RedisExpectationsMet(t, server)
 }
 
-func TestRedisGetRequestIDsForClusterIDResultsSinglePage(t *testing.T) {
+func TestRedisGetRequestIDsForClusterID_ResultsSinglePage(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
 	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
@@ -85,7 +92,7 @@ func TestRedisGetRequestIDsForClusterIDResultsSinglePage(t *testing.T) {
 	helpers.RedisExpectationsMet(t, server)
 }
 
-func TestRedisGetRequestIDsForClusterIDResultsMultiplePages(t *testing.T) {
+func TestRedisGetRequestIDsForClusterID_ResultsMultiplePages(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
 	expectedResponseKeys := make([]string, 4)
@@ -109,11 +116,11 @@ func TestRedisGetRequestIDsForClusterIDResultsMultiplePages(t *testing.T) {
 	helpers.RedisExpectationsMet(t, server)
 }
 
-func TestRedisGetRequestIDsForClusterIDError(t *testing.T) {
+func TestRedisGetRequestIDsForClusterID_Error(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
 	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
-	server.ExpectScan(0, expectedKey, 0).SetErr(errors.New("ka-boom"))
+	server.ExpectScan(0, expectedKey, 0).SetErr(errTest)
 
 	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
 	assert.Error(t, err)
@@ -122,7 +129,7 @@ func TestRedisGetRequestIDsForClusterIDError(t *testing.T) {
 	helpers.RedisExpectationsMet(t, server)
 }
 
-func TestRedisGetRequestIDsForClusterIDErrorInFollowingCalls(t *testing.T) {
+func TestRedisGetRequestIDsForClusterID_ErrorInFollowingCalls(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
 	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
@@ -133,12 +140,203 @@ func TestRedisGetRequestIDsForClusterIDErrorInFollowingCalls(t *testing.T) {
 	}
 
 	server.ExpectScan(0, expectedKey, 0).SetVal([]string{expectedResponseKeys[0], expectedResponseKeys[1]}, 42)
-	server.ExpectScan(42, expectedKey, 0).SetErr(errors.New("ka-boom"))
+	server.ExpectScan(42, expectedKey, 0).SetErr(errTest)
 
 	// function should return empty list + error if we can't retrieve the whole data set
 	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
 	assert.Error(t, err)
 	assert.Len(t, requestIDs, 0)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetTimestampsForRequestIDs_OKFound(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{"requestID123", receivedTimestampTest, processedTimestampTest})
+
+	requestStatuses, err := client.GetTimestampsForRequestIDs(testdata.OrgID, testdata.ClusterName1, []types.RequestID{"requestID123"}, true)
+	assert.NoError(t, err)
+	assert.Len(t, requestStatuses, 1)
+	assert.Equal(t, requestStatuses[0].RequestID, "requestID123")
+	assert.Equal(t, requestStatuses[0].Received, receivedTimestampTest)
+	assert.Equal(t, requestStatuses[0].Processed, processedTimestampTest)
+	assert.Equal(t, requestStatuses[0].Valid, true)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetTimestampsForRequestIDs_OKNotFoundOmitMissing(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{nil, nil, nil})
+
+	_, err := client.GetTimestampsForRequestIDs(testdata.OrgID, testdata.ClusterName1, []types.RequestID{"requestID123"}, true)
+	assert.NoError(t, err)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetTimestampsForRequestIDs_OKNotFoundIncludeMissing(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{nil, nil, nil})
+
+	requestStatuses, err := client.GetTimestampsForRequestIDs(testdata.OrgID, testdata.ClusterName1, []types.RequestID{"requestID123"}, false)
+	assert.NoError(t, err)
+	assert.Len(t, requestStatuses, 1)
+	assert.Equal(t, requestStatuses[0].RequestID, "requestID123")
+	assert.Equal(t, requestStatuses[0].Received, "")
+	assert.Equal(t, requestStatuses[0].Processed, "")
+	assert.Equal(t, requestStatuses[0].Valid, false)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetTimestampsForRequestIDs_OKMultipleOmitMissing(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKeys := make([]string, 3)
+	requestIDs := make([]string, 3)
+	for i := range expectedKeys {
+		requestIDs[i] = fmt.Sprintf("requestID%d", i)
+		expectedKeys[i] = fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, requestIDs[i])
+	}
+	// second request_id won't be found
+	expectedResponse := []types.RequestStatus{
+		{
+			RequestID: requestIDs[0],
+			Valid:     true,
+			Received:  receivedTimestampTest,
+			Processed: processedTimestampTest,
+		},
+		{
+			RequestID: requestIDs[2],
+			Valid:     true,
+			Received:  receivedTimestampTest,
+			Processed: processedTimestampTest,
+		},
+	}
+
+	server.ExpectHMGet(
+		expectedKeys[0], services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{requestIDs[0], receivedTimestampTest, processedTimestampTest})
+
+	// 2nd result was not found
+	server.ExpectHMGet(
+		expectedKeys[1], services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{nil, nil, nil})
+
+	server.ExpectHMGet(
+		expectedKeys[2], services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{requestIDs[2], receivedTimestampTest, processedTimestampTest})
+
+	// omitMissing == true
+	requestStatuses, err := client.GetTimestampsForRequestIDs(
+		testdata.OrgID, testdata.ClusterName1, []types.RequestID{
+			types.RequestID(requestIDs[0]), types.RequestID(requestIDs[1]), types.RequestID(requestIDs[2]),
+		}, true,
+	)
+	assert.NoError(t, err)
+	// 2nd result was ommitted
+	assert.Len(t, requestStatuses, 2)
+	assert.ElementsMatch(t, requestStatuses, expectedResponse)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetTimestampsForRequestIDs_OKMultipleIncludeMissing(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedResponse := make([]types.RequestStatus, 3)
+	expectedKeys := make([]string, 3)
+	requestIDs := make([]string, 3)
+	for i := range expectedKeys {
+		requestIDs[i] = fmt.Sprintf("requestID%d", i)
+		expectedKeys[i] = fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, requestIDs[i])
+		if i%2 == 0 {
+			expectedResponse[i] = types.RequestStatus{
+				RequestID: requestIDs[i],
+				Valid:     true,
+				Received:  receivedTimestampTest,
+				Processed: processedTimestampTest,
+			}
+		} else {
+			expectedResponse[i] = types.RequestStatus{
+				RequestID: requestIDs[i],
+				Valid:     false,
+				Received:  "",
+				Processed: "",
+			}
+		}
+	}
+
+	server.ExpectHMGet(
+		expectedKeys[0], services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{requestIDs[0], receivedTimestampTest, processedTimestampTest})
+
+	server.ExpectHMGet(
+		expectedKeys[1], services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{nil, nil, nil})
+
+	server.ExpectHMGet(
+		expectedKeys[2], services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{requestIDs[2], receivedTimestampTest, processedTimestampTest})
+
+	// omitMissing == false
+	requestStatuses, err := client.GetTimestampsForRequestIDs(
+		testdata.OrgID, testdata.ClusterName1, []types.RequestID{
+			types.RequestID(requestIDs[0]), types.RequestID(requestIDs[1]), types.RequestID(requestIDs[2]),
+		}, false,
+	)
+	assert.NoError(t, err)
+	assert.Len(t, requestStatuses, 3)
+	assert.ElementsMatch(t, requestStatuses, expectedResponse)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetTimestampsForRequestIDs_Error(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetErr(errTest)
+
+	requestStatuses, err := client.GetTimestampsForRequestIDs(testdata.OrgID, testdata.ClusterName1, []types.RequestID{"requestID123"}, true)
+	assert.Error(t, err)
+	assert.Len(t, requestStatuses, 0)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetTimestampsForRequestIDs_ScanError(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	// mismatched number of keys and values
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.ReceivedTimestampFieldName, services.ProcessedTimestampFieldName,
+	).SetVal([]interface{}{"requestID123", receivedTimestampTest})
+
+	requestStatuses, err := client.GetTimestampsForRequestIDs(testdata.OrgID, testdata.ClusterName1, []types.RequestID{"requestID123"}, true)
+	assert.Error(t, err)
+	assert.Len(t, requestStatuses, 0)
 
 	helpers.RedisExpectationsMet(t, server)
 }
