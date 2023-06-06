@@ -50,7 +50,7 @@ type ImpactingFlag int
 
 // RequestID is used to store the request ID supplied in input Kafka records as
 // a unique identifier of payloads. Empty string represents a missing request ID.
-type RequestID string
+type RequestID types.RequestID
 
 // RuleWithContentResponse represents a single rule in the response of /report endpoint
 type RuleWithContentResponse struct {
@@ -270,10 +270,26 @@ type ClustersDetailResponse struct {
 	Status string             `json:"status"`
 }
 
-// RequestStatus contains description about one request ID
+// RequestStatus contains description about one request ID returned by the sercice to IO
 type RequestStatus struct {
 	RequestID string `json:"requestID" redis:"request_id"`
 	Valid     bool   `json:"valid" redis:"-"`
 	Received  string `json:"received" redis:"received_timestamp"`
 	Processed string `json:"processed" redis:"processed_timestamp"`
+}
+
+// SimplifiedRuleHit structure represents one simplified rule hit for On Demand Data Gathering
+type SimplifiedRuleHit struct {
+	RuleFQDN    string `json:"rule_fqdn"`
+	ErrorKey    string `json:"error_key"`
+	Description string `json:"description"`
+	TotalRisk   int    `json:"total_risk"`
+}
+
+// SimplifiedReport structure is used to handle single Request data hashes in Redis
+type SimplifiedReport struct {
+	RequestID          string `redis:"request_id"`
+	ReceivedTimestamp  string `redis:"received_timestamp"`
+	ProcessedTimestamp string `redis:"processed_timestamp"`
+	RuleHits           string `redis:"rule_hits"`
 }

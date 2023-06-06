@@ -19,9 +19,11 @@ package services
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/RedHatInsights/insights-operator-utils/redis"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 
 	redisV9 "github.com/redis/go-redis/v9"
@@ -35,7 +37,9 @@ const (
 	ReceivedTimestampFieldName = "received_timestamp"
 	// ProcessedTimestampFieldName represents the name of the field in Redis hash containing processed timestamp
 	ProcessedTimestampFieldName = "processed_timestamp"
-	redisCmdExecutionFailedMsg  = "failed to execute command against Redis server"
+	// RuleHitsFieldName represent the name of hte field in Redis hash containing simplified rule hits
+	RuleHitsFieldName          = "rule_hits"
+	redisCmdExecutionFailedMsg = "failed to execute command against Redis server"
 )
 
 var (
@@ -61,6 +65,11 @@ type RedisInterface interface {
 		[]types.RequestID,
 		bool,
 	) ([]types.RequestStatus, error)
+	GetRuleHitsForRequest(
+		types.OrgID,
+		types.ClusterName,
+		types.RequestID,
+	) ([]types.RuleID, error)
 }
 
 // RedisClient is a local type which embeds the imported redis.Client to include its own functionality
@@ -178,6 +187,54 @@ func (redis *RedisClient) GetTimestampsForRequestIDs(
 
 		// everything went fine, add to the response
 		requestStatuses = append(requestStatuses, report)
+	}
+
+	return
+}
+
+// GetRuleHitsForRequest is used to get the rule_hits field from Hash type
+// stored in Redis.
+func (redis *RedisClient) GetRuleHitsForRequest(
+	orgID types.OrgID,
+	clusterID types.ClusterName,
+	requestID types.RequestID,
+) (ruleHits []types.RuleID, err error) {
+	var simplifiedReport types.SimplifiedReport
+
+	ctx := context.Background()
+	key := fmt.Sprintf(SimplifiedReportKey, orgID, clusterID, requestID)
+
+	cmd := redis.Client.Connection.HMGet(ctx, key, RequestIDFieldName, RuleHitsFieldName)
+	if err = cmd.Err(); err != nil {
+		log.Error().Err(err).Msg(redisCmdExecutionFailedMsg)
+		return
+	}
+
+	err = cmd.Scan(&simplifiedReport)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to scan result map into a struct")
+		return
+	}
+
+	// report not found in storage
+	if simplifiedReport.RequestID == "" {
+		err = &utypes.ItemNotFoundError{ItemID: requestID}
+		log.Error().Err(err).Msgf("request data for request_id %v not found in Redis", requestID)
+		return
+	}
+
+	// validate rule IDs coming from Redis
+	ruleHitsSplit := strings.Split(simplifiedReport.RuleHits, ",")
+	for _, ruleHit := range ruleHitsSplit {
+		ruleIDRegex := regexp.MustCompile(`^([a-zA-Z_0-9.]+)[|]([a-zA-Z_0-9.]+)$`)
+
+		isRuleIDValid := ruleIDRegex.MatchString(ruleHit)
+		if !isRuleIDValid {
+			log.Error().Msgf("rule_id %v retrieved from Redis is in invalid format", ruleHit)
+			continue
+		}
+
+		ruleHits = append(ruleHits, types.RuleID(ruleHit))
 	}
 
 	return
