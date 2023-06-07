@@ -224,7 +224,7 @@ func (redis *RedisClient) GetRuleHitsForRequest(
 	}
 
 	// validate rule IDs coming from Redis
-	ruleHitsSplit := strings.Split(simplifiedReport.RuleHits, ",")
+	ruleHitsSplit := strings.Split(simplifiedReport.RuleHitsCSV, ",")
 	for _, ruleHit := range ruleHitsSplit {
 		ruleIDRegex := regexp.MustCompile(`^([a-zA-Z_0-9.]+)[|]([a-zA-Z_0-9.]+)$`)
 

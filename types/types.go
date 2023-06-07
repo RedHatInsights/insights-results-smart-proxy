@@ -270,6 +270,8 @@ type ClustersDetailResponse struct {
 	Status string             `json:"status"`
 }
 
+type SimplifiedReport types.SimplifiedReport
+
 // RequestStatus contains description about one request ID returned by the sercice to IO
 type RequestStatus struct {
 	RequestID string `json:"requestID" redis:"request_id"`
@@ -284,12 +286,4 @@ type SimplifiedRuleHit struct {
 	ErrorKey    string `json:"error_key"`
 	Description string `json:"description"`
 	TotalRisk   int    `json:"total_risk"`
-}
-
-// SimplifiedReport structure is used to handle single Request data hashes in Redis
-type SimplifiedReport struct {
-	RequestID          string `redis:"request_id"`
-	ReceivedTimestamp  string `redis:"received_timestamp"`
-	ProcessedTimestamp string `redis:"processed_timestamp"`
-	RuleHits           string `redis:"rule_hits"`
 }
