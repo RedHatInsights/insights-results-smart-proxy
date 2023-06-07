@@ -270,6 +270,7 @@ type ClustersDetailResponse struct {
 	Status string             `json:"status"`
 }
 
+// SimplifiedReport structure is used to handle single Request data hashes in Redis
 type SimplifiedReport types.SimplifiedReport
 
 // RequestStatus contains description about one request ID returned by the sercice to IO
