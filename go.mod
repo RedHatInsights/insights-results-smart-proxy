@@ -8,7 +8,7 @@ require (
 	github.com/RedHatInsights/insights-operator-utils v1.24.9
 	github.com/RedHatInsights/insights-results-aggregator v1.3.4
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.8
-	github.com/RedHatInsights/insights-results-types v1.3.22
+	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/go-redis/redismock/v9 v9.0.3
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.3.0

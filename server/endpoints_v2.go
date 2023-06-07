@@ -65,7 +65,7 @@ const (
 
 	// StatusOfRequestID should return status of processing one given
 	// request ID
-	StatusOfRequestID = "clusters/{cluster}/request/{request_id}/status"
+	StatusOfRequestID = "cluster/{cluster}/request/{request_id}/status"
 
 	// RuleHitsForRequestID should return simplified results for given
 	// cluster and requestID
