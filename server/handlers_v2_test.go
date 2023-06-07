@@ -1266,7 +1266,7 @@ func TestHTTPServer_GetRequestsForCluster_RedisError500_2ndCmd(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestsForClusterPostVariant_OK1Request(t *testing.T) {
+func TestHTTPServer_GetReportForRequest_OK1Request(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -1580,7 +1580,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadRequestID(t *testing.T) 
 		requestIDList := []types.RequestID{"_"}
 		reqBody, _ := json.Marshal(requestIDList)
 
-		// invalid clusterID
+		// invalid requestID in body
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -1597,5 +1597,611 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadRequestID(t *testing.T) 
 			},
 		)
 
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_OK_RequestNotFound(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{nil, nil})
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       `{"status":"Item with ID requestID1 was not found in the storage"}`,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_OK_NoRuleHits(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{"requestID1", ""})
+
+		// gock expects
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ResponseNoRulesDisabledSystemWide,
+		})
+
+		cluster := []types.ClusterName{testdata.ClusterName}
+		reqBody, _ := json.Marshal(cluster)
+		ruleDisablesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
+				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleDisablesBody,
+			},
+		)
+
+		expectedResponse := fmt.Sprintf(`{
+			"cluster":"%v",
+			"status":"processed",
+			"requestID":"requestID1",
+			"report":[]
+		}`, testdata.ClusterName)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_OK_1RuleHit(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{"requestID1", expectedRuleHits})
+
+		// gock expects
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ResponseNoRulesDisabledSystemWide,
+		})
+
+		cluster := []types.ClusterName{testdata.ClusterName}
+		reqBody, _ := json.Marshal(cluster)
+		ruleDisablesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
+				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleDisablesBody,
+			},
+		)
+
+		expectedResponse := fmt.Sprintf(`{
+			"cluster":"%v",
+			"status":"processed",
+			"requestID":"requestID1",
+			"report":[
+				{"description":"%v", "error_key":"%v", "rule_fqdn":"%v", "total_risk":%v}
+			]
+		}`, testdata.ClusterName, testdata.RuleWithContent1.Generic, testdata.ErrorKey1, testdata.Rule1ID, testdata.RuleWithContent1.TotalRisk)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_BadAuthToken(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// invalid clusterID
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: unparsableJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusForbidden,
+			},
+		)
+
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_BadRequestClusterID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// invalid clusterID
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.BadClusterName, "requestID1"}, // invalid clusterID
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status":"Error during parsing param 'cluster' with value 'aaaa'. Error: 'invalid UUID length: 4'"}`,
+			},
+		)
+
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_BadRequestID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// invalid requestID in endpoint arg
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "_"}, // invalid request ID
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status":"Error during parsing param 'request_id' with value '_'. Error: 'invalid request ID: '_''"}`,
+			},
+		)
+
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_NoRuleContent(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(
+			createRuleContentDirectoryFromRuleContent(
+				[]ctypes.RuleContent{},
+			),
+		)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{"requestID1", expectedRuleHits})
+
+		// gock expects
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ResponseNoRulesDisabledSystemWide,
+		})
+
+		cluster := []types.ClusterName{testdata.ClusterName}
+		reqBody, _ := json.Marshal(cluster)
+		ruleDisablesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
+				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleDisablesBody,
+			},
+		)
+
+		expectedResponse := fmt.Sprintf(`{
+			"cluster":"%v",
+			"status":"processed",
+			"requestID":"requestID1",
+			"report":[]
+		}`, testdata.ClusterName)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_OK_2RuleHits1Acked(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+		expectedRuleHits := fmt.Sprintf("%v|%v,%v|%v", testdata.Rule1ID, testdata.ErrorKey1, testdata.Rule2ID, testdata.ErrorKey2)
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{"requestID1", expectedRuleHits})
+
+		// gock expects
+
+		// rule 1 disabled system wide (acked)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ResponseRule1DisabledSystemWide),
+		})
+
+		cluster := []types.ClusterName{testdata.ClusterName}
+		reqBody, _ := json.Marshal(cluster)
+		ruleDisablesBody := `{"rules":[],"status":"ok"}`
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
+				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleDisablesBody,
+			},
+		)
+
+		expectedResponse := fmt.Sprintf(`{
+			"cluster":"%v",
+			"status":"processed",
+			"requestID":"requestID1",
+			"report":[
+				{"description":"%v", "error_key":"%v", "rule_fqdn":"%v", "total_risk":%v}
+			]
+		}`, testdata.ClusterName, testdata.RuleWithContent2.Generic, testdata.ErrorKey2, testdata.Rule2ID, testdata.RuleWithContent2.TotalRisk)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_OK_3RuleHits1Acked1Disabled(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+
+		// 3 rule hits
+		expectedRuleHits := fmt.Sprintf(
+			"%v|%v,%v|%v,%v|%v", testdata.Rule1ID, testdata.ErrorKey1, testdata.Rule2ID, testdata.ErrorKey2,
+			testdata.Rule3ID, testdata.ErrorKey3,
+		)
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{"requestID1", expectedRuleHits})
+
+		// gock expects
+
+		// rule 1 disabled system wide (acked)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(ResponseRule1DisabledSystemWide),
+		})
+
+		// rule 2 is disabled for one cluster
+		ruleDisablesBody := `{
+			"rules":[
+				{
+					"ClusterID": "%v",
+					"RuleID": "%v.report",
+					"ErrorKey": "%v"
+				}
+			],
+			"status":"ok"
+		}`
+		ruleDisablesBody = fmt.Sprintf(ruleDisablesBody, testdata.ClusterName, testdata.Rule2ID, testdata.ErrorKey2)
+
+		cluster := []types.ClusterName{testdata.ClusterName}
+		reqBody, _ := json.Marshal(cluster)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
+				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       ruleDisablesBody,
+			},
+		)
+
+		// rule1 acked, rule2 disabled
+		expectedResponse := fmt.Sprintf(`{
+			"cluster":"%v",
+			"status":"processed",
+			"requestID":"requestID1",
+			"report":[
+				{"description":"%v", "error_key":"%v", "rule_fqdn":"%v", "total_risk":%v}
+			]
+		}`, testdata.ClusterName, testdata.RuleWithContent3.Generic, testdata.ErrorKey3, testdata.Rule3ID, testdata.RuleWithContent3.TotalRisk)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_AggregatorError(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{"requestID1", expectedRuleHits})
+
+		// gock expects
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusInternalServerError,
+		})
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_AggregatorError_2ndCall(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+
+		// redis expects
+		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
+		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
+		redisServer.ExpectHMGet(
+			expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+		).SetVal([]interface{}{"requestID1", expectedRuleHits})
+
+		// gock expects
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledRulesSystemWide,
+			EndpointArgs: []interface{}{testdata.OrgID},
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ResponseNoRulesDisabledSystemWide,
+		})
+
+		// 2nd call fails
+		cluster := []types.ClusterName{testdata.ClusterName}
+		reqBody, _ := json.Marshal(cluster)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ListOfDisabledRulesForClusters,
+				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:             http.MethodGet,
+				Endpoint:           server.RuleHitsForRequestID,
+				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
+				AuthorizationToken: goodJWTAuthBearer,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
 	}, testTimeout)
 }

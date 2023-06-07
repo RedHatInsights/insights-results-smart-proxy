@@ -1405,6 +1405,12 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 		return nil, err
 	}
 
+	if resp.StatusCode == http.StatusInternalServerError {
+		log.Error().Msg("failed to get response from aggregator")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
 	// check the aggregator response
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
 		err := fmt.Errorf("error reading disabled rules from aggregator: %v", resp.StatusCode)
@@ -1460,7 +1466,11 @@ func (server *HTTPServer) getClusterListAndUserData(
 	)
 
 	// get a map of acknowledged rules
-	ackedRulesMap = server.getRuleAcksMap(orgID)
+	ackedRulesMap, err = server.getRuleAcksMap(orgID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
 
 	// retrieve list of cluster IDs and single disabled rules for each cluster
 	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(orgID)

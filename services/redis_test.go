@@ -22,6 +22,8 @@ import (
 	"testing"
 	"time"
 
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
+	data "github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
@@ -33,6 +35,7 @@ var (
 	errTest                = errors.New("ka-boom")
 	receivedTimestampTest  = time.Now().Add(-time.Minute).UTC().Format(time.RFC3339)
 	processedTimestampTest = time.Now().UTC().Format(time.RFC3339)
+	testRuleHits           = fmt.Sprintf("%v,%v", data.Rule1CompositeID, data.Rule2CompositeID)
 )
 
 func TestNewRedisClient(t *testing.T) {
@@ -337,6 +340,91 @@ func TestGetTimestampsForRequestIDs_ScanError(t *testing.T) {
 	requestStatuses, err := client.GetTimestampsForRequestIDs(testdata.OrgID, testdata.ClusterName1, []types.RequestID{"requestID123"}, true)
 	assert.Error(t, err)
 	assert.Len(t, requestStatuses, 0)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRuleHitsForRequest_OKFound(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+	).SetVal([]interface{}{"requestID123", testRuleHits})
+
+	ruleHits, err := client.GetRuleHitsForRequest(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	assert.NoError(t, err)
+	assert.Len(t, ruleHits, 2)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRuleHitsForRequest_OKNotFound(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+	).SetVal([]interface{}{nil, nil})
+
+	ruleHits, err := client.GetRuleHitsForRequest(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	assert.Error(t, err)
+	assert.IsType(t, err, &utypes.ItemNotFoundError{})
+	assert.Len(t, ruleHits, 0)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRuleHitsForRequest_FoundInvalidRuleID(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	ruleHits1Invalid := fmt.Sprintf("%v,%v", data.Rule1CompositeID, data.Rule1ID)
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+	).SetVal([]interface{}{"requestID123", ruleHits1Invalid})
+
+	ruleHits, err := client.GetRuleHitsForRequest(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	// no error, but only 1 rule hit
+	assert.NoError(t, err)
+	assert.Len(t, ruleHits, 1)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRuleHitsForRequest_Error(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	// mismatched number of keys and values
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+	).SetErr(errTest)
+
+	ruleHits, err := client.GetRuleHitsForRequest(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	assert.Error(t, err)
+	assert.Len(t, ruleHits, 0)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRuleHitsForRequest_OKScanError(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	// mismatched number of keys and values
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+	).SetVal([]interface{}{"requestID123"})
+
+	ruleHits, err := client.GetRuleHitsForRequest(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	assert.Error(t, err)
+	assert.Len(t, ruleHits, 0)
 
 	helpers.RedisExpectationsMet(t, server)
 }

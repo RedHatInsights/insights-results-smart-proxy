@@ -283,7 +283,11 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	)
 
 	// get a map of acknowledged rules
-	ackedRulesMap := server.getRuleAcksMap(orgID)
+	ackedRulesMap, err := server.getRuleAcksMap(orgID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
 
 	// retrieve user disabled rules for given list of active clusters
 	disabledClustersForRules := server.getRuleDisabledClusters(writer, orgID, clusterIDList)
@@ -323,7 +327,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 }
 
 func (server HTTPServer) getRuleAcksMap(orgID types.OrgID) (
-	ackedRulesMap map[ctypes.RuleID]bool,
+	ackedRulesMap map[ctypes.RuleID]bool, err error,
 ) {
 	ackedRulesMap = make(map[ctypes.RuleID]bool)
 
@@ -331,7 +335,6 @@ func (server HTTPServer) getRuleAcksMap(orgID types.OrgID) (
 	ackedRules, err := server.readListOfAckedRules(orgID)
 	if err != nil {
 		log.Error().Err(err).Msg(ackedRulesError)
-		// server error has been handled already
 		return
 	}
 	// put rule acks in a map so we only iterate over them once
@@ -1288,4 +1291,138 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 		handleServerError(writer, err)
 		return
 	}
+}
+
+// getReportForRequest method implements endpoint that should return
+// simplified result for given request ID
+func (server *HTTPServer) getReportForRequest(writer http.ResponseWriter, request *http.Request) {
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	if !successful {
+		// error handled by function
+		return
+	}
+
+	requestID, err := readRequestID(writer, request)
+	if err != nil {
+		// error handled by function
+		return
+	}
+
+	// get rule hits from Redis
+	ruleHits, err := server.redis.GetRuleHitsForRequest(orgID, clusterID, requestID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// get a map of acknowledged rules
+	ackedRulesMap, err := server.getRuleAcksMap(orgID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// retrieve user disabled rules for given cluster
+	disabledRulesForCluster, err := server.getDisabledRulesForClusterMap(writer, orgID, clusterID)
+	if err != nil {
+		log.Error().Err(err).Msg("problem getting user disabled rules for cluster")
+		// server error has been handled already
+		return
+	}
+
+	filteredRuleHits := filterRulesGetContent(ruleHits, ackedRulesMap, disabledRulesForCluster)
+
+	// prepare response
+	responseData := map[string]interface{}{}
+	responseData["cluster"] = string(clusterID)
+	responseData["requestID"] = requestID
+	responseData["status"] = StatusProcessed
+	responseData["report"] = filteredRuleHits
+
+	// send response to client
+	err = responses.SendOK(writer, responseData)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+func filterRulesGetContent(
+	ruleHits []types.RuleID,
+	ackedRules map[ctypes.RuleID]bool,
+	disabledRulesForCluster map[ctypes.RuleID]bool,
+) []types.SimplifiedRuleHit {
+	// initialize the return value so that it's not nil (and in API response null)
+	filteredRuleHits := []types.SimplifiedRuleHit{}
+
+	for _, ruleID := range ruleHits {
+
+		// skip acked rule
+		if _, found := ackedRules[ruleID]; found {
+			continue
+		}
+
+		// skip single disabled rules for given cluster
+		if _, found := disabledRulesForCluster[ruleID]; found {
+			continue
+		}
+
+		ruleContent, err := content.GetContentForRecommendation(ruleID)
+		if err != nil {
+			// rule content not found, log and skip as in other endpoints
+			log.Error().Err(err).Msgf("error retrieving rule content for rule %v", ruleID)
+			continue
+		}
+
+		splitRuleID := strings.Split(string(ruleID), "|")
+		// fill in data from rule content
+		simplifiedRuleHit := types.SimplifiedRuleHit{
+			RuleFQDN:    splitRuleID[0],
+			ErrorKey:    splitRuleID[1],
+			Description: ruleContent.Generic,
+			TotalRisk:   ruleContent.TotalRisk,
+		}
+
+		filteredRuleHits = append(filteredRuleHits, simplifiedRuleHit)
+	}
+
+	return filteredRuleHits
+}
+
+func (server HTTPServer) getDisabledRulesForClusterMap(
+	writer http.ResponseWriter,
+	orgID types.OrgID,
+	clusterID types.ClusterName,
+) (
+	disabledRules map[types.RuleID]bool, err error,
+) {
+	disabledRules = make(map[types.RuleID]bool)
+
+	// use existing endpoint accepting list of clusters
+	listOfDisabledRules, err := server.readListOfDisabledRulesForClusters(writer, orgID, []types.ClusterName{clusterID})
+	if err != nil {
+		log.Error().Err(err).Msg("error reading disabled rules from aggregator")
+		handleServerError(writer, err)
+		return
+	}
+
+	for _, disabledRule := range listOfDisabledRules {
+		compositeRuleID, err := generateCompositeRuleIDFromDisabled(disabledRule)
+
+		if err != nil {
+			log.Error().Err(err).Msg("error generating composite rule ID")
+			continue
+		}
+
+		disabledRules[compositeRuleID] = true
+	}
+
+	return
 }
