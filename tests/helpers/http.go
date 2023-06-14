@@ -81,6 +81,8 @@ var (
 		EnableInternalRulesOrganizations: false,
 	}
 
+	// DefaultServerConfigXRH is data structure that represents default HTTP
+	// server configuration with XRH auth type. XRH type is used in all pre-prod/prod environments.
 	DefaultServerConfigXRH = server.Configuration{
 		Address:                          ":8081",
 		APIdbgPrefix:                     "/api/dbg/",
