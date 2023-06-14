@@ -140,7 +140,7 @@ func AssertAPIRequest(
 ) {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
-		serverConfig = &DefaultServerConfig
+		serverConfig = &DefaultServerConfigXRH
 	}
 
 	assertAPIRequest(
@@ -170,7 +170,7 @@ func AssertAPIv2Request(
 ) {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
-		serverConfig = &DefaultServerConfig
+		serverConfig = &DefaultServerConfigXRH
 	}
 
 	assertAPIRequest(
@@ -227,7 +227,7 @@ func CreateHTTPServer(
 ) *server.HTTPServer {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
-		serverConfig = &DefaultServerConfig
+		serverConfig = &DefaultServerConfigXRH
 	}
 
 	// if custom services configuration is not provided, use default one
