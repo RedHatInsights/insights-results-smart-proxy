@@ -1314,10 +1314,10 @@ func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }
 
-// TestInfoEndpointNoAuth checks that the info endpoint can be accessed without authenticating
-func TestInfoEndpointNoAuth(t *testing.T) {
+// TestInfoEndpointNoAuthToken checks that the info endpoint can be accessed without authenticating
+func TestInfoEndpointNoAuthToken(t *testing.T) {
 	t.Run("test the info endpoint v1", func(t *testing.T) {
-		helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigAuth, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigXRH, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.InfoEndpoint,
 		}, &helpers.APIResponse{
@@ -1325,7 +1325,7 @@ func TestInfoEndpointNoAuth(t *testing.T) {
 		})
 	})
 	t.Run("test the info endpoint v2", func(t *testing.T) {
-		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigAuth, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigXRH, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.InfoEndpoint,
 		}, &helpers.APIResponse{
