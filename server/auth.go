@@ -33,8 +33,10 @@ import (
 
 const (
 	// JWTAuthTokenHeader reprsents the name of the header used in JWT authorization type
+	// #nosec G101
 	JWTAuthTokenHeader = "Authorization"
 	// XRHAuthTokenHeader reprsents the name of the header used in XRH authorization type
+	// #nosec G101
 	XRHAuthTokenHeader = "x-rh-identity"
 	// #nosec G101
 	malformedTokenMessage = "Malformed authentication token"
