@@ -64,9 +64,9 @@ func TestHTTPServer_TestReadAckListNoResult(t *testing.T) {
 	}
 	`
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckListEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:      http.MethodGet,
+		Endpoint:    server.AckListEndpoint,
+		XRHIdentity: goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusOK,
 		Body:       ackListResponse,
@@ -139,9 +139,9 @@ func TestHTTPServer_TestReadAckList1Result(t *testing.T) {
 	ackListResponse = fmt.Sprintf(ackListResponse, testdata.Rule1CompositeID, justificationNote, disabledAtRFC, disabledAtRFC)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckListEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:      http.MethodGet,
+		Endpoint:    server.AckListEndpoint,
+		XRHIdentity: goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusOK,
 		Body:       ackListResponse,
@@ -240,9 +240,9 @@ func TestHTTPServer_TestReadAckList2Results(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckListEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:      http.MethodGet,
+		Endpoint:    server.AckListEndpoint,
+		XRHIdentity: goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode:  http.StatusOK,
 		Body:        ackListResponse,
@@ -283,9 +283,9 @@ func TestHTTPServer_TestReadAckListInvalidToken(t *testing.T) {
 	}
 	`
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckListEndpoint,
-		AuthorizationToken: badJWTAuthBearer,
+		Method:      http.MethodGet,
+		Endpoint:    server.AckListEndpoint,
+		XRHIdentity: invalidXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusForbidden,
 		Body:       ackListResponse,
@@ -312,9 +312,9 @@ func TestHTTPServer_TestReadAckListAggregatorError(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckListEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:      http.MethodGet,
+		Endpoint:    server.AckListEndpoint,
+		XRHIdentity: goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -341,9 +341,9 @@ func TestHTTPServer_TestReadAckListUnparsableAggregatorJSON(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckListEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:      http.MethodGet,
+		Endpoint:    server.AckListEndpoint,
+		XRHIdentity: goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		// also 500, but testing different condition
 		StatusCode: http.StatusInternalServerError,
@@ -378,10 +378,10 @@ func TestHTTPServer_TestGetAcknowledgeNotFound(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckGetEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+		Method:       http.MethodGet,
+		Endpoint:     server.AckGetEndpoint,
+		XRHIdentity:  goodXRHAuthToken,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusNotFound,
 	})
@@ -407,10 +407,10 @@ func TestHTTPServer_TestGetAcknowledgeAggregatorError(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckGetEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+		Method:       http.MethodGet,
+		Endpoint:     server.AckGetEndpoint,
+		XRHIdentity:  goodXRHAuthToken,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -437,10 +437,10 @@ func TestHTTPServer_TestGetAcknowledgeUnparsableAggregatorJSON(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckGetEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+		Method:       http.MethodGet,
+		Endpoint:     server.AckGetEndpoint,
+		XRHIdentity:  goodXRHAuthToken,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
 	}, &helpers.APIResponse{
 		// also 500, but testing different condition
 		StatusCode: http.StatusInternalServerError,
@@ -508,10 +508,10 @@ func TestHTTPServer_TestGetAcknowledgeFound(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckGetEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+		Method:       http.MethodGet,
+		Endpoint:     server.AckGetEndpoint,
+		XRHIdentity:  goodXRHAuthToken,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusOK,
 		Body:       expectedResponse,
@@ -566,9 +566,9 @@ func TestHTTPServer_TestGetAcknowledgeInvalidRuleIDBadRequest(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckGetEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:      http.MethodGet,
+		Endpoint:    server.AckGetEndpoint,
+		XRHIdentity: goodXRHAuthToken,
 		// invalid composite rule ID
 		EndpointArgs: []interface{}{testdata.Rule1ID},
 	}, &helpers.APIResponse{
@@ -596,10 +596,10 @@ func TestHTTPServer_TestGetAcknowledgeInvalidToken(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodGet,
-		Endpoint:           server.AckGetEndpoint,
-		AuthorizationToken: invalidJWTAuthBearer,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
+		Method:       http.MethodGet,
+		Endpoint:     server.AckGetEndpoint,
+		XRHIdentity:  invalidXRHAuthToken,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusForbidden,
 	})
@@ -689,10 +689,10 @@ func TestHTTPServer_TestAcknowledgePostFound(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPost,
-		Endpoint:           server.AckAcknowledgePostEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:      http.MethodPost,
+		Endpoint:    server.AckAcknowledgePostEndpoint,
+		XRHIdentity: goodXRHAuthToken,
+		Body:        reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusOK,
 		Body:       expectedResponse,
@@ -808,10 +808,10 @@ func TestHTTPServer_TestAcknowledgePostNewAck(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPost,
-		Endpoint:           server.AckAcknowledgePostEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:      http.MethodPost,
+		Endpoint:    server.AckAcknowledgePostEndpoint,
+		XRHIdentity: goodXRHAuthToken,
+		Body:        reqBody,
 	}, &helpers.APIResponse{
 		// 201 CREATED when rule wasn't acked before
 		StatusCode: http.StatusCreated,
@@ -836,10 +836,10 @@ func TestHTTPServer_TestAcknowledgePostMissingParam(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPost,
-		Endpoint:           server.AckAcknowledgePostEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:      http.MethodPost,
+		Endpoint:    server.AckAcknowledgePostEndpoint,
+		XRHIdentity: goodXRHAuthToken,
+		Body:        reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusBadRequest,
 	})
@@ -862,10 +862,10 @@ func TestHTTPServer_TestAcknowledgePostBadCompositeRuleID(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPost,
-		Endpoint:           server.AckAcknowledgePostEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:      http.MethodPost,
+		Endpoint:    server.AckAcknowledgePostEndpoint,
+		XRHIdentity: goodXRHAuthToken,
+		Body:        reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusBadRequest,
 	})
@@ -901,10 +901,10 @@ func TestHTTPServer_TestAcknowledgePostAggregatorError1stCall(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, testdata.Rule1CompositeID, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPost,
-		Endpoint:           server.AckAcknowledgePostEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:      http.MethodPost,
+		Endpoint:    server.AckAcknowledgePostEndpoint,
+		XRHIdentity: goodXRHAuthToken,
+		Body:        reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -987,10 +987,10 @@ func TestHTTPServer_TestAcknowledgePostAggregatorError2ndCall(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, testdata.Rule1CompositeID, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPost,
-		Endpoint:           server.AckAcknowledgePostEndpoint,
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:      http.MethodPost,
+		Endpoint:    server.AckAcknowledgePostEndpoint,
+		XRHIdentity: goodXRHAuthToken,
+		Body:        reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -1011,10 +1011,10 @@ func TestHTTPServer_TestAcknowledgePostInvalidToken(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, testdata.Rule1CompositeID, "justification")
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPost,
-		Endpoint:           server.AckAcknowledgePostEndpoint,
-		AuthorizationToken: invalidJWTAuthBearer,
-		Body:               reqBody,
+		Method:      http.MethodPost,
+		Endpoint:    server.AckAcknowledgePostEndpoint,
+		XRHIdentity: invalidXRHAuthToken,
+		Body:        reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusForbidden,
 	})
@@ -1058,11 +1058,11 @@ func TestHTTPServer_TestAcknowledgeUpdateNotFound(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.AckUpdateEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodPut,
+		Endpoint:     server.AckUpdateEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusNotFound,
 	})
@@ -1193,11 +1193,11 @@ func TestHTTPServer_TestAcknowledgeUpdateFound(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.AckUpdateEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodPut,
+		Endpoint:     server.AckUpdateEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusOK,
 		Body:       expectedResponse,
@@ -1221,11 +1221,11 @@ func TestHTTPServer_TestAcknowledgeUpdateBadCompositeRuleID(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, justificationNote)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.AckUpdateEndpoint,
-		EndpointArgs:       []interface{}{"invalid rule id"},
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodPut,
+		Endpoint:     server.AckUpdateEndpoint,
+		EndpointArgs: []interface{}{"invalid rule id"},
+		XRHIdentity:  goodXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusBadRequest,
 	})
@@ -1260,11 +1260,11 @@ func TestHTTPServer_TestAcknowledgeUpdateAggregatorError1st(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, justificationUpdated)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.AckUpdateEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodPut,
+		Endpoint:     server.AckUpdateEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -1344,11 +1344,11 @@ func TestHTTPServer_TestAcknowledgeUpdateAggregatorError2nd(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, justificationUpdated)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.AckUpdateEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodPut,
+		Endpoint:     server.AckUpdateEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -1442,11 +1442,11 @@ func TestHTTPServer_TestAcknowledgeUpdateAggregatorError3rd(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, justificationUpdated)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.AckUpdateEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodPut,
+		Endpoint:     server.AckUpdateEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -1466,11 +1466,11 @@ func TestHTTPServer_TestAcknowledgeUpdateInvalidToken(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, "justification")
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.AckUpdateEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: invalidJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodPut,
+		Endpoint:     server.AckUpdateEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  invalidXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusForbidden,
 	})
@@ -1538,10 +1538,10 @@ func TestHTTPServer_TestAcknowledgeDeleteFound(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodDelete,
-		Endpoint:           server.AckDeleteEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:       http.MethodDelete,
+		Endpoint:     server.AckDeleteEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusNoContent,
 	})
@@ -1574,10 +1574,10 @@ func TestHTTPServer_TestAcknowledgeDeleteNotFound(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodDelete,
-		Endpoint:           server.AckDeleteEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:       http.MethodDelete,
+		Endpoint:     server.AckDeleteEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusNotFound,
 	})
@@ -1590,10 +1590,10 @@ func TestHTTPServer_TestAcknowledgeDeleteBadRequest(t *testing.T) {
 	assert.Nil(t, err)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodDelete,
-		Endpoint:           server.AckDeleteEndpoint,
-		EndpointArgs:       []interface{}{"invalid rule id"},
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:       http.MethodDelete,
+		Endpoint:     server.AckDeleteEndpoint,
+		EndpointArgs: []interface{}{"invalid rule id"},
+		XRHIdentity:  goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusBadRequest,
 	})
@@ -1613,11 +1613,11 @@ func TestHTTPServer_TestAcknowledgeDeleteInvalidToken(t *testing.T) {
 	reqBody = fmt.Sprintf(reqBody, "justification")
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodDelete,
-		Endpoint:           server.AckDeleteEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: invalidJWTAuthBearer,
-		Body:               reqBody,
+		Method:       http.MethodDelete,
+		Endpoint:     server.AckDeleteEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  invalidXRHAuthToken,
+		Body:         reqBody,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusForbidden,
 	})
@@ -1650,10 +1650,10 @@ func TestHTTPServer_TestAcknowledgeDeleteAggregatorError1st(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodDelete,
-		Endpoint:           server.AckDeleteEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:       http.MethodDelete,
+		Endpoint:     server.AckDeleteEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
@@ -1721,10 +1721,10 @@ func TestHTTPServer_TestAcknowledgeDeleteAggregatorError2nd(t *testing.T) {
 	)
 
 	helpers.AssertAPIv2Request(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodDelete,
-		Endpoint:           server.AckDeleteEndpoint,
-		EndpointArgs:       []interface{}{testdata.Rule1CompositeID},
-		AuthorizationToken: goodJWTAuthBearer,
+		Method:       http.MethodDelete,
+		Endpoint:     server.AckDeleteEndpoint,
+		EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+		XRHIdentity:  goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusInternalServerError,
 	})
