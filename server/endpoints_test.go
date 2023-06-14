@@ -72,12 +72,12 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 				})
 
 				helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
-					Method:             testCase.method,
-					Endpoint:           testCase.endpoint,
-					EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-					UserID:             testdata.UserID,
-					OrgID:              testdata.OrgID,
-					AuthorizationToken: goodJWTAuthBearer,
+					Method:       testCase.method,
+					Endpoint:     testCase.endpoint,
+					EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+					UserID:       testdata.UserID,
+					OrgID:        testdata.OrgID,
+					XRHIdentity:  goodXRHAuthToken,
 				}, &helpers.APIResponse{
 					StatusCode: http.StatusOK,
 					Body:       `{"status": "ok"}`,

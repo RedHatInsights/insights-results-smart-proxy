@@ -46,24 +46,6 @@ const (
 
 // TODO: consider moving to data repo
 var (
-	// badJWTAuthBearer contains:
-	// {
-	// 	"account_number": "5213476",
-	// 	"org_id": "1234"
-	// }
-	badJWTAuthBearer = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxMjM0In0.Y9nNaZXbMEO6nz2EHNaCvHxPM0IaeT7GGR-T8u8h_nr_2b5dYsCQiZGzzkBupRJruHy9K6acgJ08JN2Q28eOAEVk_ZD2EqO43rSOS6oe8uZmVo-nCecdqovHa9PqW8RcZMMxVfGXednw82kKI8j1aT_nbJ1j9JZt3hnHM4wtqydelMij7zKyZLHTWFeZbDDCuEIkeWA6AdIBCMdywdFTSTsccVcxT2rgv4mKpxY1Fn6Vu_Xo27noZW88QhPTHbzM38l9lknGrvJVggrzMTABqWEXNVHbph0lXjPWsP7pe6v5DalYEBN2r3a16A6s3jPfI86cRC6_oeXotlW6je0iKQ"
-	// goodJWTAuthBearer contains:
-	// {
-	// 	"account_number": "5213476",
-	// 	"org_id": "1",
-	// 	"user_id": "1",
-	// 	"jti": "05443b99-d824-480b-a4be-37977405f093",
-	// 	"iat": 1594126340,
-	// 	"exp": 1594141847
-	// }
-	goodJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJqdGkiOiIwNTQ0M2I5OS1kODI0LTQ4MGItYTRiZS0zNzk3NzQwNWYwOTMiLCJpYXQiOjE1OTQxMjYzNDAsImV4cCI6MTU5NDE0MTg0N30K.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"
-	// invalidJWTAuthBearer is goodJWTAuthBearer with the org_id type set as int
-	invalidJWTAuthBearer      = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOjEsImp0aSI6IjA1NDQzYjk5LWQ4MjQtNDgwYi1hNGJlLTM3OTc3NDA1ZjA5MyIsImlhdCI6MTU5NDEyNjM0MCwiZXhwIjoxNTk0MTQxODQ3fQ.GndJUWNaG4IWm8OkKBs_1uvD1-vaJqL2Xvf9QiGvlRw"
 	userIDOnGoodJWTAuthBearer = "1"
 	// goodXRHAuthToken is in following structure https://docs.google.com/document/d/1PAzJqcUXlxg7t5cX1lsPsQtBPT_95bZbyB9Iiv_ekGM/
 	// with expected values (org_id == 1, account_number == 1)
