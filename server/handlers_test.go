@@ -1339,15 +1339,15 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.OverviewEndpoint,
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:      http.MethodGet,
+				Endpoint:    server.OverviewEndpoint,
+				XRHIdentity: goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
