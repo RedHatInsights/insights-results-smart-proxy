@@ -81,6 +81,23 @@ var (
 		EnableInternalRulesOrganizations: false,
 	}
 
+	// DefaultServerConfigXRH is data structure that represents default HTTP
+	// server configuration with XRH auth type. XRH type is used in all pre-prod/prod environments.
+	DefaultServerConfigXRH = server.Configuration{
+		Address:                          ":8081",
+		APIdbgPrefix:                     "/api/dbg/",
+		APIv1Prefix:                      "/api/v1/",
+		APIv2Prefix:                      "/api/v2/",
+		APIv1SpecFile:                    "server/api/v1/openapi.json",
+		APIv2SpecFile:                    "server/api/v2/openapi.json",
+		Debug:                            true,
+		Auth:                             true,
+		AuthType:                         "xrh",
+		UseHTTPS:                         false,
+		EnableCORS:                       false,
+		EnableInternalRulesOrganizations: false,
+	}
+
 	// DefaultServerConfigCORS is data structure that represents default
 	// server configuration with CORS enabled
 	DefaultServerConfigCORS = server.Configuration{

@@ -205,7 +205,7 @@ func TestGetCurrentOrgIDUserIDFromToken(t *testing.T) {
 	}
 }
 
-func TestGetAuthTokenHeaderMalformed(t *testing.T) {
+func TestGetAuthTokenJWTHeaderMalformed(t *testing.T) {
 	s := helpers.CreateHTTPServer(
 		&helpers.DefaultServerConfig,
 		&helpers.DefaultServicesConfig,
@@ -218,13 +218,57 @@ func TestGetAuthTokenHeaderMalformed(t *testing.T) {
 
 	request, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
 	assert.NoError(t, err)
-	request.Header.Set("Authorization", "token")
+	request.Header.Set(server.JWTAuthTokenHeader, "token")
 
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
 
 	assert.Equal(t, recorder.Code, http.StatusForbidden)
 	assert.Contains(t, recorder.Body.String(), "Invalid/Malformed auth token")
+}
+
+func TestGetAuthTokenXRHHeader(t *testing.T) {
+	s := helpers.CreateHTTPServer(
+		&helpers.DefaultServerConfigXRH,
+		&helpers.DefaultServicesConfig,
+		nil, nil, nil, nil, nil,
+	)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.GetAuthTokenHeader(s, w, r)
+	})
+
+	request, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
+	assert.NoError(t, err)
+	request.Header.Set(server.XRHAuthTokenHeader, "token")
+
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	// if xrh auth type is used, contents of header are checked in different function, thus only calling GetAuthTokenHeader is successful
+	assert.Equal(t, http.StatusOK, recorder.Code)
+}
+
+func TestGetXRHAuthTokenEmpty(t *testing.T) {
+	s := helpers.CreateHTTPServer(
+		&helpers.DefaultServerConfigXRH,
+		&helpers.DefaultServicesConfig,
+		nil, nil, nil, nil, nil,
+	)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.GetAuthTokenHeader(s, w, r)
+	})
+
+	request, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
+	assert.NoError(t, err)
+	request.Header.Set(server.XRHAuthTokenHeader, "")
+
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	assert.Equal(t, recorder.Code, http.StatusForbidden)
+	assert.Contains(t, recorder.Body.String(), "Missing auth token")
 }
 
 func TestGetAuthTokenHeaderMissing(t *testing.T) {

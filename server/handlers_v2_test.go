@@ -67,16 +67,16 @@ func TestHTTPServer_SetRating(t *testing.T) {
 
 	helpers.AssertAPIv2Request(
 		t,
-		&serverConfigJWT,
+		&helpers.DefaultServerConfigXRH,
 		nil,
 		nil,
 		nil,
 		nil,
 		&helpers.APIRequest{
-			Method:             http.MethodPost,
-			Endpoint:           server.Rating,
-			Body:               rating,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodPost,
+			Endpoint:    server.Rating,
+			Body:        rating,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       rating,
