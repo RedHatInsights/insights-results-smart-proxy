@@ -62,16 +62,19 @@ var (
 	// 	"exp": 1594141847
 	// }
 	goodJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJqdGkiOiIwNTQ0M2I5OS1kODI0LTQ4MGItYTRiZS0zNzk3NzQwNWYwOTMiLCJpYXQiOjE1OTQxMjYzNDAsImV4cCI6MTU5NDE0MTg0N30K.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"
-	// unparsableJWTAuthBearer cannot be parsed
-	unparsableJWTAuthBearer = "Bearer this_is^not.a-token"
-	// anemicJWTAuthBearer is goodJWTAuthBearer without account_number
-	anemicJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcmdfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJqdGkiOiIwNTQ0M2I5OS1kODI0LTQ4MGItYTRiZS0zNzk3NzQwNWYwOTMiLCJpYXQiOjE1OTQxMjYzNDAsImV4cCI6MTU5NDE0MTg0N30K.P6-6BJ4hUpLzCqsmGHthe0B1opU3Tz6nMtCQ-Yvuea4"
 	// invalidJWTAuthBearer is goodJWTAuthBearer with the org_id type set as int
 	invalidJWTAuthBearer      = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOjEsImp0aSI6IjA1NDQzYjk5LWQ4MjQtNDgwYi1hNGJlLTM3OTc3NDA1ZjA5MyIsImlhdCI6MTU5NDEyNjM0MCwiZXhwIjoxNTk0MTQxODQ3fQ.GndJUWNaG4IWm8OkKBs_1uvD1-vaJqL2Xvf9QiGvlRw"
 	userIDOnGoodJWTAuthBearer = "1"
-	goodXRHAuthToken          = `eyJpZGVudGl0eSI6eyJhY2NvdW50X251bWJlciI6IjEiLCJvcmdfaWQiOiIxIiwidHlwZSI6IlVzZXIiLCJ1c2VyIjp7InVzZXJuYW1lIjoiamRvZSIsInVzZXJfaWQiOiIxIiwiZW1haWwiOiJqZG9lQGFjbWUuY29tIiwiZmlyc3RfbmFtZSI6IkpvaG4iLCJsYXN0X25hbWUiOiJEb2UiLCJpc19hY3RpdmUiOnRydWUsImlzX29yZ19hZG1pbiI6ZmFsc2UsImlzX2ludGVybmFsIjpmYWxzZSwibG9jYWxlIjoiZW5fVVMifSwiaW50ZXJuYWwiOnsib3JnX2lkIjoiMSIsImF1dGhfdHlwZSI6ImJhc2ljLWF1dGgiLCJhdXRoX3RpbWUiOjYzMDB9fX0K`
-	testTimeStr               = "2021-01-02T15:04:05Z"
-	testTimestamp             = types.Timestamp(testTimeStr)
+	// goodXRHAuthToken is in following structure https://docs.google.com/document/d/1PAzJqcUXlxg7t5cX1lsPsQtBPT_95bZbyB9Iiv_ekGM/
+	// with expected values (org_id == 1, account_number == 1)
+	goodXRHAuthToken = `eyJpZGVudGl0eSI6eyJhY2NvdW50X251bWJlciI6IjEiLCJvcmdfaWQiOiIxIiwidHlwZSI6IlVzZXIiLCJ1c2VyIjp7InVzZXJuYW1lIjoiamRvZSIsInVzZXJfaWQiOiIxIiwiZW1haWwiOiJqZG9lQGFjbWUuY29tIiwiZmlyc3RfbmFtZSI6IkpvaG4iLCJsYXN0X25hbWUiOiJEb2UiLCJpc19hY3RpdmUiOnRydWUsImlzX29yZ19hZG1pbiI6ZmFsc2UsImlzX2ludGVybmFsIjpmYWxzZSwibG9jYWxlIjoiZW5fVVMifSwiaW50ZXJuYWwiOnsib3JnX2lkIjoiMSIsImF1dGhfdHlwZSI6ImJhc2ljLWF1dGgiLCJhdXRoX3RpbWUiOjYzMDB9fX0K`
+	// badXRHAuthToken has correct structure, but unexpected values (org_id == 1234, account_number == 1234)
+	badXRHAuthToken = `eyJpZGVudGl0eSI6eyJhY2NvdW50X251bWJlciI6IjEyMzQiLCJvcmdfaWQiOiIxMjM0IiwidHlwZSI6IlVzZXIiLCJ1c2VyIjp7InVzZXJuYW1lIjoiamRvZSIsInVzZXJfaWQiOiIxMjM0IiwiZW1haWwiOiJqZG9lQGFjbWUuY29tIiwiZmlyc3RfbmFtZSI6IkpvaG4iLCJsYXN0X25hbWUiOiJEb2UiLCJpc19hY3RpdmUiOnRydWUsImlzX29yZ19hZG1pbiI6ZmFsc2UsImlzX2ludGVybmFsIjpmYWxzZSwibG9jYWxlIjoiZW5fVVMifSwiaW50ZXJuYWwiOnsib3JnX2lkIjoiMTIzNCIsImF1dGhfdHlwZSI6ImJhc2ljLWF1dGgiLCJhdXRoX3RpbWUiOjYzMDB9fX0K`
+	// anemicXRHAuthToken has correct structure, but is missing account_number
+	anemicXRHAuthToken  = `eyJpZGVudGl0eSI6eyJvcmdfaWQiOiIxIiwidHlwZSI6IlVzZXIiLCJ1c2VyIjp7InVzZXJuYW1lIjoiamRvZSIsInVzZXJfaWQiOiIxIiwiZW1haWwiOiJqZG9lQGFjbWUuY29tIiwiZmlyc3RfbmFtZSI6IkpvaG4iLCJsYXN0X25hbWUiOiJEb2UiLCJpc19hY3RpdmUiOnRydWUsImlzX29yZ19hZG1pbiI6ZmFsc2UsImlzX2ludGVybmFsIjpmYWxzZSwibG9jYWxlIjoiZW5fVVMifSwiaW50ZXJuYWwiOnsib3JnX2lkIjoiMSIsImF1dGhfdHlwZSI6ImJhc2ljLWF1dGgiLCJhdXRoX3RpbWUiOjYzMDB9fX0K`
+	invalidXRHAuthToken = `invalid token`
+	testTimeStr         = "2021-01-02T15:04:05Z"
+	testTimestamp       = types.Timestamp(testTimeStr)
 
 	serverConfigJWT = server.Configuration{
 		Address:                          ":8081",
@@ -96,7 +99,7 @@ var (
 		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
 		Auth:                             true,
-		AuthType:                         "jwt",
+		AuthType:                         "xrh",
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: true,
@@ -113,7 +116,7 @@ var (
 		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
 		Auth:                             true,
-		AuthType:                         "jwt",
+		AuthType:                         "xrh",
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: true,

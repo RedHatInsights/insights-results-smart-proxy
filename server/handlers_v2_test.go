@@ -927,7 +927,7 @@ func TestHTTPServer_GetRequestStatusForCluster_BadAuthToken(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		// bad token
 		iou_helpers.AssertAPIRequest(
@@ -935,10 +935,10 @@ func TestHTTPServer_GetRequestStatusForCluster_BadAuthToken(t *testing.T) {
 			testServer,
 			serverConfigJWT.APIv2Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.StatusOfRequestID,
-				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
-				AuthorizationToken: unparsableJWTAuthBearer,
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestID,
+				EndpointArgs: []interface{}{testdata.ClusterName, "requestID1"},
+				XRHIdentity:  invalidXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusForbidden,
 			},
@@ -1183,7 +1183,7 @@ func TestHTTPServer_GetRequestsForCluster_BadAuthToken(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -1191,10 +1191,10 @@ func TestHTTPServer_GetRequestsForCluster_BadAuthToken(t *testing.T) {
 			testServer,
 			serverConfigJWT.APIv2Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.ListAllRequestIDs,
-				EndpointArgs:       []interface{}{testdata.ClusterName},
-				AuthorizationToken: unparsableJWTAuthBearer,
+				Method:       http.MethodGet,
+				Endpoint:     server.ListAllRequestIDs,
+				EndpointArgs: []interface{}{testdata.ClusterName},
+				XRHIdentity:  invalidXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusForbidden,
 			},
@@ -1487,7 +1487,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadAuthToken(t *testing.T) 
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		requestIDList := []types.RequestID{"requestID1"}
 		reqBody, _ := json.Marshal(requestIDList)
@@ -1498,11 +1498,11 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadAuthToken(t *testing.T) 
 			testServer,
 			serverConfigJWT.APIv2Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodPost,
-				Endpoint:           server.ListAllRequestIDs,
-				EndpointArgs:       []interface{}{testdata.ClusterName},
-				AuthorizationToken: unparsableJWTAuthBearer,
-				Body:               reqBody,
+				Method:       http.MethodPost,
+				Endpoint:     server.ListAllRequestIDs,
+				EndpointArgs: []interface{}{testdata.ClusterName},
+				XRHIdentity:  invalidXRHAuthToken,
+				Body:         reqBody,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusForbidden,
 			},
@@ -1784,7 +1784,7 @@ func TestHTTPServer_GetReportForRequest_BadAuthToken(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -1792,10 +1792,10 @@ func TestHTTPServer_GetReportForRequest_BadAuthToken(t *testing.T) {
 			testServer,
 			serverConfigJWT.APIv2Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.RuleHitsForRequestID,
-				EndpointArgs:       []interface{}{testdata.ClusterName, "requestID1"},
-				AuthorizationToken: unparsableJWTAuthBearer,
+				Method:       http.MethodGet,
+				Endpoint:     server.RuleHitsForRequestID,
+				EndpointArgs: []interface{}{testdata.ClusterName, "requestID1"},
+				XRHIdentity:  invalidXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusForbidden,
 			},

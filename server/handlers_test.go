@@ -1727,47 +1727,47 @@ func TestInternalOrganizations(t *testing.T) {
 			"Internal organizations enabled, Request denied due to wrong OrgID",
 			&serverConfigInternalOrganizations1,
 			http.StatusForbidden,
-			badJWTAuthBearer,
+			badXRHAuthToken,
 		},
 		{
 			"Internal organizations enabled, Request denied due to unparsable token",
 			&serverConfigInternalOrganizations1,
 			http.StatusForbidden,
-			unparsableJWTAuthBearer,
+			invalidXRHAuthToken,
 		},
 		{
 			// testing anemic tenant (user without account_number). must pass after EBS/org_id migration
 			"Internal organizations enabled, Request allowed for anemic tenant",
 			&serverConfigInternalOrganizations1,
 			http.StatusOK,
-			anemicJWTAuthBearer,
+			anemicXRHAuthToken,
 		},
 		{
 			"Internal organizations enabled, Request denied due to invalid type in token",
 			&serverConfigInternalOrganizations1,
 			http.StatusForbidden,
-			invalidJWTAuthBearer,
+			invalidXRHAuthToken,
 		},
 		{
 			"Internal organizations enabled, Request allowed",
 			&serverConfigInternalOrganizations1,
 			http.StatusOK,
-			goodJWTAuthBearer,
+			goodXRHAuthToken,
 		},
 		{
 			"Internal organizations disabled, Request allowed",
 			&serverConfigJWT,
 			http.StatusForbidden,
-			badJWTAuthBearer,
+			badXRHAuthToken,
 		},
 	} {
 		t.Run(testCase.TestName, func(t *testing.T) {
 			helpers.RunTestWithTimeout(t, func(t testing.TB) {
 				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
-					Method:             http.MethodGet,
-					Endpoint:           server.RuleContent,
-					EndpointArgs:       []interface{}{internalTestRuleModule},
-					AuthorizationToken: testCase.MockAuthToken,
+					Method:       http.MethodGet,
+					Endpoint:     server.RuleContent,
+					EndpointArgs: []interface{}{internalTestRuleModule},
+					XRHIdentity:  testCase.MockAuthToken,
 				}, &helpers.APIResponse{
 					StatusCode: testCase.ExpectedStatusCode,
 				})
@@ -1794,15 +1794,15 @@ func TestRuleNames(t *testing.T) {
 			"Internal orgs enabled, authentication provided",
 			&serverConfigInternalOrganizations1,
 			http.StatusOK,
-			goodJWTAuthBearer,
+			goodXRHAuthToken,
 		},
 	} {
 		t.Run(testCase.TestName, func(t *testing.T) {
 			helpers.RunTestWithTimeout(t, func(t testing.TB) {
 				helpers.AssertAPIRequest(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
-					Method:             http.MethodGet,
-					Endpoint:           server.RuleIDs,
-					AuthorizationToken: testCase.MockAuthToken,
+					Method:      http.MethodGet,
+					Endpoint:    server.RuleIDs,
+					XRHIdentity: testCase.MockAuthToken,
 				}, &helpers.APIResponse{
 					StatusCode: testCase.ExpectedStatusCode,
 				})
@@ -1829,9 +1829,9 @@ func TestRuleNamesResponse(t *testing.T) {
 	`
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations1, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RuleIDs,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RuleIDs,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        expectedBody,
@@ -1846,9 +1846,9 @@ func TestRuleNamesResponse(t *testing.T) {
 		}`
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		helpers.AssertAPIRequest(t, &serverConfigInternalOrganizations2, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RuleIDs,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RuleIDs,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        expectedBody,
@@ -2653,10 +2653,10 @@ func TestHTTPServer_RecommendationsListEndpoint_BadToken(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: badJWTAuthBearer,
+		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigXRH, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: invalidJWTAuthBearer,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusForbidden,
 		})
@@ -2773,7 +2773,7 @@ func TestHTTPServer_GetRecommendationContent(t *testing.T) {
 	}{
 		{
 			"ok",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			testdata.Rule1CompositeID,
 			http.StatusOK,
 			GetRuleContentRecommendationContent1,
@@ -2794,14 +2794,14 @@ func TestHTTPServer_GetRecommendationContent(t *testing.T) {
 		},
 		{
 			"not found",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			testdata.Rule5CompositeID,
 			http.StatusNotFound,
 			nil,
 		},
 		{
 			"invalid rule ID",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			"invalid rule id",
 			http.StatusBadRequest,
 			nil,
@@ -2822,10 +2822,10 @@ func TestHTTPServer_GetRecommendationContent(t *testing.T) {
 				}
 
 				helpers.AssertAPIv2Request(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
-					Method:             http.MethodGet,
-					Endpoint:           server.RuleContentV2,
-					EndpointArgs:       []interface{}{testCase.RuleID},
-					AuthorizationToken: goodJWTAuthBearer,
+					Method:       http.MethodGet,
+					Endpoint:     server.RuleContentV2,
+					EndpointArgs: []interface{}{testCase.RuleID},
+					XRHIdentity:  goodXRHAuthToken,
 				}, &response)
 			}, testTimeout)
 		})
@@ -2852,7 +2852,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 	}{
 		{
 			"no vote",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			ctypes.UserVoteNone,
 			testdata.Rule1CompositeID,
 			http.StatusOK,
@@ -2860,7 +2860,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		},
 		{
 			"with rule like",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			ctypes.UserVoteLike,
 			testdata.Rule1CompositeID,
 			http.StatusOK,
@@ -2868,7 +2868,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		},
 		{
 			"with rule dislike",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			ctypes.UserVoteDislike,
 			testdata.Rule1CompositeID,
 			http.StatusOK,
@@ -2892,7 +2892,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		},
 		{
 			"not found",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			ctypes.UserVoteDislike,
 			testdata.Rule5CompositeID,
 			http.StatusNotFound,
@@ -2900,7 +2900,7 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 		},
 		{
 			"invalid rule ID",
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			ctypes.UserVoteDislike,
 			"invalid rule id",
 			http.StatusBadRequest,
@@ -2953,10 +2953,10 @@ func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
 				}
 
 				helpers.AssertAPIv2Request(t, testCase.ServerConfig, nil, nil, nil, nil, &helpers.APIRequest{
-					Method:             http.MethodGet,
-					Endpoint:           server.RuleContentWithUserData,
-					EndpointArgs:       []interface{}{testCase.RuleID},
-					AuthorizationToken: goodJWTAuthBearer,
+					Method:       http.MethodGet,
+					Endpoint:     server.RuleContentWithUserData,
+					EndpointArgs: []interface{}{testCase.RuleID},
+					XRHIdentity:  goodXRHAuthToken,
 				}, &response)
 			}, testTimeout)
 		})
