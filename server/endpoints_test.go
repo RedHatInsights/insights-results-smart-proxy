@@ -91,13 +91,13 @@ func TestHTTPServer_ProxyTo_VoteEndpointsExtractUserID(t *testing.T) {
 
 func TestHTTPServer_ProxyTo_VoteEndpointBadCharacter(t *testing.T) {
 	badClusterName := "00000000000000000000000000000000000%1F"
-	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfig, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
-		Method:             http.MethodPut,
-		Endpoint:           server.LikeRuleEndpoint,
-		EndpointArgs:       []interface{}{badClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-		UserID:             testdata.UserID,
-		OrgID:              testdata.OrgID,
-		AuthorizationToken: goodJWTAuthBearer,
+	helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigXRH, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+		Method:       http.MethodPut,
+		Endpoint:     server.LikeRuleEndpoint,
+		EndpointArgs: []interface{}{badClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+		UserID:       testdata.UserID,
+		OrgID:        testdata.OrgID,
+		XRHIdentity:  goodXRHAuthToken,
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusBadRequest,
 		Body:       `{"status":"the parameters contains invalid characters and cannot be used"}`,
