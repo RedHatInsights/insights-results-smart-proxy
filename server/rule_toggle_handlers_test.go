@@ -16,9 +16,10 @@ package server_test
 
 import (
 	"fmt"
-	ctypes "github.com/RedHatInsights/insights-results-types"
 	"net/http"
 	"testing"
+
+	ctypes "github.com/RedHatInsights/insights-results-types"
 
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
@@ -51,16 +52,16 @@ func TestEnableEndpoint(t *testing.T) {
 
 		helpers.AssertAPIRequest(
 			t,
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
 			nil,
 			&helpers.APIRequest{
-				Method:             http.MethodPut,
-				Endpoint:           server.EnableRuleForClusterEndpoint,
-				EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:       http.MethodPut,
+				Endpoint:     server.EnableRuleForClusterEndpoint,
+				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+				XRHIdentity:  goodXRHAuthToken,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -94,16 +95,16 @@ func TestDisableEndpoint(t *testing.T) {
 
 		helpers.AssertAPIRequest(
 			t,
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
 			nil,
 			&helpers.APIRequest{
-				Method:             http.MethodPut,
-				Endpoint:           server.DisableRuleForClusterEndpoint,
-				EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:       http.MethodPut,
+				Endpoint:     server.DisableRuleForClusterEndpoint,
+				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+				XRHIdentity:  goodXRHAuthToken,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -125,16 +126,16 @@ func TestEnableEndpointBadErrorKey(t *testing.T) {
 		)
 		helpers.AssertAPIRequest(
 			t,
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
 			nil,
 			&helpers.APIRequest{
-				Method:             http.MethodPut,
-				Endpoint:           server.EnableRuleForClusterEndpoint,
-				EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:       http.MethodPut,
+				Endpoint:     server.EnableRuleForClusterEndpoint,
+				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+				XRHIdentity:  goodXRHAuthToken,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusNotFound,
@@ -156,16 +157,16 @@ func TestDisableEndpointBadErrorKey(t *testing.T) {
 		)
 		helpers.AssertAPIRequest(
 			t,
-			&serverConfigJWT,
+			&helpers.DefaultServerConfigXRH,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
 			nil,
 			&helpers.APIRequest{
-				Method:             http.MethodPut,
-				Endpoint:           server.DisableRuleForClusterEndpoint,
-				EndpointArgs:       []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:       http.MethodPut,
+				Endpoint:     server.DisableRuleForClusterEndpoint,
+				EndpointArgs: []interface{}{testdata.ClusterName, testdata.Rule1ID, testdata.ErrorKey1},
+				XRHIdentity:  goodXRHAuthToken,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusNotFound,
