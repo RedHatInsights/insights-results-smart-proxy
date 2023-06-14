@@ -70,6 +70,7 @@ var (
 	invalidJWTAuthBearer      = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOjEsImp0aSI6IjA1NDQzYjk5LWQ4MjQtNDgwYi1hNGJlLTM3OTc3NDA1ZjA5MyIsImlhdCI6MTU5NDEyNjM0MCwiZXhwIjoxNTk0MTQxODQ3fQ.GndJUWNaG4IWm8OkKBs_1uvD1-vaJqL2Xvf9QiGvlRw"
 	userIDOnGoodJWTAuthBearer = "1"
 	goodXRHAuthToken          = `eyJpZGVudGl0eSI6eyJhY2NvdW50X251bWJlciI6IjEiLCJvcmdfaWQiOiIxIiwidHlwZSI6IlVzZXIiLCJ1c2VyIjp7InVzZXJuYW1lIjoiamRvZSIsInVzZXJfaWQiOiIxIiwiZW1haWwiOiJqZG9lQGFjbWUuY29tIiwiZmlyc3RfbmFtZSI6IkpvaG4iLCJsYXN0X25hbWUiOiJEb2UiLCJpc19hY3RpdmUiOnRydWUsImlzX29yZ19hZG1pbiI6ZmFsc2UsImlzX2ludGVybmFsIjpmYWxzZSwibG9jYWxlIjoiZW5fVVMifSwiaW50ZXJuYWwiOnsib3JnX2lkIjoiMSIsImF1dGhfdHlwZSI6ImJhc2ljLWF1dGgiLCJhdXRoX3RpbWUiOjYzMDB9fX0K`
+	badXRHAuthToken           = `invalid token`
 	testTimeStr               = "2021-01-02T15:04:05Z"
 	testTimestamp             = types.Timestamp(testTimeStr)
 
@@ -1314,10 +1315,10 @@ func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }
 
-// TestInfoEndpointNoAuth checks that the info endpoint can be accessed without authenticating
-func TestInfoEndpointNoAuth(t *testing.T) {
+// TestInfoEndpointNoAuthToken checks that the info endpoint can be accessed without authenticating
+func TestInfoEndpointNoAuthToken(t *testing.T) {
 	t.Run("test the info endpoint v1", func(t *testing.T) {
-		helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigAuth, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigXRH, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.InfoEndpoint,
 		}, &helpers.APIResponse{
@@ -1325,7 +1326,7 @@ func TestInfoEndpointNoAuth(t *testing.T) {
 		})
 	})
 	t.Run("test the info endpoint v2", func(t *testing.T) {
-		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigAuth, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigXRH, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.InfoEndpoint,
 		}, &helpers.APIResponse{
