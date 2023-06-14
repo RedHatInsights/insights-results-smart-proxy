@@ -62,10 +62,6 @@ var (
 	// 	"exp": 1594141847
 	// }
 	goodJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJqdGkiOiIwNTQ0M2I5OS1kODI0LTQ4MGItYTRiZS0zNzk3NzQwNWYwOTMiLCJpYXQiOjE1OTQxMjYzNDAsImV4cCI6MTU5NDE0MTg0N30K.pp32mPoypnRjOYE95SrBar0fdLS9t_hndOtP5qUvB-c"
-	// unparsableJWTAuthBearer cannot be parsed
-	unparsableJWTAuthBearer = "Bearer this_is^not.a-token"
-	// anemicJWTAuthBearer is goodJWTAuthBearer without account_number
-	anemicJWTAuthBearer = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJvcmdfaWQiOiIxIiwidXNlcl9pZCI6IjEiLCJqdGkiOiIwNTQ0M2I5OS1kODI0LTQ4MGItYTRiZS0zNzk3NzQwNWYwOTMiLCJpYXQiOjE1OTQxMjYzNDAsImV4cCI6MTU5NDE0MTg0N30K.P6-6BJ4hUpLzCqsmGHthe0B1opU3Tz6nMtCQ-Yvuea4"
 	// invalidJWTAuthBearer is goodJWTAuthBearer with the org_id type set as int
 	invalidJWTAuthBearer      = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhY2NvdW50X251bWJlciI6IjUyMTM0NzYiLCJvcmdfaWQiOjEsImp0aSI6IjA1NDQzYjk5LWQ4MjQtNDgwYi1hNGJlLTM3OTc3NDA1ZjA5MyIsImlhdCI6MTU5NDEyNjM0MCwiZXhwIjoxNTk0MTQxODQ3fQ.GndJUWNaG4IWm8OkKBs_1uvD1-vaJqL2Xvf9QiGvlRw"
 	userIDOnGoodJWTAuthBearer = "1"
