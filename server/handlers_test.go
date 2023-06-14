@@ -435,7 +435,7 @@ func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -451,12 +451,12 @@ func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
 		expectedJSONBody := helpers.ToJSONString(SmartProxyV2ReportResponse1RuleNoContent)
 		// previously was InternalServerError, but it was changed as an edge-case which will appear as "No issues found"
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ReportEndpointV2,
-			EndpointArgs:       []interface{}{testdata.ClusterName},
-			UserID:             types.UserID(userIDOnGoodJWTAuthBearer),
-			OrgID:              testdata.OrgID,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpointV2,
+			EndpointArgs: []interface{}{testdata.ClusterName},
+			UserID:       types.UserID(userIDOnGoodJWTAuthBearer),
+			OrgID:        testdata.OrgID,
+			XRHIdentity:  goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       expectedJSONBody,
@@ -481,7 +481,7 @@ func TestHTTPServer_ReportEndpointV2TestAMSData(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -501,12 +501,12 @@ func TestHTTPServer_ReportEndpointV2TestAMSData(t *testing.T) {
 		expectedJSONBody := helpers.ToJSONString(resp)
 
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ReportEndpointV2,
-			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
-			UserID:             types.UserID(userIDOnGoodJWTAuthBearer),
-			OrgID:              testdata.OrgID,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpointV2,
+			EndpointArgs: []interface{}{clusterInfoList[0].ID},
+			UserID:       types.UserID(userIDOnGoodJWTAuthBearer),
+			OrgID:        testdata.OrgID,
+			XRHIdentity:  goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       expectedJSONBody,
@@ -530,7 +530,7 @@ func TestHTTPServer_ReportEndpointV2TestManagedClustersRules(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
 		// 3 rules, only 1 of which is managed
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
@@ -551,12 +551,12 @@ func TestHTTPServer_ReportEndpointV2TestManagedClustersRules(t *testing.T) {
 		expectedJSONBody := helpers.ToJSONString(resp)
 
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ReportEndpointV2,
-			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
-			UserID:             types.UserID(userIDOnGoodJWTAuthBearer),
-			OrgID:              testdata.OrgID,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpointV2,
+			EndpointArgs: []interface{}{clusterInfoList[0].ID},
+			UserID:       types.UserID(userIDOnGoodJWTAuthBearer),
+			OrgID:        testdata.OrgID,
+			XRHIdentity:  goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       expectedJSONBody,
@@ -653,7 +653,7 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentManagedCluster(t *te
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -671,13 +671,13 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentManagedCluster(t *te
 		extraHeaders["User-Agent"] = []string{ioUserAgent}
 
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv1Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ReportEndpoint,
-			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
-			UserID:             testdata.UserID,
-			OrgID:              testdata.OrgID,
-			AuthorizationToken: goodJWTAuthBearer,
-			ExtraHeaders:       extraHeaders,
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{clusterInfoList[0].ID},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+			XRHIdentity:  goodXRHAuthToken,
+			ExtraHeaders: extraHeaders,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			// expecting the same response as if providing the osd_eligible flag
@@ -707,7 +707,7 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentNonManagedCluster(t 
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -726,13 +726,13 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentNonManagedCluster(t 
 		extraHeaders["User-Agent"] = []string{ioUserAgent}
 
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv1Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ReportEndpoint,
-			EndpointArgs:       []interface{}{clusterInfoList[0].ID},
-			UserID:             testdata.UserID,
-			OrgID:              testdata.OrgID,
-			AuthorizationToken: goodJWTAuthBearer,
-			ExtraHeaders:       extraHeaders,
+			Method:       http.MethodGet,
+			Endpoint:     server.ReportEndpoint,
+			EndpointArgs: []interface{}{clusterInfoList[0].ID},
+			UserID:       testdata.UserID,
+			OrgID:        testdata.OrgID,
+			XRHIdentity:  goodXRHAuthToken,
+			ExtraHeaders: extraHeaders,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(SmartProxyV1ReportResponse3Rules),
@@ -1421,15 +1421,15 @@ func TestHTTPServer_OverviewEndpointManagedClustersRules(t *testing.T) {
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
 		// managed cluster; 1 managed rule, 2 non-managed rules == only 1 rule must count
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.OverviewEndpoint,
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:      http.MethodGet,
+				Endpoint:    server.OverviewEndpoint,
+				XRHIdentity: goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseManagedRules),
@@ -1499,11 +1499,11 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, helpers.DefaultServerConfig.APIv1Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.OverviewEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.OverviewEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusServiceUnavailable,
 			Body:       expectedBody,
@@ -1572,15 +1572,15 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.OverviewEndpoint,
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:      http.MethodGet,
+				Endpoint:    server.OverviewEndpoint,
+				XRHIdentity: goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRule1EnabledRule2Disabled),
@@ -1618,9 +1618,9 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.OverviewEndpoint,
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:      http.MethodGet,
+				Endpoint:    server.OverviewEndpoint,
+				XRHIdentity: goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRule1DisabledRule2Enabled),
@@ -1688,7 +1688,7 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		config := helpers.DefaultServerConfig
+		config := helpers.DefaultServerConfigXRH
 		config.UseOrgClustersFallback = true
 		testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
@@ -1696,11 +1696,11 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 			testServer,
 			helpers.DefaultServerConfig.APIv1Prefix,
 			&helpers.APIRequest{
-				Method:             http.MethodGet,
-				Endpoint:           server.OverviewEndpoint,
-				OrgID:              testdata.OrgID,
-				UserID:             ctypes.UserID(userIDOnGoodJWTAuthBearer),
-				AuthorizationToken: goodJWTAuthBearer,
+				Method:      http.MethodGet,
+				Endpoint:    server.OverviewEndpoint,
+				OrgID:       testdata.OrgID,
+				UserID:      ctypes.UserID(userIDOnGoodJWTAuthBearer),
+				XRHIdentity: goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(OverviewResponseRules123Enabled),
@@ -2083,11 +2083,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters),
@@ -2193,11 +2193,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 		)
 
 		// one rule acked; one rule user disabled (not counted as impacting)
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules1Disabled1Acked),
@@ -2269,11 +2269,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(GetRecommendationsResponse1Rule2Cluster),
@@ -2338,11 +2338,11 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(GetRecommendationsResponse0Rules),
@@ -2409,11 +2409,11 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=true",
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=true",
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(GetRecommendationsResponse0Rules),
@@ -2480,11 +2480,11 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=false",
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules0Clusters),
@@ -2555,11 +2555,11 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetRecommendationsResponse1Rule2Cluster),
@@ -2635,11 +2635,11 @@ func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_Impactin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetRecommendationsResponse3Rules1Cluster),
@@ -2668,10 +2668,10 @@ func TestHTTPServer_RecommendationsListEndpoint_BadImpactingParam(t *testing.T) 
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		helpers.AssertAPIv2Request(t, &serverConfigJWT, nil, nil, nil, nil, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=badbool",
-			AuthorizationToken: goodJWTAuthBearer,
+		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigXRH, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint + "?" + server.ImpactingParam + "=badbool",
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusBadRequest,
 		})
@@ -2741,11 +2741,11 @@ func TestHTTPServer_RecommendationsListEndpointAMSManagedClusters(t *testing.T) 
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.RecommendationsListEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.RecommendationsListEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(GetRecommendationsResponse2Rules2Clusters1Managed),
@@ -3000,11 +3000,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoClusters(t *testing.T) {
 
 		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode: http.StatusOK,
 			Body:       helpers.ToJSONString(GetClustersResponse0Clusters),
@@ -3060,11 +3060,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *t
 			resp.Clusters[i].LastCheckedAt = "" // will be empty because we don't have the cluster in our DB
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3133,11 +3133,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 			resp.Clusters[i].LastCheckedAt = testTimestamp
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3193,11 +3193,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3278,11 +3278,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3362,11 +3362,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1Managed(t *testing
 		}
 
 		// cluster 1 is managed, so must only show 1 rule. cluster 2 will show both rules.
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3449,11 +3449,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1WithVersion(t *tes
 		}
 
 		// cluster 1 is managed, so must only show 1 rule. cluster 2 will show both rules.
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3553,11 +3553,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule(t *testing.T) {
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3661,11 +3661,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledRuleSingleCluster(t 
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
@@ -3790,11 +3790,11 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 			resp.Clusters[i].Managed = clusterInfoList[i].Managed
 		}
 
-		testServer := helpers.CreateHTTPServer(&serverConfigJWT, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
-			Method:             http.MethodGet,
-			Endpoint:           server.ClustersRecommendationsEndpoint,
-			AuthorizationToken: goodJWTAuthBearer,
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
 		}, &helpers.APIResponse{
 			StatusCode:  http.StatusOK,
 			Body:        helpers.ToJSONString(resp),
