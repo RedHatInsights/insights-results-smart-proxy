@@ -36,6 +36,13 @@ type UpgradeRisksPredictors struct {
 	OperatorConditions []OperatorCondition `json:"operator_conditions"`
 }
 
+// DataEngResponse is the response received from the data-eng service
+type DataEngResponse struct {
+	Recommended     bool                   `json:"upgrade_recommended"`
+	RisksPredictors UpgradeRisksPredictors `json:"upgrade_risks_predictors"`
+	LastCheckedAt   Timestamp              `json:"last_checked_at"`
+}
+
 // UpgradeRecommendation is the inner data structure for the UpgradeRiskPredictionResponse
 type UpgradeRecommendation struct {
 	Recommended     bool                   `json:"upgrade_recommended"`

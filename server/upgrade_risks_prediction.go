@@ -106,13 +106,16 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 	}
 
 	response := make(map[string]interface{})
-	response["upgrade_recommendation"] = predictionResponse
+	response["upgrade_recommendation"] = types.UpgradeRecommendation{
+		Recommended:     predictionResponse.Recommended,
+		RisksPredictors: predictionResponse.RisksPredictors,
+	}
 	response["status"] = OkMsg
 
 	// TODO: Currently DataEng service doesn't return any timestamp
 	// Getting current time to avoid returning an empty string
 	response["meta"] = types.UpgradeRisksMeta{
-		LastCheckedAt: types.Timestamp(time.Now().UTC().Format(time.RFC3339)),
+		LastCheckedAt: predictionResponse.LastCheckedAt,
 	}
 
 	err = responses.SendOK(
@@ -127,7 +130,7 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 func (server *HTTPServer) fetchUpgradePrediction(
 	cluster types.ClusterName,
 	writer http.ResponseWriter,
-) (*types.UpgradeRecommendation, error) {
+) (*types.DataEngResponse, error) {
 	dataEngURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
 		UpgradeRisksPredictionServiceEndpoint,
@@ -169,7 +172,7 @@ func (server *HTTPServer) fetchUpgradePrediction(
 		}
 		return nil, err
 	}
-	responseData := &types.UpgradeRecommendation{}
+	responseData := &types.DataEngResponse{}
 	err = json.Unmarshal(responseBytes, &responseData)
 	if err != nil {
 		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("error unmarshalling data-engineering response")

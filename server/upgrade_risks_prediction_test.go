@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func checkBodyWithoutTimestamps(t testing.TB, expected, got []byte) {
+func checkBodyAsMap(t testing.TB, expected, got []byte) {
 	var expectedObj, gotObj map[string]interface{}
 
 	err := json.Unmarshal(expected, &expectedObj)
@@ -41,15 +41,6 @@ func checkBodyWithoutTimestamps(t testing.TB, expected, got []byte) {
 		err = fmt.Errorf(`got is not JSON. value = "%v", err = "%v"`, string(got), err)
 	}
 	assert.NoError(t, err)
-
-	var gotMetaObj map[string]interface{}
-
-	gotMetaObj, ok := gotObj["meta"].(map[string]interface{})
-	if !ok {
-		delete(gotObj, "meta")
-	} else {
-		delete(gotMetaObj, "last_checked_at")
-	}
 
 	assert.Equal(
 		t,
@@ -88,7 +79,9 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 					"operator_conditions": null
 				}
 			},
-			"meta": {},
+			"meta": {
+				"last_checked_at": "0001-01-01T00:00:00Z"
+			},
 			"status":"ok"
 		}
 		`
@@ -119,7 +112,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 			}, &helpers.APIResponse{
 				StatusCode:  http.StatusOK,
 				Body:        expectedResponse,
-				BodyChecker: checkBodyWithoutTimestamps,
+				BodyChecker: checkBodyAsMap,
 			},
 		)
 	}, testTimeout)
@@ -161,7 +154,9 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 					]
 				}
 			},
-			"meta": {},
+			"meta": {
+				"last_checked_at": "0001-01-01T00:00:00Z"
+			},
 			"status":"ok"
 		}
 		`
@@ -192,7 +187,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 			}, &helpers.APIResponse{
 				StatusCode:  http.StatusOK,
 				Body:        expectedResponse,
-				BodyChecker: checkBodyWithoutTimestamps,
+				BodyChecker: checkBodyAsMap,
 			},
 		)
 	}, testTimeout)
