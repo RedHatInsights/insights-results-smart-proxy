@@ -18,7 +18,8 @@ var (
 	UpgradeRecommended = `
 		{
 			"upgrade_recommended": true,
-			"upgrade_risks_predictors": null
+			"upgrade_risks_predictors": null,
+			"last_checked_at": "0001-01-01T00:00:00Z"
 		}`
 
 	UpgradeNotRecommended = `
@@ -27,7 +28,8 @@ var (
 			"upgrade_risks_predictors": {
 				"alerts": [` + AlertExample1 + `],
 				"operator_conditions": [` + OperatorConditionExample1 + `]
-			}
+			},
+			"last_checked_at": "0001-01-01T00:00:00Z"
 		}
 	`
 
