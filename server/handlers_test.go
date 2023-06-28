@@ -3804,7 +3804,8 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 }
 
 // TODO: fix race condition/deadlock, then this test can be enabled again
-func _TestHTTPServer_GroupsEndpoint(t *testing.T) {
+/*
+func TestHTTPServer_GroupsEndpoint(t *testing.T) {
 	groupsChannel := make(chan []groups.Group)
 	errorFoundChannel := make(chan bool)
 	errorChannel := make(chan error)
@@ -3836,9 +3837,11 @@ func _TestHTTPServer_GroupsEndpoint(t *testing.T) {
 		})
 	}, 30*time.Second)
 }
+*/
 
 // TODO: fix race condition/deadlock, then this test can be enabled again
-func _TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
+/*
+func TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
 	groupsChannel := make(chan []groups.Group)
 	errorFoundChannel := make(chan bool)
 	errorChannel := make(chan error)
@@ -3863,6 +3866,7 @@ func _TestHTTPServer_GroupsEndpoint_UnavailableContentService(t *testing.T) {
 		})
 	}, 30*time.Second)
 }
+*/
 
 // TestServeInfoMap checks the REST API server behaviour for info endpoint
 func TestServeInfoMap(t *testing.T) {
