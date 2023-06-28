@@ -27,7 +27,7 @@ documentation, a namespace can be provided in order to act as a prefix to the
 metric name. If no namespace is provided in the configuration, the metrics will
 be exposed as described in this documentation.
 
-## Grafana dashboard
+## Grafana dashboards
 
 Metrics exported via Prometheus API are visualized on two Grafana dashboards:
 
