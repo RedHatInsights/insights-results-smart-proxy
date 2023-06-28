@@ -112,8 +112,6 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 	}
 	response["status"] = OkMsg
 
-	// TODO: Currently DataEng service doesn't return any timestamp
-	// Getting current time to avoid returning an empty string
 	response["meta"] = types.UpgradeRisksMeta{
 		LastCheckedAt: predictionResponse.LastCheckedAt,
 	}
