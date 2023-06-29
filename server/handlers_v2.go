@@ -1281,7 +1281,7 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 	// log all request IDs, we need to perform it one by one becuase of type conversions
 	log.Info().Int("IDS count", len(requestIDsForCluster)).Msg("requestIDs")
 	for i, requestIDForCluster := range requestIDsForCluster {
-		log.Info().Int("#", i).Msg(str(requestIDForCluster))
+		log.Info().Int("#", i).Msg(string(requestIDForCluster))
 	}
 
 	// get data for each request ID. Don't omit missing keys, because requester wants to know which are valid
