@@ -51,7 +51,7 @@ func readJustificationFromBody(writer http.ResponseWriter, request *http.Request
 	// JSON Decode() will not throw an error when a field isn't present. This is NOT strict decoding.
 	if err != nil {
 		log.Error().Err(err).Msg("wrong payload (not justification) provided by client")
-		err := &RouterMissingParamError{paramName: "justification"}
+		err := &RouterMissingParamError{ParamName: "justification"}
 		return parameters, err
 	}
 

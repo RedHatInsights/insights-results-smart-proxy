@@ -36,34 +36,34 @@ const (
 
 // RouterMissingParamError missing parameter in request
 type RouterMissingParamError struct {
-	paramName string
+	ParamName string
 }
 
 func (e *RouterMissingParamError) Error() string {
-	return fmt.Sprintf("Missing required param from request: %v", e.paramName)
+	return fmt.Sprintf("Missing required param from request: %v", e.ParamName)
 }
 
 // RouterParsingError parsing error, for example string when we expected integer
 type RouterParsingError struct {
-	paramName  string
-	paramValue interface{}
-	errString  string
+	ParamName  string
+	ParamValue interface{}
+	ErrString  string
 }
 
 func (e *RouterParsingError) Error() string {
 	return fmt.Sprintf(
 		"Error during parsing param '%v' with value '%v'. Error: '%v'",
-		e.paramName, e.paramValue, e.errString,
+		e.ParamName, e.ParamValue, e.ErrString,
 	)
 }
 
 // AuthenticationError happens during auth problems, for example malformed token
 type AuthenticationError struct {
-	errString string
+	ErrString string
 }
 
 func (e *AuthenticationError) Error() string {
-	return e.errString
+	return e.ErrString
 }
 
 // NoBodyError error meaning that client didn't provide body when it's required
