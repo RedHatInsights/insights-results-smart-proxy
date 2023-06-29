@@ -36,7 +36,7 @@ const (
 
 // RouterMissingParamError missing parameter in request
 type RouterMissingParamError struct {
-	paramName string
+	ParamName string
 }
 
 func (e *RouterMissingParamError) Error() string {
