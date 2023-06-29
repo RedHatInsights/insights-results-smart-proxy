@@ -55,9 +55,9 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleIDWithErrorKey))
 	if err != nil {
 		handleServerError(writer, &RouterParsingError{
-			paramName:  RuleIDParamName,
-			paramValue: ruleIDWithErrorKey,
-			errString:  err.Error(),
+			ParamName:  RuleIDParamName,
+			ParamValue: ruleIDWithErrorKey,
+			ErrString:  err.Error(),
 		})
 		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
@@ -82,9 +82,9 @@ func readCompositeRuleID(request *http.Request) (
 	if !isCompositeRuleIDValid {
 		msg := fmt.Errorf("invalid composite rule ID. Must be in the format 'rule.plugin.module|ERROR_KEY'")
 		err = &RouterParsingError{
-			paramName:  RuleIDParamName,
-			paramValue: ruleIDParam,
-			errString:  msg.Error(),
+			ParamName:  RuleIDParamName,
+			ParamValue: ruleIDParam,
+			ErrString:  msg.Error(),
 		}
 		log.Error().Err(err)
 		return
@@ -119,8 +119,8 @@ func (server *HTTPServer) readParamsGetRecommendations(writer http.ResponseWrite
 	if err != nil {
 		log.Err(err).Msgf("Error parsing `%s` URL parameter.", ImpactingParam)
 		handleServerError(writer, &RouterParsingError{
-			paramName: ImpactingParam,
-			errString: "Unparsable boolean value",
+			ParamName: ImpactingParam,
+			ErrString: "Unparsable boolean value",
 		})
 		return
 	}
@@ -204,9 +204,9 @@ func readRequestID(writer http.ResponseWriter, request *http.Request) (types.Req
 	validatedRequestID, err := ValidateRequestID(requestID)
 	if err != nil {
 		err := &RouterParsingError{
-			paramName:  RequestIDParam,
-			paramValue: requestID,
-			errString:  err.Error(),
+			ParamName:  RequestIDParam,
+			ParamValue: requestID,
+			ErrString:  err.Error(),
 		}
 		handleServerError(writer, err)
 		return "", err
@@ -239,9 +239,9 @@ func readRequestIDList(writer http.ResponseWriter, request *http.Request) (
 		validatedRequestID, err := ValidateRequestID(requestID)
 		if err != nil {
 			err := &RouterParsingError{
-				paramName:  RequestIDParam,
-				paramValue: requestID,
-				errString:  err.Error(),
+				ParamName:  RequestIDParam,
+				ParamValue: requestID,
+				ErrString:  err.Error(),
 			}
 			handleServerError(writer, err)
 			return nil, err

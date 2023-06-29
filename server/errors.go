@@ -40,20 +40,20 @@ type RouterMissingParamError struct {
 }
 
 func (e *RouterMissingParamError) Error() string {
-	return fmt.Sprintf("Missing required param from request: %v", e.paramName)
+	return fmt.Sprintf("Missing required param from request: %v", e.ParamName)
 }
 
 // RouterParsingError parsing error, for example string when we expected integer
 type RouterParsingError struct {
-	paramName  string
-	paramValue interface{}
-	errString  string
+	ParamName  string
+	ParamValue interface{}
+	ErrString  string
 }
 
 func (e *RouterParsingError) Error() string {
 	return fmt.Sprintf(
 		"Error during parsing param '%v' with value '%v'. Error: '%v'",
-		e.paramName, e.paramValue, e.errString,
+		e.ParamName, e.ParamValue, e.ErrString,
 	)
 }
 
