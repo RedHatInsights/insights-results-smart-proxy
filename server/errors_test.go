@@ -144,3 +144,16 @@ func TestAMSAPIUnavailableError(t *testing.T) {
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
 }
+
+// TestParamsParsingError checks the method Error() for data structure
+// ParamsParsingError
+func TestParamsParsingError(t *testing.T) {
+	// expected error value
+	const expected = "the parameters contains invalid characters and cannot be used"
+
+	// construct an instance of error interface
+	err := server.ParamsParsingError{}
+
+	// check if error value is correct
+	assert.Equal(t, err.Error(), expected)
+}
