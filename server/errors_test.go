@@ -105,3 +105,16 @@ func TestContentServiceUnavailableError(t *testing.T) {
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
 }
+
+// TestAggregatorServiceUnavailableError checks the method Error() for data structure
+// AggregatorServiceUnavailableError
+func TestAggregatorServiceUnavailableError(t *testing.T) {
+	// expected error value
+	const expected = "Aggregator service is unreachable"
+
+	// construct an instance of error interface
+	err := server.AggregatorServiceUnavailableError{}
+
+	// check if error value is correct
+	assert.Equal(t, err.Error(), expected)
+}
