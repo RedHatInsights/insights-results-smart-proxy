@@ -131,3 +131,16 @@ func TestUpgradesDataEngServiceUnavailableError(t *testing.T) {
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
 }
+
+// TestAMSAPIUnavailableError checks the method Error() for data structure
+// AMSAPIUnavailableError
+func TestAMSAPIUnavailableError(t *testing.T) {
+	// expected error value
+	const expected = "AMS API is unreachable"
+
+	// construct an instance of error interface
+	err := server.AMSAPIUnavailableError{}
+
+	// check if error value is correct
+	assert.Equal(t, err.Error(), expected)
+}
