@@ -52,3 +52,17 @@ func TestRouterParsingError(t *testing.T) {
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
 }
+
+// TestAuthenticationError checks the method Error() for data structure
+// AuthenticationError
+func TestAuthenticationError(t *testing.T) {
+	// expected error value
+	const expected = "Error during parsing param 'paramName' with value 'paramValue'. Error: 'errorMessage'"
+
+	// construct an instance of error interface
+	err := server.AuthenticationError{
+		ErrString: "errorMessage"}
+
+	// check if error value is correct
+	assert.Equal(t, err.Error(), "errorMessage")
+}
