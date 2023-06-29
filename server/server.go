@@ -1,5 +1,5 @@
 /*
-Copyright © 2020, 2021, 2022  Red Hat, Inc.
+Copyright © 2020, 2021, 2022, 2023  Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1214,7 +1214,7 @@ func (server *HTTPServer) checkInternalRulePermissions(request *http.Request) er
 	// If the loop ends without returning nil, then an authentication error should be raised
 	const message = "This organization is not allowed to access this recommendation"
 	log.Error().Msg(message)
-	return &AuthenticationError{errString: message}
+	return &AuthenticationError{ErrString: message}
 }
 
 // getGroupsConfig retrieves the groups configuration from a channel to get the

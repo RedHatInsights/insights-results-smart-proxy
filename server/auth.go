@@ -1,7 +1,7 @@
 // Auth implementation based on JWT
 
 /*
-Copyright © 2019, 2020, 2022 Red Hat, Inc.
+Copyright © 2019, 2020, 2022, 2023 Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		if err != nil {
 			// malformed token, returns with HTTP code 403 as usual
 			log.Error().Err(err).Msg(malformedTokenMessage)
-			handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
+			handleServerError(w, &AuthenticationError{ErrString: malformedTokenMessage})
 			return
 		}
 
@@ -87,7 +87,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			if err != nil {
 				// malformed token, returns with HTTP code 403 as usual
 				log.Error().Err(err).Msg(malformedTokenMessage)
-				handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
+				handleServerError(w, &AuthenticationError{ErrString: malformedTokenMessage})
 				return
 			}
 			// Map JWT token to inner token
@@ -104,7 +104,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 			if err != nil {
 				// malformed token, returns with HTTP code 403 as usual
 				log.Error().Err(err).Msg(malformedTokenMessage)
-				handleServerError(w, &AuthenticationError{errString: malformedTokenMessage})
+				handleServerError(w, &AuthenticationError{ErrString: malformedTokenMessage})
 				return
 			}
 		}
@@ -121,7 +121,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 				tk.Identity.User,
 			)
 			log.Error().Msg(msg)
-			handleServerError(w, &AuthenticationError{errString: msg})
+			handleServerError(w, &AuthenticationError{ErrString: msg})
 			return
 		}
 
@@ -177,12 +177,12 @@ func (server *HTTPServer) GetAuthToken(request *http.Request) (*types.Identity, 
 	i := request.Context().Value(types.ContextKeyUser)
 
 	if i == nil {
-		return nil, &AuthenticationError{errString: "token is not provided"}
+		return nil, &AuthenticationError{ErrString: "token is not provided"}
 	}
 
 	identity, ok := i.(types.Identity)
 	if !ok {
-		return nil, &AuthenticationError{errString: "contextKeyUser has wrong type"}
+		return nil, &AuthenticationError{ErrString: "contextKeyUser has wrong type"}
 	}
 
 	return &identity, nil
@@ -200,7 +200,7 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 
 		if tokenHeader == "" {
 			log.Error().Msg(missingTokenMessage)
-			handleServerError(w, &AuthenticationError{errString: missingTokenMessage})
+			handleServerError(w, &AuthenticationError{ErrString: missingTokenMessage})
 			return "", false
 		}
 
@@ -209,7 +209,7 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 		splitted := strings.Split(tokenHeader, " ")
 		if len(splitted) != 2 {
 			log.Error().Msg(invalidTokenMessage)
-			handleServerError(w, &AuthenticationError{errString: invalidTokenMessage})
+			handleServerError(w, &AuthenticationError{ErrString: invalidTokenMessage})
 			return "", false
 		}
 
@@ -230,7 +230,7 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 
 	if tokenHeader == "" {
 		log.Error().Msg(missingTokenMessage)
-		handleServerError(w, &AuthenticationError{errString: missingTokenMessage})
+		handleServerError(w, &AuthenticationError{ErrString: missingTokenMessage})
 		return "", false
 	}
 
