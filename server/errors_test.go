@@ -92,3 +92,16 @@ func TestBadBodyContent(t *testing.T) {
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
 }
+
+// TestContentServiceUnavailableError checks the method Error() for data structure
+// ContentServiceUnavailableError
+func TestContentServiceUnavailableError(t *testing.T) {
+	// expected error value
+	const expected = "Content service is unreachable"
+
+	// construct an instance of error interface
+	err := server.ContentServiceUnavailableError{}
+
+	// check if error value is correct
+	assert.Equal(t, err.Error(), expected)
+}
