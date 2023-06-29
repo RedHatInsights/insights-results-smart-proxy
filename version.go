@@ -41,10 +41,12 @@ func printInfo(msg, val string) {
 	fmt.Printf("%s\t%s\n", msg, val)
 }
 
-func printVersionInfo() {
+func printVersionInfo() ExitCode {
 	printInfo("Version:", BuildVersion)
 	printInfo("Build time:", BuildTime)
 	printInfo("Branch:", BuildBranch)
 	printInfo("Commit:", BuildCommit)
 	printInfo("Utils version:", UtilsVersion)
+
+	return ExitStatusOK
 }
