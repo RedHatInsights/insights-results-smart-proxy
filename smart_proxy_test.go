@@ -65,7 +65,7 @@ func TestStartServer_BadServerAddress(t *testing.T) {
 // TestPrintVersionInfo is dummy ATM - we'll check versions etc. in integration tests.
 // TODO: add check for actual messages that are printed to standard output
 func TestPrintVersionInfo(t *testing.T) {
-	main.PrintVersionInfo()
+	assert.Equal(t, main.ExitStatusOK, int(main.PrintHelp()))
 }
 
 // TestPrintHelp checks that printing help returns OK exit code.
@@ -106,4 +106,12 @@ func TestFillInInfoParams(t *testing.T) {
 	assert.Contains(t, m, "BuildBranch")
 	assert.Contains(t, m, "BuildCommit")
 	assert.Contains(t, m, "UtilsVersion")
+}
+
+// TestHandleCommand checks the handleCommand function
+func TestHandleCommand(t *testing.T) {
+	assert.Equal(t, int(main.HandleCommand("print-version")), main.ExitStatusOK)
+	assert.Equal(t, int(main.HandleCommand("print-help")), main.ExitStatusOK)
+	assert.Equal(t, int(main.HandleCommand("print-config")), main.ExitStatusOK)
+	assert.Equal(t, int(main.HandleCommand("print-env")), main.ExitStatusOK)
 }
