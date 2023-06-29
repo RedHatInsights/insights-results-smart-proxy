@@ -1252,6 +1252,8 @@ func (server *HTTPServer) getRequestsForCluster(writer http.ResponseWriter, requ
 // getRequestsForCluster method implements endpoint that should return a list of
 // request IDs and their details for given cluster and given list of request IDs provided in request body
 func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseWriter, request *http.Request) {
+	const logMsg = "getRequestsForClusterPostVariant"
+
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
@@ -1259,11 +1261,15 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 		return
 	}
 
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msg(logMsg)
+
 	clusterID, successful := httputils.ReadClusterName(writer, request)
 	if !successful {
 		// error handled by function
 		return
 	}
+
+	log.Info().Str("selected cluster", string(clusterID)).Msg(logMsg)
 
 	// get request ID list from request body
 	requestIDsForCluster, err := readRequestIDList(writer, request)
