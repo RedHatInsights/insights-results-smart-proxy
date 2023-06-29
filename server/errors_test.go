@@ -15,10 +15,16 @@
 package server_test
 
 import (
+	"encoding/json"
+
+	"net/http"
+	"net/http/httptest"
+
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/RedHatInsights/insights-operator-utils/types"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 )
 
@@ -156,4 +162,52 @@ func TestParamsParsingError(t *testing.T) {
 
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
+}
+
+// TestHandleServer error check the function HandleServerError defined in errors.go
+func TestHandleServerError(t *testing.T) {
+	// check the behaviour with all error types defined in this package
+	testResponse(t, &server.RouterMissingParamError{}, http.StatusBadRequest)
+	testResponse(t, &server.RouterParsingError{}, http.StatusBadRequest)
+	testResponse(t, &server.AuthenticationError{}, http.StatusForbidden)
+	testResponse(t, &server.NoBodyError{}, http.StatusBadRequest)
+	testResponse(t, &server.BadBodyContent{}, http.StatusBadRequest)
+	testResponse(t, &server.ContentServiceUnavailableError{}, http.StatusServiceUnavailable)
+	testResponse(t, &server.AggregatorServiceUnavailableError{}, http.StatusServiceUnavailable)
+	testResponse(t, &server.UpgradesDataEngServiceUnavailableError{}, http.StatusServiceUnavailable)
+	testResponse(t, &server.AMSAPIUnavailableError{}, http.StatusServiceUnavailable)
+	testResponse(t, &server.ParamsParsingError{}, http.StatusBadRequest)
+
+	// also some errors from types package are handled
+	testResponse(t, &types.ItemNotFoundError{}, http.StatusNotFound)
+	testResponse(t, &types.NoContentError{}, http.StatusNoContent)
+
+	// error can be nil
+	testResponse(t, nil, http.StatusInternalServerError)
+
+	// we need to retrieve json.UnmarshalTypeError
+	// so let's try to unmarshal "foo" string into an integer
+	var x int
+	err := json.Unmarshal([]byte("\"foo\""), &x)
+
+	/// test with json.UnmarshalTypeError
+	testResponse(t, err, http.StatusBadRequest)
+}
+
+// testResponse function uses HTTP server mock to check server response
+// handlers
+func testResponse(t *testing.T, e error, expectedCode int) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.HandleServerError(w, e)
+	}))
+	defer testServer.Close()
+
+	res, err := http.Get(testServer.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if res.StatusCode != expectedCode {
+		t.Errorf("Expected status code %v but got %v", expectedCode, res.StatusCode)
+	}
 }
