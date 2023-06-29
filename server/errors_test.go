@@ -66,3 +66,16 @@ func TestAuthenticationError(t *testing.T) {
 	// check if error value is correct
 	assert.Equal(t, err.Error(), "errorMessage")
 }
+
+// TestNoBodyError checks the method Error() for data structure
+// NoBodyError
+func TestNoBodyError(t *testing.T) {
+	// expected error value
+	const expected = "client didn't provide request body"
+
+	// construct an instance of error interface
+	err := server.NoBodyError{}
+
+	// check if error value is correct
+	assert.Equal(t, err.Error(), expected)
+}
