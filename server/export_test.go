@@ -29,4 +29,5 @@ package server
 var (
 	FillImpacted       = fillImpacted
 	GetAuthTokenHeader = (*HTTPServer).getAuthTokenHeader
+	HandleServerError  = handleServerError
 )
