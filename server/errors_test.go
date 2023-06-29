@@ -118,3 +118,16 @@ func TestAggregatorServiceUnavailableError(t *testing.T) {
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
 }
+
+// TestUpgradesDataEngServiceUnavailableError checks the method Error() for data structure
+// UpgradesDataEngServiceUnavailableError
+func TestUpgradesDataEngServiceUnavailableError(t *testing.T) {
+	// expected error value
+	const expected = "Upgrade Failure Prediction service is unreachable"
+
+	// construct an instance of error interface
+	err := server.UpgradesDataEngServiceUnavailableError{}
+
+	// check if error value is correct
+	assert.Equal(t, err.Error(), expected)
+}
