@@ -454,7 +454,8 @@ func TestHTTPServer_GetUpgradeRisksPrediction__timesout(t *testing.T) {
 		dataEngServer := httptest.NewServer(
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				time.Sleep(6 * time.Second)
-				fmt.Fprint(w, upgradeRecommended)
+				_, err := fmt.Fprint(w, upgradeRecommended)
+				assert.NoError(t, err)
 			}))
 		defer dataEngServer.Close()
 
