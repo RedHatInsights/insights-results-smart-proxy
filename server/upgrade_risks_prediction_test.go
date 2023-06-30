@@ -18,7 +18,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
@@ -26,6 +28,51 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"github.com/stretchr/testify/assert"
 )
+
+const upgradeRecommended = `
+{
+	"upgrade_recommendation": {
+		"upgrade_recommended": true,
+		"upgrade_risks_predictors": {
+			"alerts": null,
+			"operator_conditions": null
+		}
+	},
+	"meta": {
+		"last_checked_at": "0001-01-01T00:00:00Z"
+	},
+	"status":"ok"
+}
+`
+const upgradeNotRecommended = `
+{
+	"upgrade_recommendation": {
+		"upgrade_recommended": false,
+		"upgrade_risks_predictors": {
+			"alerts": [
+				{
+					"name": "alert1",
+					"namespace": "namespace1",
+					"severity": "info",
+					"url": "https://my-cluster.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=alert1"
+				}
+			],
+			"operator_conditions": [
+				{
+					"name": "foc1",
+					"condition": "ExampleCondition",
+					"reason": "Example reason",
+					"url": "https://my-cluster.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/foc1"
+				}
+			]
+		}
+	},
+	"meta": {
+		"last_checked_at": "0001-01-01T00:00:00Z"
+	},
+	"status":"ok"
+}
+`
 
 func checkBodyAsMap(t testing.TB, expected, got []byte) {
 	var expectedObj, gotObj map[string]interface{}
@@ -70,21 +117,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 			clusterInfoList,
 		)
 
-		expectedResponse := `
-		{
-			"upgrade_recommendation": {
-				"upgrade_recommended": true,
-				"upgrade_risks_predictors": {
-					"alerts": null,
-					"operator_conditions": null
-				}
-			},
-			"meta": {
-				"last_checked_at": "0001-01-01T00:00:00Z"
-			},
-			"status":"ok"
-		}
-		`
+		expectedResponse := upgradeRecommended
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
@@ -131,35 +164,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 			clusterInfoList,
 		)
 
-		expectedResponse := `
-		{
-			"upgrade_recommendation": {
-				"upgrade_recommended": false,
-				"upgrade_risks_predictors": {
-					"alerts": [
-						{
-							"name": "alert1",
-							"namespace": "namespace1",
-							"severity": "info",
-							"url": "https://my-cluster.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=alert1"
-						}
-					],
-					"operator_conditions": [
-						{
-							"name": "foc1",
-							"condition": "ExampleCondition",
-							"reason": "Example reason",
-							"url": "https://my-cluster.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/foc1"
-						}
-					]
-				}
-			},
-			"meta": {
-				"last_checked_at": "0001-01-01T00:00:00Z"
-			},
-			"status":"ok"
-		}
-		`
+		expectedResponse := upgradeNotRecommended
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
@@ -428,6 +433,49 @@ func TestHTTPServer_GetUpgradeRisksPredictionManagedCluster(t *testing.T) {
 				XRHIdentity:  goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusNoContent,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetUpgradeRisksPrediction__timesout(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := testdata.GetRandomClusterInfoListAllUnManaged(3)
+		cluster := clusterInfoList[0].ID
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		dataEngServer := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				time.Sleep(6 * time.Second)
+				_, err := fmt.Fprint(w, upgradeRecommended)
+				assert.NoError(t, err)
+			}))
+		defer dataEngServer.Close()
+
+		servicesConfig := helpers.DefaultServicesConfig
+		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
+		testServer := helpers.CreateHTTPServer(
+			&helpers.DefaultServerConfigXRH, &servicesConfig, amsClientMock,
+			nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.UpgradeRisksPredictionEndpoint,
+				EndpointArgs: []interface{}{cluster},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusServiceUnavailable,
 			},
 		)
 	}, testTimeout)
