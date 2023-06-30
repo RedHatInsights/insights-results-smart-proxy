@@ -349,7 +349,7 @@
     "/cluster/{clusterId}/requests": {
       "get": {
         "summary": "List of requests for given cluster",
-        "description": "Provides a list of all the recorded requests for the cluster with given ID, if any.",
+        "description": "Provides a list of all the recorded requests for the cluster with given ID, if any. Response should have following format:\n```{\n\"cluster\":\"{clusterID}\",\n\"requests\":[{array}],\n\"status\":\"{string}\"\n}\n```\nWhere {array} contains following objects:\n```{\n\"requestID\": {requestID},\n\"valid: True,\n\"received\": {timestamp},\n\"processed\": {timestamp},\n}\n```",
         "operationId": "getRequestsForCluster",
         "parameters": [
           {
@@ -399,7 +399,7 @@
       },
       "post": {
         "summary": "Filtered list of stored requests for given cluster ID",
-        "description": "A list of requests for given cluster, filtered by the provided request IDs, if any.",
+        "description": "A list of requests for given cluster, filtered by the provided request IDs, if any. List of request IDs should be in format\n```[\n\"requestID1\",\n\"requestID2\",\n ...,\"requestID3\"\n]\n```\nResponse is in format:\n```{\n\"cluster\": \"{clusterID}\"\n\"requests\": [{array}]\n\"status\": \"{string}\"\n}\n```\nWhere {array} contains the following objects:\n```{\n\"requestID\": {requestID},\n\"valid\": true/false depends if this is valid/known request ID,\n\"received\": {timestamp},\n\"processed\": {timestamp},\n}\n```\n",
         "operationId": "getRequestsForClusterPostVariant",
         "parameters": [
           {
@@ -473,7 +473,7 @@
       "get": {
         "summary": "Check status of a given cluster's request",
         "operationId": "getRequestStatusForCluster",
-        "description": "The status of the request with given ID if found. The cluster ID is required so only requests for the given cluster are returned, if any",
+        "description": "The status of the request with given ID if found. The cluster ID is required so only requests for the given cluster are returned, if any. Response should have the following format: ```\n{\n\"cluster\": \"{clusterID}\",\n\"requestID\":\"{requestID}\",\n\"status\": \"{string}\"\n}\n```",
         "parameters": [
           {
             "name": "clusterId",
@@ -533,7 +533,7 @@
       "get": {
         "summary": "Retrieve simplified reports for a given cluster and request IDs if available",
         "operationId": "getReportForRequest",
-        "description": "For the given cluster and request IDs, return the simplified report, if any",
+        "description": "For the given cluster and request IDs, return the simplified report, if any. Response should have the following format:\n```\n{\n\"cluster\": \"{clusterID}\",\n\"requestID\": \"{requestID}\",\n\"status\": \"{string}\",\n\"report\": \"{simplifiedReportStructure}\",\n}```\nWhere simplifiedReportStructure might look like:\n```[\n\"rule_fqdn\": \"\",\n\"error_key\": \"\",\n\"description\": \"\",\n\"total_risk\": \"\",\n]\n```\n",
         "parameters": [
           {
             "name": "clusterId",
