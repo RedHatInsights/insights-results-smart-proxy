@@ -19,6 +19,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -58,6 +59,8 @@ const (
 	// RequestIDNotFound is returned when the requested request ID was not found in the list of request IDs
 	// for given cluster
 	RequestIDNotFound = "Request ID not found for given org_id and cluster_id"
+	// Error send to log when Redis client is not initialized properly
+	RedisNotInitializedErrorMessage = "Redis is not initialized, request can not be finished correctly"
 )
 
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
@@ -1153,6 +1156,12 @@ func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter,
 		return
 	}
 
+	// make sure we don't access server.redis when it's nil
+	if server.redis == nil {
+		handleServerError(writer, errors.New(RedisNotInitializedErrorMessage))
+		return
+	}
+
 	// get request ID list from Redis using SCAN command
 	requestIDsForCluster, err := server.redis.GetRequestIDsForClusterID(orgID, clusterID)
 	if err != nil {
@@ -1211,6 +1220,12 @@ func (server *HTTPServer) getRequestsForCluster(writer http.ResponseWriter, requ
 	clusterID, successful := httputils.ReadClusterName(writer, request)
 	if !successful {
 		// error handled by function
+		return
+	}
+
+	// make sure we don't access server.redis when it's nil
+	if server.redis == nil {
+		handleServerError(writer, errors.New(RedisNotInitializedErrorMessage))
 		return
 	}
 
@@ -1284,6 +1299,12 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 		log.Info().Int("#", i).Msg(string(requestIDForCluster))
 	}
 
+	// make sure we don't access server.redis when it's nil
+	if server.redis == nil {
+		handleServerError(writer, errors.New(RedisNotInitializedErrorMessage))
+		return
+	}
+
 	// get data for each request ID. Don't omit missing keys, because requester wants to know which are valid
 	requestIDsData, err := server.redis.GetTimestampsForRequestIDs(orgID, clusterID, requestIDsForCluster, false)
 	if err != nil {
@@ -1324,6 +1345,12 @@ func (server *HTTPServer) getReportForRequest(writer http.ResponseWriter, reques
 	requestID, err := readRequestID(writer, request)
 	if err != nil {
 		// error handled by function
+		return
+	}
+
+	// make sure we don't access server.redis when it's nil
+	if server.redis == nil {
+		handleServerError(writer, errors.New(RedisNotInitializedErrorMessage))
 		return
 	}
 
