@@ -59,7 +59,7 @@ const (
 	// RequestIDNotFound is returned when the requested request ID was not found in the list of request IDs
 	// for given cluster
 	RequestIDNotFound = "Request ID not found for given org_id and cluster_id"
-	// Error send to log when Redis client is not initialized properly
+	// RedisNotInitializedErrorMessage is an error message written into log when Redis client is not initialized properly
 	RedisNotInitializedErrorMessage = "Redis is not initialized, request can not be finished correctly"
 )
 
