@@ -1157,7 +1157,7 @@ func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter,
 	}
 
 	// make sure we don't access server.redis when it's nil
-	if !server.checkServerReadiness() {
+	if !server.checkRedisClientReadiness(writer) {
 		// error has been handled already
 		return
 	}
@@ -1224,7 +1224,7 @@ func (server *HTTPServer) getRequestsForCluster(writer http.ResponseWriter, requ
 	}
 
 	// make sure we don't access server.redis when it's nil
-	if !server.checkServerReadiness() {
+	if !server.checkRedisClientReadiness(writer) {
 		// error has been handled already
 		return
 	}
@@ -1300,7 +1300,7 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 	}
 
 	// make sure we don't access server.redis when it's nil
-	if !server.checkServerReadiness() {
+	if !server.checkRedisClientReadiness(writer) {
 		// error has been handled already
 		return
 	}
@@ -1349,7 +1349,7 @@ func (server *HTTPServer) getReportForRequest(writer http.ResponseWriter, reques
 	}
 
 	// make sure we don't access server.redis when it's nil
-	if !server.checkServerReadiness() {
+	if !server.checkRedisClientReadiness(writer) {
 		// error has been handled already
 		return
 	}
@@ -1467,7 +1467,7 @@ func (server HTTPServer) getDisabledRulesForClusterMap(
 }
 
 // checkRedisClientReadiness method checks if Redis client has been initialized
-func (server *HTTPServer) checkRedisClientReadiness() bool {
+func (server *HTTPServer) checkRedisClientReadiness(writer http.ResponseWriter) bool {
 	if server.redis == nil {
 		handleServerError(writer, errors.New(RedisNotInitializedErrorMessage))
 		return false
