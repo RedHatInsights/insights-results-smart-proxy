@@ -773,6 +773,28 @@ func TestHTTPServer_GetSingleClusterInfoClusterNotFound(t *testing.T) {
 	}, testTimeout)
 }
 
+func TestHTTPServer_GetRequestStatusForCluster_RedisNil(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestID,
+				EndpointArgs: []interface{}{testdata.ClusterName, "requestID1"},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
 func TestHTTPServer_GetRequestStatusForCluster_RedisError500(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -1203,6 +1225,28 @@ func TestHTTPServer_GetRequestsForCluster_BadAuthToken(t *testing.T) {
 	}, testTimeout)
 }
 
+func TestHTTPServer_GetRequestsForCluster_NoRedis(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.ListAllRequestIDs,
+				EndpointArgs: []interface{}{testdata.ClusterName},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
 func TestHTTPServer_GetRequestsForCluster_RedisError500(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -1410,6 +1454,33 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_OK1RequestNotFound(t *testi
 		)
 
 		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetRequestsForClusterPostVariant_NoRedis(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, nil, nil, nil, nil)
+
+		requestIDList := []types.RequestID{"requestID1"}
+		reqBody, _ := json.Marshal(requestIDList)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     server.ListAllRequestIDs,
+				EndpointArgs: []interface{}{testdata.ClusterName},
+				XRHIdentity:  goodXRHAuthToken,
+				Body:         reqBody,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+
 	}, testTimeout)
 }
 
@@ -2203,5 +2274,34 @@ func TestHTTPServer_GetReportForRequest_AggregatorError_2ndCall(t *testing.T) {
 		)
 
 		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetReportForRequest_NoRedis(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, nil, nil, nil, nil)
+
+		requestIDList := []types.RequestID{"requestID1"}
+		reqBody, _ := json.Marshal(requestIDList)
+
+		expectedResponse := `{"status": "Internal Server Error"}`
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigJWT.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.RuleHitsForRequestID,
+				EndpointArgs: []interface{}{testdata.ClusterName, "requestID1"},
+				XRHIdentity:  goodXRHAuthToken,
+				Body:         reqBody,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       expectedResponse,
+			},
+		)
 	}, testTimeout)
 }

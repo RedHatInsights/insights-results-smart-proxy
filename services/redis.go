@@ -104,6 +104,7 @@ func (redis *RedisClient) GetRequestIDsForClusterID(
 	ctx := context.Background()
 
 	scanKey := fmt.Sprintf(RequestIDsScanPattern, orgID, clusterID)
+	log.Debug().Str("Scan key", scanKey).Msg("Key to retrieve item from Redis")
 
 	var cursor uint64
 	for {
