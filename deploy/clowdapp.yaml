@@ -40,6 +40,8 @@ objects:
     name: ccx-smart-proxy
   spec:
     envName: ${ENV_NAME}
+    dependencies:
+      - ccx-redis
     testing:
       iqePlugin: ccx
     deployments:
