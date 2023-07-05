@@ -233,6 +233,9 @@
     },
     "/cluster/{clusterId}/upgrade-risks-prediction": {
       "get": {
+        "tags": [
+          "prod"
+        ],
         "summary": "",
         "operationId": "getUpgradeRisksPrediction",
         "description": "The title of the rule, a short description.",
