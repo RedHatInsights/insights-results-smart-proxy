@@ -44,8 +44,9 @@ const (
 
 var (
 	// RequestIDsScanPattern is a glob-style pattern to find all matching keys. Uses ?* instead of * to avoid
-	// matching "organization:%v:cluster:%v:request:"
-	RequestIDsScanPattern = "organization:%v:cluster:%v:request:?*"
+	// matching "organization:%v:cluster:%v:request:". [^:reports] is an exclude pattern to not match the
+	// simplified report keys
+	RequestIDsScanPattern = "organization:%v:cluster:%v:request:?*[^:reports]"
 
 	// SimplifiedReportKey is a key under which the information about specific requests is stored
 	SimplifiedReportKey = "organization:%v:cluster:%v:request:%v:reports"
