@@ -104,7 +104,7 @@ func (redis *RedisClient) GetRequestIDsForClusterID(
 	ctx := context.Background()
 
 	scanKey := fmt.Sprintf(RequestIDsScanPattern, orgID, clusterID)
-	log.Debug().Str("Scan key", scanKey).Msg("Key to retrieve item from Redis")
+	log.Info().Str("Scan key", scanKey).Msg("Key to retrieve request IDs from Redis")
 
 	var cursor uint64
 	for {
@@ -224,6 +224,8 @@ func (redis *RedisClient) GetRuleHitsForRequest(
 		return
 	}
 
+	log.Info().Msgf("rule hits CSV retrieved from Redis: %v", simplifiedReport.RuleHitsCSV)
+
 	// validate rule IDs coming from Redis
 	ruleHitsSplit := strings.Split(simplifiedReport.RuleHitsCSV, ",")
 	for _, ruleHit := range ruleHitsSplit {
@@ -231,7 +233,7 @@ func (redis *RedisClient) GetRuleHitsForRequest(
 
 		isRuleIDValid := ruleIDRegex.MatchString(ruleHit)
 		if !isRuleIDValid {
-			log.Error().Msgf("rule_id %v retrieved from Redis is in invalid format", ruleHit)
+			log.Error().Msgf("rule_id [%v] retrieved from Redis is in invalid format", ruleHit)
 			continue
 		}
 
