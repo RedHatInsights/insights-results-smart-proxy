@@ -804,7 +804,7 @@ func TestHTTPServer_GetRequestStatusForCluster_RedisError500(t *testing.T) {
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey, 0).SetErr(errors.New("Redis server failure"))
+		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetErr(errors.New("Redis server failure"))
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -833,7 +833,7 @@ func TestHTTPServer_GetRequestStatusForCluster_NoRequestsForCluster(t *testing.T
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{}, 0)
+		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{}, 0)
 
 		// no request IDs found
 		iou_helpers.AssertAPIRequest(
@@ -864,7 +864,7 @@ func TestHTTPServer_GetRequestStatusForCluster_RequestNotFound(t *testing.T) {
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{"requestIDNotTheOne", "requestIDAlsoNotTheOne"}, 0)
+		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{"requestIDNotTheOne", "requestIDAlsoNotTheOne"}, 0)
 
 		// request IDs found but don't match the requested one
 		iou_helpers.AssertAPIRequest(
@@ -978,7 +978,7 @@ func TestHTTPServer_GetRequestStatusForCluster_SingleRequestID(t *testing.T) {
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{"requestID1"}, 0)
+		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{"requestID1"}, 0)
 
 		expectedResponse := fmt.Sprintf(`{"cluster":"%v","requestID":"%v","status":"processed"}`, testdata.ClusterName, "requestID1")
 
@@ -1011,9 +1011,9 @@ func TestHTTPServer_GetRequestStatusForCluster_RequestIDOnSecondPage(t *testing.
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{"requestID1"}, 42)
+		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{"requestID1"}, 42)
 		// requested request ID is found on the 2nd page returned from Redis (more Redis scenarios covered in services package)
-		redisServer.ExpectScan(42, expectedKey, 0).SetVal([]string{"requestID123"}, 0)
+		redisServer.ExpectScan(42, expectedKey, services.ScanBatchCount).SetVal([]string{"requestID123"}, 0)
 
 		expectedResponse := fmt.Sprintf(`{"cluster":"%v","requestID":"%v","status":"processed"}`, testdata.ClusterName, "requestID123")
 
@@ -1046,7 +1046,7 @@ func TestHTTPServer_GetRequestsForCluster_OK1Request(t *testing.T) {
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey1stCommand := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey1stCommand, 0).SetVal([]string{"requestID1"}, 0)
+		redisServer.ExpectScan(0, expectedKey1stCommand, services.ScanBatchCount).SetVal([]string{"requestID1"}, 0)
 
 		expectedKey2ndCommand := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
 		redisServer.ExpectHMGet(
@@ -1094,7 +1094,7 @@ func TestHTTPServer_GetRequestsForCluster_OK3Requests(t *testing.T) {
 		}
 
 		expectedKey1stCommand := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey1stCommand, 0).SetVal([]string{requestIDs[0], requestIDs[1], requestIDs[2]}, 0)
+		redisServer.ExpectScan(0, expectedKey1stCommand, services.ScanBatchCount).SetVal([]string{requestIDs[0], requestIDs[1], requestIDs[2]}, 0)
 
 		for i := range requestIDs {
 			expectedKey2ndCommand := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, requestIDs[i])
@@ -1146,7 +1146,7 @@ func TestHTTPServer_GetRequestsForCluster_RequestsNotFound(t *testing.T) {
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey, 0).SetVal([]string{}, 0)
+		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{}, 0)
 
 		// 2nd Redis call is not expected
 
@@ -1256,7 +1256,7 @@ func TestHTTPServer_GetRequestsForCluster_RedisError500(t *testing.T) {
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey1stCommand := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey1stCommand, 0).SetErr(errors.New("Redis server failure"))
+		redisServer.ExpectScan(0, expectedKey1stCommand, services.ScanBatchCount).SetErr(errors.New("Redis server failure"))
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -1285,7 +1285,7 @@ func TestHTTPServer_GetRequestsForCluster_RedisError500_2ndCmd(t *testing.T) {
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, &redisClient, nil, nil, nil)
 
 		expectedKey1stCommand := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
-		redisServer.ExpectScan(0, expectedKey1stCommand, 0).SetVal([]string{"requestID1"}, 0)
+		redisServer.ExpectScan(0, expectedKey1stCommand, services.ScanBatchCount).SetVal([]string{"requestID1"}, 0)
 
 		expectedKey2ndCommand := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
 		redisServer.ExpectHMGet(
