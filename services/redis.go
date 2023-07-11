@@ -38,7 +38,10 @@ const (
 	// ProcessedTimestampFieldName represents the name of the field in Redis hash containing processed timestamp
 	ProcessedTimestampFieldName = "processed_timestamp"
 	// RuleHitsFieldName represent the name of hte field in Redis hash containing simplified rule hits
-	RuleHitsFieldName          = "rule_hits"
+	RuleHitsFieldName = "rule_hits"
+	// ScanBatchCount is the number of records to go through in a single SCAN operation
+	ScanBatchCount = 1000
+
 	redisCmdExecutionFailedMsg = "failed to execute command against Redis server"
 )
 
@@ -111,7 +114,7 @@ func (redis *RedisClient) GetRequestIDsForClusterID(
 	for {
 		var keys []string
 		var err error
-		keys, cursor, err = redis.Client.Connection.Scan(ctx, cursor, scanKey, 0).Result()
+		keys, cursor, err = redis.Client.Connection.Scan(ctx, cursor, scanKey, ScanBatchCount).Result()
 		if err != nil {
 			log.Error().Err(err).Msgf("failed to execute SCAN command for key '%v' and cursor '%d'", scanKey, cursor)
 			return nil, err

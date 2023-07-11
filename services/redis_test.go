@@ -66,7 +66,7 @@ func TestRedisGetRequestIDsForClusterID_Empty(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
 	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
-	server.ExpectScan(0, expectedKey, 0).SetVal([]string{}, 0)
+	server.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{}, 0)
 
 	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
 	assert.NoError(t, err)
@@ -85,7 +85,7 @@ func TestRedisGetRequestIDsForClusterID_ResultsSinglePage(t *testing.T) {
 		expectedResponseKeys[i] = fmt.Sprintf("organization:%v:cluster:%v:request:requestID%v", testdata.OrgID, testdata.ClusterName1, i)
 	}
 	// all results are in a single page -- cursor == 0, so no more calls are expected
-	server.ExpectScan(0, expectedKey, 0).SetVal(expectedResponseKeys, 0)
+	server.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal(expectedResponseKeys, 0)
 
 	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
 	assert.NoError(t, err)
@@ -104,11 +104,11 @@ func TestRedisGetRequestIDsForClusterID_ResultsMultiplePages(t *testing.T) {
 	}
 
 	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
-	server.ExpectScan(0, expectedKey, 0).SetVal([]string{expectedResponseKeys[0], expectedResponseKeys[1]}, 42)
+	server.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{expectedResponseKeys[0], expectedResponseKeys[1]}, 42)
 	// returned cursor is expected to be used in the next call
-	server.ExpectScan(42, expectedKey, 0).SetVal([]string{expectedResponseKeys[2]}, 8)
+	server.ExpectScan(42, expectedKey, services.ScanBatchCount).SetVal([]string{expectedResponseKeys[2]}, 8)
 	// returned cursor is expected to be used in the next call
-	server.ExpectScan(8, expectedKey, 0).SetVal([]string{expectedResponseKeys[3]}, 0)
+	server.ExpectScan(8, expectedKey, services.ScanBatchCount).SetVal([]string{expectedResponseKeys[3]}, 0)
 	// returned cursor == 0, so no more calls are expected
 
 	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
@@ -123,7 +123,7 @@ func TestRedisGetRequestIDsForClusterID_Error(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
 	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
-	server.ExpectScan(0, expectedKey, 0).SetErr(errTest)
+	server.ExpectScan(0, expectedKey, services.ScanBatchCount).SetErr(errTest)
 
 	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
 	assert.Error(t, err)
@@ -142,8 +142,8 @@ func TestRedisGetRequestIDsForClusterID_ErrorInFollowingCalls(t *testing.T) {
 		expectedResponseKeys[i] = fmt.Sprintf("organization:%v:cluster:%v:request:requestID%v", testdata.OrgID, testdata.ClusterName1, i)
 	}
 
-	server.ExpectScan(0, expectedKey, 0).SetVal([]string{expectedResponseKeys[0], expectedResponseKeys[1]}, 42)
-	server.ExpectScan(42, expectedKey, 0).SetErr(errTest)
+	server.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{expectedResponseKeys[0], expectedResponseKeys[1]}, 42)
+	server.ExpectScan(42, expectedKey, services.ScanBatchCount).SetErr(errTest)
 
 	// function should return empty list + error if we can't retrieve the whole data set
 	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
