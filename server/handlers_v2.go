@@ -395,6 +395,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		orgID,
 		userID,
 	)
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClustersView start, after getClusterListAndUserData took %s", time.Since(tStart))
 
 	clusterViewResponse, err := matchClusterInfoAndUserData(
 		clusterList, clusterRuleHits, ackedRulesMap, disabledRules,
@@ -403,6 +404,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Msg("getClustersView error generating cluster list response")
 		handleServerError(writer, err)
 	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClustersView start, after matchClusterInfoAndUserData took %s", time.Since(tStart))
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView final number %v", len(clusterViewResponse))
 
 	resp := make(map[string]interface{})

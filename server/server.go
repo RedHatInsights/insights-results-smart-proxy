@@ -1439,6 +1439,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 	ackedRulesMap map[ctypes.RuleID]bool,
 	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
 ) {
+	tStart := time.Now()
 	// get list of clusters from AMS API or aggregator
 	clusterInfoList, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
@@ -1446,6 +1447,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 		handleServerError(writer, err)
 		return
 	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after readClusterInfoForOrgID took %s", time.Since(tStart))
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
 		"getClusterListAndUserData number of clusters before processing %d", len(clusterInfoList),
 	)
@@ -1461,6 +1463,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 
 		return
 	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getClustersAndRecommendations took %s", time.Since(tStart))
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
 		"getClusterListAndUserData getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
 	)
@@ -1471,9 +1474,11 @@ func (server *HTTPServer) getClusterListAndUserData(
 		handleServerError(writer, err)
 		return
 	}
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getRuleAcksMap took %s", time.Since(tStart))
 
 	// retrieve list of cluster IDs and single disabled rules for each cluster
 	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(orgID)
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getUserDisabledRulesPerCluster took %s", time.Since(tStart))
 
 	return
 }
