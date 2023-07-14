@@ -277,7 +277,7 @@ parameters:
   value: "false"
   required: true
 - name: IRSP_LOG_STREAM
-  value: $HOSTNAME
+  value: "insights-results-smart-proxy"
 - name: CREATE_STREAM_IF_NOT_EXISTS
   value: "true"
 - name: AMS_API_URL
