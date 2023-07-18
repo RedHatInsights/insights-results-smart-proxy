@@ -31,8 +31,7 @@ DEPLOY_FRONTENDS="true"   # enable for front-end/UI tests
 export IQE_PLUGINS="ccx"
 # Run all pipeline and ui tests
 export IQE_MARKER_EXPRESSION="pipeline or (core and ui)"
-# Skip fuzz_api_v1/fuzz_api_v2 tests. The take long and not much useful for PR.
-export IQE_FILTER_EXPRESSION="not test_fuzz"
+export IQE_FILTER_EXPRESSION=""
 export IQE_REQUIREMENTS_PRIORITY=""
 export IQE_TEST_IMPORTANCE=""
 export IQE_CJI_TIMEOUT="30m"
