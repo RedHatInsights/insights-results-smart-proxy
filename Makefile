@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 .PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo style run test cover integration_tests rest_api_tests rules_content sqlite_db license before_commit openapi-check help godoc install_docgo install_addlicense
 
 SOURCES:=$(shell find . -name '*.go')
@@ -97,7 +99,10 @@ docs/packages/%.html: %.go
 	addlicense -c "Red Hat, Inc" -l "apache" -v $@
 
 godoc: export GO111MODULE=off
-godoc: install_docgo install_addlicense ${DOCFILES}
+godoc: install_docgo install_addlicense ${DOCFILES} docs/sources.md
+
+docs/sources.md: docs/sources.tmpl.md ${DOCFILES}
+	./gen_sources_md.sh
 
 install_docgo: export GO111MODULE=off
 install_docgo:
