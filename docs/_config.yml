@@ -24,6 +24,7 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor/
+  - sources.tmpl.md
 
 keep_files:
   - .gitleaks.toml
