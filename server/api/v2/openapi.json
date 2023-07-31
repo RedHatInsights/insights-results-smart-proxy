@@ -420,18 +420,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "requestIDs": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/requestId"
-                    }
-                  }
-                },
-                "required": [
-                  "requestIDs"
-                ]
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/requestId"
+                }
               }
             }
           }
