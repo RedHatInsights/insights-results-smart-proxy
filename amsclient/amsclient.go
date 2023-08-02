@@ -126,7 +126,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	err error,
 ) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking up active clusters for the organization")
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
 
 	tStart := time.Now()
 
@@ -173,7 +173,7 @@ func (c *amsClientImpl) GetClusterDetailsFromExternalClusterID(externalID types.
 	}
 
 	clusterInfo = clusterInfoList[0]
-	log.Info().Str(clusterIDTag, string(externalID)).Msgf("GetClustersForOrganization from AMS API took %s", time.Since(tStart))
+	log.Debug().Str(clusterIDTag, string(externalID)).Msgf("GetClusterDetailsFromExternalClusterID from AMS API took %s", time.Since(tStart))
 	return
 }
 
