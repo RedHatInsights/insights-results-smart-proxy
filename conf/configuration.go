@@ -232,7 +232,7 @@ func checkIfFileExists(path string) error {
 
 func getInternalRulesOrganizations() []types.OrgID {
 	if !Config.ServerConf.EnableInternalRulesOrganizations {
-		log.Info().Msg("Internal rules request filtering disabled")
+		log.Debug().Msg("Internal rules request filtering disabled")
 		return nil
 	}
 

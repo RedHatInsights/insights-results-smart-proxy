@@ -186,7 +186,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	}
 
 	// we seem to have all data -> let's display them
-	log.Info().
+	log.Debug().
 		Int("org", int(orgID)).
 		Str("rule", string(parameters.RuleSelector)).
 		Str("value", parameters.Value).
@@ -202,7 +202,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	}
 
 	// display parsed rule ID and error key
-	log.Info().
+	log.Debug().
 		Str("ruleID", string(ruleID)).
 		Str("errorKey", string(errorKey)).
 		Msg("Parsed rule selector")
@@ -219,9 +219,9 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	// if acknowledgement has been found -> return 200 OK with the existing rule ack
 	// if acknowledgement has NOT been found -> return 201 Created with the created rule ack
 	if previouslyAcked {
-		log.Info().Msg("Rule has been already disabled")
+		log.Debug().Msg("Rule has been already disabled")
 	} else {
-		log.Info().Msg("Rule has not been disabled previously")
+		log.Debug().Msg("Rule has not been disabled previously")
 
 		// acknowledge rule
 		err := server.ackRuleSystemWide(ruleID, errorKey, orgID, parameters.Value)
@@ -297,7 +297,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 
 	// we seem to have all data -> let's display them
 	logFullRuleSelector(orgID, ruleID, errorKey)
-	log.Info().
+	log.Debug().
 		Str("justification", parameters.Value).
 		Msg("Justification to be set")
 
@@ -380,7 +380,7 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 
 	// rule has been found -> let's delete the ACK
 	// delete acknowledgement for a rule
-	log.Info().Msg("About to delete ACK for a rule")
+	log.Debug().Msg("About to delete ACK for a rule")
 	err = server.deleteAckRuleSystemWide(types.Component(ruleID), errorKey, orgID)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to delete rule acknowledgement")

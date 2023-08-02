@@ -263,7 +263,7 @@ func (server *HTTPServer) readListOfAckedRules(
 		return nil, err
 	}
 
-	log.Info().Int("#rules", len(payload.RuleDisable)).Msg("Read disabled rules")
+	log.Debug().Int("#rules", len(payload.RuleDisable)).Msg("Read disabled rules")
 	return payload.RuleDisable, nil
 }
 
@@ -330,7 +330,7 @@ func formatNullTime(t sql.NullTime) string {
 }
 
 func logFullRuleSelector(orgID types.OrgID, ruleID types.RuleID, errorKey types.ErrorKey) {
-	log.Info().
+	log.Debug().
 		Int("org", int(orgID)).
 		Str("ruleID", string(ruleID)).
 		Str("errorKey", string(errorKey)).

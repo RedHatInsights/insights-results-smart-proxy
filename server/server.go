@@ -442,7 +442,7 @@ func (server HTTPServer) readClusterInfoForOrgID(orgID ctypes.OrgID) (
 
 // getClusterDetailsFromAggregator reads the list of clusters for a given organization from aggregator
 func (server HTTPServer) getClusterDetailsFromAggregator(orgID ctypes.OrgID) ([]ctypes.ClusterName, error) {
-	log.Info().Msg("retrieving cluster IDs from aggregator")
+	log.Debug().Msg("retrieving cluster IDs from aggregator")
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
@@ -765,7 +765,7 @@ func (server HTTPServer) fetchAggregatorReport(
 
 	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
-		log.Info().Msgf("fetchAggregatorReport unable to get orgID or userID for cluster %v", clusterID)
+		log.Error().Err(err).Msgf("fetchAggregatorReport unable to get orgID or userID for cluster %v", clusterID)
 		handleServerError(writer, err)
 		return
 	}
@@ -773,7 +773,7 @@ func (server HTTPServer) fetchAggregatorReport(
 
 	aggregatorResponse, successful = server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
 	if !successful {
-		log.Info().Msg("fetchAggregatorReport unable to get response from aggregator")
+		log.Error().Msg("fetchAggregatorReport unable to get response from aggregator")
 		return
 	}
 	return
@@ -1050,7 +1050,7 @@ func (server HTTPServer) reportMetainfoEndpoint(writer http.ResponseWriter, requ
 		return
 	}
 
-	log.Info().Msgf("Metainfo returned by aggregator for cluster %s: %v", clusterID, aggregatorResponse)
+	log.Debug().Msgf("Metainfo returned by aggregator for cluster %s: %v", clusterID, aggregatorResponse)
 
 	err := responses.SendOK(writer, responses.BuildOkResponseWithData("metainfo", aggregatorResponse))
 	if err != nil {
@@ -1203,7 +1203,7 @@ func (server *HTTPServer) checkInternalRulePermissions(request *http.Request) er
 		return err
 	}
 
-	log.Info().Msgf("Checking internal rule permissions for Organization ID: %v", requestOrgID)
+	log.Debug().Msgf("Checking internal rule permissions for Organization ID: %v", requestOrgID)
 	for _, allowedID := range server.Config.InternalRulesOrganizations {
 		if requestOrgID == allowedID {
 			log.Info().Msgf("Organization %v is allowed access to internal rules", requestOrgID)
@@ -1265,7 +1265,7 @@ func isDisabledForOrgRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabled
 				aggregatorRule.ErrorKey,
 			),
 		)
-		log.Info().Msgf("org-wide disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
+		log.Debug().Msgf("org-wide disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 		return systemWideDisabledRules[selector]
 	}
 	return false
@@ -1273,7 +1273,7 @@ func isDisabledForOrgRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabled
 
 func isDisabledRule(aggregatorRule ctypes.RuleOnReport, systemWideDisabledRules map[types.RuleID]bool) bool {
 	if aggregatorRule.Disabled {
-		log.Info().Msgf("on report disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
+		log.Debug().Msgf("on report disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 		return true
 	}
 	return isDisabledForOrgRule(aggregatorRule, systemWideDisabledRules)
@@ -1452,7 +1452,6 @@ func (server *HTTPServer) getClusterListAndUserData(
 		"getClusterListAndUserData number of clusters before processing %d", len(clusterInfoList),
 	)
 
-	tStartImpacting := time.Now()
 	clusterRecommendationMap, err = server.getClustersAndRecommendations(writer, orgID, userID, types.GetClusterNames(clusterInfoList))
 	if err != nil {
 		log.Error().
@@ -1464,9 +1463,6 @@ func (server *HTTPServer) getClusterListAndUserData(
 		return
 	}
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getClustersAndRecommendations took %s", time.Since(tStart))
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
-		"getClusterListAndUserData getting clusters and impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
-	)
 
 	// get a map of acknowledged rules
 	ackedRulesMap, err = server.getRuleAcksMap(orgID)

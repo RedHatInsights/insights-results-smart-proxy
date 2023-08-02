@@ -1278,7 +1278,7 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 		return
 	}
 
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msg(logMsg)
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg(logMsg)
 
 	clusterID, successful := httputils.ReadClusterName(writer, request)
 	if !successful {
@@ -1286,7 +1286,7 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 		return
 	}
 
-	log.Info().Str("selected cluster", string(clusterID)).Msg(logMsg)
+	log.Debug().Str("selected cluster", string(clusterID)).Msg(logMsg)
 
 	// get request ID list from request body
 	requestIDsForCluster, err := readRequestIDList(writer, request)
@@ -1296,7 +1296,11 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 	}
 
 	// log all request IDs, we need to perform it one by one becuase of type conversions
-	log.Info().Int("IDS count", len(requestIDsForCluster)).Msg("requestIDs")
+	log.Info().
+		Uint32(orgIDTag, uint32(orgID)).
+		Str("selected cluster", string(clusterID)).
+		Int("IDS count", len(requestIDsForCluster)).
+		Msg("requestIDs")
 	for i, requestIDForCluster := range requestIDsForCluster {
 		log.Info().Int("#", i).Msg(string(requestIDForCluster))
 	}

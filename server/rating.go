@@ -32,7 +32,7 @@ import (
 
 // postRating handles the POST method for Rating endpoint
 func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.Request) {
-	log.Info().Msg("postRating")
+	log.Debug().Msg("postRating")
 
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {

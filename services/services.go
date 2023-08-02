@@ -63,7 +63,7 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 	}
 	var receivedMsg groupsResponse
 
-	log.Info().Msg("Updating groups information")
+	log.Debug().Msg("Updating groups information")
 
 	resp, err := getFromURL(conf.ContentBaseEndpoint + GroupsEndpoint) //nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 
@@ -87,7 +87,7 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 
 // GetContent get the static rule content from content-service
 func GetContent(conf Configuration) (*types.RuleContentDirectory, error) {
-	log.Info().Msg("getting rules static content")
+	log.Debug().Msg("getting rules static content")
 	resp, err := getFromURL(conf.ContentBaseEndpoint + ContentEndpoint) //nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 
 	if err != nil {
