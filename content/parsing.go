@@ -55,7 +55,7 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 				log.Error().Msgf(`rule ID %v with key %v has invalid status attribute`, ruleID, errorKey)
 				continue
 			} else if missing {
-				log.Warn().Msgf(`rule ID %v with key %v has missing status attribute`, ruleID, errorKey)
+				log.Debug().Msgf(`rule ID %v with key %v has missing status attribute`, ruleID, errorKey)
 			}
 
 			// we allow empty/missing, but not incorrect format
@@ -64,7 +64,7 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 				log.Error().Err(err).Msgf(`rule ID %v with key %v has improper publish_date attribute`, ruleID, errorKey)
 				continue
 			} else if missing {
-				log.Warn().Msgf(`rule ID %v with key %v has missing publish_date attribute`, ruleID, errorKey)
+				log.Debug().Msgf(`rule ID %v with key %v has missing publish_date attribute`, ruleID, errorKey)
 			}
 
 			totalRisk := calculateTotalRisk(impact.Impact, errorProperties.Metadata.Likelihood)
