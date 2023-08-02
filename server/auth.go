@@ -193,7 +193,7 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 	// In case of testing on local machine we don't take x-rh-identity
 	// header, but instead Authorization with JWT token in it
 	if server.Config.AuthType == "jwt" {
-		log.Info().Msg("Retrieving jwt token")
+		log.Debug().Msg("Retrieving jwt token")
 
 		// Grab the token from the header
 		tokenHeader = r.Header.Get(JWTAuthTokenHeader)
@@ -221,12 +221,12 @@ func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Requ
 		}
 		tokenHeader = splitted[1]
 	} else {
-		log.Info().Msg("Retrieving x-rh-identity token")
+		log.Debug().Msg("Retrieving x-rh-identity token")
 		// Grab the token from the header
 		tokenHeader = r.Header.Get(XRHAuthTokenHeader)
 	}
 
-	log.Info().Int("Length", len(tokenHeader)).Msg("Token retrieved")
+	log.Debug().Int("Length", len(tokenHeader)).Msg("Token retrieved")
 
 	if tokenHeader == "" {
 		log.Error().Msg(missingTokenMessage)

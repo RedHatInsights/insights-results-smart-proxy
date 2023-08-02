@@ -29,7 +29,7 @@ func logClusterInfos(orgID types.OrgID, clusterID types.ClusterName, response []
 	for _, ruleHit := range response {
 		logMessage += fmt.Sprintf("\n\trule: %s; error key: %s", ruleHit.Module, ruleHit.ErrorKey)
 	}
-	log.Info().Msg(logMessage)
+	log.Debug().Msg(logMessage)
 }
 
 func logClusterInfo(orgID types.OrgID, clusterID types.ClusterName, response *types.RuleOnReport) {
@@ -41,7 +41,7 @@ func logClustersReport(orgID types.OrgID, reports map[types.ClusterName]json.Raw
 	for clusterName, jsonReport := range reports {
 		err := json.Unmarshal(jsonReport, &report)
 		if err != nil {
-			log.Info().Msg("can't log report for cluster " + string(clusterName))
+			log.Error().Err(err).Msg("can't log report for cluster " + string(clusterName))
 			continue
 		}
 		logClusterInfos(orgID, clusterName, report)

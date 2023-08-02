@@ -234,7 +234,6 @@ func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *h
 		handleServerError(writer, err)
 		return
 	}
-	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
 
 	clusterList, clusterRuleHits, ackedRulesMap, disabledRules := server.getClusterListAndUserData(
 		writer,
@@ -263,7 +262,7 @@ func (server HTTPServer) overviewEndpointWithClusterIDs(writer http.ResponseWrit
 	}
 
 	// get reports for the cluster list in body
-	log.Info().Msg("Retrieving reports for clusters to generate org_overview")
+	log.Debug().Msg("Retrieving reports for clusters to generate org_overview")
 	aggregatorResponse, ok := server.fetchAggregatorReportsUsingRequestBodyClusterList(writer, request)
 	if !ok {
 		// errors already handled
