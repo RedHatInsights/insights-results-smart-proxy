@@ -1458,7 +1458,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 			Err(err).
 			Int(orgIDTag, int(orgID)).
 			Str(userIDTag, string(userID)).
-			Msgf("problem getting clusters and impacting recommendations from aggregator for cluster list: %v", clusterInfoList)
+			Msgf("problem getting clusters and impacting recommendations from aggregator for cluster list (# of clusters %v)", len(clusterInfoList))
 
 		return
 	}
