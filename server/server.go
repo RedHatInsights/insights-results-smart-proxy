@@ -1164,6 +1164,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	if rule.Internal {
 		err = server.checkInternalRulePermissions(request)
 		if err != nil {
+			log.Error().Err(err)
 			handleServerError(writer, err)
 			return
 		}
@@ -1213,7 +1214,6 @@ func (server *HTTPServer) checkInternalRulePermissions(request *http.Request) er
 
 	// If the loop ends without returning nil, then an authentication error should be raised
 	const message = "This organization is not allowed to access this recommendation"
-	log.Error().Msg(message)
 	return &AuthenticationError{ErrString: message}
 }
 
