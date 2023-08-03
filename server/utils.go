@@ -41,7 +41,11 @@ func logClustersReport(orgID types.OrgID, reports map[types.ClusterName]json.Raw
 	for clusterName, jsonReport := range reports {
 		err := json.Unmarshal(jsonReport, &report)
 		if err != nil {
-			log.Error().Err(err).Msg("can't log report for cluster " + string(clusterName))
+			log.Error().
+				Err(err).
+				Int(orgIDTag, int(orgID)).
+				Str(clusterIDTag, string(clusterName)).
+				Msgf("can't log report for cluster. raw json: [%v]", string(jsonReport))
 			continue
 		}
 		logClusterInfos(orgID, clusterName, report)
