@@ -277,7 +277,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		log.Error().
 			Err(err).
 			Int(orgIDTag, int(orgID)).
-			Msgf("problem getting impacting recommendations from aggregator for cluster list: %v", clusterIDList)
+			Msgf("problem getting impacting recommendations from aggregator for cluster list (# of clusters: %v)", len(clusterIDList))
 
 		return
 	}
