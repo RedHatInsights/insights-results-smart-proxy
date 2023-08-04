@@ -24,9 +24,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func logClusterInfos(orgID types.OrgID, clusterID types.ClusterName, response []types.RuleOnReport) {
+func logClusterInfos(orgID types.OrgID, clusterID types.ClusterName, ruleHits []types.RuleOnReport) {
 	logMessage := fmt.Sprintf("rule hits for %d.%s:", orgID, clusterID)
-	for _, ruleHit := range response {
+	for _, ruleHit := range ruleHits {
 		logMessage += fmt.Sprintf("\n\trule: %s; error key: %s", ruleHit.Module, ruleHit.ErrorKey)
 	}
 	log.Debug().Msg(logMessage)
@@ -37,7 +37,7 @@ func logClusterInfo(orgID types.OrgID, clusterID types.ClusterName, response *ty
 }
 
 func logClustersReport(orgID types.OrgID, reports map[types.ClusterName]json.RawMessage) {
-	var report []types.RuleOnReport
+	var report types.ReportRules
 	for clusterName, jsonReport := range reports {
 		err := json.Unmarshal(jsonReport, &report)
 		if err != nil {
@@ -48,7 +48,7 @@ func logClustersReport(orgID types.OrgID, reports map[types.ClusterName]json.Raw
 				Msgf("can't log report for cluster. raw json: [%v]", string(jsonReport))
 			continue
 		}
-		logClusterInfos(orgID, clusterName, report)
+		logClusterInfos(orgID, clusterName, report.HitRules)
 	}
 }
 
