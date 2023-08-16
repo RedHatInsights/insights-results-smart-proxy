@@ -25,10 +25,10 @@ import (
 
 // GetClusterNames extract the ClusterName from an array of ClusterInfo
 func GetClusterNames(clustersInfo []ClusterInfo) []ClusterName {
-	var retval []ClusterName = make([]ClusterName, 0)
+	retval := make([]ClusterName, len(clustersInfo))
 
-	for _, info := range clustersInfo {
-		retval = append(retval, info.ID)
+	for i, info := range clustersInfo {
+		retval[i] = info.ID
 	}
 
 	return retval
