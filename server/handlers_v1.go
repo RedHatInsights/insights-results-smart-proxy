@@ -181,8 +181,8 @@ func (server HTTPServer) getOrganizationOverview(
 		clusterInfo := &clusterInfoList[i]
 
 		// check if there are any hitting recommendations
-		hittingRecommendations, any := clusterRecommendationsMap[clusterInfo.ID]
-		if !any {
+		hittingRecommendations, exist := clusterRecommendationsMap[clusterInfo.ID]
+		if !exist {
 			continue
 		}
 
@@ -350,7 +350,7 @@ func generateOrgOverview(
 
 // infoMap returns map of additional information about this service, Insights
 // Results Aggregator, and Smart Proxy
-func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Request) {
+func (server *HTTPServer) infoMap(writer http.ResponseWriter, _ *http.Request) {
 	// prepare response data structure
 	response := sptypes.InfoResponse{
 		SmartProxy:     server.fillInSmartProxyInfoParams(),

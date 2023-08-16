@@ -49,7 +49,7 @@ func removeFile(t *testing.T, filename string) {
 }
 
 // TestLoadConfiguration loads a configuration file for testing
-func TestLoadConfiguration(t *testing.T) {
+func TestLoadConfiguration() {
 	os.Clearenv()
 	mustLoadConfiguration("tests/config1")
 }
@@ -75,7 +75,7 @@ func TestLoadingConfigurationFailure(t *testing.T) {
 
 // TestLoadServerConfiguration tests loading the server configuration sub-tree
 func TestLoadServerConfiguration(t *testing.T) {
-	TestLoadConfiguration(t)
+	TestLoadConfiguration()
 	helpers.FailOnError(t, os.Chdir(".."))
 
 	serverCfg := conf.GetServerConfiguration()

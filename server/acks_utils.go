@@ -41,7 +41,7 @@ const aggregatorImproperCodeMessage = "Aggregator responded with improper HTTP c
 // readJustificationFromBody function tries to read data
 // structure types.AcknowledgemenJustification from response
 // payload (body)
-func readJustificationFromBody(writer http.ResponseWriter, request *http.Request) (
+func readJustificationFromBody(request *http.Request) (
 	types.AcknowledgementJustification, error) {
 
 	// try to read request body

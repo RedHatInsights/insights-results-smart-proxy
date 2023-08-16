@@ -29,7 +29,7 @@ type mockAMSClient struct {
 
 func (m *mockAMSClient) GetClustersForOrganization(
 	orgID types.OrgID,
-	unused1, unused2 []string,
+	_, _ []string,
 ) (
 	clusterInfoList []types.ClusterInfo,
 	err error,
@@ -60,7 +60,7 @@ func (m *mockAMSClient) GetClusterDetailsFromExternalClusterID(
 }
 
 func (m *mockAMSClient) GetSingleClusterInfoForOrganization(
-	orgID types.OrgID, clusterID types.ClusterName,
+	_ types.OrgID, clusterID types.ClusterName,
 ) (
 	clusterInfo types.ClusterInfo, err error,
 ) {

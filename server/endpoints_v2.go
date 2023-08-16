@@ -106,19 +106,18 @@ const (
 func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 	apiV2Prefix := server.Config.APIv2Prefix
 	openAPIv2URL := apiV2Prefix + filepath.Base(server.Config.APIv2SpecFile)
-	aggregatorBaseEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
 
 	// Common REST API endpoints
 	router.HandleFunc(apiV2Prefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
 
 	// Reports endpoints
-	server.addV2ReportsEndpointsToRouter(router, apiV2Prefix, aggregatorBaseEndpoint)
+	server.addV2ReportsEndpointsToRouter(router, apiV2Prefix)
 
 	// Content related endpoints
 	server.addV2ContentEndpointsToRouter(router, apiV2Prefix)
 
 	// Rules related endpoints
-	server.addV2RuleEndpointsToRouter(router, apiV2Prefix, aggregatorBaseEndpoint)
+	server.addV2RuleEndpointsToRouter(router, apiV2Prefix)
 
 	// Endpoints requiring Redis to work
 	server.addV2RedisEndpointsToRouter(router, apiV2Prefix)
@@ -147,7 +146,7 @@ func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPre
 
 // addV2ReportsEndpointsToRouter method registers handlers for endpoints that
 // return cluster report or reports to client
-func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseURL string) {
+func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string) {
 	router.HandleFunc(apiPrefix+ReportEndpointV2, server.reportEndpointV2).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiPrefix+ClusterInfoEndpoint, server.getSingleClusterInfo).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RecommendationsListEndpoint, server.getRecommendations).Methods(http.MethodGet)
@@ -156,7 +155,7 @@ func (server *HTTPServer) addV2ReportsEndpointsToRouter(router *mux.Router, apiP
 
 // addV2RuleEndpointsToRouter method registers handlers for endpoints that handle
 // rule-related operations (voting etc.)
-func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix, aggregatorBaseEndpoint string) {
+func (server *HTTPServer) addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string) {
 	// Acknowledgement-related endpoints. Please look into acks_handlers.go
 	// and acks_utils.go for more information about these endpoints
 	// prepared to be compatible with RHEL Insights Advisor.

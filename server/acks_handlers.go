@@ -289,7 +289,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 		return
 	}
 
-	parameters, err := readJustificationFromBody(writer, request)
+	parameters, err := readJustificationFromBody(request)
 	if err != nil {
 		handleServerError(writer, err)
 		return

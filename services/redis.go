@@ -180,12 +180,13 @@ func (redis *RedisClient) GetTimestampsForRequestIDs(
 		if report.RequestID == "" {
 			if omitMissing {
 				continue
-			} else {
-				// commands in Redis pipeline are guaranteed to be executed in the order they were issued in,
-				// therefore we can get the missing request ID from the original slice
-				report.RequestID = string(requestIDs[i])
-				report.Valid = false
 			}
+
+			// commands in Redis pipeline are guaranteed to be executed in the order they were issued in,
+			// therefore we can get the missing request ID from the original slice
+			report.RequestID = string(requestIDs[i])
+			report.Valid = false
+
 		} else {
 			report.Valid = true
 		}

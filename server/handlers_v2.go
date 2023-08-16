@@ -88,7 +88,6 @@ func (server HTTPServer) getContentCheckInternal(ruleID ctypes.RuleID, request *
 
 // getRuleWithGroups retrieves static content for the given ruleID along with rule groups
 func (server HTTPServer) getRuleWithGroups(
-	writer http.ResponseWriter,
 	request *http.Request,
 	ruleID ctypes.RuleID,
 ) (
@@ -122,7 +121,7 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 		return
 	}
 
-	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(request, ruleID)
 	if err != nil {
 		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
 		handleServerError(writer, err)
@@ -175,14 +174,14 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		return
 	}
 
-	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(request, ruleID)
 	if err != nil {
 		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
 		handleServerError(writer, err)
 		return
 	}
 
-	rating, err := server.getRatingForRecommendation(writer, orgID, ruleID)
+	rating, err := server.getRatingForRecommendation(orgID, ruleID)
 	if err != nil {
 		switch err.(type) {
 		case *utypes.ItemNotFoundError:
@@ -505,7 +504,7 @@ func matchClusterInfoAndUserData(
 		}
 
 		// check if there are any hitting recommendations
-		if hittingRecommendations, any := clusterRecommendationsMap[clusterViewItem.ClusterID]; any {
+		if hittingRecommendations, exist := clusterRecommendationsMap[clusterViewItem.ClusterID]; exist {
 			clusterViewItem.LastCheckedAt = types.Timestamp(
 				hittingRecommendations.CreatedAt.UTC().Format(time.RFC3339),
 			)
@@ -556,7 +555,7 @@ func filterOutDisabledRules(
 
 		// try to find rule ID in list of disabled rules, if any
 		ruleDisabled := false
-		if disabledRulesList, any := disabledRulesPerCluster[clusterID]; any {
+		if disabledRulesList, exists := disabledRulesPerCluster[clusterID]; exists {
 			for _, disabledRuleID := range disabledRulesList {
 				if disabledRuleID == hittingRuleID {
 					ruleDisabled = true
@@ -674,7 +673,7 @@ func getFilteredRecommendationsList(
 		}
 
 		// remove any disabled clusters from the total count, if they're impacting
-		if disabledClusters, any := disabledClustersForRules[ruleID]; any {
+		if disabledClusters, exist := disabledClustersForRules[ruleID]; exist {
 			impactingClustersList = excludeDisabledClusters(impactingClustersList, disabledClusters)
 		}
 
@@ -896,7 +895,6 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 func getImpactedClustersFromAggregator(
 	url string,
 	activeClusters []ctypes.ClusterName,
-	useAggregatorFallback bool,
 ) (resp *http.Response, err error) {
 
 	if len(activeClusters) < 1 {
@@ -954,7 +952,7 @@ func (server HTTPServer) getImpactedClusters(
 	)
 
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
-	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters, useAggregatorFallback)
+	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters)
 	// if http.Get fails for whatever reason
 	if err != nil {
 		handleServerError(writer, err)

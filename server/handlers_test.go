@@ -304,7 +304,7 @@ func expectNoRulesDisabledSystemWide(t *testing.TB, orgID types.OrgID) {
 	})
 }
 
-func expectNoRulesDisabledPerCluster(t *testing.TB, orgID types.OrgID, userID types.UserID) {
+func expectNoRulesDisabledPerCluster(t *testing.TB, orgID types.OrgID) {
 	helpers.GockExpectAPIRequest(*t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 		&helpers.APIRequest{
 			Method:       http.MethodGet,
@@ -1338,7 +1338,7 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
@@ -1419,7 +1419,7 @@ func TestHTTPServer_OverviewEndpointManagedClustersRules(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		// managed cluster; 1 managed rule, 2 non-managed rules == only 1 rule must count
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
@@ -1498,7 +1498,7 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, helpers.DefaultServerConfig.APIv1Prefix, &helpers.APIRequest{
@@ -1571,7 +1571,7 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 			Body:       helpers.ToJSONString(ResponseRule2DisabledSystemWide),
 		})
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
@@ -1612,7 +1612,7 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 			Body:       helpers.ToJSONString(ResponseRule1DisabledSystemWide),
 		})
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -1687,7 +1687,7 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		config := helpers.DefaultServerConfigXRH
 		config.UseOrgClustersFallback = true
@@ -2999,7 +2999,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoClusters(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(t, testServer, serverConfigJWT.APIv2Prefix, &helpers.APIRequest{
@@ -3051,7 +3051,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_ClustersFoundNoInsights(t *t
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		resp := GetClustersResponse2ClusterNoHits
 		for i := range clusterInfoList {
@@ -3124,7 +3124,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoRuleHits(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		resp := GetClustersResponse2ClusterNoHits
 		for i := range clusterInfoList {
@@ -3184,7 +3184,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		resp := GetClustersResponse2ClusterNoArchiveInDB
 		for i := range clusterInfoList {
@@ -3270,7 +3270,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		resp := GetClustersResponse2ClusterWithHits
 		for i := range clusterInfoList {
@@ -3353,7 +3353,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1Managed(t *testing
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		resp := GetClustersResponse2ClusterWithHitsCluster1Managed
 		for i := range clusterInfoList {
@@ -3440,7 +3440,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_2Clusters1WithVersion(t *tes
 
 		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		resp := GetClustersResponse2ClusterWithHitsCluster1WithVersion
 		for i := range clusterInfoList {
@@ -3545,7 +3545,7 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_AckedRule(t *testing.T) {
 			},
 		)
 
-		expectNoRulesDisabledPerCluster(&t, testdata.OrgID, types.UserID(userIDOnGoodJWTAuthBearer))
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
 
 		resp := GetClustersResponse2ClusterWithHits1Rule
 		for i := range clusterInfoList {

@@ -311,7 +311,7 @@ func (server *HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(ht
 
 		copyHeader(request.Header, req.Header)
 
-		response, body, err := sendRequest(client, req, options, writer)
+		response, body, err := sendRequest(client, req, options)
 		if err != nil {
 			server.evaluateProxyError(writer, err, baseURL)
 			return
@@ -345,7 +345,7 @@ func (server *HTTPServer) evaluateProxyError(writer http.ResponseWriter, err err
 }
 
 func sendRequest(
-	client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter,
+	client http.Client, req *http.Request, options *ProxyOptions,
 ) (*http.Response, []byte, error) {
 	log.Debug().Msgf("Connecting to %s", req.URL.RequestURI())
 	response, err := client.Do(req)
@@ -1157,7 +1157,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	rule, filtered, err = content.FetchRuleContent(aggregatorResponse, osdFlag)
 
 	if err != nil || filtered {
-		handleFetchRuleContentError(writer, err, filtered)
+		handleFetchRuleContentError(writer, err)
 		return
 	}
 
@@ -1176,7 +1176,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	}
 }
 
-func handleFetchRuleContentError(writer http.ResponseWriter, err error, filtered bool) {
+func handleFetchRuleContentError(writer http.ResponseWriter, err error) {
 	if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 		log.Error().Err(err)
 		handleServerError(writer, err)
