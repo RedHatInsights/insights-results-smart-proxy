@@ -652,7 +652,7 @@ func TestGetExternalRuleSeverities2Unique(t *testing.T) {
 	assert.Equal(t, 2, len(uniqueSeverities))
 }
 
-func TestContentLoop() {
+func TestContentLoop(_ *testing.T) {
 	go content.RunUpdateContentLoop(services.Configuration{
 		GroupsPollingTime: 1 * time.Second,
 	})
