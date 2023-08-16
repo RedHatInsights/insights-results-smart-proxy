@@ -1161,7 +1161,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 	if rule.Internal {
 		err = server.checkInternalRulePermissions(request)
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Send()
 			handleServerError(writer, err)
 			return
 		}
@@ -1175,7 +1175,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 
 func handleFetchRuleContentError(writer http.ResponseWriter, err error) {
 	if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		handleServerError(writer, err)
 		return
 	}
@@ -1238,7 +1238,7 @@ func (server HTTPServer) getGroupsConfig() (
 	if errorFound {
 		err = <-server.ErrorChannel
 		if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
-			log.Error().Err(err)
+			log.Error().Err(err).Send()
 		}
 		log.Error().Err(err).Msg("Error occurred during groups retrieval from content service")
 		return nil, err
@@ -1308,7 +1308,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 			}
 			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 				// error occured during communication with Content Service
-				log.Error().Err(err)
+				log.Error().Err(err).Send()
 				contentError = err
 				return
 			}

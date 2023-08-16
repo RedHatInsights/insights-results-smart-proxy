@@ -149,7 +149,7 @@ func (server HTTPServer) getRatingForRecommendation(
 			ruleID,
 			aggregatorResp.StatusCode,
 		)
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		return
 	}
 

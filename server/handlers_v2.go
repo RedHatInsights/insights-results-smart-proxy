@@ -78,7 +78,7 @@ func (server HTTPServer) getContentCheckInternal(ruleID ctypes.RuleID, request *
 	if internal := content.IsRuleInternal(ruleID); internal {
 		err = server.checkInternalRulePermissions(request)
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Send()
 			return
 		}
 	}
