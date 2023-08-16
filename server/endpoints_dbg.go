@@ -15,9 +15,10 @@
 package server
 
 import (
+	"net/http"
+
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 const (

@@ -26,6 +26,7 @@ import (
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
+
 	// "github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
