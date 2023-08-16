@@ -84,11 +84,9 @@ func TestGetRuleContent(t *testing.T) {
 
 				content.UpdateContent(helpers.DefaultServicesConfig)
 				getRuleContentHelperFuncs[i](t)
-
 			}, testTimeout)
 		})
 	}
-
 }
 
 func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
@@ -269,7 +267,6 @@ func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
 		}
 
 		assert.Equal(t, ruleWithContentResponse, ruleContent)
-
 	}, testTimeout)
 }
 
@@ -316,7 +313,6 @@ func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
 		}
 
 		assert.Equal(t, ruleWithContentResponse, ruleContent)
-
 	}, testTimeout)
 }
 
@@ -348,7 +344,6 @@ func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
 		assert.False(t, osdFiltered)
 		assert.NotNil(t, ruleContent)
 		assert.Nil(t, err)
-
 	}, testTimeout)
 }
 
@@ -379,7 +374,6 @@ func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
 		ruleContent, _, err := content.FetchRuleContent(&rule, false)
 		assert.Nil(t, ruleContent)
 		assert.NotNil(t, err)
-
 	}, testTimeout)
 }
 

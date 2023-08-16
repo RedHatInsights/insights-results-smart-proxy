@@ -545,8 +545,9 @@ func filterOutDisabledRules(
 	clusterID ctypes.ClusterName,
 	systemWideDisabledRules map[ctypes.RuleID]bool,
 	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
-) (enabledOnlyRecommendations []ctypes.RuleID) {
-
+) (
+	enabledOnlyRecommendations []ctypes.RuleID,
+) {
 	for _, hittingRuleID := range hittingRecommendations {
 		// no need to continue, rule has been acked
 		if systemWideDisabledRules[hittingRuleID] {
@@ -724,8 +725,9 @@ func (server HTTPServer) getImpactingRecommendations(
 	orgID ctypes.OrgID,
 	userID ctypes.UserID,
 	clusterList []ctypes.ClusterName,
-) (ctypes.RecommendationImpactedClusters, error) {
-
+) (
+	ctypes.RecommendationImpactedClusters, error,
+) {
 	var aggregatorResponse struct {
 		Recommendations ctypes.RecommendationImpactedClusters `json:"recommendations"`
 		Status          string                                `json:"status"`
@@ -789,7 +791,6 @@ func (server HTTPServer) getClustersAndRecommendations(
 	userID ctypes.UserID,
 	clusterList []ctypes.ClusterName,
 ) (ctypes.ClusterRecommendationMap, error) {
-
 	var aggregatorResponse struct {
 		Clusters ctypes.ClusterRecommendationMap `json:"clusters"`
 		Status   string                          `json:"status"`
@@ -896,7 +897,6 @@ func getImpactedClustersFromAggregator(
 	url string,
 	activeClusters []ctypes.ClusterName,
 ) (resp *http.Response, err error) {
-
 	if len(activeClusters) < 1 {
 		// #nosec G107
 		resp, err = http.Get(url)
@@ -1099,7 +1099,6 @@ func (server *HTTPServer) processClustersDetailResponse(
 	clusterInfo []types.ClusterInfo,
 	writer http.ResponseWriter,
 ) error {
-
 	data := types.ClustersDetailData{
 		EnabledClusters:  make([]ctypes.HittingClustersData, 0),
 		DisabledClusters: make([]ctypes.DisabledClusterInfo, 0),
@@ -1407,7 +1406,6 @@ func filterRulesGetContent(
 	filteredRuleHits := []types.SimplifiedRuleHit{}
 
 	for _, ruleID := range ruleHits {
-
 		// skip acked rule
 		if _, found := ackedRules[ruleID]; found {
 			continue

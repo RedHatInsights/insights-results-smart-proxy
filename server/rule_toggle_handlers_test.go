@@ -68,7 +68,6 @@ func TestEnableEndpoint(t *testing.T) {
 				Body:       expectedBody,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -111,7 +110,6 @@ func TestDisableEndpoint(t *testing.T) {
 				Body:       expectedBody,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -142,7 +140,6 @@ func TestEnableEndpointBadErrorKey(t *testing.T) {
 				Body:       expectedBody,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -173,6 +170,5 @@ func TestDisableEndpointBadErrorKey(t *testing.T) {
 				Body:       expectedBody,
 			},
 		)
-
 	}, testTimeout)
 }

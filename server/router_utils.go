@@ -100,7 +100,6 @@ func (server *HTTPServer) readParamsGetRecommendations(writer http.ResponseWrite
 	impactingFlag types.ImpactingFlag,
 	err error,
 ) {
-
 	orgID, userID, err = server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)

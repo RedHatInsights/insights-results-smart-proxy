@@ -186,7 +186,6 @@ func (redis *RedisClient) GetTimestampsForRequestIDs(
 			// therefore we can get the missing request ID from the original slice
 			report.RequestID = string(requestIDs[i])
 			report.Valid = false
-
 		} else {
 			report.Valid = true
 		}

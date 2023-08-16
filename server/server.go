@@ -128,7 +128,6 @@ func New(config Configuration,
 	errorFoundChannel chan bool,
 	errorChannel chan error,
 ) *HTTPServer {
-
 	return &HTTPServer{
 		Config:            config,
 		InfoParams:        make(map[string]string),
@@ -986,7 +985,6 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
 		writer, request, aggregatorResponse, clusterID, report.Meta.Managed); err == nil {
-
 		// fill in timestamps
 		report.Meta.LastCheckedAt = aggregatorResponse.Meta.LastCheckedAt
 		report.Meta.GatheredAt = aggregatorResponse.Meta.GatheredAt
@@ -999,7 +997,6 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 func fillImpacted(
 	rulesWithContent []types.RuleWithContentResponse,
 	aggregatorReports []ctypes.RuleOnReport) {
-
 	idReport := make(map[string]ctypes.RuleOnReport, len(aggregatorReports))
 
 	for _, v := range aggregatorReports {
@@ -1373,7 +1370,6 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 	orgID ctypes.OrgID,
 	clusterList []ctypes.ClusterName,
 ) ([]ctypes.DisabledRule, error) {
-
 	// wont be used anywhere else
 	var response struct {
 		Status        string                `json:"status"`

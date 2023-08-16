@@ -467,7 +467,6 @@ func TestHTTPServer_ReportEndpointV2NoContent(t *testing.T) {
 
 // TestHTTPServer_ReportEndpointV2TestAMSData tests that data from AMS API (mocked) is passed correctly to the response
 func TestHTTPServer_ReportEndpointV2TestAMSData(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -516,7 +515,6 @@ func TestHTTPServer_ReportEndpointV2TestAMSData(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpointV2TestManagedClustersRules(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -567,7 +565,6 @@ func TestHTTPServer_ReportEndpointV2TestManagedClustersRules(t *testing.T) {
 
 // Reproducer for Bug 1977858
 func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
-
 	err := loadMockRuleContentDir(&RuleContentDirectoryOnly1Rule)
 	assert.Nil(t, err)
 
@@ -601,7 +598,6 @@ func TestHTTPServer_ReportEndpointNoContentFor2Rules(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -634,7 +630,6 @@ func TestHTTPServer_ReportEndpoint_WithOnlyOSDEndpoint(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentManagedCluster(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -688,7 +683,6 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentManagedCluster(t *te
 }
 
 func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentNonManagedCluster(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -742,7 +736,6 @@ func TestHTTPServer_ReportEndpoint_InsightsOperatorUserAgentNonManagedCluster(t 
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
 	assert.Nil(t, err)
 
@@ -803,7 +796,6 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForCluster(t *testing.T) {
 }
 
 func TestHTTPServer_ReportEndpoint_WithDisabledRulesForClusterAndMissingContent(t *testing.T) {
-
 	err := loadMockRuleContentDir(&RuleContentDirectoryOnlyDisabledRule)
 	assert.Nil(t, err)
 
@@ -836,7 +828,6 @@ func TestHTTPServer_ReportEndpoint_WithDisabledRulesForClusterAndMissingContent(
 }
 
 func TestHTTPServer_ReportEndpoint_WithClusterAndSystemWideDisabledRules(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
 	assert.Nil(t, err)
 
@@ -992,7 +983,6 @@ func TestHTTPServer_ReportMetainfoEndpointTwoReports(t *testing.T) {
 // TestHTTPServer_ReportMetainfoEndpointForbidden checks how HTTP codes are
 // handled in report/info endpoint handler.
 func TestHTTPServer_ReportMetainfoEndpointForbidden(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -1102,7 +1092,6 @@ func TestHTTPServer_ReportMetainfoEndpointWrongClusterName(t *testing.T) {
 
 // TODO: test more cases for rule endpoint
 func TestHTTPServer_RuleEndpoint(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -1183,7 +1172,6 @@ func TestHTTPServer_RuleEndpoint_UnavailableContentService(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -1221,7 +1209,6 @@ func TestHTTPServer_RuleEndpoint_WithOSD(t *testing.T) {
 }
 
 func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -1260,7 +1247,6 @@ func TestHTTPServer_RuleEndpoint_WithNotOSDRule(t *testing.T) {
 
 // TestHTTPServer_GetContent
 func TestHTTPServer_GetContent(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -1274,13 +1260,11 @@ func TestHTTPServer_GetContent(t *testing.T) {
 			Body:        helpers.ToJSONString(GetContentResponse3Rules),
 			BodyChecker: ruleInContentChecker,
 		})
-
 	}, testTimeout)
 }
 
 // TestHTTPServer_OverviewEndpoint
 func TestHTTPServer_OverviewEndpoint(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{
@@ -1360,7 +1344,6 @@ func TestHTTPServer_OverviewEndpoint(t *testing.T) {
 // TestHTTPServer_OverviewEndpointManagedClustersRules tests behaviour when a managed cluster is hitting non-managed rules
 // Scenario without managed clusters is tested in other test cases
 func TestHTTPServer_OverviewEndpointManagedClustersRules(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{
@@ -1513,7 +1496,6 @@ func TestHTTPServer_OverviewEndpoint_UnavailableContentService(t *testing.T) {
 }
 
 func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory5Rules)
 	assert.Nil(t, err)
 
@@ -1627,13 +1609,11 @@ func TestHTTPServer_OverviewGetEndpointDisabledRule(t *testing.T) {
 				Body:       helpers.ToJSONString(OverviewResponseRule1DisabledRule2Enabled),
 			},
 		)
-
 	}, testTimeout)
 }
 
 // TestHTTPServer_OverviewEndpointWithFallback
 func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -1710,7 +1690,6 @@ func TestHTTPServer_OverviewEndpointWithFallback(t *testing.T) {
 }
 
 func TestInternalOrganizations(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{RuleContentInternal1},
@@ -1814,7 +1793,6 @@ func TestRuleNames(t *testing.T) {
 
 // TestRuleNamesResponse checks the REST API status and response
 func TestRuleNamesResponse(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{RuleContentInternal1, testdata.RuleContent1},
@@ -1860,7 +1838,6 @@ func TestRuleNamesResponse(t *testing.T) {
 
 // TestHTTPServer_OverviewWithClusterIDsEndpoint
 func TestHTTPServer_OverviewWithClusterIDsEndpoint(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -1941,7 +1918,6 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint_UnavailableContentService(t *
 
 // TestHTTPServer_OverviewWithClusterIDsEndpoint
 func TestHTTPServer_OverviewWithClusterIDsEndpointDisabledRules(t *testing.T) {
-
 	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 	assert.Nil(t, err)
 
@@ -2023,7 +1999,6 @@ func TestHTTPServer_OverviewWithClusterIDsEndpointDisabledRules(t *testing.T) {
 
 // TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing
 func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
@@ -2099,7 +2074,6 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing(t *testin
 
 // TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisabled1Acked
 func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisabled1Acked(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
@@ -2209,7 +2183,6 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules_ImpactingMissing1RuleDisab
 
 // TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent
 func TestHTTPServer_RecommendationsListEndpoint2Rules1MissingContent(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1},
@@ -2353,7 +2326,6 @@ func TestHTTPServer_RecommendationsListEndpoint_NoRuleContent(t *testing.T) {
 
 // TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingTrue
 func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingTrue(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
@@ -2424,7 +2396,6 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 
 // TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse
 func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_ImpactingFalse(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2, RuleContentInternal1},
@@ -2496,7 +2467,6 @@ func TestHTTPServer_RecommendationsListEndpoint3Rules1Internal0Clusters_Impactin
 
 // TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_ImpactingMissing
 func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_ImpactingMissing(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, RuleContentInternal1},
@@ -2571,7 +2541,6 @@ func TestHTTPServer_RecommendationsListEndpoint2Rules1Internal2Clusters_Impactin
 
 // TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_ImpactingMissing
 func TestHTTPServer_RecommendationsListEndpoint4Rules1Internal2Clusters_ImpactingMissing(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{
@@ -2680,7 +2649,6 @@ func TestHTTPServer_RecommendationsListEndpoint_BadImpactingParam(t *testing.T) 
 }
 
 func TestHTTPServer_RecommendationsListEndpointAMSManagedClusters(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
@@ -2757,7 +2725,6 @@ func TestHTTPServer_RecommendationsListEndpointAMSManagedClusters(t *testing.T) 
 
 // TestHTTPServer_GetRecommendationContent
 func TestHTTPServer_GetRecommendationContent(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, RuleContentInternal1},
@@ -2835,7 +2802,6 @@ func TestHTTPServer_GetRecommendationContent(t *testing.T) {
 
 // TestHTTPServer_GetRecommendationContentWithUserData
 func TestHTTPServer_GetRecommendationContentWithUserData(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, RuleContentInternal1},
@@ -3209,7 +3175,6 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_NoReportInDB(t *testing.T) {
 
 // TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled tests clusters received from AMS API with rule hits
 func TestHTTPServer_ClustersRecommendationsEndpoint_2ClustersFilled(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{

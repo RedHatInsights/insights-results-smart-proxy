@@ -42,8 +42,8 @@ const aggregatorImproperCodeMessage = "Aggregator responded with improper HTTP c
 // structure types.AcknowledgemenJustification from response
 // payload (body)
 func readJustificationFromBody(request *http.Request) (
-	types.AcknowledgementJustification, error) {
-
+	types.AcknowledgementJustification, error,
+) {
 	// try to read request body
 	var parameters types.AcknowledgementJustification
 	err := json.NewDecoder(request.Body).Decode(&parameters)
@@ -63,8 +63,8 @@ func readJustificationFromBody(request *http.Request) (
 // structure types.AcknowledgementRuleSelectorJustification from response
 // payload (body)
 func readRuleSelectorAndJustificationFromBody(writer http.ResponseWriter, request *http.Request) (
-	types.AcknowledgementRuleSelectorJustification, error) {
-
+	types.AcknowledgementRuleSelectorJustification, error,
+) {
 	// try to read request body
 	var parameters types.AcknowledgementRuleSelectorJustification
 	err := json.NewDecoder(request.Body).Decode(&parameters)
@@ -190,7 +190,6 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 	ruleID types.Component, errorKey types.ErrorKey,
 	orgID types.OrgID,
 ) error {
-
 	// try to ack rule via Insights Aggregator REST API
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
@@ -226,7 +225,6 @@ func (server *HTTPServer) deleteAckRuleSystemWide(
 func (server *HTTPServer) readListOfAckedRules(
 	orgID types.OrgID,
 ) ([]types.SystemWideRuleDisable, error) {
-
 	// wont be used anywhere else
 	type responsePayload struct {
 		Status      string                        `json:"status"`
@@ -273,7 +271,6 @@ func (server *HTTPServer) readRuleDisableStatus(
 	ruleID types.Component, errorKey types.ErrorKey,
 	orgID types.OrgID,
 ) (types.Acknowledgement, bool, error) {
-
 	// wont be used anywhere else
 	type responsePayload struct {
 		Status      string                      `json:"status"`

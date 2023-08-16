@@ -34,5 +34,4 @@ func generateSearchParameter(orgID string, allowedStatuses, disallowedStatuses [
 	}
 
 	return searchQuery
-
 }

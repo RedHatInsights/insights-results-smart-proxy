@@ -34,7 +34,6 @@ func (m *mockAMSClient) GetClustersForOrganization(
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
-
 	clusterInfoList, ok := m.clustersPerOrg[orgID]
 	if !ok {
 		return nil, fmt.Errorf("No clusters")
@@ -50,7 +49,6 @@ func (m *mockAMSClient) GetClusterDetailsFromExternalClusterID(
 ) (
 	clusterInfo types.ClusterInfo,
 ) {
-
 	for _, info := range m.clustersPerOrg[testdata.OrgID] {
 		if info.ID == id {
 			return info
@@ -64,7 +62,6 @@ func (m *mockAMSClient) GetSingleClusterInfoForOrganization(
 ) (
 	clusterInfo types.ClusterInfo, err error,
 ) {
-
 	for _, info := range m.clustersPerOrg[testdata.OrgID] {
 		if info.ID == clusterID {
 			return info, nil

@@ -338,7 +338,6 @@ func generateOrgOverview(
 				hitsByTags[tag]++
 			}
 		}
-
 	}
 
 	return sptypes.OrgOverviewResponse{

@@ -246,7 +246,6 @@ func GetRuleWithErrorKeyContent(
 func GetContentForRecommendation(
 	ruleID ctypes.RuleID,
 ) (*types.RuleWithContent, error) {
-
 	err := WaitForContentDirectoryToBeReady()
 
 	if err != nil {
