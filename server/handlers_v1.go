@@ -79,7 +79,7 @@ func (server HTTPServer) getContentForRuleV1(writer http.ResponseWriter, request
 	if internal := content.IsRuleInternal(ruleID); internal {
 		err := server.checkInternalRulePermissions(request)
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Send()
 			handleServerError(writer, err)
 			return
 		}
@@ -98,7 +98,7 @@ func (server HTTPServer) getContentV1(writer http.ResponseWriter, request *http.
 	allRules, err := content.GetAllContentV1()
 
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		handleServerError(writer, err)
 		return
 	}
@@ -139,7 +139,7 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 	allRuleIDs, err := content.GetRuleIDs()
 
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		handleServerError(writer, err)
 		return
 	}
@@ -157,7 +157,7 @@ func (server HTTPServer) getRuleIDs(writer http.ResponseWriter, request *http.Re
 	}
 
 	if err := responses.SendOK(writer, responses.BuildOkResponseWithData("rules", ruleIDs)); err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		handleServerError(writer, err)
 		return
 	}
@@ -181,8 +181,8 @@ func (server HTTPServer) getOrganizationOverview(
 		clusterInfo := &clusterInfoList[i]
 
 		// check if there are any hitting recommendations
-		hittingRecommendations, any := clusterRecommendationsMap[clusterInfo.ID]
-		if !any {
+		hittingRecommendations, exist := clusterRecommendationsMap[clusterInfo.ID]
+		if !exist {
 			continue
 		}
 
@@ -338,7 +338,6 @@ func generateOrgOverview(
 				hitsByTags[tag]++
 			}
 		}
-
 	}
 
 	return sptypes.OrgOverviewResponse{
@@ -350,7 +349,7 @@ func generateOrgOverview(
 
 // infoMap returns map of additional information about this service, Insights
 // Results Aggregator, and Smart Proxy
-func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Request) {
+func (server *HTTPServer) infoMap(writer http.ResponseWriter, _ *http.Request) {
 	// prepare response data structure
 	response := sptypes.InfoResponse{
 		SmartProxy:     server.fillInSmartProxyInfoParams(),
@@ -361,7 +360,7 @@ func (server *HTTPServer) infoMap(writer http.ResponseWriter, request *http.Requ
 	// try to send the response to client
 	err := responses.SendOK(writer, responses.BuildOkResponseWithData("info", response))
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		handleServerError(writer, err)
 		return
 	}
@@ -374,7 +373,7 @@ func (server *HTTPServer) fillInSmartProxyInfoParams() map[string]string {
 	if server.InfoParams == nil {
 		const msg = "InfoParams is empty"
 		err := errors.New(msg)
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 
 		// don't fail, just fill in the field
 		m := make(map[string]string)

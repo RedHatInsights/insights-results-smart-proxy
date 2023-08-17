@@ -130,18 +130,20 @@ func timeParse(value string) (publishDate time.Time, missing bool, err error) {
 	for _, datetimeLayout := range timeParseFormats {
 		publishDate, err = time.Parse(datetimeLayout, value)
 
-		if err == nil {
-			return
+		if err != nil {
+			log.Info().Msgf(
+				`unable to parse time "%v" using layout "%v"`,
+				value, datetimeLayout,
+			)
+			continue
 		}
-
-		log.Info().Msgf(
-			`unable to parse time "%v" using layout "%v"`,
-			value, datetimeLayout,
-		)
+		break
 	}
 
-	log.Error().Msgf("problem parsing publish_date: %v", err)
-	err = errors.New("invalid format of publish_date")
+	if err != nil {
+		log.Error().Msgf("problem parsing publish_date: %v", err)
+		err = errors.New("invalid format of publish_date")
+	}
 
 	return
 }

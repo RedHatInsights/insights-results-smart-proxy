@@ -78,7 +78,7 @@ func (server HTTPServer) getContentCheckInternal(ruleID ctypes.RuleID, request *
 	if internal := content.IsRuleInternal(ruleID); internal {
 		err = server.checkInternalRulePermissions(request)
 		if err != nil {
-			log.Error().Err(err)
+			log.Error().Err(err).Send()
 			return
 		}
 	}
@@ -88,7 +88,6 @@ func (server HTTPServer) getContentCheckInternal(ruleID ctypes.RuleID, request *
 
 // getRuleWithGroups retrieves static content for the given ruleID along with rule groups
 func (server HTTPServer) getRuleWithGroups(
-	writer http.ResponseWriter,
 	request *http.Request,
 	ruleID ctypes.RuleID,
 ) (
@@ -122,7 +121,7 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 		return
 	}
 
-	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(request, ruleID)
 	if err != nil {
 		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
 		handleServerError(writer, err)
@@ -175,14 +174,14 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		return
 	}
 
-	ruleContent, ruleGroups, err := server.getRuleWithGroups(writer, request, ruleID)
+	ruleContent, ruleGroups, err := server.getRuleWithGroups(request, ruleID)
 	if err != nil {
 		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
 		handleServerError(writer, err)
 		return
 	}
 
-	rating, err := server.getRatingForRecommendation(writer, orgID, ruleID)
+	rating, err := server.getRatingForRecommendation(orgID, ruleID)
 	if err != nil {
 		switch err.(type) {
 		case *utypes.ItemNotFoundError:
@@ -505,7 +504,7 @@ func matchClusterInfoAndUserData(
 		}
 
 		// check if there are any hitting recommendations
-		if hittingRecommendations, any := clusterRecommendationsMap[clusterViewItem.ClusterID]; any {
+		if hittingRecommendations, exist := clusterRecommendationsMap[clusterViewItem.ClusterID]; exist {
 			clusterViewItem.LastCheckedAt = types.Timestamp(
 				hittingRecommendations.CreatedAt.UTC().Format(time.RFC3339),
 			)
@@ -546,8 +545,9 @@ func filterOutDisabledRules(
 	clusterID ctypes.ClusterName,
 	systemWideDisabledRules map[ctypes.RuleID]bool,
 	disabledRulesPerCluster map[ctypes.ClusterName][]ctypes.RuleID,
-) (enabledOnlyRecommendations []ctypes.RuleID) {
-
+) (
+	enabledOnlyRecommendations []ctypes.RuleID,
+) {
 	for _, hittingRuleID := range hittingRecommendations {
 		// no need to continue, rule has been acked
 		if systemWideDisabledRules[hittingRuleID] {
@@ -556,7 +556,7 @@ func filterOutDisabledRules(
 
 		// try to find rule ID in list of disabled rules, if any
 		ruleDisabled := false
-		if disabledRulesList, any := disabledRulesPerCluster[clusterID]; any {
+		if disabledRulesList, exists := disabledRulesPerCluster[clusterID]; exists {
 			for _, disabledRuleID := range disabledRulesList {
 				if disabledRuleID == hittingRuleID {
 					ruleDisabled = true
@@ -674,7 +674,7 @@ func getFilteredRecommendationsList(
 		}
 
 		// remove any disabled clusters from the total count, if they're impacting
-		if disabledClusters, any := disabledClustersForRules[ruleID]; any {
+		if disabledClusters, exist := disabledClustersForRules[ruleID]; exist {
 			impactingClustersList = excludeDisabledClusters(impactingClustersList, disabledClusters)
 		}
 
@@ -725,8 +725,9 @@ func (server HTTPServer) getImpactingRecommendations(
 	orgID ctypes.OrgID,
 	userID ctypes.UserID,
 	clusterList []ctypes.ClusterName,
-) (ctypes.RecommendationImpactedClusters, error) {
-
+) (
+	ctypes.RecommendationImpactedClusters, error,
+) {
 	var aggregatorResponse struct {
 		Recommendations ctypes.RecommendationImpactedClusters `json:"recommendations"`
 		Status          string                                `json:"status"`
@@ -790,7 +791,6 @@ func (server HTTPServer) getClustersAndRecommendations(
 	userID ctypes.UserID,
 	clusterList []ctypes.ClusterName,
 ) (ctypes.ClusterRecommendationMap, error) {
-
 	var aggregatorResponse struct {
 		Clusters ctypes.ClusterRecommendationMap `json:"clusters"`
 		Status   string                          `json:"status"`
@@ -896,9 +896,7 @@ func (server HTTPServer) getContentWithGroups(writer http.ResponseWriter, reques
 func getImpactedClustersFromAggregator(
 	url string,
 	activeClusters []ctypes.ClusterName,
-	useAggregatorFallback bool,
 ) (resp *http.Response, err error) {
-
 	if len(activeClusters) < 1 {
 		// #nosec G107
 		resp, err = http.Get(url)
@@ -954,7 +952,7 @@ func (server HTTPServer) getImpactedClusters(
 	)
 
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
-	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters, useAggregatorFallback)
+	aggregatorResp, err := getImpactedClustersFromAggregator(aggregatorURL, activeClusters)
 	// if http.Get fails for whatever reason
 	if err != nil {
 		handleServerError(writer, err)
@@ -1101,7 +1099,6 @@ func (server *HTTPServer) processClustersDetailResponse(
 	clusterInfo []types.ClusterInfo,
 	writer http.ResponseWriter,
 ) error {
-
 	data := types.ClustersDetailData{
 		EnabledClusters:  make([]ctypes.HittingClustersData, 0),
 		DisabledClusters: make([]ctypes.DisabledClusterInfo, 0),
@@ -1409,7 +1406,6 @@ func filterRulesGetContent(
 	filteredRuleHits := []types.SimplifiedRuleHit{}
 
 	for _, ruleID := range ruleHits {
-
 		// skip acked rule
 		if _, found := ackedRules[ruleID]; found {
 			continue

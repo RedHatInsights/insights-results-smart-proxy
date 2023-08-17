@@ -86,7 +86,7 @@ func readCompositeRuleID(request *http.Request) (
 			ParamValue: ruleIDParam,
 			ErrString:  msg.Error(),
 		}
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		return
 	}
 
@@ -100,7 +100,6 @@ func (server *HTTPServer) readParamsGetRecommendations(writer http.ResponseWrite
 	impactingFlag types.ImpactingFlag,
 	err error,
 ) {
-
 	orgID, userID, err = server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
 		log.Err(err).Msg(orgIDTokenError)

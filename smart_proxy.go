@@ -86,7 +86,7 @@ func printConfig() ExitCode {
 	configBytes, err := json.MarshalIndent(conf.Config, "", "    ")
 
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		return 1
 	}
 

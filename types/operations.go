@@ -25,10 +25,10 @@ import (
 
 // GetClusterNames extract the ClusterName from an array of ClusterInfo
 func GetClusterNames(clustersInfo []ClusterInfo) []ClusterName {
-	var retval []ClusterName = make([]ClusterName, 0)
+	retval := make([]ClusterName, len(clustersInfo))
 
-	for _, info := range clustersInfo {
-		retval = append(retval, info.ID)
+	for i, info := range clustersInfo {
+		retval[i] = info.ID
 	}
 
 	return retval
@@ -52,7 +52,7 @@ func RuleIDWithErrorKeyFromCompositeRuleID(compositeRuleID ctypes.RuleID) (ctype
 
 	if len(splitedRuleID) != 2 {
 		err := fmt.Errorf("invalid rule ID, it must contain only rule ID and error key separated by |")
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 
@@ -63,7 +63,7 @@ func RuleIDWithErrorKeyFromCompositeRuleID(compositeRuleID ctypes.RuleID) (ctype
 
 	if !isRuleIDValid || !isErrorKeyValid {
 		err := fmt.Errorf("invalid rule ID, each part of ID must contain only latin characters, number, underscores or dots")
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 

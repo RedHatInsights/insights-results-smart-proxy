@@ -440,7 +440,6 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 }
 
 func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
-
 	err := loadMockRuleContentDir(
 		createRuleContentDirectoryFromRuleContent(
 			[]ctypes.RuleContent{testdata.RuleContent1, testdata.RuleContent2},
@@ -910,7 +909,6 @@ func TestHTTPServer_GetRequestStatusForCluster_BadRequestClusterID(t *testing.T)
 				Body:       `{"status":"Error during parsing param 'cluster' with value 'aaaa'. Error: 'invalid UUID length: 4'"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -938,7 +936,6 @@ func TestHTTPServer_GetRequestStatusForCluster_BadRequestID(t *testing.T) {
 				Body:       `{"status":"Error during parsing param 'request_id' with value '_'. Error: 'invalid request ID: '_''"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -965,7 +962,6 @@ func TestHTTPServer_GetRequestStatusForCluster_BadAuthToken(t *testing.T) {
 				StatusCode: http.StatusForbidden,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1194,7 +1190,6 @@ func TestHTTPServer_GetRequestsForCluster_BadRequestClusterID(t *testing.T) {
 				Body:       `{"status":"Error during parsing param 'cluster' with value 'aaaa'. Error: 'invalid UUID length: 4'"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1221,7 +1216,6 @@ func TestHTTPServer_GetRequestsForCluster_BadAuthToken(t *testing.T) {
 				StatusCode: http.StatusForbidden,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1480,7 +1474,6 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_NoRedis(t *testing.T) {
 				StatusCode: http.StatusInternalServerError,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1547,7 +1540,6 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadRequestClusterID(t *test
 				Body:       `{"status":"Error during parsing param 'cluster' with value 'aaaa'. Error: 'invalid UUID length: 4'"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1578,7 +1570,6 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadAuthToken(t *testing.T) 
 				StatusCode: http.StatusForbidden,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1606,7 +1597,6 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_NoBody(t *testing.T) {
 				Body:       `{"status":"client didn't provide request body"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1635,7 +1625,6 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadBodyContent(t *testing.T
 				Body:       `{"status":"client didn't provide a valid request body"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1667,7 +1656,6 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadRequestID(t *testing.T) 
 				Body:       `{"status":"Error during parsing param 'request_id' with value '_'. Error: 'invalid request ID: '_''"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1871,7 +1859,6 @@ func TestHTTPServer_GetReportForRequest_BadAuthToken(t *testing.T) {
 				StatusCode: http.StatusForbidden,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1899,7 +1886,6 @@ func TestHTTPServer_GetReportForRequest_BadRequestClusterID(t *testing.T) {
 				Body:       `{"status":"Error during parsing param 'cluster' with value 'aaaa'. Error: 'invalid UUID length: 4'"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 
@@ -1927,7 +1913,6 @@ func TestHTTPServer_GetReportForRequest_BadRequestID(t *testing.T) {
 				Body:       `{"status":"Error during parsing param 'request_id' with value '_'. Error: 'invalid request ID: '_''"}`,
 			},
 		)
-
 	}, testTimeout)
 }
 

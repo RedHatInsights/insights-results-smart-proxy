@@ -101,7 +101,6 @@ func (server HTTPServer) postRatingToAggregator(
 
 // getRatingForRecommendation retrieves user rating for recommendation from aggregator
 func (server HTTPServer) getRatingForRecommendation(
-	writer http.ResponseWriter,
 	orgID ctypes.OrgID,
 	ruleID ctypes.RuleID,
 ) (
@@ -150,7 +149,7 @@ func (server HTTPServer) getRatingForRecommendation(
 			ruleID,
 			aggregatorResp.StatusCode,
 		)
-		log.Error().Err(err)
+		log.Error().Err(err).Send()
 		return
 	}
 

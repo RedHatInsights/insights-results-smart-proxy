@@ -281,7 +281,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 
 			displayName, ok := item.GetDisplayName()
 			if !ok {
-				displayName = string(clusterIDstr)
+				displayName = clusterIDstr
 			}
 
 			managed, ok := item.GetManaged()
