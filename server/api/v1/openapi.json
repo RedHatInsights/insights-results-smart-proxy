@@ -210,7 +210,7 @@
         },
         "operationId": "getClustersForOrganization",
         "summary": "Returns a list of clusters associated with the specified organization ID.",
-        "description": "Returns a list of clusters, ie. cluster IDs, that are associated with the specified organization ID. Please note that there is 1:N organization to cluster mapping, ie. one cluster belongs exactly to one organization."
+        "description": "Returns a list of clusters, ie. cluster IDs, that are associated with the specified organization ID from the last 3 hours. For a complete list of clusters, please use API v2. Please note that there is 1:N organization to cluster mapping, ie. one cluster belongs exactly to one organization."
       }
     },
     "/clusters/{clusterList}/reports": {
