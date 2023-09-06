@@ -242,6 +242,8 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
+	uniqueClusterMap := make(map[string]bool)
+
 	for pageNum := 1; ; pageNum++ {
 		var err error
 		subscriptionListRequest = subscriptionListRequest.
@@ -278,6 +280,12 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 				log.Error().Str(clusterIDTag, clusterIDstr).Msg("Invalid cluster UUID")
 				continue
 			}
+
+			// check for duplicates; add to unique struct
+			if _, exists := uniqueClusterMap[clusterIDstr]; exists {
+				continue
+			}
+			uniqueClusterMap[clusterIDstr] = true
 
 			displayName, ok := item.GetDisplayName()
 			if !ok {

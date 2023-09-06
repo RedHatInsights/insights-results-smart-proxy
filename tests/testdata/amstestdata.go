@@ -153,6 +153,45 @@ var (
 		},
 	}
 
+	// SubscriptionsResponseDuplicateRecords contains a valid response for subscription from AMS, as AMS API
+	// can sometimes send duplicate records. Cluster UUID (external_cluster_id) is unique for us, so we must
+	// exclude those records.
+	SubscriptionsResponseDuplicateRecords map[string]interface{} = map[string]interface{}{
+		"kind":  "SubscriptionList",
+		"page":  1,
+		"size":  4,
+		"total": 4,
+		"items": []map[string]interface{}{
+			{
+				"display_name":        ClusterDisplayName1,
+				"external_cluster_id": ClusterName1,
+				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
+				"managed":             true,
+				"status":              ActiveStatus,
+			},
+			{
+				"display_name":        ClusterDisplayName2,
+				"external_cluster_id": ClusterName2,
+				"id":                  "1YfQLCOCZZOEXgOp8uIbqe5i5z2",
+				"managed":             false,
+				"status":              ActiveStatus,
+			}, {
+				"display_name":        ClusterDisplayName1,
+				"external_cluster_id": ClusterName1,
+				"id":                  "1YfQ9bR7LTDz24YzfFmaCdeB0sS",
+				"managed":             true,
+				"status":              ActiveStatus,
+			},
+			{
+				"display_name":        ClusterDisplayName2,
+				"external_cluster_id": ClusterName2,
+				"id":                  "1YfQLCOCZZOEXgOp8uIbqe5i5z2",
+				"managed":             false,
+				"status":              ActiveStatus,
+			},
+		},
+	}
+
 	// SubscriptionEmptyResponse contains a valid response for subscription from AMS, 0 clusters
 	SubscriptionEmptyResponse map[string]interface{} = map[string]interface{}{
 		"kind":  "SubscriptionList",
