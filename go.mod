@@ -5,9 +5,9 @@ go 1.18
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/RedHatInsights/insights-content-service v0.0.0-20230515093827-cefc7fd75fc7
-	github.com/RedHatInsights/insights-operator-utils v1.24.9
+	github.com/RedHatInsights/insights-operator-utils v1.24.11
 	github.com/RedHatInsights/insights-results-aggregator v1.3.4
-	github.com/RedHatInsights/insights-results-aggregator-data v1.3.8
+	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/go-redis/redismock/v9 v9.0.3
 	github.com/golang-jwt/jwt/v4 v4.5.0
@@ -15,12 +15,12 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/openshift-online/ocm-sdk-go v0.1.238
-	github.com/prometheus/client_golang v1.15.1
+	github.com/prometheus/client_golang v1.16.0
 	github.com/redhatinsights/app-common-go v1.6.3
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.15.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	gopkg.in/h2non/gock.v1 v1.1.2
 )
 
@@ -73,7 +73,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.11.1 // indirect
-	github.com/lib/pq v1.10.4 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -90,9 +90,9 @@ require (
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_model v0.3.0 // indirect
+	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
-	github.com/prometheus/procfs v0.9.0 // indirect
+	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/segmentio/kafka-go v0.4.10 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
@@ -103,7 +103,7 @@ require (
 	github.com/verdverm/frisby v0.0.0-20170604211311-b16556248a9a // indirect
 	golang.org/x/crypto v0.1.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
