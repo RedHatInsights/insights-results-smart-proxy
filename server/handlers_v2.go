@@ -1040,7 +1040,15 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		return
 	}
 
-	err = server.processClustersDetailResponse(impactedClusters, disabledClusters, activeClustersInfo, writer)
+	splitRuleID := strings.Split(string(selector), "|")
+	// not interested in content of response, only if rule has been acked
+	acknowledge, ackFound, err := server.readRuleDisableStatus(
+		ctypes.Component(splitRuleID[0]),
+		ctypes.ErrorKey(splitRuleID[1]),
+		orgID,
+	)
+
+	err = server.processClustersDetailResponse(impactedClusters, disabledClusters, activeClustersInfo, acknowledge, ackFound, writer)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
 			Msg("Couldn't process response for clusters detail")
@@ -1097,6 +1105,8 @@ func (server *HTTPServer) processClustersDetailResponse(
 	impactedClusters []ctypes.HittingClustersData,
 	disabledClusters []ctypes.DisabledClusterInfo,
 	clusterInfo []types.ClusterInfo,
+	acknowledge ctypes.Acknowledgement,
+	ruleAcked bool,
 	writer http.ResponseWriter,
 ) error {
 	data := types.ClustersDetailData{
@@ -1123,7 +1133,23 @@ func (server *HTTPServer) processClustersDetailResponse(
 			continue
 		}
 		impactedC.Name = clusterInfoMap[impactedC.Cluster].DisplayName
-		data.EnabledClusters = append(data.EnabledClusters, impactedC)
+
+		if ruleAcked {
+			disabledAt, err := time.Parse(time.RFC3339, acknowledge.CreatedAt)
+			if err != nil {
+				log.Error().Msgf("error parsing time as RFC3339: %v", acknowledge.CreatedAt)
+				disabledAt = time.Time{}
+			}
+			disabledCluster := ctypes.DisabledClusterInfo{
+				ClusterID:     impactedC.Cluster,
+				ClusterName:   impactedC.Name,
+				DisabledAt:    disabledAt,
+				Justification: acknowledge.Justification,
+			}
+			data.DisabledClusters = append(data.DisabledClusters, disabledCluster)
+		} else {
+			data.EnabledClusters = append(data.EnabledClusters, impactedC)
+		}
 	}
 
 	response := types.ClustersDetailResponse{
