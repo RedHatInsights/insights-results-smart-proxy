@@ -1047,6 +1047,12 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		ctypes.ErrorKey(splitRuleID[1]),
 		orgID,
 	)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
+			Msg("Couldn't retrieve rule acknowledge status for given rule selector")
+		handleServerError(writer, err)
+		return
+	}
 
 	err = server.processClustersDetailResponse(impactedClusters, disabledClusters, activeClustersInfo, acknowledge, ackFound, writer)
 	if err != nil {
