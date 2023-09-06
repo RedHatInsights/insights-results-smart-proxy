@@ -242,7 +242,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
-	uniqueClusterMap := make(map[string]bool)
+	uniqueClusterMap := make(map[string]struct{})
 
 	for pageNum := 1; ; pageNum++ {
 		var err error
@@ -285,7 +285,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 			if _, exists := uniqueClusterMap[clusterIDstr]; exists {
 				continue
 			}
-			uniqueClusterMap[clusterIDstr] = true
+			uniqueClusterMap[clusterIDstr] = struct{}{}
 
 			displayName, ok := item.GetDisplayName()
 			if !ok {
