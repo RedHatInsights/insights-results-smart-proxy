@@ -101,7 +101,7 @@ func NewRedisClient(conf RedisConfiguration) (RedisInterface, error) {
 // GetRequestIDsForClusterID retrieves a list of request IDs from Redis.
 // "List" of request IDs is in the form of keys with empty values in the following structure:
 // organization:{org_id}:cluster:{cluster_id}:request:{request_id1}.
-func (redis *RedisClient) GetRequestIDsForClusterID(
+func (redisClient *RedisClient) GetRequestIDsForClusterID(
 	orgID types.OrgID,
 	clusterID types.ClusterName,
 ) (requestIDs []types.RequestID, err error) {
@@ -114,7 +114,7 @@ func (redis *RedisClient) GetRequestIDsForClusterID(
 	for {
 		var keys []string
 		var err error
-		keys, cursor, err = redis.Client.Connection.Scan(ctx, cursor, scanKey, ScanBatchCount).Result()
+		keys, cursor, err = redisClient.Client.Connection.Scan(ctx, cursor, scanKey, ScanBatchCount).Result()
 		if err != nil {
 			log.Error().Err(err).Msgf("failed to execute SCAN command for key '%v' and cursor '%d'", scanKey, cursor)
 			return nil, err
@@ -139,7 +139,7 @@ func (redis *RedisClient) GetRequestIDsForClusterID(
 // GetTimestampsForRequestIDs retrieves the 'received' and 'processed' timestamps of each Request
 // for given list of Request IDs. It doesn't retrieve the whole Hash, but only the fields we need.
 // It utilizes Redis pipelines in order to avoid multiple client-server round trips.
-func (redis *RedisClient) GetTimestampsForRequestIDs(
+func (redisClient *RedisClient) GetTimestampsForRequestIDs(
 	orgID types.OrgID,
 	clusterID types.ClusterName,
 	requestIDs []types.RequestID,
@@ -154,7 +154,7 @@ func (redis *RedisClient) GetTimestampsForRequestIDs(
 	}
 
 	// queue commands in Redis pipeline. EXEC command is issued upon function exit
-	commands, err := redis.Client.Connection.Pipelined(ctx, func(pipe redisV9.Pipeliner) error {
+	commands, err := redisClient.Client.Connection.Pipelined(ctx, func(pipe redisV9.Pipeliner) error {
 		for _, key := range keys {
 			pipe.HMGet(ctx, key, RequestIDFieldName, ReceivedTimestampFieldName, ProcessedTimestampFieldName)
 		}
@@ -199,7 +199,7 @@ func (redis *RedisClient) GetTimestampsForRequestIDs(
 
 // GetRuleHitsForRequest is used to get the rule_hits field from Hash type
 // stored in Redis.
-func (redis *RedisClient) GetRuleHitsForRequest(
+func (redisClient *RedisClient) GetRuleHitsForRequest(
 	orgID types.OrgID,
 	clusterID types.ClusterName,
 	requestID types.RequestID,
@@ -209,7 +209,7 @@ func (redis *RedisClient) GetRuleHitsForRequest(
 	ctx := context.Background()
 	key := fmt.Sprintf(SimplifiedReportKey, orgID, clusterID, requestID)
 
-	cmd := redis.Client.Connection.HMGet(ctx, key, RequestIDFieldName, RuleHitsFieldName)
+	cmd := redisClient.Client.Connection.HMGet(ctx, key, RequestIDFieldName, RuleHitsFieldName)
 	if err = cmd.Err(); err != nil {
 		log.Error().Err(err).Msg(redisCmdExecutionFailedMsg)
 		return

@@ -42,6 +42,10 @@ objects:
     envName: ${ENV_NAME}
     testing:
       iqePlugin: ccx
+    optionalDependencies:
+      - ccx-redis
+      - insights-content-service
+      - ccx-insights-results
     deployments:
       - name: service
         minReplicas: ${{MIN_REPLICAS}}

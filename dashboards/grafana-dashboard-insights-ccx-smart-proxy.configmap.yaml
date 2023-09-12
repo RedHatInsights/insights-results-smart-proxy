@@ -27,35 +27,98 @@ data:
         "list": [
           {
             "builtIn": 1,
-            "datasource": "-- Grafana --",
+            "datasource": {
+              "type": "datasource",
+              "uid": "grafana"
+            },
             "enable": true,
             "hide": true,
             "iconColor": "rgba(0, 211, 255, 1)",
             "name": "Annotations & Alerts",
+            "target": {
+              "limit": 100,
+              "matchAny": false,
+              "tags": [],
+              "type": "dashboard"
+            },
             "type": "dashboard"
           }
         ]
       },
       "editable": true,
-      "gnetId": null,
+      "fiscalYearStartMonth": 0,
       "graphTooltip": 0,
-      "id": 100,
-      "iteration": 1597736309114,
+      "id": 174980,
       "links": [],
+      "liveNow": false,
       "panels": [
         {
-          "datasource": "$datasource",
-          "cacheTimeout": null,
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "decimals": 0,
+              "mappings": [
+                {
+                  "options": {
+                    "match": "null",
+                    "result": {
+                      "text": "N/A"
+                    }
+                  },
+                  "type": "special"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
           "gridPos": {
-            "h": 4,
-            "w": 3,
+            "h": 6,
+            "w": 2,
             "x": 0,
             "y": 0
           },
           "id": 10,
           "links": [],
+          "maxDataPoints": 100,
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "pluginVersion": "9.3.8",
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "expr": "sum (up{service=\"ccx-smart-proxy\", namespace=\"$namespace\"})",
               "format": "time_series",
               "groupBy": [
@@ -97,87 +160,32 @@ data:
           ],
           "title": "Number of pods",
           "transparent": true,
-          "type": "singlestat",
-          "pluginVersion": "6.6.2",
-          "colorBackground": false,
-          "colorValue": false,
-          "colors": [
-            "#d44a3a",
-            "rgba(237, 129, 40, 0.89)",
-            "#508642"
-          ],
-          "decimals": 0,
-          "format": "none",
-          "gauge": {
-            "maxValue": 6,
-            "minValue": 0,
-            "show": false,
-            "thresholdLabels": true,
-            "thresholdMarkers": false
-          },
-          "interval": null,
-          "mappingType": 1,
-          "mappingTypes": [
-            {
-              "name": "value to text",
-              "value": 1
-            },
-            {
-              "name": "range to text",
-              "value": 2
-            }
-          ],
-          "maxDataPoints": 100,
-          "nullPointMode": "connected",
-          "nullText": null,
-          "options": {},
-          "postfix": "",
-          "postfixFontSize": "50%",
-          "prefix": "",
-          "prefixFontSize": "50%",
-          "rangeMaps": [
-            {
-              "from": "null",
-              "text": "N/A",
-              "to": "null"
-            }
-          ],
-          "sparkline": {
-            "fillColor": "rgba(31, 118, 189, 0.18)",
-            "full": false,
-            "lineColor": "rgb(31, 120, 193)",
-            "show": false
-          },
-          "tableColumn": "",
-          "thresholds": "",
-          "valueFontSize": "100%",
-          "valueMaps": [
-            {
-              "op": "=",
-              "text": "N/A",
-              "value": "null"
-            }
-          ],
-          "valueName": "current",
-          "colorPostfix": false,
-          "colorPrefix": false
+          "type": "stat"
         },
         {
           "aliasColors": {},
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "decimals": 3,
           "editable": true,
           "error": false,
+          "fieldConfig": {
+            "defaults": {
+              "links": []
+            },
+            "overrides": []
+          },
           "fill": 0,
           "fillGradient": 0,
           "grid": {},
           "gridPos": {
-            "h": 4,
-            "w": 21,
-            "x": 3,
+            "h": 6,
+            "w": 10,
+            "x": 2,
             "y": 0
           },
           "height": "",
@@ -189,9 +197,8 @@ data:
             "current": true,
             "max": true,
             "min": false,
-            "rightSide": true,
+            "rightSide": false,
             "show": true,
-            "sideWidth": null,
             "sort": "current",
             "sortDesc": true,
             "total": false,
@@ -202,9 +209,10 @@ data:
           "links": [],
           "nullPointMode": "connected",
           "options": {
-            "dataLinks": []
+            "alertThreshold": true
           },
           "percentage": false,
+          "pluginVersion": "9.3.8",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -214,6 +222,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "expr": "sum (rate (container_cpu_usage_seconds_total{namespace=\"$namespace\",container=\"ccx-smart-proxy-service\"}[1m])) by (pod)",
               "format": "time_series",
               "interval": "",
@@ -225,9 +236,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Pods CPU usage (1m avg)",
           "tooltip": {
             "msResolution": true,
@@ -237,9 +246,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
@@ -248,22 +255,16 @@ data:
               "format": "none",
               "label": "cores",
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": false
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -271,18 +272,26 @@ data:
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
           "decimals": 2,
           "editable": true,
           "error": false,
+          "fieldConfig": {
+            "defaults": {
+              "links": []
+            },
+            "overrides": []
+          },
           "fill": 0,
           "fillGradient": 0,
           "grid": {},
           "gridPos": {
-            "h": 5,
-            "w": 24,
-            "x": 0,
-            "y": 4
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 0
           },
           "hiddenSeries": false,
           "id": 14,
@@ -292,9 +301,8 @@ data:
             "current": true,
             "max": true,
             "min": false,
-            "rightSide": true,
+            "rightSide": false,
             "show": true,
-            "sideWidth": null,
             "sort": "current",
             "sortDesc": true,
             "total": false,
@@ -305,9 +313,10 @@ data:
           "links": [],
           "nullPointMode": "connected",
           "options": {
-            "dataLinks": []
+            "alertThreshold": true
           },
           "percentage": false,
+          "pluginVersion": "9.3.8",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -317,6 +326,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "expr": "sum (container_memory_working_set_bytes{container=\"\",namespace=\"$namespace\",pod=~'ccx-smart-proxy-.*'}) by (pod)",
               "format": "time_series",
               "interval": "10s",
@@ -328,9 +340,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Pods memory usage",
           "tooltip": {
             "msResolution": false,
@@ -340,33 +350,24 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
           "yaxes": [
             {
               "format": "bytes",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": false
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -374,14 +375,22 @@ data:
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "links": []
+            },
+            "overrides": []
+          },
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
-            "h": 9,
+            "h": 8,
             "w": 12,
             "x": 0,
-            "y": 9
+            "y": 6
           },
           "hiddenSeries": false,
           "id": 2,
@@ -400,9 +409,10 @@ data:
           "links": [],
           "nullPointMode": "null",
           "options": {
-            "dataLinks": []
+            "alertThreshold": true
           },
           "percentage": false,
+          "pluginVersion": "9.3.8",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -412,6 +422,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "expr": "sum by(exported_endpoint)(increase(api_endpoints_requests{namespace=\"$namespace\", service=\"ccx-smart-proxy\"}[1m]))",
               "format": "time_series",
               "groupBy": [
@@ -453,9 +466,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "Requests Rate By Endpoint",
           "tooltip": {
             "shared": true,
@@ -464,33 +475,24 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "time",
-            "name": null,
             "show": true,
             "values": []
           },
           "yaxes": [
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -498,14 +500,22 @@ data:
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "links": []
+            },
+            "overrides": []
+          },
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
-            "h": 9,
+            "h": 8,
             "w": 12,
             "x": 12,
-            "y": 9
+            "y": 6
           },
           "hiddenSeries": false,
           "id": 4,
@@ -527,9 +537,10 @@ data:
           "links": [],
           "nullPointMode": "null",
           "options": {
-            "dataLinks": []
+            "alertThreshold": true
           },
           "percentage": false,
+          "pluginVersion": "9.3.8",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -539,6 +550,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "expr": "avg by(exported_endpoint)(rate(api_endpoints_response_time_sum{namespace=\"$namespace\", service=\"ccx-smart-proxy\"}[5m]) / rate(api_endpoints_response_time_count{namespace=\"$namespace\", service=\"ccx-smart-proxy\"}[5m])) ",
               "format": "time_series",
               "groupBy": [
@@ -581,9 +595,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "API Response Times",
           "tooltip": {
             "shared": true,
@@ -592,9 +604,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "series",
-            "name": null,
             "show": false,
             "values": [
               "avg"
@@ -603,24 +613,17 @@ data:
           "yaxes": [
             {
               "format": "s",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": false
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -628,14 +631,23 @@ data:
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "links": []
+            },
+            "overrides": []
+          },
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
-            "h": 9,
-            "w": 12,
+            "h": 10,
+            "w": 9,
             "x": 0,
-            "y": 18
+            "y": 14
           },
           "hiddenSeries": false,
           "id": 6,
@@ -654,9 +666,10 @@ data:
           "links": [],
           "nullPointMode": "null",
           "options": {
-            "dataLinks": []
+            "alertThreshold": true
           },
           "percentage": false,
+          "pluginVersion": "9.3.8",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -687,6 +700,10 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
+              "editorMode": "code",
               "expr": "sum by(status_code)(increase(api_endpoints_status_codes{namespace=\"$namespace\", service=\"ccx-smart-proxy\"}[1m]))",
               "format": "time_series",
               "groupBy": [
@@ -708,6 +725,7 @@ data:
               "legendFormat": "{{status_code}}",
               "orderByTime": "ASC",
               "policy": "default",
+              "range": true,
               "refId": "A",
               "resultFormat": "time_series",
               "select": [
@@ -728,9 +746,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "API Response Status Codes",
           "tooltip": {
             "shared": true,
@@ -739,9 +755,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "series",
-            "name": null,
             "show": true,
             "values": [
               "total"
@@ -750,24 +764,17 @@ data:
           "yaxes": [
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
           }
         },
         {
@@ -775,14 +782,22 @@ data:
           "bars": true,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "$datasource",
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "links": []
+            },
+            "overrides": []
+          },
           "fill": 1,
           "fillGradient": 0,
           "gridPos": {
-            "h": 9,
-            "w": 12,
-            "x": 12,
-            "y": 18
+            "h": 10,
+            "w": 8,
+            "x": 9,
+            "y": 14
           },
           "hiddenSeries": false,
           "id": 8,
@@ -802,9 +817,10 @@ data:
           "links": [],
           "nullPointMode": "null",
           "options": {
-            "dataLinks": []
+            "alertThreshold": true
           },
           "percentage": false,
+          "pluginVersion": "9.3.8",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -831,6 +847,9 @@ data:
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "uid": "$datasource"
+              },
               "expr": "sum by(status_code)(increase(api_endpoints_status_codes{namespace=\"$namespace\", service=\"ccx-smart-proxy\", status_code!~\"2[0-9]{2}\"}[1m]))",
               "format": "time_series",
               "groupBy": [
@@ -871,9 +890,7 @@ data:
             }
           ],
           "thresholds": [],
-          "timeFrom": null,
           "timeRegions": [],
-          "timeShift": null,
           "title": "API Non 200 Status Codes",
           "tooltip": {
             "shared": true,
@@ -882,9 +899,7 @@ data:
           },
           "type": "graph",
           "xaxis": {
-            "buckets": null,
             "mode": "series",
-            "name": null,
             "show": true,
             "values": [
               "total"
@@ -893,29 +908,174 @@ data:
           "yaxes": [
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": true
             },
             {
               "format": "short",
-              "label": null,
               "logBase": 1,
-              "max": null,
-              "min": null,
               "show": false
             }
           ],
           "yaxis": {
-            "align": false,
-            "alignLevel": null
+            "align": false
+          }
+        },
+        {
+          "aliasColors": {},
+          "bars": true,
+          "dashLength": 10,
+          "dashes": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "description": "Select a different endpoint in the top side of the page, under the \"endpoint\" variable input.",
+          "fieldConfig": {
+            "defaults": {
+              "links": []
+            },
+            "overrides": []
+          },
+          "fill": 1,
+          "fillGradient": 0,
+          "gridPos": {
+            "h": 10,
+            "w": 7,
+            "x": 17,
+            "y": 14
+          },
+          "hiddenSeries": false,
+          "id": 15,
+          "legend": {
+            "alignAsTable": true,
+            "avg": true,
+            "current": true,
+            "max": true,
+            "min": true,
+            "show": true,
+            "total": true,
+            "values": true
+          },
+          "lines": false,
+          "linewidth": 1,
+          "links": [],
+          "nullPointMode": "null",
+          "options": {
+            "alertThreshold": true
+          },
+          "percentage": false,
+          "pluginVersion": "9.3.8",
+          "pointradius": 5,
+          "points": false,
+          "renderer": "flot",
+          "seriesOverrides": [
+            {
+              "alias": "/\\{status_code=\"1..\"\\}/i",
+              "color": "#cffaff"
+            },
+            {
+              "alias": "/\\{status_code=\"2..\"\\}/i",
+              "color": "#3f6833"
+            },
+            {
+              "alias": "/\\{status_code=\"3..\"\\}/i",
+              "color": "#7eb26d"
+            },
+            {
+              "alias": "/\\{status_code=\"4..\"\\}/i",
+              "color": "#cca300"
+            },
+            {
+              "alias": "/\\{status_code=\"5..\"\\}/i",
+              "color": "#890f02"
+            }
+          ],
+          "spaceLength": 10,
+          "stack": false,
+          "steppedLine": false,
+          "targets": [
+            {
+              "datasource": {
+                "uid": "$datasource"
+              },
+              "editorMode": "code",
+              "expr": "sum by(status_code)(increase(api_endpoints_status_codes{namespace=\"$namespace\", service=\"ccx-smart-proxy\", exported_endpoint=\"/api/insights-results-aggregator$endpoint\"}[1m]))",
+              "format": "time_series",
+              "groupBy": [
+                {
+                  "params": [
+                    "$__interval"
+                  ],
+                  "type": "time"
+                },
+                {
+                  "params": [
+                    "null"
+                  ],
+                  "type": "fill"
+                }
+              ],
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "{{status_code}}",
+              "orderByTime": "ASC",
+              "policy": "default",
+              "range": true,
+              "refId": "A",
+              "resultFormat": "time_series",
+              "select": [
+                [
+                  {
+                    "params": [
+                      "value"
+                    ],
+                    "type": "field"
+                  },
+                  {
+                    "params": [],
+                    "type": "mean"
+                  }
+                ]
+              ],
+              "tags": []
+            }
+          ],
+          "thresholds": [],
+          "timeRegions": [],
+          "title": "API Response Status Codes for \"$endpoint\"",
+          "tooltip": {
+            "shared": true,
+            "sort": 0,
+            "value_type": "individual"
+          },
+          "type": "graph",
+          "xaxis": {
+            "mode": "series",
+            "show": true,
+            "values": [
+              "total"
+            ]
+          },
+          "yaxes": [
+            {
+              "format": "short",
+              "logBase": 1,
+              "show": true
+            },
+            {
+              "format": "short",
+              "logBase": 1,
+              "show": true
+            }
+          ],
+          "yaxis": {
+            "align": false
           }
         }
       ],
       "refresh": false,
-      "schemaVersion": 22,
+      "schemaVersion": 37,
       "style": "dark",
       "tags": [],
       "templating": {
@@ -933,17 +1093,17 @@ data:
             "name": "datasource",
             "options": [],
             "query": "prometheus",
+            "queryValue": "",
             "refresh": 1,
             "regex": "/.*crc.*/",
             "skipUrlSync": false,
             "type": "datasource"
           },
           {
-            "allValue": null,
             "current": {
               "selected": true,
-              "text": "ccx-data-pipeline-prod",
-              "value": "ccx-data-pipeline-prod"
+              "text": "ccx-data-pipeline-stage",
+              "value": "ccx-data-pipeline-stage"
             },
             "hide": 0,
             "includeAll": false,
@@ -952,19 +1112,48 @@ data:
             "name": "namespace",
             "options": [
               {
-                "selected": false,
+                "selected": true,
                 "text": "ccx-data-pipeline-stage",
                 "value": "ccx-data-pipeline-stage"
               },
               {
-                "selected": true,
+                "selected": false,
                 "text": "ccx-data-pipeline-prod",
                 "value": "ccx-data-pipeline-prod"
               }
             ],
             "query": "ccx-data-pipeline-stage,ccx-data-pipeline-prod",
+            "queryValue": "",
             "skipUrlSync": false,
             "type": "custom"
+          },
+          {
+            "current": {
+              "selected": true,
+              "text": "/v2/cluster/{cluster}/upgrade-risks-prediction",
+              "value": "/v2/cluster/{cluster}/upgrade-risks-prediction"
+            },
+            "datasource": {
+              "type": "prometheus",
+              "uid": "PDD8BE47D10408F45"
+            },
+            "definition": "query_result(count by (exported_endpoint) (api_endpoints_status_codes{service=\"ccx-smart-proxy\"}))",
+            "description": "Select an endpoint to get more details about its status codes",
+            "hide": 0,
+            "includeAll": false,
+            "label": "endpoint",
+            "multi": false,
+            "name": "endpoint",
+            "options": [],
+            "query": {
+              "query": "query_result(count by (exported_endpoint) (api_endpoints_status_codes{service=\"ccx-smart-proxy\"}))",
+              "refId": "StandardVariableQuery"
+            },
+            "refresh": 1,
+            "regex": "/\"/api/insights-results-aggregator([^\"]+)\"/",
+            "skipUrlSync": false,
+            "sort": 1,
+            "type": "query"
           }
         ]
       },
