@@ -133,7 +133,7 @@ func (server HTTPServer) getClustersForOrg(writer http.ResponseWriter, request *
 	// try to get cluster list from AMS API because the aggregator way is unusable for large orgs
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
 		handleServerError(writer, err)
 		return
 	}
