@@ -24,7 +24,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -1058,15 +1057,17 @@ func (server *HTTPServer) getListOfDisabledClusters(
 		DisabledClusters []ctypes.DisabledClusterInfo `json:"clusters"`
 	}
 
-	// rule selector has already been validated
-	splitRuleID := strings.Split(string(ruleSelector), "|")
+	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleSelector))
+	if err != nil {
+		return nil, err
+	}
 
 	// rules disabled using v1 enable/disable endpoints include '.report' in the module
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ListOfDisabledClusters,
-		splitRuleID[0]+dotReport,
-		splitRuleID[1],
+		ruleID+dotReport,
+		errorKey,
 		orgID,
 	)
 
@@ -1109,10 +1110,14 @@ func (server *HTTPServer) getListOfDisabledClustersAndAck(
 		return
 	}
 
-	splitRuleID := strings.Split(string(ruleSelector), "|")
+	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleSelector))
+	if err != nil {
+		return
+	}
+
 	acknowledge, ackFound, err = server.readRuleDisableStatus(
-		ctypes.Component(splitRuleID[0]),
-		ctypes.ErrorKey(splitRuleID[1]),
+		ctypes.Component(ruleID),
+		errorKey,
 		orgID,
 	)
 	if err != nil {
@@ -1473,11 +1478,14 @@ func filterRulesGetContent(
 			continue
 		}
 
-		splitRuleID := strings.Split(string(ruleID), "|")
+		ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ruleID)
+		if err != nil {
+			log.Error().Msg("error getting rule module and error key from composite rule ID.")
+		}
 		// fill in data from rule content
 		simplifiedRuleHit := types.SimplifiedRuleHit{
-			RuleFQDN:    splitRuleID[0],
-			ErrorKey:    splitRuleID[1],
+			RuleFQDN:    string(ruleID),
+			ErrorKey:    string(errorKey),
 			Description: ruleContent.Generic,
 			TotalRisk:   ruleContent.TotalRisk,
 		}
