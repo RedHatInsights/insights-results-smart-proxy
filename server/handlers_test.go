@@ -3937,7 +3937,6 @@ func TestHTTPServer_GetClustersForOrganizationOk(t *testing.T) {
 }
 
 func TestHTTPServer_GetClustersForOrganizationAggregatorFallback(t *testing.T) {
-
 	clusterInfoList := make([]types.ClusterInfo, 2)
 	for i := range clusterInfoList {
 		clusterInfoList[i] = data.GetRandomClusterInfo()
