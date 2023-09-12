@@ -108,7 +108,7 @@ func TestClusterForOrganization(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.OrganizationResponse),
 	})
 
-	// prepare cluster list requests
+	// prepare cluster list request response
 	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
 		Method:       http.MethodGet,
 		Endpoint:     subscriptionsSearchEndpoint,
@@ -157,7 +157,7 @@ func TestClusterForOrganizationWithFiltering(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.OrganizationResponse),
 	})
 
-	// prepare cluster list requests
+	// prepare cluster list request response
 	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
 		Method:       http.MethodGet,
 		Endpoint:     subscriptionsSearchEndpointWithFilter,
@@ -211,7 +211,7 @@ func TestClusterForOrganizationWithDefaultFiltering(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.OrganizationResponse),
 	})
 
-	// prepare cluster list requests
+	// prepare cluster list request response
 	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
 		Method:   http.MethodGet,
 		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
@@ -273,7 +273,7 @@ func TestClusterForOrganizationWithEmptyClusterIDs(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.OrganizationResponse),
 	})
 
-	// prepare cluster list requests. Response has 2 invalid clusters and 1 valid one
+	// prepare cluster list request response. Response has 2 invalid clusters and 1 valid one
 	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
 		Method:   http.MethodGet,
 		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
@@ -338,7 +338,7 @@ func TestClusterForOrganizationCCXDEV_8829_Reproducer(t *testing.T) {
 		Body: helpers.ToJSONString(testdata.OrganizationResponse),
 	})
 
-	// prepare cluster list requests. Response has 2 invalid clusters and 1 valid one
+	// prepare cluster list request response. Response has 2 invalid clusters and 1 valid one
 	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
 		Method:   http.MethodGet,
 		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
@@ -381,6 +381,76 @@ func TestClusterForOrganizationCCXDEV_8829_Reproducer(t *testing.T) {
 	// we expect 1 cluster to be excluded because it has invalid UUID
 	assert.Equal(t, 1, len(clusterList))
 	// remaining cluster has the correct UUID
+	assert.Equal(t, types.ClusterName(testdata.ClusterName1), clusterList[0].ID)
+}
+
+// TestClusterForOrganizationCCXDEV_11659_Reproducer reproducer for https://issues.redhat.com/browse/CCXDEV-11659
+// AMS API can sometimes return duplicated clusters, we must filter the duplicates out.
+func TestClusterForOrganizationCCXDEV_11659_Reproducer(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponse),
+	})
+
+	// prepare cluster list response. Response has 4 valid clusters, but 2 of them are duplicate.
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			1, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponseDuplicateRecords),
+	})
+	// second and more requests will be done until the last one returns an empty response (0 sized)
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:   http.MethodGet,
+		Endpoint: subscriptionsSearchEndpointWithDefaultFilter,
+		EndpointArgs: []interface{}{
+			2, testdata.InternalOrgID,
+			amsclient.StatusArchived, amsclient.StatusDeprovisioned, amsclient.StatusReserved,
+			defaultConfig.PageSize,
+		},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterList, err := c.GetClustersForOrganization(
+		testdata.ExternalOrgID,
+		nil,
+		nil,
+	)
+
+	helpers.FailOnError(t, err)
+	// we expect 2 cluster to be excluded because they are duplicate
+	assert.Equal(t, 2, len(clusterList))
+	// remaining clusters have the correct UUIDs
+	assert.ElementsMatch(t,
+		[]types.ClusterName{clusterList[0].ID, clusterList[1].ID},
+		[]types.ClusterName{testdata.ClusterName1, testdata.ClusterName2},
+	)
 	assert.Equal(t, types.ClusterName(testdata.ClusterName1), clusterList[0].ID)
 }
 
