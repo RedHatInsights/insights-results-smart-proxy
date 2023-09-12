@@ -1032,24 +1032,10 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		return
 	}
 
-	disabledClusters, err := server.getListOfDisabledClusters(orgID, selector)
+	disabledClusters, acknowledge, ackFound, err := server.getListOfDisabledClustersAndAck(orgID, selector)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
-			Msg("Couldn't retrieve disabled clusters for given rule selector")
-		handleServerError(writer, err)
-		return
-	}
-
-	splitRuleID := strings.Split(string(selector), "|")
-	// not interested in content of response, only if rule has been acked
-	acknowledge, ackFound, err := server.readRuleDisableStatus(
-		ctypes.Component(splitRuleID[0]),
-		ctypes.ErrorKey(splitRuleID[1]),
-		orgID,
-	)
-	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
-			Msg("Couldn't retrieve rule acknowledge status for given rule selector")
+			Msg("Couldn't retrieve disabled clusters or ack for given rule selector")
 		handleServerError(writer, err)
 		return
 	}
@@ -1104,6 +1090,38 @@ func (server *HTTPServer) getListOfDisabledClusters(
 	}
 
 	return response.DisabledClusters, nil
+}
+
+// getListOfDisabledClustersAndAck reads list of disabled clusters from aggregator and gets
+// information about rule ack
+func (server *HTTPServer) getListOfDisabledClustersAndAck(
+	orgID types.OrgID, ruleSelector ctypes.RuleSelector,
+) (
+	disabledClusters []ctypes.DisabledClusterInfo,
+	acknowledge ctypes.Acknowledgement,
+	ackFound bool,
+	err error,
+) {
+	disabledClusters, err = server.getListOfDisabledClusters(orgID, ruleSelector)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(selectorStr, string(ruleSelector)).
+			Msg("Couldn't retrieve disabled clusters for given rule selector")
+		return
+	}
+
+	splitRuleID := strings.Split(string(ruleSelector), "|")
+	acknowledge, ackFound, err = server.readRuleDisableStatus(
+		ctypes.Component(splitRuleID[0]),
+		ctypes.ErrorKey(splitRuleID[1]),
+		orgID,
+	)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(selectorStr, string(ruleSelector)).
+			Msg("Couldn't retrieve rule acknowledge status for given rule selector")
+		return
+	}
+
+	return
 }
 
 // processClustersDetailResponse processes responses from aggregator and AMS API and sends a response
