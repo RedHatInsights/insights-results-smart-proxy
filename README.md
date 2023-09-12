@@ -1,6 +1,6 @@
 # insights-results-smart-proxy
 
-[![forthebadge made-with-go](http://ForTheBadge.com/images/badges/made-with-go.svg)](https://go.dev/)
+[![forthebadge made-with-go](https://github.com/BraveUX/for-the-badge/blob/master/src/images/badges/made-with-go.svg)](https://go.dev/)
 
 [![GoDoc](https://godoc.org/github.com/RedHatInsights/insights-results-smart-proxy?status.svg)](https://godoc.org/github.com/RedHatInsights/insights-results-smart-proxy)
 [![GitHub Pages](https://img.shields.io/badge/%20-GitHub%20Pages-informational)](https://redhatinsights.github.io/insights-results-smart-proxy/)
