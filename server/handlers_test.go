@@ -3843,3 +3843,134 @@ func TestServeInfoMap(t *testing.T) {
 		StatusCode: http.StatusOK,
 	})
 }
+
+func TestHTTPServer_GetClustersForOrganizationOk(t *testing.T) {
+	testCases := []struct {
+		name               string
+		amsMockClusterList []types.ClusterInfo
+		token              string
+		orgID              string
+		expectedResponse   string
+		expectedStatusCode int
+	}{
+		{
+			name:               "ok 2 clusters",
+			amsMockClusterList: data.ClusterInfoResult2Clusters,
+			orgID:              fmt.Sprint(testdata.OrgID),
+			token:              goodXRHAuthToken,
+			expectedResponse: fmt.Sprintf(
+				`{"clusters":["%v","%v"],"status":"ok"}`,
+				data.ClusterInfoResult2Clusters[0].ID,
+				data.ClusterInfoResult2Clusters[1].ID,
+			),
+			expectedStatusCode: http.StatusOK,
+		},
+		{
+			name:               "ok 0 clusters",
+			amsMockClusterList: []types.ClusterInfo{},
+			orgID:              fmt.Sprint(testdata.OrgID),
+			token:              goodXRHAuthToken,
+			expectedResponse:   `{"clusters":[],"status":"ok"}`,
+			expectedStatusCode: http.StatusOK,
+		},
+		{
+			name:               "no permission for this org; bad org ID in URL",
+			amsMockClusterList: data.ClusterInfoResult2Clusters,
+			orgID:              fmt.Sprint(testdata.Org2ID),
+			// wrong org ID in URL
+			token:              goodXRHAuthToken,
+			expectedResponse:   `{"status":"you have no permissions to get or change info about the organization with ID 2; you can access info about organization with ID 1"}`,
+			expectedStatusCode: http.StatusForbidden,
+		},
+		{
+			name:               "no permission for this org; bad org ID in token",
+			amsMockClusterList: []types.ClusterInfo{},
+			orgID:              fmt.Sprint(testdata.OrgID),
+			// wrong org ID in token
+			token:              badXRHAuthToken,
+			expectedResponse:   `{"status":"you have no permissions to get or change info about the organization with ID 1; you can access info about organization with ID 1234"}`,
+			expectedStatusCode: http.StatusForbidden,
+		},
+		{
+			name:               "invalid token",
+			amsMockClusterList: []types.ClusterInfo{},
+			orgID:              fmt.Sprint(testdata.OrgID),
+			token:              invalidXRHAuthToken,
+			expectedResponse:   `{"status":"Malformed authentication token"}`,
+			expectedStatusCode: http.StatusForbidden,
+		},
+		{
+			name:               "bad org ID in URL",
+			amsMockClusterList: []types.ClusterInfo{},
+			orgID:              "orgID not numeric",
+			token:              goodXRHAuthToken,
+			expectedResponse:   `{"status":"Error during parsing param 'organization' with value 'orgID not numeric'. Error: 'unsigned integer expected'"}`,
+			expectedStatusCode: http.StatusBadRequest,
+		},
+	}
+	for _, test := range testCases {
+		helpers.RunTestWithTimeout(t, func(t testing.TB) {
+			// prepare list of organizations response
+			amsClientMock := helpers.AMSClientWithOrgResults(
+				testdata.OrgID,
+				test.amsMockClusterList,
+			)
+
+			testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+
+			iou_helpers.AssertAPIRequest(
+				t,
+				testServer,
+				serverConfigJWT.APIv1Prefix,
+				&helpers.APIRequest{
+					Method:       http.MethodGet,
+					Endpoint:     server.ClustersForOrganizationEndpoint,
+					EndpointArgs: []interface{}{test.orgID},
+					XRHIdentity:  test.token,
+				}, &helpers.APIResponse{
+					StatusCode: test.expectedStatusCode,
+					Body:       test.expectedResponse,
+				},
+			)
+		}, testTimeout)
+	}
+}
+
+func TestHTTPServer_GetClustersForOrganizationAggregatorFallback(t *testing.T) {
+
+	clusterInfoList := make([]types.ClusterInfo, 2)
+	for i := range clusterInfoList {
+		clusterInfoList[i] = data.GetRandomClusterInfo()
+	}
+	clusterList := types.GetClusterNames(clusterInfoList)
+
+	// prepare response from aggregator
+	helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     ira_server.ClustersForOrganizationEndpoint,
+		EndpointArgs: []interface{}{testdata.OrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+	})
+
+	config := helpers.DefaultServerConfigXRH
+	config.UseOrgClustersFallback = true
+	// no AMS client
+	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil, nil)
+
+	iou_helpers.AssertAPIRequest(
+		t,
+		testServer,
+		serverConfigJWT.APIv1Prefix,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ClustersForOrganizationEndpoint,
+			EndpointArgs: []interface{}{testdata.OrgID},
+			XRHIdentity:  goodXRHAuthToken,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("clusters", clusterList)),
+		},
+	)
+}

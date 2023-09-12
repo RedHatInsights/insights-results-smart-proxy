@@ -70,9 +70,9 @@ const (
 	DisableRuleFeedbackEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/disable_feedback"
 	// OverviewEndpoint returns some overview data for the clusters belonging to the org id
 	OverviewEndpoint = "org_overview"
-
 	// ClustersForOrganizationEndpoint returns all clusters for {organization}
-	ClustersForOrganizationEndpoint = ira_server.ClustersForOrganizationEndpoint
+	ClustersForOrganizationEndpoint = "organizations/{organization}/clusters"
+
 	// OrganizationsEndpoint returns all organizations
 	OrganizationsEndpoint = ira_server.OrganizationsEndpoint
 	// DeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
