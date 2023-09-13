@@ -261,7 +261,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
 		handleServerError(writer, err)
 		return
 	}

@@ -124,14 +124,25 @@ func (server HTTPServer) getContentV1(writer http.ResponseWriter, request *http.
 
 // getClustersForOrg retrieves the list of clusters belonging to this organization
 func (server HTTPServer) getClustersForOrg(writer http.ResponseWriter, request *http.Request) {
-	// readOrganizationID is done only for checking the authentication
-	_, successful := httputils.ReadOrganizationID(writer, request, server.Config.Auth)
+	orgID, successful := httputils.ReadOrganizationID(writer, request, server.Config.Auth)
 	if !successful {
-		// already handled in readOrganizationID ?
+		// server error already handled in readOrganizationID
 		return
 	}
 
-	server.proxyTo(server.ServicesConfig.AggregatorBaseEndpoint, nil)(writer, request)
+	// try to get cluster list from AMS API because the aggregator way is unusable for large orgs
+	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
+		handleServerError(writer, err)
+		return
+	}
+	clusterList := sptypes.GetClusterNames(activeClustersInfo)
+
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData("clusters", clusterList))
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
 }
 
 // getRuleIDs returns a list of the names of the rules

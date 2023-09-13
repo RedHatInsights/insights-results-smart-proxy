@@ -85,12 +85,12 @@ const (
 	// clusterIDTag is used for printing cluster IDs
 	clusterIDTag = "clusterID"
 
-	ackedRulesError = "Unable to retrieve list of acked rules"
-
-	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
-
 	// dotReport ".report" string present in the ruleID in most tables
 	dotReport = ".report"
+
+	ackedRulesError      = "Unable to retrieve list of acked rules"
+	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
+	clusterListError     = "problem reading cluster list for org"
 )
 
 // HTTPServer is an implementation of Server interface
@@ -1439,7 +1439,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 	// get list of clusters from AMS API or aggregator
 	clusterInfoList, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("problem reading cluster list for org")
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
 		handleServerError(writer, err)
 		return
 	}
