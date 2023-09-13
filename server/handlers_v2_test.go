@@ -159,6 +159,27 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		},
 	)
 
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{},
+		"status":"ok"
+	}
+	`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+
 	// prepare list of organizations response
 	amsClientMock := helpers.AMSClientWithOrgResults(
 		testdata.OrgID,
@@ -282,6 +303,27 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_ImpactedClusterDi
 		},
 	)
 
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{},
+		"status":"ok"
+	}
+	`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+
 	// prepare list of organizations response
 	amsClientMock := helpers.AMSClientWithOrgResults(
 		testdata.OrgID,
@@ -392,6 +434,27 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 		},
 	)
 
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{},
+		"status":"ok"
+	}
+	`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+
 	// prepare list of organizations response
 	amsClientMock := helpers.AMSClientWithOrgResults(
 		testdata.OrgID,
@@ -423,6 +486,325 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 
 	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
 
+	iou_helpers.AssertAPIRequest(
+		t,
+		testServer,
+		serverConfigJWT.APIv2Prefix,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ClustersDetail,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+			XRHIdentity:  goodXRHAuthToken,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       expectedResponse,
+		},
+	)
+}
+
+func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_AckedRule_CCXDEV_7099_Reproducer(t *testing.T) {
+	disabledAt := time.Now().UTC().Format(time.RFC3339)
+	justificationNote := "justification test"
+	clusters := []types.ClusterName{data.ClusterInfoResult2Clusters[0].ID, data.ClusterInfoResult2Clusters[1].ID}
+
+	defer helpers.CleanAfterGock(t)
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	impactedClustersResponse := `
+	{
+		"clusters":[
+			{
+				"cluster":"%v",
+				"cluster_name": "%v"
+			},
+			{
+				"cluster":"%v",
+				"cluster_name": "%v"
+			}
+		],
+		"status":"ok"
+	}
+	`
+	impactedClustersResponse = fmt.Sprintf(impactedClustersResponse,
+		clusters[0], "",
+		clusters[1], "",
+	)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.RuleClusterDetailEndpoint,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       impactedClustersResponse,
+		},
+	)
+
+	// no single cluster disabled
+	disabledClustersResponse := `{
+		"clusters":[],
+		"status":"ok"
+	}`
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       disabledClustersResponse,
+		},
+	)
+
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{
+			"rule_id": "%v",
+			"error_key": "%v",
+			"justification": "%v",
+			"created_by": "",
+			"created_at": {
+				"Time": "%v",
+				"Valid": true
+			},
+			"updated_at": {
+				"Time": "%v",
+				"Valid": true
+			}
+		},
+		"status":"ok"
+	}
+	`
+
+	ackedRuleAggregatorResponse = fmt.Sprintf(ackedRuleAggregatorResponse,
+		testdata.Rule1ID, testdata.ErrorKey1, justificationNote, disabledAt, disabledAt,
+	)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+	// prepare list of organizations response
+	amsClientMock := helpers.AMSClientWithOrgResults(
+		testdata.OrgID,
+		data.ClusterInfoResult2Clusters,
+	)
+
+	expectedResponse := `
+	{
+		"data": {
+			"enabled": [],
+			"disabled": [
+				{
+					"cluster_id": "%v",
+					"cluster_name": "%v",
+					"disabled_at": "%v",
+					"justification": "%v"
+				},
+				{
+					"cluster_id": "%v",
+					"cluster_name": "%v",
+					"disabled_at": "%v",
+					"justification": "%v"
+				}
+			]
+		},
+		"status":"ok"
+	}
+	`
+
+	expectedResponse = fmt.Sprintf(expectedResponse,
+		clusters[0], data.ClusterDisplayName1, disabledAt, justificationNote,
+		clusters[1], data.ClusterDisplayName2, disabledAt, justificationNote,
+	)
+
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+
+	// rule acked == all rules must be marked as disabled
+	iou_helpers.AssertAPIRequest(
+		t,
+		testServer,
+		serverConfigJWT.APIv2Prefix,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     server.ClustersDetail,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID},
+			XRHIdentity:  goodXRHAuthToken,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       expectedResponse,
+		},
+	)
+}
+
+func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_AckedRule_DisabledCluster_CCXDEV_7099_Reproducer(t *testing.T) {
+	disabledAt := time.Now().UTC().Format(time.RFC3339)
+	justificationNote := "justification test"
+	singleClusterDisableJustification := "single cluster justification"
+	clusters := []types.ClusterName{data.ClusterInfoResult2Clusters[0].ID, data.ClusterInfoResult2Clusters[1].ID}
+
+	defer helpers.CleanAfterGock(t)
+
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	impactedClustersResponse := `
+	{
+		"clusters":[
+			{
+				"cluster":"%v",
+				"cluster_name": "%v"
+			},
+			{
+				"cluster":"%v",
+				"cluster_name": "%v"
+			}
+		],
+		"status":"ok"
+	}
+	`
+	impactedClustersResponse = fmt.Sprintf(impactedClustersResponse,
+		clusters[0], "",
+		clusters[1], "",
+	)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.RuleClusterDetailEndpoint,
+			EndpointArgs: []interface{}{testdata.Rule1CompositeID, testdata.OrgID, userIDOnGoodJWTAuthBearer},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       impactedClustersResponse,
+		},
+	)
+
+	// one cluster disabled
+	disabledClustersResponse := `
+	{
+		"clusters":[
+			{
+				"cluster_id": "%v",
+				"cluster_name": "%v",
+				"disabled_at": "%v",
+				"justification": "%v"
+			}
+		],
+		"status":"ok"
+	}
+	`
+	disabledClustersResponse = fmt.Sprintf(disabledClustersResponse, clusters[0], "", disabledAt, singleClusterDisableJustification)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ListOfDisabledClusters,
+			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       disabledClustersResponse,
+		},
+	)
+
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{
+			"rule_id": "%v",
+			"error_key": "%v",
+			"justification": "%v",
+			"created_by": "",
+			"created_at": {
+				"Time": "%v",
+				"Valid": true
+			},
+			"updated_at": {
+				"Time": "%v",
+				"Valid": true
+			}
+		},
+		"status":"ok"
+	}
+	`
+
+	ackedRuleAggregatorResponse = fmt.Sprintf(ackedRuleAggregatorResponse,
+		testdata.Rule1ID, testdata.ErrorKey1, justificationNote, disabledAt, disabledAt,
+	)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+	// prepare list of organizations response
+	amsClientMock := helpers.AMSClientWithOrgResults(
+		testdata.OrgID,
+		data.ClusterInfoResult2Clusters,
+	)
+
+	expectedResponse := `
+	{
+		"data": {
+			"enabled": [],
+			"disabled": [
+				{
+					"cluster_id": "%v",
+					"cluster_name": "%v",
+					"disabled_at": "%v",
+					"justification": "%v"
+				},
+				{
+					"cluster_id": "%v",
+					"cluster_name": "%v",
+					"disabled_at": "%v",
+					"justification": "%v"
+				}
+			]
+		},
+		"status":"ok"
+	}
+	`
+
+	// single cluster disable justification has priority over acks
+	expectedResponse = fmt.Sprintf(expectedResponse,
+		clusters[0], data.ClusterDisplayName1, disabledAt, singleClusterDisableJustification,
+		clusters[1], data.ClusterDisplayName2, disabledAt, justificationNote,
+	)
+
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+
+	// rule acked == all rules must be marked as disabled
 	iou_helpers.AssertAPIRequest(
 		t,
 		testServer,
@@ -478,6 +860,27 @@ func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       disabledClustersResponse,
+			},
+		)
+
+		ackedRuleAggregatorResponse := `
+		{
+			"disabledRule":{},
+			"status":"ok"
+		}
+		`
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ReadRuleSystemWide,
+				EndpointArgs: []interface{}{testdata.Rule2ID, testdata.ErrorKey2, testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       ackedRuleAggregatorResponse,
 			},
 		)
 
@@ -555,6 +958,27 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse400(t *testing.T) {
 		},
 	)
 
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{},
+		"status":"ok"
+	}
+	`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       ackedRuleAggregatorResponse,
+		},
+	)
+
 	helpers.AssertAPIv2Request(
 		t,
 		&helpers.DefaultServerConfigXRH,
@@ -610,6 +1034,27 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse404(t *testing.T) {
 		&helpers.APIResponse{
 			StatusCode: http.StatusNotFound,
 			Body:       aggregatorResponse,
+		},
+	)
+
+	ackedRuleAggregatorResponse := `
+	{
+		"disabledRule":{},
+		"status":"ok"
+	}
+	`
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusNotFound,
+			Body:       ackedRuleAggregatorResponse,
 		},
 	)
 
@@ -673,6 +1118,20 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponse500(t *testing.T) {
 			Method:       http.MethodGet,
 			Endpoint:     ira_server.ListOfDisabledClusters,
 			EndpointArgs: []interface{}{testdata.Rule1ID + dotReportRuleModuleSuffix, testdata.ErrorKey1, testdata.OrgID},
+		},
+		&helpers.APIResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       aggregatorResponse,
+		},
+	)
+
+	helpers.GockExpectAPIRequest(
+		t,
+		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+		&helpers.APIRequest{
+			Method:       http.MethodGet,
+			Endpoint:     ira_server.ReadRuleSystemWide,
+			EndpointArgs: []interface{}{testdata.Rule1ID, testdata.ErrorKey1, testdata.OrgID},
 		},
 		&helpers.APIResponse{
 			StatusCode: http.StatusInternalServerError,

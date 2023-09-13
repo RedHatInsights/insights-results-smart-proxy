@@ -24,7 +24,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -1032,15 +1031,15 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 		return
 	}
 
-	disabledClusters, err := server.getListOfDisabledClusters(orgID, selector)
+	disabledClusters, acknowledge, ackFound, err := server.getListOfDisabledClustersAndAck(orgID, selector)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
-			Msg("Couldn't retrieve disabled clusters for given rule selector")
+			Msg("Couldn't retrieve disabled clusters or ack for given rule selector")
 		handleServerError(writer, err)
 		return
 	}
 
-	err = server.processClustersDetailResponse(impactedClusters, disabledClusters, activeClustersInfo, writer)
+	err = server.processClustersDetailResponse(impactedClusters, disabledClusters, activeClustersInfo, acknowledge, ackFound, writer)
 	if err != nil {
 		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Str(selectorStr, string(selector)).
 			Msg("Couldn't process response for clusters detail")
@@ -1058,15 +1057,17 @@ func (server *HTTPServer) getListOfDisabledClusters(
 		DisabledClusters []ctypes.DisabledClusterInfo `json:"clusters"`
 	}
 
-	// rule selector has already been validated
-	splitRuleID := strings.Split(string(ruleSelector), "|")
+	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleSelector))
+	if err != nil {
+		return nil, err
+	}
 
 	// rules disabled using v1 enable/disable endpoints include '.report' in the module
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
 		ira_server.ListOfDisabledClusters,
-		splitRuleID[0]+dotReport,
-		splitRuleID[1],
+		ruleID+dotReport,
+		errorKey,
 		orgID,
 	)
 
@@ -1092,11 +1093,49 @@ func (server *HTTPServer) getListOfDisabledClusters(
 	return response.DisabledClusters, nil
 }
 
+// getListOfDisabledClustersAndAck reads list of disabled clusters from aggregator and gets
+// information about rule ack
+func (server *HTTPServer) getListOfDisabledClustersAndAck(
+	orgID types.OrgID, ruleSelector ctypes.RuleSelector,
+) (
+	disabledClusters []ctypes.DisabledClusterInfo,
+	acknowledge ctypes.Acknowledgement,
+	ackFound bool,
+	err error,
+) {
+	disabledClusters, err = server.getListOfDisabledClusters(orgID, ruleSelector)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(selectorStr, string(ruleSelector)).
+			Msg("Couldn't retrieve disabled clusters for given rule selector")
+		return
+	}
+
+	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleSelector))
+	if err != nil {
+		return
+	}
+
+	acknowledge, ackFound, err = server.readRuleDisableStatus(
+		ctypes.Component(ruleID),
+		errorKey,
+		orgID,
+	)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Str(selectorStr, string(ruleSelector)).
+			Msg("Couldn't retrieve rule acknowledge status for given rule selector")
+		return
+	}
+
+	return
+}
+
 // processClustersDetailResponse processes responses from aggregator and AMS API and sends a response
 func (server *HTTPServer) processClustersDetailResponse(
 	impactedClusters []ctypes.HittingClustersData,
 	disabledClusters []ctypes.DisabledClusterInfo,
 	clusterInfo []types.ClusterInfo,
+	acknowledge ctypes.Acknowledgement,
+	ruleAcked bool,
 	writer http.ResponseWriter,
 ) error {
 	data := types.ClustersDetailData{
@@ -1123,7 +1162,23 @@ func (server *HTTPServer) processClustersDetailResponse(
 			continue
 		}
 		impactedC.Name = clusterInfoMap[impactedC.Cluster].DisplayName
-		data.EnabledClusters = append(data.EnabledClusters, impactedC)
+
+		if ruleAcked {
+			disabledAt, err := time.Parse(time.RFC3339, acknowledge.CreatedAt)
+			if err != nil {
+				log.Error().Msgf("error parsing time as RFC3339: %v", acknowledge.CreatedAt)
+				disabledAt = time.Time{}
+			}
+			disabledCluster := ctypes.DisabledClusterInfo{
+				ClusterID:     impactedC.Cluster,
+				ClusterName:   impactedC.Name,
+				DisabledAt:    disabledAt,
+				Justification: acknowledge.Justification,
+			}
+			data.DisabledClusters = append(data.DisabledClusters, disabledCluster)
+		} else {
+			data.EnabledClusters = append(data.EnabledClusters, impactedC)
+		}
 	}
 
 	response := types.ClustersDetailResponse{
@@ -1423,11 +1478,14 @@ func filterRulesGetContent(
 			continue
 		}
 
-		splitRuleID := strings.Split(string(ruleID), "|")
+		ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ruleID)
+		if err != nil {
+			log.Error().Msg("error getting rule module and error key from composite rule ID.")
+		}
 		// fill in data from rule content
 		simplifiedRuleHit := types.SimplifiedRuleHit{
-			RuleFQDN:    splitRuleID[0],
-			ErrorKey:    splitRuleID[1],
+			RuleFQDN:    string(ruleID),
+			ErrorKey:    string(errorKey),
 			Description: ruleContent.Generic,
 			TotalRisk:   ruleContent.TotalRisk,
 		}
