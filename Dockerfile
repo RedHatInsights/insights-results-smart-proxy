@@ -21,7 +21,7 @@ USER 0
 RUN make build && \
     chmod a+x insights-results-smart-proxy
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.8-1014
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.8-1037
 
 COPY --from=builder /opt/app-root/src/insights-results-smart-proxy .
 COPY --from=builder /opt/app-root/src/server/api/v1/openapi.json /openapi/v1/openapi.json
