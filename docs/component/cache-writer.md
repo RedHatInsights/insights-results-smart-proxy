@@ -21,7 +21,7 @@ The main task for this service is to listen to configured Kafka topic, consume
 all messages from such topic, and write OCP results (in JSON format) with
 additional information (like organization ID, cluster name, Kafka offset etc.)
 into Redis. Multiple reports for one cluster can be stored there. The retention
-policy is set for all reporst so they can be cleaned up automatically by Redis
+policy is set for all reports so they can be cleaned up automatically by Redis
 itself.
 
 
