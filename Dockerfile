@@ -27,6 +27,10 @@ COPY --from=builder /opt/app-root/src/insights-results-smart-proxy .
 COPY --from=builder /opt/app-root/src/server/api/v1/openapi.json /openapi/v1/openapi.json
 COPY --from=builder /opt/app-root/src/server/api/v2/openapi.json /openapi/v2/openapi.json
 
+# copy the certificates from builder image
+COPY --from=builder /etc/ssl /etc/ssl
+COPY --from=builder /etc/pki /etc/pki
+
 USER 1001
 
 CMD ["/insights-results-smart-proxy"]
