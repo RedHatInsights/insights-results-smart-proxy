@@ -5,7 +5,7 @@ layout: default
 
 
 
-# Component: ``
+# Component: `Thanos`
 
 
 

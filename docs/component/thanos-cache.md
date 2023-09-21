@@ -5,7 +5,7 @@ layout: default
 
 
 
-# Component: `Upgrade risk prediction model`
+# Component: `Thanos Cache`
 
 
 
