@@ -22,7 +22,7 @@ component 1086 600 128 120 Notification rules
 channel 1086 720 128 90 Notification rules
 component 1063 810 168 131 Template renderer
 channel 820 852 179 72 Markdown templates
-component 441 320 226 117 Insights content service
+component 501 390 91 91 Insights content service
 channel 481 437 129 99 Markdown templates
 channel 667 368 142 79 Markdown templates
 component 856 467 103 120 Insights results DB writer
@@ -67,3 +67,5 @@ channel 907 1012 47 46 Cache to Data engineering service
 channel 839 1112 55 57 Inference service to Data engineering service
 channel 1041 1008 52 52 Thanos to cache
 channel 1049 1118 45 42 URP Model to Inference service
+channel 606 417 51 30 Rules content
+channel 745 362 46 35 Rules
