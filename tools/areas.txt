@@ -58,3 +58,12 @@ channel 171 301 150 57 Request to Smart proxy
 channel 171 358 150 57 Response from Smart proxy
 channel 167 528 154 57 Request to Smart proxy
 channel 167 585 154 57 Response from Smart proxy
+component 1101 993 94 103 Thanos
+component 1098 1094 97 115 URP Model
+component 947 987 98 102 Thanos cache
+component 950 1087 95 126 URP Inference service
+component 801 989 105 116 URP Data engineering service
+channel 907 1012 47 46 Cache to Data engineering service
+channel 839 1112 55 57 Inference service to Data engineering service
+channel 1041 1008 52 52 Thanos to cache
+channel 1049 1118 45 42 URP Model to Inference service
