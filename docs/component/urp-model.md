@@ -11,23 +11,25 @@ layout: default
 
 ## Type
 
-* Service
+* Piece of code
 
 
 
 ## Description
 
-
+This is the ML model used by the \[[Inference](urp-inference-service.html)\] service.
+It's currently a piece of code, but it could be a package or an external API in the
+future.
 
 ## Interfaces
 
 * Input:
-    - 
+    - Cluster metrics
 * Output:
-    - 
+    - Predictions
 
 ## Source code
 
-* Repository: []()
-* Written in: 
+* Repository: [https://gitlab.cee.redhat.com/ccx/ccx-upgrades-inference](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-inference)
+* Written in: Python
 

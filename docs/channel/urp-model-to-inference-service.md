@@ -5,16 +5,12 @@ layout: default
 
 
 
-# channel: ``
-
-
+# channel: `urp-model-to-inference-service`
 
 ## type
 
-* 
-
-
+* Direct call from the code.
 
 ## description
 
-
+The model is used to generate the predictions.
