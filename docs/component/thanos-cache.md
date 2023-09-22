@@ -17,7 +17,7 @@ This cache (currently an LRU cache with a TTL) stores the Inference results
 for a given ammount of time. This way, if the user requests the same cluster
 twice in less than `$TTL`, nor Thanos nor the inference service are used.
 
-It can become a more complex cache (Redis f.e) in the future, but as the traffic
+It can become a more complex cache (Redis f.e.) in the future, but as the traffic
 is quite low for now, we decided to use this simpler approach.
 
 ## Interfaces
