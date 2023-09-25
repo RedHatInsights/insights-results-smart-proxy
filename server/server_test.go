@@ -46,7 +46,7 @@ const (
 
 // TODO: consider moving to data repo
 var (
-	userIDOnGoodJWTAuthBearer = "1"
+	userIDInGoodAuthToken = "1"
 	// goodXRHAuthToken is in following structure https://docs.google.com/document/d/1PAzJqcUXlxg7t5cX1lsPsQtBPT_95bZbyB9Iiv_ekGM/
 	// with expected values (org_id == 1, account_number == 1)
 	goodXRHAuthToken = `eyJpZGVudGl0eSI6eyJhY2NvdW50X251bWJlciI6IjEiLCJvcmdfaWQiOiIxIiwidHlwZSI6IlVzZXIiLCJ1c2VyIjp7InVzZXJuYW1lIjoiamRvZSIsInVzZXJfaWQiOiIxIiwiZW1haWwiOiJqZG9lQGFjbWUuY29tIiwiZmlyc3RfbmFtZSI6IkpvaG4iLCJsYXN0X25hbWUiOiJEb2UiLCJpc19hY3RpdmUiOnRydWUsImlzX29yZ19hZG1pbiI6ZmFsc2UsImlzX2ludGVybmFsIjpmYWxzZSwibG9jYWxlIjoiZW5fVVMifSwiaW50ZXJuYWwiOnsib3JnX2lkIjoiMSIsImF1dGhfdHlwZSI6ImJhc2ljLWF1dGgiLCJhdXRoX3RpbWUiOjYzMDB9fX0K`
@@ -58,7 +58,7 @@ var (
 	testTimeStr         = "2021-01-02T15:04:05Z"
 	testTimestamp       = types.Timestamp(testTimeStr)
 
-	serverConfigJWT = server.Configuration{
+	serverConfigXRH = server.Configuration{
 		Address:                          ":8081",
 		APIv1Prefix:                      "/api/v1/",
 		APIv2Prefix:                      "/api/v2/",
@@ -66,7 +66,7 @@ var (
 		APIv2SpecFile:                    "server/api/v2/openapi.json",
 		Debug:                            true,
 		Auth:                             true,
-		AuthType:                         "jwt",
+		AuthType:                         "xrh",
 		UseHTTPS:                         false,
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: false,
@@ -1302,7 +1302,7 @@ func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 // TestInfoEndpointNoAuthToken checks that the info endpoint can be accessed without authenticating
 func TestInfoEndpointNoAuthToken(t *testing.T) {
 	t.Run("test the info endpoint v1", func(t *testing.T) {
-		helpers.AssertAPIRequest(t, &helpers.DefaultServerConfigXRH, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIRequest(t, &helpers.DefaultServerConfig, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.InfoEndpoint,
 		}, &helpers.APIResponse{
@@ -1310,7 +1310,7 @@ func TestInfoEndpointNoAuthToken(t *testing.T) {
 		})
 	})
 	t.Run("test the info endpoint v2", func(t *testing.T) {
-		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfigXRH, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
+		helpers.AssertAPIv2Request(t, &helpers.DefaultServerConfig, &helpers.DefaultServicesConfig, nil, nil, nil, &helpers.APIRequest{
 			Method:   http.MethodGet,
 			Endpoint: server.InfoEndpoint,
 		}, &helpers.APIResponse{
