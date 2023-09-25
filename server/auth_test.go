@@ -205,31 +205,9 @@ func TestGetCurrentOrgIDUserIDFromToken(t *testing.T) {
 	}
 }
 
-func TestGetAuthTokenJWTHeaderMalformed(t *testing.T) {
-	s := helpers.CreateHTTPServer(
-		&helpers.DefaultServerConfig,
-		&helpers.DefaultServicesConfig,
-		nil, nil, nil, nil, nil,
-	)
-
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		server.GetAuthTokenHeader(s, w, r)
-	})
-
-	request, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
-	assert.NoError(t, err)
-	request.Header.Set(server.JWTAuthTokenHeader, "token")
-
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-
-	assert.Equal(t, recorder.Code, http.StatusForbidden)
-	assert.Contains(t, recorder.Body.String(), "Invalid/Malformed auth token")
-}
-
 func TestGetAuthTokenXRHHeader(t *testing.T) {
 	s := helpers.CreateHTTPServer(
-		&helpers.DefaultServerConfigXRH,
+		&helpers.DefaultServerConfig,
 		&helpers.DefaultServicesConfig,
 		nil, nil, nil, nil, nil,
 	)
@@ -251,7 +229,7 @@ func TestGetAuthTokenXRHHeader(t *testing.T) {
 
 func TestGetXRHAuthTokenEmpty(t *testing.T) {
 	s := helpers.CreateHTTPServer(
-		&helpers.DefaultServerConfigXRH,
+		&helpers.DefaultServerConfig,
 		&helpers.DefaultServicesConfig,
 		nil, nil, nil, nil, nil,
 	)
@@ -269,6 +247,20 @@ func TestGetXRHAuthTokenEmpty(t *testing.T) {
 
 	assert.Equal(t, recorder.Code, http.StatusForbidden)
 	assert.Contains(t, recorder.Body.String(), "Missing auth token")
+}
+
+// TestUnsupportedAuthType checks how that only "xrh" auth type is supported
+func TestUnsupportedAuthType(t *testing.T) {
+	unsupportedAuthConfig := helpers.DefaultServerConfig
+	unsupportedAuthConfig.AuthType = "jwt"
+
+	helpers.AssertAPIRequest(t, &unsupportedAuthConfig, nil, nil, nil, nil, &helpers.APIRequest{
+		Method:      http.MethodGet,
+		Endpoint:    server.RuleIDs, // any endpoint that requires auth
+		XRHIdentity: goodXRHAuthToken,
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusInternalServerError,
+	})
 }
 
 func TestGetAuthTokenHeaderMissing(t *testing.T) {

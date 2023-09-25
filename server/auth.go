@@ -1,5 +1,3 @@
-// Auth implementation based on JWT
-
 /*
 Copyright © 2019, 2020, 2022, 2023 Red Hat, Inc.
 
@@ -22,9 +20,9 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/RedHatInsights/insights-operator-utils/collections"
 	types "github.com/RedHatInsights/insights-results-types"
@@ -32,9 +30,6 @@ import (
 )
 
 const (
-	// JWTAuthTokenHeader reprsents the name of the header used in JWT authorization type
-	// #nosec G101
-	JWTAuthTokenHeader = "Authorization"
 	// XRHAuthTokenHeader reprsents the name of the header used in XRH authorization type
 	// #nosec G101
 	XRHAuthTokenHeader = "x-rh-identity"
@@ -78,26 +73,8 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		}
 
 		tk := &types.Token{}
-		// if we took JWT token, it has different structure than x-rh-identity
-		// JWT isn't/can't used in any real environment
-		if server.Config.AuthType == "jwt" {
-			jwtPayload := &types.JWTPayload{}
-			err = json.Unmarshal(decoded, jwtPayload)
-			if err != nil {
-				// malformed token, returns with HTTP code 403 as usual
-				log.Error().Err(err).Msg(malformedTokenMessage)
-				handleServerError(w, &AuthenticationError{ErrString: malformedTokenMessage})
-				return
-			}
-			// Map JWT token to inner token
-			tk.Identity = types.Identity{
-				AccountNumber: jwtPayload.AccountNumber,
-				OrgID:         jwtPayload.OrgID,
-				User: types.User{
-					UserID: jwtPayload.UserID,
-				},
-			}
-		} else {
+
+		if server.Config.AuthType == "xrh" {
 			// auth type is xrh (x-rh-identity header)
 			err = json.Unmarshal(decoded, tk)
 			if err != nil {
@@ -106,6 +83,11 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 				handleServerError(w, &AuthenticationError{ErrString: malformedTokenMessage})
 				return
 			}
+		} else {
+			err := errors.New("unknown auth type")
+			log.Error().Err(err).Send()
+			handleServerError(w, err)
+			return
 		}
 
 		if tk.Identity.AccountNumber == "" || tk.Identity.AccountNumber == "0" {
@@ -189,41 +171,10 @@ func (server *HTTPServer) GetAuthToken(request *http.Request) (*types.Identity, 
 
 func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool) {
 	var tokenHeader string
-	// In case of testing on local machine we don't take x-rh-identity
-	// header, but instead Authorization with JWT token in it
-	if server.Config.AuthType == "jwt" {
-		log.Debug().Msg("Retrieving jwt token")
 
-		// Grab the token from the header
-		tokenHeader = r.Header.Get(JWTAuthTokenHeader)
-
-		if tokenHeader == "" {
-			log.Error().Msg(missingTokenMessage)
-			handleServerError(w, &AuthenticationError{ErrString: missingTokenMessage})
-			return "", false
-		}
-
-		// The token normally comes in format `Bearer {token-body}`, we
-		// check if the retrieved token matched this requirement
-		splitted := strings.Split(tokenHeader, " ")
-		if len(splitted) != 2 {
-			log.Error().Msg(invalidTokenMessage)
-			handleServerError(w, &AuthenticationError{ErrString: invalidTokenMessage})
-			return "", false
-		}
-
-		// Here we take JWT token which include 3 parts, we need only
-		// second one
-		splitted = strings.Split(splitted[1], ".")
-		if len(splitted) < 1 {
-			return "", false
-		}
-		tokenHeader = splitted[1]
-	} else {
-		log.Debug().Msg("Retrieving x-rh-identity token")
-		// Grab the token from the header
-		tokenHeader = r.Header.Get(XRHAuthTokenHeader)
-	}
+	log.Debug().Msg("Retrieving x-rh-identity token")
+	// Grab the token from the header
+	tokenHeader = r.Header.Get(XRHAuthTokenHeader)
 
 	log.Debug().Int("Length", len(tokenHeader)).Msg("Token retrieved")
 
