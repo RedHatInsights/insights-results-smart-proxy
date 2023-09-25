@@ -52,7 +52,7 @@ func TestEnableEndpoint(t *testing.T) {
 
 		helpers.AssertAPIRequest(
 			t,
-			&helpers.DefaultServerConfigXRH,
+			&helpers.DefaultServerConfig,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
@@ -94,7 +94,7 @@ func TestDisableEndpoint(t *testing.T) {
 
 		helpers.AssertAPIRequest(
 			t,
-			&helpers.DefaultServerConfigXRH,
+			&helpers.DefaultServerConfig,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
@@ -124,7 +124,7 @@ func TestEnableEndpointBadErrorKey(t *testing.T) {
 		)
 		helpers.AssertAPIRequest(
 			t,
-			&helpers.DefaultServerConfigXRH,
+			&helpers.DefaultServerConfig,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
@@ -154,7 +154,7 @@ func TestDisableEndpointBadErrorKey(t *testing.T) {
 		)
 		helpers.AssertAPIRequest(
 			t,
-			&helpers.DefaultServerConfigXRH,
+			&helpers.DefaultServerConfig,
 			&helpers.DefaultServicesConfig,
 			nil,
 			nil,
