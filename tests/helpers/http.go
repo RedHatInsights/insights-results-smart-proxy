@@ -65,25 +65,8 @@ var (
 
 var (
 	// DefaultServerConfig is data structure that represents default HTTP
-	// server configuration (with CORS disabled)
+	// server configuration (with CORS disabled). with XRH auth type. XRH type is used in all pre-prod/prod environments.
 	DefaultServerConfig = server.Configuration{
-		Address:                          ":8081",
-		APIdbgPrefix:                     "/api/dbg/",
-		APIv1Prefix:                      "/api/v1/",
-		APIv2Prefix:                      "/api/v2/",
-		APIv1SpecFile:                    "server/api/v1/openapi.json",
-		APIv2SpecFile:                    "server/api/v2/openapi.json",
-		Debug:                            true,
-		Auth:                             true,
-		AuthType:                         "jwt",
-		UseHTTPS:                         false,
-		EnableCORS:                       false,
-		EnableInternalRulesOrganizations: false,
-	}
-
-	// DefaultServerConfigXRH is data structure that represents default HTTP
-	// server configuration with XRH auth type. XRH type is used in all pre-prod/prod environments.
-	DefaultServerConfigXRH = server.Configuration{
 		Address:                          ":8081",
 		APIdbgPrefix:                     "/api/dbg/",
 		APIv1Prefix:                      "/api/v1/",
@@ -140,7 +123,7 @@ func AssertAPIRequest(
 ) {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
-		serverConfig = &DefaultServerConfigXRH
+		serverConfig = &DefaultServerConfig
 	}
 
 	assertAPIRequest(
@@ -170,7 +153,7 @@ func AssertAPIv2Request(
 ) {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
-		serverConfig = &DefaultServerConfigXRH
+		serverConfig = &DefaultServerConfig
 	}
 
 	assertAPIRequest(
@@ -227,7 +210,7 @@ func CreateHTTPServer(
 ) *server.HTTPServer {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
-		serverConfig = &DefaultServerConfigXRH
+		serverConfig = &DefaultServerConfig
 	}
 
 	// if custom services configuration is not provided, use default one

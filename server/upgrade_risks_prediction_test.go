@@ -118,7 +118,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 		)
 
 		expectedResponse := upgradeRecommended
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -136,7 +136,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -165,7 +165,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 		)
 
 		expectedResponse := upgradeNotRecommended
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -183,7 +183,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -201,12 +201,12 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 func TestHTTPServer_GetUpgradeRisksPredictionOfflineAMS(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		cluster := testdata.GetRandomClusterInfoListAllUnManaged(1)[0].ID
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -232,11 +232,11 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterNotBelonging(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -261,7 +261,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotFound(t *testing.T) {
 			testdata.OrgID,
 			clusterInfoList,
 		)
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -278,7 +278,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotFound(t *testing.T) {
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -304,7 +304,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
@@ -321,7 +321,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -347,7 +347,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterHasNoData(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
@@ -364,7 +364,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterHasNoData(t *testing.T) {
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -390,11 +390,11 @@ func TestHTTPServer_GetUpgradeRisksPredictionUnavailableDataEngineering(t *testi
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -420,12 +420,12 @@ func TestHTTPServer_GetUpgradeRisksPredictionManagedCluster(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfigXRH, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
@@ -462,13 +462,13 @@ func TestHTTPServer_GetUpgradeRisksPrediction__timesout(t *testing.T) {
 		servicesConfig := helpers.DefaultServicesConfig
 		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
 		testServer := helpers.CreateHTTPServer(
-			&helpers.DefaultServerConfigXRH, &servicesConfig, amsClientMock,
+			&helpers.DefaultServerConfig, &servicesConfig, amsClientMock,
 			nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
-			serverConfigJWT.APIv2Prefix,
+			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.UpgradeRisksPredictionEndpoint,
