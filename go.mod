@@ -11,7 +11,7 @@ require (
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/go-redis/redismock/v9 v9.0.3
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/openshift-online/ocm-sdk-go v0.1.371
