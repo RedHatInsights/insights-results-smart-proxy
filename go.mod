@@ -9,7 +9,7 @@ require (
 	github.com/RedHatInsights/insights-results-aggregator v1.3.4
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.3.23
-	github.com/go-redis/redismock/v9 v9.0.3
+	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/handlers v1.5.1
@@ -17,11 +17,10 @@ require (
 	github.com/openshift-online/ocm-sdk-go v0.1.373
 	github.com/prometheus/client_golang v1.17.0
 	github.com/redhatinsights/app-common-go v1.6.3
-	github.com/redis/go-redis/v9 v9.0.5
+	github.com/redis/go-redis/v9 v9.2.0
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/grpc v1.58.3
 	gopkg.in/h2non/gock.v1 v1.1.2
 )
 
@@ -51,7 +50,7 @@ require (
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
-	github.com/golang/glog v1.0.0 // indirect
+	github.com/golang/glog v1.1.0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
