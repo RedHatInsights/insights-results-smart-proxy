@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/openshift-online/ocm-sdk-go v0.1.373
 	github.com/prometheus/client_golang v1.17.0
-	github.com/redhatinsights/app-common-go v1.6.3
+	github.com/redhatinsights/app-common-go v1.6.7
 	github.com/redis/go-redis/v9 v9.2.0
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.16.0
