@@ -43,9 +43,9 @@ objects:
     testing:
       iqePlugin: ccx
     optionalDependencies:
-      - ccx-redis
       - insights-content-service
       - ccx-insights-results
+      - ccx-insights-results-cache-writer
     deployments:
       - name: service
         minReplicas: ${{MIN_REPLICAS}}
