@@ -238,7 +238,7 @@
         ],
         "summary": "",
         "operationId": "getUpgradeRisksPrediction",
-        "description": "The title of the rule, a short description.",
+        "description": "Get a prediction of whether a cluster upgrade would fail.",
         "parameters": [
           {
             "name": "clusterId",
