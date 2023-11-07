@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo style run test cover integration_tests rest_api_tests rules_content sqlite_db license before_commit openapi-check help godoc install_docgo install_addlicense
+.PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo style run test cover rest_api_tests rules_content sqlite_db license before_commit openapi-check help godoc install_docgo install_addlicense
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -78,7 +78,7 @@ coverage:
 license: install_addlicense
 	addlicense -c "Red Hat, Inc" -l "apache" -v ./
 
-before_commit: style test integration_tests license openapi-check
+before_commit: style test license openapi-check
 	./check_coverage.sh
 
 help: ## Show this help screen
