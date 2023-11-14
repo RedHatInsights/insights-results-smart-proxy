@@ -77,7 +77,9 @@ def draw_areas(input_image_file_name, output_image_file_name, areas):
             "storage":"#80000020",
             "interface":"#80800020",
             }
-    image = Image.open(input_image_file_name)
+    # we need to open the image and get rid of the orinal alpha channel
+    # because draw.io put meaningles information there
+    image = Image.open(input_image_file_name).convert("RGB")
     draw = ImageDraw.Draw(image, "RGBA")
 
     for area in areas:
