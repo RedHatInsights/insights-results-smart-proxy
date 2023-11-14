@@ -22,13 +22,13 @@ component 1086 600 128 120 Notification rules
 channel 1086 720 128 90 Notification rules
 component 1063 810 168 131 Template renderer
 channel 820 852 179 72 Markdown templates
-component 501 390 91 91 Insights content service
+component 501 360 91 91 Insights content service
 channel 481 437 129 99 Markdown templates
-channel 667 368 142 79 Markdown templates
-component 856 467 103 120 Insights results DB writer
-component 746 485 96 94 Cache writer
-storage 646 557 122 88 Redis
-interface 658 379 77 118 Rules
+channel 800 300 45 79 Markdown templates
+component 856 450 103 100 Insights results DB writer
+component 746 450 96 94 Cache writer
+storage 646 520 122 88 Redis
+interface 658 350 77 118 Rules
 component 962 447 257 89 Notification writer
 channel 854 536 100 64 Rule hits to aggregator DB
 channel 983 536 94 64 Rule hits to notification DB
@@ -58,14 +58,14 @@ channel 171 301 150 57 Request to Smart proxy
 channel 171 358 150 57 Response from Smart proxy
 channel 167 528 154 57 Request to Smart proxy
 channel 167 585 154 57 Response from Smart proxy
-component 1101 993 94 103 Thanos
-component 1098 1094 97 115 URP Model
-component 947 987 98 102 Thanos cache
-component 950 1087 95 126 URP Inference service
-component 801 989 105 116 URP Data engineering service
-channel 907 1012 47 46 Cache to Data engineering service
-channel 839 1112 55 57 Inference service to Data engineering service
-channel 1041 1008 52 52 Thanos to cache
-channel 1049 1118 45 42 URP Model to Inference service
-channel 606 417 51 30 Rules content
-channel 745 362 46 35 Rules
+component 1101 953 94 103 Thanos
+component 1098 1054 97 115 URP Model
+component 947 947 98 102 Thanos cache
+component 950 1047 95 126 URP Inference service
+component 801 949 105 116 URP Data engineering service
+channel 907 972 47 46 Cache to Data engineering service
+channel 839 1072 55 57 Inference service to Data engineering service
+channel 1041 968 52 52 Thanos to cache
+channel 1049 1078 45 42 URP Model to Inference service
+channel 606 335 51 40 Rules content
+channel 745 290 46 35 Rules
