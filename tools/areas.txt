@@ -8,32 +8,37 @@ channel 726 127 47 170 Event new insights archive
 channel 901 142 94 50 Insights archive
 channel 798 64 58 63 Insights archive
 topic 856 46 149 67 archive.results
+component 900 170 128 89 DVO extractor
 channel 1005 46 125 53 Images SHAs
-channel 1046 204 139 45 Images SHAs
+channel 1110 140 139 40 Images SHAs
 component 773 127 128 89 SHA extractor
-component 1046 99 139 105 Archive DB writer
-storage 1046 249 139 96 CVE database
+component 1110 40 139 105 Archive DB writer
+storage 1110 180 139 96 CVE database
 component 773 216 128 81 CCX data pipeline
 channel 901 235 103 49 Rule hits
-topic 844 284 160 68 ccx.ocp.results
-channel 865 352 80 95 Rule hits to DB writer
-channel 995 352 80 95 Rule hits to Notification writer
-component 1086 600 128 120 Notification rules
-channel 1086 720 128 90 Notification rules
+topic 900 314 140 68 ccx.ocp.results
+topic 1080 314 140 68 ccx.ocp.dvo
+channel 865 382 80 65 Rule hits to DB writer
+channel 995 382 80 65 Rule hits to Notification writer
+channel 1115 382 80 65 DVO results to DVO writer
+component 1086 730 128 80 Notification rules
+channel 1040 760 60 30 Notification rules
 component 1063 810 168 131 Template renderer
 channel 820 852 179 72 Markdown templates
 component 501 360 91 91 Insights content service
 channel 481 437 129 99 Markdown templates
 channel 800 300 45 79 Markdown templates
-component 856 450 103 100 Insights results DB writer
+component 856 450 103 90 Insights results DB writer
 component 746 450 96 94 Cache writer
 storage 646 520 122 88 Redis
 interface 658 350 77 118 Rules
-component 962 447 257 89 Notification writer
+component 980 447 103 89 Notification writer
+component 1100 447 103 89 DVO writer
 channel 854 536 100 64 Rule hits to aggregator DB
 channel 983 536 94 64 Rule hits to notification DB
 storage 854 600 100 120 Aggregator DB
 storage 983 600 94 120 Notification DB
+storage 1100 600 105 120 DVO DB
 channel 915 720 162 60 Rule hits from notification DB
 component 692 720 187 132 CCX Notification service
 component 483 845 132 103 Service log
