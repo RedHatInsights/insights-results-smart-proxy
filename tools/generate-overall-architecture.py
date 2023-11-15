@@ -45,8 +45,16 @@ def save_text_file(filename, content):
         fout.write(content)
 
 
+def make_path(node_type, node, suffix):
+    return node_type + "/" + node.lower().replace(" ", "-") + suffix
+
+
+def make_path_to_markdown_file(node_type, node):
+    return make_path(node_type, node, ".md")
+
+
 def make_href(node_type, node):
-    return node_type + "/" + node.lower().replace(" ", "-") + ".html"
+    return make_path(node_type, node, ".html")
 
 
 def format_area(x, y, width, height, node, href):
@@ -101,7 +109,7 @@ def touch_files(directory, areas):
         splitted = area.split(" ")
         node_type = splitted[0]
         node = " ".join(splitted[5:])
-        path = Path(directory, make_href(node_type, node))
+        path = Path(directory, make_path_to_markdown_file(node_type, node))
         path.touch()
 
 
