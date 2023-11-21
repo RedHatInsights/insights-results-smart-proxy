@@ -1535,3 +1535,104 @@ func (server *HTTPServer) checkRedisClientReadiness(writer http.ResponseWriter) 
 	}
 	return true
 }
+
+// getDVONamespaceList returns a list of all DVO namespaces to which an account has access.
+func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, request *http.Request) {
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
+	// get active clusters info from AMS API
+	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
+		handleServerError(writer, err)
+		return
+	}
+	clusterInfoMap := types.ClusterInfoArrayToMap(activeClustersInfo)
+
+	// get workloads for clusters
+	workloads, err := server.getWorkloadsForOrganization(orgID)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	workloadsProcessed, err := processWorkloadsRecommendations(clusterInfoMap, workloads)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// prepare response
+	responseData := map[string]interface{}{}
+	responseData["status"] = OkMsg
+	responseData["workloads"] = workloadsProcessed
+
+	// send response to client
+	err = responses.SendOK(writer, responseData)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// processWorkloadsRecommendations filter out inactive clusters; calculate aggregations by severity
+func processWorkloadsRecommendations(
+	clusterInfoMap map[ctypes.ClusterName]types.ClusterInfo,
+	workloadsForCluster []types.WorkloadsForCluster,
+) (
+	workloads []types.Workload,
+	err error,
+) {
+	workloads = make([]types.Workload, 0)
+
+	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
+	if err != nil {
+		return
+	}
+
+	for _, w := range workloadsForCluster {
+		// fill in display name
+		if clusterInfo, found := clusterInfoMap[ctypes.ClusterName(w.Cluster.UUID)]; found {
+			w.Cluster.DisplayName = clusterInfo.DisplayName
+		} else {
+			// cluster is not active, omitting
+			continue
+		}
+
+		// fill in all unique severities
+		hitsBySeverity := make(map[int]int, 0)
+		for _, severity := range uniqueSeverities {
+			hitsBySeverity[severity] = 0
+		}
+		w.Metadata.HitsBySeverity = hitsBySeverity
+
+		// calculate hits by severity and highest severity across all recommendations
+		for _, recommendation := range w.Recommendations {
+			if severity, found := recommendationSeverities[ctypes.RuleID(recommendation.Check)]; found {
+				w.Metadata.HitsBySeverity[severity]++
+
+				if severity > w.Metadata.HighestSeverity {
+					w.Metadata.HighestSeverity = severity
+				}
+			} else {
+				msg := "recommendation ID not found in content"
+				err := errors.New(msg)
+				log.Error().Err(err).Send()
+				return workloads, err
+			}
+		}
+
+		workloads = append(workloads, types.Workload{
+			Cluster:   w.Cluster,
+			Namespace: w.Namespace,
+			Metadata:  w.Metadata,
+		})
+	}
+
+	return
+}
