@@ -25,6 +25,7 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ctypes "github.com/RedHatInsights/insights-results-types"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
@@ -41,6 +42,8 @@ const (
 	RuleIDParamName = "rule_id"
 	// RequestIDParam parameter name in the URL for request IDs
 	RequestIDParam = "request_id"
+	// NamespaceIDParam parameter name in the URL for namespace UUIDs
+	NamespaceIDParam = "namespace"
 )
 
 func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (ctypes.RuleID, ctypes.ErrorKey, error) {
@@ -250,4 +253,47 @@ func readRequestIDList(writer http.ResponseWriter, request *http.Request) (
 	}
 
 	return validatedRequestList, nil
+}
+
+// readNamespace retrieves namespace UUID from request
+// if it's not possible, it writes http error to the writer and returns error
+func readNamespace(writer http.ResponseWriter, request *http.Request) (
+	namespace types.Namespace, err error,
+) {
+	namespaceID, err := httputils.GetRouterParam(request, NamespaceIDParam)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	validatedNamespaceID, err := validateNamespaceID(namespaceID)
+	if err != nil {
+		err = &RouterParsingError{
+			ParamName:  NamespaceIDParam,
+			ParamValue: namespaceID,
+			ErrString:  err.Error(),
+		}
+		handleServerError(writer, err)
+		return
+	}
+
+	namespace.UUID = validatedNamespaceID
+
+	return
+}
+
+func validateNamespaceID(namespace string) (string, error) {
+	if _, err := uuid.Parse(namespace); err != nil {
+		message := fmt.Sprintf("invalid namespace ID: '%s'. Error: %s", namespace, err.Error())
+
+		log.Error().Err(err).Msg(message)
+
+		return "", &RouterParsingError{
+			ParamName:  NamespaceIDParam,
+			ParamValue: namespace,
+			ErrString:  err.Error(),
+		}
+	}
+
+	return namespace, nil
 }
