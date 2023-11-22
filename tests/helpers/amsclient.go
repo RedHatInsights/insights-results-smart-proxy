@@ -19,6 +19,8 @@ import (
 
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
+
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
@@ -62,6 +64,9 @@ func (m *mockAMSClient) GetSingleClusterInfoForOrganization(
 ) (
 	clusterInfo types.ClusterInfo, err error,
 ) {
+	if m.clustersPerOrg == nil {
+		return types.ClusterInfo{}, &utypes.ItemNotFoundError{}
+	}
 	for _, info := range m.clustersPerOrg[testdata.OrgID] {
 		if info.ID == clusterID {
 			return info, nil
@@ -73,6 +78,11 @@ func (m *mockAMSClient) GetSingleClusterInfoForOrganization(
 // AMSClientWithOrgResults creates a mock of AMSClient interface that returns the results
 // defined by orgID and clusters parameters
 func AMSClientWithOrgResults(orgID types.OrgID, clusters []types.ClusterInfo) amsclient.AMSClient {
+	if clusters == nil {
+		return &mockAMSClient{
+			clustersPerOrg: nil,
+		}
+	}
 	return &mockAMSClient{
 		clustersPerOrg: map[types.OrgID][]types.ClusterInfo{
 			orgID: clusters,
