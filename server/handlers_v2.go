@@ -1618,7 +1618,7 @@ func fillInWorkloadsData(
 	workloadsForCluster.Cluster.DisplayName = clusterInfo.DisplayName
 
 	// fill in all unique severities
-	hitsBySeverity := make(map[int]int, 0)
+	hitsBySeverity := make(map[int]int, len(uniqueSeverities))
 	for _, severity := range uniqueSeverities {
 		hitsBySeverity[severity] = 0
 	}
