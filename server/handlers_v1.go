@@ -211,7 +211,7 @@ func (server HTTPServer) getOrganizationOverview(
 					return overview, err
 				}
 				// missing rule content, simply omit the rule as we can't display anything
-				log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+				log.Error().Err(err).Msgf(ruleContentError, ruleID)
 				filteredRecommendations++
 				continue
 			}

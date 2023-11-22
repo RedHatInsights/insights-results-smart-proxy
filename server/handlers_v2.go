@@ -683,7 +683,7 @@ func getFilteredRecommendationsList(
 				return recommendationList, err
 			}
 			// missing rule content, simply omit the rule as we can't display anything
-			log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+			log.Error().Err(err).Msgf(ruleContentError, ruleID)
 			continue
 		}
 
@@ -1642,7 +1642,7 @@ func fillInWorkloadsData(
 			if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 				return workloads, err
 			}
-			log.Error().Err(err).Msgf("unable to get content for rule with id %v", recommendation.Check)
+			log.Error().Err(err).Msgf(ruleContentError, recommendation.Check)
 			return workloads, err
 		}
 

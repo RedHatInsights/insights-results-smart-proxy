@@ -92,6 +92,7 @@ const (
 	ackedRulesError      = "Unable to retrieve list of acked rules"
 	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
 	clusterListError     = "problem reading cluster list for org"
+	ruleContentError     = "unable to get content for rule with id %v"
 )
 
 // HTTPServer is an implementation of Server interface
