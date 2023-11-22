@@ -256,20 +256,43 @@ func setEnvVariables(t *testing.T) {
 func TestGetAMCClientConfiguration(t *testing.T) {
 	/* Load following configuration:
 
+	   [amsclient]
 	   url = "https://api.openshift.com"
 	   client_id = "-client-id-"
 	   client_secret = "-top-secret-"
 	   page_size = 6000
+
 	*/
 
 	TestLoadConfiguration(t)
 	helpers.FailOnError(t, os.Chdir(".."))
 
+	// call the tested function
 	amsConfiguration := conf.GetAMSClientConfiguration()
 
+	// check returned structure
 	assert.Equal(t, "", amsConfiguration.Token)
 	assert.Equal(t, "-client-id-", amsConfiguration.ClientID)
 	assert.Equal(t, "-top-secret-", amsConfiguration.ClientSecret)
 	assert.Equal(t, "https://api.openshift.com", amsConfiguration.URL)
 	assert.Equal(t, 6000, amsConfiguration.PageSize)
+}
+
+// TestGetSetupConfiguration tests loading the Setup configuration sub-tree
+func TestGetSetupConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[setup]
+	internal_rules_organizations_csv_file = "tests/internal_organizations_test.csv"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	setupConfiguration := conf.GetSetupConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "tests/internal_organizations_test.csv", setupConfiguration.InternalRulesOrganizationsCSVFile)
 }
