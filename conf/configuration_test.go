@@ -251,3 +251,25 @@ func setEnvVariables(t *testing.T) {
 
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME", "60s")
 }
+
+// TestGetAMCClientConfiguration tests loading the AMS configuration sub-tree
+func TestGetAMCClientConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	   url = "https://api.openshift.com"
+	   client_id = "-client-id-"
+	   client_secret = "-top-secret-"
+	   page_size = 6000
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	amsConfiguration := conf.GetAMSClientConfiguration()
+
+	assert.Equal(t, "", amsConfiguration.Token)
+	assert.Equal(t, "-client-id-", amsConfiguration.ClientID)
+	assert.Equal(t, "-top-secret-", amsConfiguration.ClientSecret)
+	assert.Equal(t, "https://api.openshift.com", amsConfiguration.URL)
+	assert.Equal(t, 6000, amsConfiguration.PageSize)
+}
