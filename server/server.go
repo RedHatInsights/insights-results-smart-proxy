@@ -1476,6 +1476,8 @@ func (server *HTTPServer) getClusterListAndUserData(
 }
 
 // getWorkloadsForOrganization returns a list of workloads for given organization ID.
+// Empty slice is returned when aggregator responds with 404 Not Found.
+// Nil is returned when any other unexpected error occurs.
 func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]types.WorkloadsForCluster, error) {
 	// wont be used anywhere else
 	var response struct {
