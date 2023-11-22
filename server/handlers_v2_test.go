@@ -3086,3 +3086,242 @@ func TestHTTPServer_DVONamespaceForCluster1_NoAMS(t *testing.T) {
 		)
 	}, testTimeout)
 }
+
+func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_RuleContentError(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&ctypes.RuleContentDirectory{})
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		now := time.Now().UTC().Format(time.RFC3339)
+		aggrResp := struct {
+			Status    string                    `json:"status"`
+			Workloads types.WorkloadsForCluster `json:"workloads"`
+		}{
+			Status: "ok",
+			Workloads: types.WorkloadsForCluster{
+				Cluster: types.Cluster{
+					UUID: string(testdata.ClusterName),
+				},
+				Namespace: types.Namespace{
+					UUID: data.NamespaceUUID1,
+				},
+				Metadata: types.Metadata{
+					Recommendations: 2,
+					Objects:         2,
+					ReportedAt:      now,
+					LastCheckedAt:   now,
+				},
+				Recommendations: []types.DVORecommendation{
+					{
+						Check: string(testdata.Rule1CompositeID),
+					},
+					{
+						Check: string(testdata.Rule2CompositeID),
+					},
+				},
+			},
+		}
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(aggrResp),
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				XRHIdentity:  goodXRHAuthToken,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_NotFoundInAMS(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// error from AMS API
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			nil,
+		)
+
+		now := time.Now().UTC().Format(time.RFC3339)
+		aggrResp := struct {
+			Status    string                    `json:"status"`
+			Workloads types.WorkloadsForCluster `json:"workloads"`
+		}{
+			Status: "ok",
+			Workloads: types.WorkloadsForCluster{
+				Cluster: types.Cluster{
+					UUID: string(testdata.ClusterName),
+				},
+				Namespace: types.Namespace{
+					UUID: data.NamespaceUUID1,
+				},
+				Metadata: types.Metadata{
+					Recommendations: 2,
+					Objects:         2,
+					ReportedAt:      now,
+					LastCheckedAt:   now,
+				},
+				Recommendations: []types.DVORecommendation{
+					{
+						Check: string(testdata.Rule1CompositeID),
+					},
+					{
+						Check: string(testdata.Rule2CompositeID),
+					},
+				},
+			},
+		}
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(aggrResp),
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				XRHIdentity:  goodXRHAuthToken,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceForCluster1_AggregatorError(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// error from AMS API
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				XRHIdentity:  goodXRHAuthToken,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceForCluster1_AggregatorBadResponse(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// error from AMS API
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       "bad response format",
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				XRHIdentity:  goodXRHAuthToken,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
