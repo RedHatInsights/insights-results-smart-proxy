@@ -1573,15 +1573,27 @@ func (server *HTTPServer) getDVONamespacesForCluster(writer http.ResponseWriter,
 	// get namespace data from aggregator
 	workloads, err := server.getWorkloadsForCluster(orgID, clusterID, namespace)
 	if err != nil {
-		handleServerError(writer, err)
-		return
+		switch err.(type) {
+		case *json.SyntaxError:
+			msg := "aggregator provided a wrong response"
+			log.Error().Err(err).Msg(msg)
+			handleServerError(writer, errors.New(msg))
+			return
+		case *url.Error:
+			log.Error().Err(err).Msg("aggregator is not responding")
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+			return
+		default:
+			handleServerError(writer, err)
+			return
+		}
 	}
-
-	log.Error().Msgf("%+v", workloads)
 
 	workloadsProcessed, err := fillInWorkloadsData(clusterInfo, workloads)
 	if err != nil {
-		handleServerError(writer, err)
+		msg := "unable to fill in data from content-service"
+		log.Error().Err(err).Msg(msg)
+		handleServerError(writer, errors.New(msg))
 		return
 	}
 
@@ -1638,9 +1650,6 @@ func fillInWorkloadsData(
 
 		ruleContent, err := content.GetContentForRecommendation(ctypes.RuleID(recommendation.Check))
 		if err != nil {
-			if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
-				return workloads, err
-			}
 			log.Error().Err(err).Msgf(ruleContentError, recommendation.Check)
 			return workloads, err
 		}
