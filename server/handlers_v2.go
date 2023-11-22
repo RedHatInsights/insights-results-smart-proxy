@@ -1609,7 +1609,6 @@ func fillInWorkloadsData(
 	workloads types.WorkloadsForCluster,
 	err error,
 ) {
-
 	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
 	if err != nil {
 		return
