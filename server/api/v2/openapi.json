@@ -746,6 +746,163 @@
         "description": "The static content is taken from the cache periodically updated from the content service"
       }
     },
+    "/namespaces/dvo/{namespaceId}/cluster/{clusterId}": {
+      "get": {
+        "summary": "Retrieve DVO recommendations for a single namespace + cluster combination.",
+        "operationId": "getDVONamespaceCluster",
+        "description": "For the given cluster and namespace IDs, return a list of DVO recommendations, complete with the descriptions and steps to resolve.",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/clusterId"
+            }
+          },
+          {
+            "name": "namespaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/requestId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DVO recommendations for namespace + cluster",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/statusResponse"
+                    },
+                    "cluster": {
+                      "type": "object",
+                      "properties": {
+                        "uuid": {
+                          "$ref": "#/components/schemas/clusterId"
+                        },
+                        "display_name": {
+                          "type": "string",
+                          "description": "A human-readable name for the cluster",
+                          "example": "Production cluster 1"
+                        }
+                      }
+                    },
+                    "namespace": {
+                      "type": "object",
+                      "properties": {
+                        "uuid": {
+                          "$ref": "#/components/schemas/namespaceId"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "A human-readable name for the namespace",
+                          "example": "Production namespace 1"
+                        }
+                      }
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "recommendations": {
+                          "type": "integer",
+                          "description": "Total number of DVO recommendations affecting this namespace and cluster"
+                        },
+                        "objects": {
+                          "type": "integer",
+                          "description": "Total number of objects affecting this namespace and cluster"
+                        },
+                        "reported_at": {
+                          "format": "date-time",
+                          "type": "string",
+                          "description": "Timestamp of the first analysis"
+                        },
+                        "last_checked_at": {
+                          "format": "date-time",
+                          "type": "string",
+                          "description": "Timestamp of the last analysis"
+                        },
+                        "highest_severity": {
+                          "type": "integer",
+                          "description": "Highest recommendation severity affecting this namespace + cluster"
+                        },
+                        "hits_by_severity": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer"
+                          },
+                          "description": "A dictionary with the number of DVO recommendation hits grouped by their severity. Always provides the severity keys even if there are no recommendations currently hitting.",
+                          "example": {
+                            "1": 2,
+                            "2": 3,
+                            "3": 0,
+                            "4": 1
+                          }
+                        }
+                      }
+                    },
+                    "recommendations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "check": {
+                            "type": "string",
+                            "description": "The rule ID in the | format.",
+                            "example": "rule.module|ERROR_KEY"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "The title of the rule, a short description."
+                          },
+                          "remediation": {
+                            "type": "string",
+                            "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base."
+                          },
+                          "objects": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "description": "The kind/category of the object."
+                                },
+                                "uid": {
+                                  "type": "string",
+                                  "description": "ID of the object."
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "cluster",
+                    "requestID",
+                    "status",
+                    "report"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or invalid cluster ID"
+          },
+          "404": {
+            "description": "Data for cluster and namespace were not found in the storage."
+          }
+        }
+      }
+    },
     "/ack": {
       "get": {
         "operationId": "AckListEndpoint",
@@ -2029,6 +2186,13 @@
         "type": "string",
         "format": "x-rh-insights-request-id",
         "example": "6d2eede257644308a8949c4ec251c5c4"
+      },
+      "namespaceId" : {
+        "description": "ID of the namespace in a valid UUID format",
+        "type": "string",
+        "minLength": 36,
+        "maxLength": 36,
+        "format": "uuid"
       },
       "gatheringRequests": {
         "description": "List of stored requests for given orgId + clusterId",
