@@ -751,6 +751,9 @@
         "summary": "Retrieve DVO recommendations for a single namespace + cluster combination.",
         "operationId": "getDVONamespaceCluster",
         "description": "For the given cluster and namespace IDs, return a list of DVO recommendations, complete with the descriptions and steps to resolve.",
+        "tags": [
+          "prod"
+        ],
         "parameters": [
           {
             "name": "clusterId",
@@ -909,6 +912,9 @@
         "summary": "Retrieve DVO namespaces and recommendation aggregations for the whole organization",
         "operationId": "getDVONamespaces",
         "description": "For the user's organization, return a list of namespaces and aggregate information about each namespace",
+        "tags": [
+          "prod"
+        ],
         "responses": {
           "200": {
             "description": "Namespaces for DVO workloads",
