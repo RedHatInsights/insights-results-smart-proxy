@@ -346,3 +346,22 @@ func TestGetRedisConfiguration(t *testing.T) {
 	assert.Equal(t, "-redis-password-", redisConfiguration.RedisPassword)
 	assert.Equal(t, 30, redisConfiguration.RedisTimeoutSeconds)
 }
+
+// TestGetMetricsConfiguration tests loading the metrics configuration sub-tree
+func TestGetMetricsConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[metrics]
+	namespace = "smart_proxy"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	metricsConfiguration := conf.GetMetricsConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "smart_proxy", metricsConfiguration.Namespace)
+}
