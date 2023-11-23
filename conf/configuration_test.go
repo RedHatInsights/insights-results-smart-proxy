@@ -296,3 +296,28 @@ func TestGetSetupConfiguration(t *testing.T) {
 	// check returned structure
 	assert.Equal(t, "tests/internal_organizations_test.csv", setupConfiguration.InternalRulesOrganizationsCSVFile)
 }
+
+// TestKafkaZerologConfiguration tests loading the KafkaZerolog configuration sub-tree
+func TestKafkaZerologConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[kafka_zerolog]
+	broker = "-kafka-zerolog-broker-"
+	topic = "-kafka-zerolog-topic-"
+	cert_path = "-kafka-zerolog-cert-path-"
+	level = "-kafka-zerolog-level-"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	configuration := conf.GetKafkaZerologConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "-kafka-zerolog-broker-", configuration.Broker)
+	assert.Equal(t, "-kafka-zerolog-topic-", configuration.Topic)
+	assert.Equal(t, "-kafka-zerolog-cert-path-", configuration.CertPath)
+	assert.Equal(t, "-kafka-zerolog-level-", configuration.Level)
+}
