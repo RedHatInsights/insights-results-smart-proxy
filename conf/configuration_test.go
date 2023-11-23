@@ -251,3 +251,98 @@ func setEnvVariables(t *testing.T) {
 
 	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME", "60s")
 }
+
+// TestGetAMCClientConfiguration tests loading the AMS configuration sub-tree
+func TestGetAMCClientConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	   [amsclient]
+	   url = "https://api.openshift.com"
+	   client_id = "-client-id-"
+	   client_secret = "-top-secret-"
+	   page_size = 6000
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	amsConfiguration := conf.GetAMSClientConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "", amsConfiguration.Token)
+	assert.Equal(t, "-client-id-", amsConfiguration.ClientID)
+	assert.Equal(t, "-top-secret-", amsConfiguration.ClientSecret)
+	assert.Equal(t, "https://api.openshift.com", amsConfiguration.URL)
+	assert.Equal(t, 6000, amsConfiguration.PageSize)
+}
+
+// TestGetSetupConfiguration tests loading the Setup configuration sub-tree
+func TestGetSetupConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[setup]
+	internal_rules_organizations_csv_file = "tests/internal_organizations_test.csv"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	setupConfiguration := conf.GetSetupConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "tests/internal_organizations_test.csv", setupConfiguration.InternalRulesOrganizationsCSVFile)
+}
+
+// TestGetKafkaZerologConfiguration tests loading the KafkaZerolog configuration sub-tree
+func TestGetKafkaZerologConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[kafka_zerolog]
+	broker = "-kafka-zerolog-broker-"
+	topic = "-kafka-zerolog-topic-"
+	cert_path = "-kafka-zerolog-cert-path-"
+	level = "-kafka-zerolog-level-"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	configuration := conf.GetKafkaZerologConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "-kafka-zerolog-broker-", configuration.Broker)
+	assert.Equal(t, "-kafka-zerolog-topic-", configuration.Topic)
+	assert.Equal(t, "-kafka-zerolog-cert-path-", configuration.CertPath)
+	assert.Equal(t, "-kafka-zerolog-level-", configuration.Level)
+}
+
+// TestGetRedisConfiguration tests loading the Redis configuration sub-tree
+func TestGetRedisConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[redis]
+	database = 42
+	endpoint = "localhost:6379"
+	password = "-redis-password-"
+	timeout_seconds = 30
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	redisConfiguration := conf.GetRedisConfiguration()
+
+	// check returned structure
+	assert.Equal(t, 42, redisConfiguration.RedisDatabase)
+	assert.Equal(t, "localhost:6379", redisConfiguration.RedisEndpoint)
+	assert.Equal(t, "-redis-password-", redisConfiguration.RedisPassword)
+	assert.Equal(t, 30, redisConfiguration.RedisTimeoutSeconds)
+}

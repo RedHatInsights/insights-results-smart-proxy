@@ -1522,3 +1522,45 @@ func (server *HTTPServer) getWorkloadsForCluster(
 
 	return response.Workloads, nil
 }
+
+// getWorkloadsForOrganization returns a list of workloads for given organization ID.
+// Empty slice is returned when aggregator responds with 404 Not Found.
+// Nil is returned when any other unexpected error occurs.
+func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]types.WorkloadsForCluster, error) {
+	// wont be used anywhere else
+	var response struct {
+		Status    string                      `json:"status"`
+		Workloads []types.WorkloadsForCluster `json:"workloads"`
+	}
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		"organization/{organization}/workloads", // TODO: use real ira_server endpoint
+		orgID,
+	)
+
+	// #nosec G107
+	resp, err := http.Get(aggregatorURL)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return []types.WorkloadsForCluster{}, nil
+	}
+
+	// check the aggregator response
+	if resp.StatusCode != http.StatusOK {
+		err := fmt.Errorf("error reading workloads from aggregator: %v", resp.StatusCode)
+		return nil, err
+	}
+
+	defer services.CloseResponseBody(resp)
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Workloads, nil
+}
