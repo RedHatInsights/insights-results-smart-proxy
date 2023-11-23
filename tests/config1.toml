@@ -38,6 +38,9 @@ client_id = "-client-id-"
 client_secret = "-top-secret-"
 page_size = 6000
 
+[metrics]
+namespace = "smart_proxy"
+
 [kafka_zerolog]
 broker = "-kafka-zerolog-broker-"
 topic = "-kafka-zerolog-topic-"
