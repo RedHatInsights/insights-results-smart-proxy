@@ -32,6 +32,7 @@ from a single service.
     - Insights Results Aggregator
     - Content Service
     - AMS
+    - Redis
 * Output:
     - REST API interface available for external access
 
