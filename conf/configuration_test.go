@@ -297,8 +297,8 @@ func TestGetSetupConfiguration(t *testing.T) {
 	assert.Equal(t, "tests/internal_organizations_test.csv", setupConfiguration.InternalRulesOrganizationsCSVFile)
 }
 
-// TestKafkaZerologConfiguration tests loading the KafkaZerolog configuration sub-tree
-func TestKafkaZerologConfiguration(t *testing.T) {
+// TestGetKafkaZerologConfiguration tests loading the KafkaZerolog configuration sub-tree
+func TestGetKafkaZerologConfiguration(t *testing.T) {
 	/* Load following configuration:
 
 	[kafka_zerolog]
@@ -320,4 +320,29 @@ func TestKafkaZerologConfiguration(t *testing.T) {
 	assert.Equal(t, "-kafka-zerolog-topic-", configuration.Topic)
 	assert.Equal(t, "-kafka-zerolog-cert-path-", configuration.CertPath)
 	assert.Equal(t, "-kafka-zerolog-level-", configuration.Level)
+}
+
+// TestGetRedisConfiguration tests loading the Redis configuration sub-tree
+func TestGetRedisConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[redis]
+	database = 42
+	endpoint = "localhost:6379"
+	password = "-redis-password-"
+	timeout_seconds = 30
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	redisConfiguration := conf.GetRedisConfiguration()
+
+	// check returned structure
+	assert.Equal(t, 42, redisConfiguration.RedisDatabase)
+	assert.Equal(t, "localhost:6379", redisConfiguration.RedisEndpoint)
+	assert.Equal(t, "-redis-password-", redisConfiguration.RedisPassword)
+	assert.Equal(t, 30, redisConfiguration.RedisTimeoutSeconds)
 }
