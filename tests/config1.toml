@@ -43,3 +43,9 @@ broker = "-kafka-zerolog-broker-"
 topic = "-kafka-zerolog-topic-"
 cert_path = "-kafka-zerolog-cert-path-"
 level = "-kafka-zerolog-level-"
+
+[redis]
+database = 42
+endpoint = "localhost:6379"
+password = "-redis-password-"
+timeout_seconds = 30
