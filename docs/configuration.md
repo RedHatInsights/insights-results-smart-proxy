@@ -47,8 +47,7 @@ log_auth_token = true
 production, `false` is used every time.
 * `auth` turns on or turns authentication. Please note that this option can be set to `false` only
 in devel environment. In production, `true` is used every time.
-* `auth_type` set type of auth, it means which header to use for auth `x-rh-identity` or
-`Authorization`. Can be used only with `auth = true`. Possible options: `jwt`, `xrh`
+* `auth_type` set type of auth. Can be used only with `auth = true`. Auth type used in all envs: `xrh`
 * `use_https` enable or disable the usage of SSL transport for the HTTP server
 * `enable_cors` enable or disable the [CORS
   headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)

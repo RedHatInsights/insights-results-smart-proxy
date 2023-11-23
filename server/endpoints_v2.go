@@ -98,8 +98,19 @@ const (
 	// ID. If the ack existed, it is deleted and a 204 is returned.
 	// Otherwise, a 404 is returned.
 	AckDeleteEndpoint = "ack/{rule_id}"
+
 	// Rating endpoint will get/modify the vote for a rule id by the user
 	Rating = "rating"
+
+	// DVONamespaceListEndpoint returns a list of all DVO namespaces to
+	// which an account has access. Each entry contains the
+	// namespace ID, the namespace display name (if available), the cluster
+	// ID under which this namespace was created, and the number of
+	// recommendations affecting this namespace.
+	//
+	// BDD scenarios for this endpoint:
+	// https://github.com/RedHatInsights/insights-behavioral-spec/blob/main/features/DVO_Recommendations/Smart_Proxy_REST_API.feature
+	DVONamespaceListEndpoint = "namespaces/dvo"
 )
 
 // addV2EndpointsToRouter adds API V2 specific endpoints to the router
@@ -122,6 +133,9 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 	// Endpoints requiring Redis to work
 	server.addV2RedisEndpointsToRouter(router, apiV2Prefix)
 
+	// Endpoints related to DVO workload recommendations
+	server.addV2DVOEndpointsToRouter(router, apiV2Prefix)
+
 	// Prometheus metrics
 	router.Handle(apiV2Prefix+MetricsEndpoint, promhttp.Handler()).Methods(http.MethodGet)
 
@@ -142,6 +156,11 @@ func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPre
 	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForClusterPostVariant).Methods(http.MethodPost)
 	router.HandleFunc(apiPrefix+StatusOfRequestID, server.getRequestStatusForCluster).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RuleHitsForRequestID, server.getReportForRequest).Methods(http.MethodGet)
+}
+
+// addV2DVOEndpointsToRouter method registers handlers for endpoints related to DVO workloads
+func (server *HTTPServer) addV2DVOEndpointsToRouter(router *mux.Router, apiPrefix string) {
+	router.HandleFunc(apiPrefix+DVONamespaceListEndpoint, server.getDVONamespaceList).Methods(http.MethodGet)
 }
 
 // addV2ReportsEndpointsToRouter method registers handlers for endpoints that

@@ -26,6 +26,7 @@ import (
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	ctypes "github.com/RedHatInsights/insights-results-types"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
@@ -2745,6 +2746,439 @@ func TestHTTPServer_GetReportForRequest_NoRedis(t *testing.T) {
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusInternalServerError,
 				Body:       expectedResponse,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceListEndpoint_NoWorkloads(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		expectedResponse := `{"status": "ok", "workloads": []}`
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.DVONamespaceListEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceListEndpoint_OK(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult2Clusters,
+		)
+
+		now := time.Now().UTC().Format(time.RFC3339)
+		aggrResponse := struct {
+			Status    string                      `json:"status"`
+			Workloads []types.WorkloadsForCluster `json:"workloads"`
+		}{
+			Status: "ok",
+			Workloads: []types.WorkloadsForCluster{
+				{
+					Cluster: types.Cluster{
+						UUID: string(data.ClusterInfoResult2Clusters[0].ID),
+					},
+					Namespace: types.Namespace{
+						UUID:     fmt.Sprint(uuid.New()),
+						FullName: "namespace1",
+					},
+					Metadata: types.Metadata{
+						Recommendations: 2,
+						Objects:         2,
+						ReportedAt:      now,
+						LastCheckedAt:   now,
+					},
+					Recommendations: []types.DVORecommendation{
+						{
+							Check: string(testdata.Rule1CompositeID),
+						},
+						{
+							Check: string(testdata.Rule2CompositeID),
+						},
+					},
+				},
+			},
+		}
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(aggrResponse),
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		expectedResponse := types.DVONamespaceListResponse{
+			Status: "ok",
+			Workloads: []types.Workload{
+				{
+					Cluster:   aggrResponse.Workloads[0].Cluster,
+					Namespace: aggrResponse.Workloads[0].Namespace,
+					Metadata:  aggrResponse.Workloads[0].Metadata,
+				},
+			},
+		}
+		// filled in by smart-proxy
+		expectedResponse.Workloads[0].Cluster.DisplayName = data.ClusterDisplayName1
+		expectedResponse.Workloads[0].Metadata.HighestSeverity = 2
+		hitsBySeverity := map[int]int{
+			1: 1,
+			2: 1,
+		}
+		expectedResponse.Workloads[0].Metadata.HitsBySeverity = hitsBySeverity
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.DVONamespaceListEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(expectedResponse),
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceListEndpoint_NoAuthToken(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:   http.MethodGet,
+				Endpoint: server.DVONamespaceListEndpoint,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusForbidden,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceListEndpoint_NoAMS(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.DVONamespaceListEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceListEndpoint_AggregatorError(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.DVONamespaceListEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult2Clusters,
+		)
+
+		now := time.Now().UTC().Format(time.RFC3339)
+		aggrResponse := struct {
+			Status    string                      `json:"status"`
+			Workloads []types.WorkloadsForCluster `json:"workloads"`
+		}{
+			Status: "ok",
+			Workloads: []types.WorkloadsForCluster{
+				{
+					Cluster: types.Cluster{
+						UUID: string(data.ClusterInfoResult2Clusters[0].ID),
+					},
+					Namespace: types.Namespace{
+						UUID:     fmt.Sprint(uuid.New()),
+						FullName: "namespace1",
+					},
+					Metadata: types.Metadata{
+						Recommendations: 2,
+						Objects:         2,
+						ReportedAt:      now,
+						LastCheckedAt:   now,
+					},
+					Recommendations: []types.DVORecommendation{
+						{
+							Check: string("non-existent recommendation ID"),
+						},
+						{
+							Check: string(testdata.Rule2CompositeID),
+						},
+					},
+				},
+			},
+		}
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(aggrResponse),
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.DVONamespaceListEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult2Clusters,
+		)
+
+		now := time.Now().UTC().Format(time.RFC3339)
+		aggrResponse := struct {
+			Status    string                      `json:"status"`
+			Workloads []types.WorkloadsForCluster `json:"workloads"`
+		}{
+			Status: "ok",
+			Workloads: []types.WorkloadsForCluster{
+				{
+					Cluster: types.Cluster{
+						UUID: string(testdata.ClusterName), // <-- cluster is not in the list of active clusters from AMS API
+					},
+					Namespace: types.Namespace{
+						UUID:     fmt.Sprint(uuid.New()),
+						FullName: "namespace2",
+					},
+					Metadata: types.Metadata{
+						Recommendations: 1,
+						Objects:         1,
+						ReportedAt:      now,
+						LastCheckedAt:   now,
+					},
+					Recommendations: []types.DVORecommendation{
+						{
+							Check: string(testdata.Rule1CompositeID),
+						},
+					},
+				},
+				{
+					Cluster: types.Cluster{
+						UUID: string(data.ClusterInfoResult2Clusters[0].ID),
+					},
+					Namespace: types.Namespace{
+						UUID:     fmt.Sprint(uuid.New()),
+						FullName: "namespace1",
+					},
+					Metadata: types.Metadata{
+						Recommendations: 2,
+						Objects:         2,
+						ReportedAt:      now,
+						LastCheckedAt:   now,
+					},
+					Recommendations: []types.DVORecommendation{
+						{
+							Check: string(testdata.Rule1CompositeID),
+						},
+						{
+							Check: string(testdata.Rule2CompositeID),
+						},
+					},
+				},
+			},
+		}
+
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(aggrResponse),
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		expectedResponse := types.DVONamespaceListResponse{
+			Status: "ok",
+			Workloads: []types.Workload{
+				{
+					Cluster:   aggrResponse.Workloads[1].Cluster,
+					Namespace: aggrResponse.Workloads[1].Namespace,
+					Metadata:  aggrResponse.Workloads[1].Metadata,
+				},
+			},
+		}
+		// filled in by smart-proxy
+		expectedResponse.Workloads[0].Cluster.DisplayName = data.ClusterDisplayName1
+		expectedResponse.Workloads[0].Metadata.HighestSeverity = 2
+		hitsBySeverity := map[int]int{
+			1: 1,
+			2: 1,
+		}
+		expectedResponse.Workloads[0].Metadata.HitsBySeverity = hitsBySeverity
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.DVONamespaceListEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(expectedResponse),
 			},
 		)
 	}, testTimeout)
