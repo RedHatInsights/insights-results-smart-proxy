@@ -102,7 +102,7 @@ const (
 	// Rating endpoint will get/modify the vote for a rule id by the user
 	Rating = "rating"
 
-	// DVONamespaceForCluster1Endpoint Returns the list of all namespaces (i.e. array of objects) to
+	// DVONamespaceForClusterEndpoint Returns the list of all namespaces (i.e. array of objects) to
 	// which this particular account has access filtered by {cluster_name}.
 	// Each object contains the namespace ID, the namespace display name if
 	// available, the cluster ID under which this namespace is created
@@ -111,9 +111,8 @@ const (
 	//
 	// BDD scenarios for this endpoint:
 	// https://github.com/RedHatInsights/insights-behavioral-spec/blob/main/features/DVO_Recommendations/Smart_Proxy_REST_API.feature
-	DVONamespaceForCluster1Endpoint = "cluster/{cluster}/namespaces/dvo/{namespace}"
-	// DVONamespaceForCluster2Endpoint is the same endpoint as DVONamespaceForCluster1Endpoint with different argument order
-	DVONamespaceForCluster2Endpoint = "namespaces/dvo/{namespace}/cluster/{cluster}"
+	DVONamespaceForClusterEndpoint = "namespaces/dvo/{namespace}/cluster/{cluster}"
+
 	// DVONamespaceListEndpoint returns a list of all DVO namespaces to
 	// which an account has access. Each entry contains the
 	// namespace ID, the namespace display name (if available), the cluster
@@ -172,8 +171,7 @@ func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPre
 
 // addV2DVOEndpointsToRouter method registers handlers for endpoints related to DVO workloads
 func (server *HTTPServer) addV2DVOEndpointsToRouter(router *mux.Router, apiPrefix string) {
-	router.HandleFunc(apiPrefix+DVONamespaceForCluster1Endpoint, server.getDVONamespacesForCluster).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+DVONamespaceForCluster2Endpoint, server.getDVONamespacesForCluster).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+DVONamespaceForClusterEndpoint, server.getDVONamespacesForCluster).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+DVONamespaceListEndpoint, server.getDVONamespaceList).Methods(http.MethodGet)
 }
 

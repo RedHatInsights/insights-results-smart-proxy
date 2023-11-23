@@ -3218,9 +3218,9 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterNotFound(t *testing.T) {
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusNotFound,
 			},
@@ -3299,9 +3299,9 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundNoWorkloads(t *testing.T
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(expectedResponse),
@@ -3393,9 +3393,9 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusOK,
 				Body:       helpers.ToJSONString(expectedResponse),
@@ -3425,8 +3425,8 @@ func TestHTTPServer_DVONamespaceForCluster1_BadAuthToken(t *testing.T) {
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusForbidden,
 			},
@@ -3455,8 +3455,8 @@ func TestHTTPServer_DVONamespaceForCluster1_BadClusterID(t *testing.T) {
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
-				EndpointArgs: []interface{}{"bad cluster ID", data.NamespaceUUID1},
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
+				EndpointArgs: []interface{}{data.NamespaceUUID1, "bad cluster ID"},
 				XRHIdentity:  goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusBadRequest,
@@ -3486,8 +3486,8 @@ func TestHTTPServer_DVONamespaceForCluster1_BadNamespaceID(t *testing.T) {
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
-				EndpointArgs: []interface{}{testdata.ClusterName, "bad namespace ID"},
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
+				EndpointArgs: []interface{}{"bad namespace ID", testdata.ClusterName},
 				XRHIdentity:  goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusBadRequest,
@@ -3511,9 +3511,9 @@ func TestHTTPServer_DVONamespaceForCluster1_NoAMS(t *testing.T) {
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusServiceUnavailable,
 			},
@@ -3586,9 +3586,9 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_RuleConten
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusInternalServerError,
 			},
@@ -3661,9 +3661,9 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_NotFoundIn
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusNotFound,
 			},
@@ -3705,9 +3705,9 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorError(t *testing.T) {
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusInternalServerError,
 			},
@@ -3750,9 +3750,9 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorBadResponse(t *testing.T) 
 			serverConfigXRH.APIv2Prefix,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     server.DVONamespaceForCluster1Endpoint,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
 				XRHIdentity:  goodXRHAuthToken,
-				EndpointArgs: []interface{}{testdata.ClusterName, data.NamespaceUUID1},
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusInternalServerError,
 			},
