@@ -56,3 +56,6 @@ timeout_seconds = 30
 [sentry]
 dsn = "test_dsn"
 environment = "test_env"
+
+[logging]
+debug = true
