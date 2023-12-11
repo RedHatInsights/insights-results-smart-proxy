@@ -365,3 +365,24 @@ func TestGetMetricsConfiguration(t *testing.T) {
 	// check returned structure
 	assert.Equal(t, "smart_proxy", metricsConfiguration.Namespace)
 }
+
+// TestGetSentryLoggingConfiguration tests loading the metrics configuration sub-tree
+func TestGetSentryLoggingConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[sentry]
+	dsn = "test_dsn"
+	environment = "test_env"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	sentryConfiguration := conf.GetSentryLoggingConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "test_dsn", sentryConfiguration.SentryDSN)
+	assert.Equal(t, "test_env", sentryConfiguration.SentryEnvironment)
+}
