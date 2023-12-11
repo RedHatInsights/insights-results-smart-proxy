@@ -408,3 +408,26 @@ func TestGetCloudWatchConfiguration(t *testing.T) {
 		Debug:                   false,
 	}, cloudWatchConfiguration)
 }
+
+// TestGetLoggingConfiguration tests loading the logging configuration sub-tree
+func TestGetLoggingConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[logging]
+	debug = true
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	loggingConfiguration := conf.GetLoggingConfiguration()
+
+	// check returned structure
+	assert.Equal(t, logger.LoggingConfiguration{
+		Debug:                      true,
+		LogLevel:                   "",
+		LoggingToCloudWatchEnabled: false,
+	}, loggingConfiguration)
+}
