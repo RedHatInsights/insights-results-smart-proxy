@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog"
@@ -366,7 +367,7 @@ func TestGetMetricsConfiguration(t *testing.T) {
 	assert.Equal(t, "smart_proxy", metricsConfiguration.Namespace)
 }
 
-// TestGetSentryLoggingConfiguration tests loading the metrics configuration sub-tree
+// TestGetSentryLoggingConfiguration tests loading the sentry logging configuration sub-tree
 func TestGetSentryLoggingConfiguration(t *testing.T) {
 	/* Load following configuration:
 
@@ -385,4 +386,25 @@ func TestGetSentryLoggingConfiguration(t *testing.T) {
 	// check returned structure
 	assert.Equal(t, "test_dsn", sentryConfiguration.SentryDSN)
 	assert.Equal(t, "test_env", sentryConfiguration.SentryEnvironment)
+}
+
+// TestGetCloudWatchConfiguration tests loading the cloud watch configuration sub-tree
+func TestGetCloudWatchConfiguration(t *testing.T) {
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	cloudWatchConfiguration := conf.GetCloudWatchConfiguration()
+
+	// check returned structure
+	assert.Equal(t, logger.CloudWatchConfiguration{
+		AWSAccessID:             "",
+		AWSSecretKey:            "",
+		AWSSessionToken:         "",
+		AWSRegion:               "",
+		LogGroup:                "",
+		StreamName:              "",
+		CreateStreamIfNotExists: false,
+		Debug:                   false,
+	}, cloudWatchConfiguration)
 }
