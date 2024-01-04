@@ -95,6 +95,28 @@ func TestRedisGetRequestIDsForClusterID_ResultsSinglePage(t *testing.T) {
 	helpers.RedisExpectationsMet(t, server)
 }
 
+func TestRedisGetRequestIDsForClusterID_FilterKeys(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName1)
+
+	expectedResponseKeys := make([]string, 3)
+
+	expectedResponseKeys[0] = fmt.Sprintf("organization:%v:cluster:%v:request:requestID0", testdata.OrgID, testdata.ClusterName1)
+	expectedResponseKeys[1] = fmt.Sprintf("organization:%v:cluster:%v:request:requestIDe", testdata.OrgID, testdata.ClusterName1)
+	expectedResponseKeys[2] = fmt.Sprintf("organization:%v:cluster:%v:request:requestID0:reports", testdata.OrgID, testdata.ClusterName1)
+
+	// all results are in a single page -- cursor == 0, so no more calls are expected
+	server.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal(expectedResponseKeys, 0)
+
+	requestIDs, err := client.GetRequestIDsForClusterID(testdata.OrgID, testdata.ClusterName1)
+	assert.NoError(t, err)
+	assert.Len(t, requestIDs, 2)
+	assert.ElementsMatch(t, requestIDs, []types.RequestID{"requestID0", "requestIDe"})
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
 func TestRedisGetRequestIDsForClusterID_ResultsMultiplePages(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 

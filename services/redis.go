@@ -47,9 +47,8 @@ const (
 
 var (
 	// RequestIDsScanPattern is a glob-style pattern to find all matching keys. Uses ?* instead of * to avoid
-	// matching "organization:%v:cluster:%v:request:". [^:reports] is an exclude pattern to not match the
-	// simplified report keys
-	RequestIDsScanPattern = "organization:%v:cluster:%v:request:?*[^:reports]"
+	// matching "organization:%v:cluster:%v:request:".
+	RequestIDsScanPattern = "organization:%v:cluster:%v:request:?*"
 
 	// SimplifiedReportKey is a key under which the information about specific requests is stored
 	SimplifiedReportKey = "organization:%v:cluster:%v:request:%v:reports"
@@ -122,6 +121,10 @@ func (redisClient *RedisClient) GetRequestIDsForClusterID(
 
 		// get last part of key == request_id
 		for _, key := range keys {
+			// exclude simplified report keys that are ending with ":reports" suffix
+			if strings.HasSuffix(key, ":reports") {
+				continue
+			}
 			keySliced := strings.Split(key, ":")
 			requestID := keySliced[len(keySliced)-1]
 			requestIDs = append(requestIDs, types.RequestID(requestID))
