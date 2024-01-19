@@ -34,6 +34,9 @@ const (
 	// UpgradeRisksPredictionEndpoint returns the prediction about upgrading
 	// the given cluster.
 	UpgradeRisksPredictionEndpoint = "cluster/{cluster}/upgrade-risks-prediction"
+	// UpgradeRisksPredictionMultiCluster returns the prediction about upgrading
+	// a set of clusters
+	UpgradeRisksPredictionMultiCluster = "upgrade-risks-prediction" // #nosec G101
 
 	// ClustersDetail https://issues.redhat.com/browse/CCXDEV-5088
 	ClustersDetail = "rule/{rule_selector}/clusters_detail"
@@ -141,6 +144,7 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 
 	router.HandleFunc(apiV2Prefix+InfoEndpoint, server.infoMap).Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc(apiV2Prefix+UpgradeRisksPredictionEndpoint, server.upgradeRisksPrediction).Methods(http.MethodGet)
+	router.HandleFunc(apiV2Prefix+UpgradeRisksPredictionMultiCluster, server.upgradeRisksPredictionMultiCluster).Methods(http.MethodPost)
 
 	// OpenAPI specs
 	router.HandleFunc(

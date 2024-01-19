@@ -29,8 +29,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// UpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction service
-const UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-prediction"
+const (
+	// UpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction data engineering service
+	UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-prediction"
+
+	// MultiClusterUpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction data engineering service
+	MultiClusterUpgradeRisksPredictionServiceEndpoint = "upgrade-risks-prediction" // #nosec G101
+)
 
 // method upgradeRisksPrediction returns a recommendation to upgrade or not a cluster
 // and a list of the alerts/operator conditions that were taken into account if the
@@ -120,6 +125,24 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 		writer,
 		response,
 	)
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
+// upgradeRisksPredictionMultiClusters sends a response with a list of predictions for each cluster.
+// Each prediction will have a result (true or false) and a list of the alerts and operator conditions
+// that were taken into account for non-recommended upgrades.
+func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.ResponseWriter, request *http.Request) {
+	log.Debug().Msg("TODO: implement this function")
+
+	// Prepare empty response for lintian correctness
+	response := &types.UpgradeRisksRecommendations{
+		Status:      "ok",
+		Predictions: []types.UpgradeRisksPrediction{},
+	}
+
+	err := responses.Send(http.StatusOK, writer, response)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
