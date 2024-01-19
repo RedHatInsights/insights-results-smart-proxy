@@ -265,57 +265,7 @@
                           "type": "boolean"
                         },
                         "upgrade_risks_predictors": {
-                          "type": "object",
-                          "properties": {
-                            "alerts": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "name": {
-                                    "type": "string",
-                                    "example": "APIRemovedInNextEUSReleaseInUse"
-                                  },
-                                  "namespace": {
-                                    "type": "string",
-                                    "example": "openshift-kube-apiserver"
-                                  },
-                                  "severity": {
-                                    "type": "string",
-                                    "example": "info"
-                                  },
-                                  "url": {
-                                    "type": "string",
-                                    "example": "https://my-cluster.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=APIRemovedInNextEUSReleaseInUse"
-                                  }
-                                }
-                              }
-                            },
-                            "operator_conditions": {
-                              "type": "array",
-                              "items": {
-                                "type": "object",
-                                "properties": {
-                                  "name": {
-                                    "type": "string",
-                                    "example": "authentication"
-                                  },
-                                  "condition": {
-                                    "type": "string",
-                                    "example": "Failing"
-                                  },
-                                  "reason": {
-                                    "type": "string",
-                                    "example": "AsExpected"
-                                  },
-                                  "url": {
-                                    "type": "string",
-                                    "example": "https://my-cluster.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/authentication"
-                                  }
-                                }
-                              }
-                            }
-                          }
+                          "$ref": "#/components/schemas/upgradeRisksPredictors"
                         }
                       }
                     },
@@ -1826,7 +1776,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/upgradeRisksPrediction"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/statusResponse"
+                    },
+                    "predictions": {
+                      "$ref": "#/components/schemas/upgradeRisksPrediction"
+                    }
+                  }
                 }
               }
             }
