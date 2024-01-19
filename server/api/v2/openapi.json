@@ -1791,6 +1791,51 @@
         "summary": "Send the new rating for a given rule",
         "description": "Return the new rating. Any previous rating for this rule by this user is amended to the current value. This does not attempt to delete a rating by this user of thus rule if the rating is zero."
       }
+    },
+    "/upgrade-risks-prediction": {
+      "post": {
+        "tags": [
+          "prod"
+        ],
+        "summary": "Returns the prediction based on latest stats for the given list of clusters.",
+        "description": "Predictions that are going to be returned are specified by list of cluster IDs that is part of request body.",
+        "operationId": "getUpgradeRisksPredictionForClustersPost",
+        "requestBody": {
+          "description": "List of cluster IDs. Each ID must conform to UUID format.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clusters": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/clusterId"
+                    }
+                  }
+                }
+              },
+              "example": "{\"clusters\": [\"34c3ecc5-624a-49a5-bab8-4fdc5e51a266\"]}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Latest available update prediction for the given list of cluster IDs. Returns status of the prediction and their predictor facts that were taken into account for each cluster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/upgradeRisksPrediction"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2340,6 +2385,110 @@
             "received",
             "processed"
           ]
+        }
+      },
+      "upgradeRisksPrediction": {
+        "description": "",
+        "type": "object",
+        "required": [
+          "cluster_id",
+          "prediction_status"
+        ],
+        "properties": {
+          "cluster_id": {
+            "type": "string",
+            "example": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+          },
+          "prediction_status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "upgrade_recommended": {
+            "type": "boolean",
+            "example": true
+          },
+          "upgrade_risks_predictors": {
+            "$ref": "#/components/schemas/upgradeRisksPredictors"
+          },
+          "last_checked_at": {
+            "type": "string",
+            "example": "2011-15-04T00:05:23Z"
+          }
+        }
+      },
+      "upgradeRisksPredictors": {
+        "type": "object",
+        "required": [
+          "alerts",
+          "operator_conditions"
+        ],
+        "properties": {
+          "alerts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/alert"
+            }
+          },
+          "operator_conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/operator_condition"
+            }
+          }
+        }
+      },
+      "alert": {
+        "type": "object",
+        "required": [
+          "name",
+          "namespace",
+          "severity",
+          "url"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "SomeCriticalAlert"
+          },
+          "namespace": {
+            "type": "string",
+            "example": "openshift-kube-apiserver"
+          },
+          "severity": {
+            "type": "string",
+            "example": "critical"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://some_url.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=SomeCriticalAlert"
+          }
+        }
+      },
+      "operator_condition": {
+        "type": "object",
+        "required": [
+          "name",
+          "condition",
+          "reason",
+          "url"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "authentication"
+          },
+          "condition": {
+            "type": "string",
+            "example": "Degraded"
+          },
+          "reason": {
+            "type": "string",
+            "example": "AsExpected"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://some_url.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/authentication"
+          }
         }
       }
     },
