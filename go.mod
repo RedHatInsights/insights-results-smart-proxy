@@ -14,7 +14,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
-	github.com/openshift-online/ocm-sdk-go v0.1.392
+	github.com/openshift-online/ocm-sdk-go v0.1.393
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redhatinsights/app-common-go v1.6.7
 	github.com/redis/go-redis/v9 v9.4.0
@@ -95,6 +95,7 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/segmentio/kafka-go v0.4.10 // indirect
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -102,9 +103,11 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/verdverm/frisby v0.0.0-20170604211311-b16556248a9a // indirect
 	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/jcmturner/aescts.v1 v1.0.1 // indirect
