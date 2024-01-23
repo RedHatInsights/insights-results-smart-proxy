@@ -70,6 +70,26 @@ func (m *mockAMSClient) GetSingleClusterInfoForOrganization(
 	return
 }
 
+func (m *mockAMSClient) GetMultiClusterInfoForOrganization(
+	_ types.OrgID, clusterIDs, _, _ []string,
+) (
+	clusterInfoList []types.ClusterInfo, err error,
+) {
+
+	// Create a map for faster lookup
+	idMap := make(map[types.ClusterName]struct{})
+	for _, id := range clusterIDs {
+		idMap[types.ClusterName(id)] = struct{}{}
+	}
+
+	for _, clusterInfo := range m.clustersPerOrg[testdata.OrgID] {
+		if _, exists := idMap[clusterInfo.ID]; exists {
+			clusterInfoList = append(clusterInfoList, clusterInfo)
+		}
+	}
+	return
+}
+
 // AMSClientWithOrgResults creates a mock of AMSClient interface that returns the results
 // defined by orgID and clusters parameters
 func AMSClientWithOrgResults(orgID types.OrgID, clusters []types.ClusterInfo) amsclient.AMSClient {

@@ -17,7 +17,11 @@ package amsclient
 import (
 	"fmt"
 	"strings"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
+
+const UUIDv4_LENGTH = 32
 
 // generateSearchParameter generates a search string for given org_id and desired statuses
 func generateSearchParameter(orgID string, allowedStatuses, disallowedStatuses []string) string {
@@ -34,4 +38,38 @@ func generateSearchParameter(orgID string, allowedStatuses, disallowedStatuses [
 	}
 
 	return searchQuery
+}
+
+// generateMulticlusterSearchQuery generates a search string for given org_id, list of clusters and desired statuses
+func generateMulticlusterSearchQuery(orgID string, clusterIDs []string, allowedStatuses, disallowedStatuses []string) string {
+	searchQuery := fmt.Sprintf("organization_id is '%s'", orgID)
+
+	if len(clusterIDs) > 0 {
+		clusterIDQuery := " and cluster_id in ('" + strings.Join(clusterIDs, "','") + "')"
+		searchQuery += clusterIDQuery
+	}
+
+	if len(allowedStatuses) > 0 {
+		clusterIDQuery := " and status in ('" + strings.Join(allowedStatuses, "','") + "')"
+		searchQuery += clusterIDQuery
+	}
+
+	if len(disallowedStatuses) > 0 {
+		clusterIDQuery := " and status not in ('" + strings.Join(disallowedStatuses, "','") + "')"
+		searchQuery += clusterIDQuery
+	}
+
+	return searchQuery
+}
+
+func FilterManagedClusters(clusters []types.ClusterInfo) (managed []string, unmanaged []string) {
+	for _, cluster := range clusters {
+		if cluster.Managed {
+			managed = append(managed, string(cluster.ID))
+		} else {
+			unmanaged = append(unmanaged, string(cluster.ID))
+		}
+	}
+
+	return
 }

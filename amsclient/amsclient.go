@@ -39,6 +39,7 @@ const (
 	subscriptionListRequestError = "problem executing subscription list request"
 	orgIDTag                     = "OrgID"
 	clusterIDTag                 = "ClusterID"
+	numberOfClusterTag           = "Number of clusters"
 
 	// StatusDeprovisioned indicates the corresponding cluster subscription status
 	StatusDeprovisioned = "Deprovisioned"
@@ -68,6 +69,9 @@ type AMSClient interface {
 	)
 	GetSingleClusterInfoForOrganization(types.OrgID, types.ClusterName) (
 		types.ClusterInfo, error,
+	)
+	GetMultiClusterInfoForOrganization(orgID types.OrgID, clusterIDs, statusFilter, statusNegativeFilter []string) (
+		clusterInfoList []types.ClusterInfo, err error,
 	)
 }
 
@@ -177,6 +181,8 @@ func (c *amsClientImpl) GetClusterDetailsFromExternalClusterID(externalID types.
 	return
 }
 
+// GetSingleClusterInfoForOrganization retrieves the cluster_id and display_name
+// associated to a cluster of the given organization using the default AMS client
 func (c *amsClientImpl) GetSingleClusterInfoForOrganization(orgID types.OrgID, clusterID types.ClusterName) (
 	clusterInfo types.ClusterInfo, err error,
 ) {
@@ -203,6 +209,37 @@ func (c *amsClientImpl) GetSingleClusterInfoForOrganization(orgID types.OrgID, c
 		"GetSingleClusterInfoForOrganization from AMS API took %s", time.Since(tStart),
 	)
 	return clusterInfoList[0], nil
+}
+
+// GetMultiClusterInfoForOrganization retrieves the cluster_id and display_name
+// associated to a given list of clusters of a given organization using the default AMS client
+func (c *amsClientImpl) GetMultiClusterInfoForOrganization(orgID types.OrgID, clusterIDs, statusFilter, statusNegativeFilter []string) (
+	clusterInfoList []types.ClusterInfo, err error,
+) {
+	tStart := time.Now()
+
+	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
+	if err != nil {
+		return
+	}
+
+	if statusNegativeFilter == nil {
+		statusNegativeFilter = DefaultStatusNegativeFilters
+	}
+
+	searchQuery := generateMulticlusterSearchQuery(internalOrgID, clusterIDs, statusFilter, statusNegativeFilter)
+
+	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
+	clusterInfoList, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
+	if err != nil {
+		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg(subscriptionListRequestError)
+		return
+	}
+
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Int(numberOfClusterTag, len(clusterIDs)).Msgf(
+		"GetMultiClusterInfoForOrganization from AMS API took %s", time.Since(tStart),
+	)
+	return clusterInfoList, nil
 }
 
 // GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API

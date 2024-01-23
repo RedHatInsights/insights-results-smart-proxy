@@ -15,7 +15,11 @@
 package amsclient_test
 
 import (
+	"testing"
 	"time"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 
 	jwt "github.com/golang-jwt/jwt/v4"
 	ocmtesting "github.com/openshift-online/ocm-sdk-go/testing"
@@ -52,6 +56,103 @@ func MakeTokenString(typ string, life time.Duration) string {
 	})
 
 	return token.Raw
+}
+
+func equalClusterInfos(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func TestGenerateSearchParameter(t *testing.T) {
+	orgID := "org123"
+	allowedStatuses := []string{"status1", "status2"}
+	disallowedStatuses := []string{"status3", "status4"}
+
+	expectedSearchQuery := "organization_id is 'org123' and cluster_id != '' and status in ('status1','status2') and status not in ('status3','status4')"
+
+	result := amsclient.GenerateSearchParameter(orgID, allowedStatuses, disallowedStatuses)
+
+	if result != expectedSearchQuery {
+		t.Errorf("Expected: %s, Got: %s", expectedSearchQuery, result)
+	}
+}
+
+func TestGenerateMulticLusterSearchQuery(t *testing.T) {
+	orgID := "org456"
+	clusterIDs := []string{"cluster4", "cluster5", "cluster6"}
+	allowedStatuses := []string{"status5", "status6"}
+	disallowedStatuses := []string{"status7", "status8"}
+
+	expectedSearchQuery := "organization_id is 'org456' and cluster_id in ('cluster4','cluster5','cluster6') and status in ('status5','status6') and status not in ('status7','status8')"
+
+	result := amsclient.GenerateMulticLusterSearchQuery(orgID, clusterIDs, allowedStatuses, disallowedStatuses)
+
+	if result != expectedSearchQuery {
+		t.Errorf("Expected: %s, Got: %s", expectedSearchQuery, result)
+	}
+}
+
+func TestFilterManagedClusters(t *testing.T) {
+	// Scenario 1: Empty input slice
+	var emptyInput []types.ClusterInfo
+	managed, unmanaged := amsclient.FilterManagedClusters(emptyInput)
+	if len(managed) != 0 || len(unmanaged) != 0 {
+		t.Errorf("Expected empty result for empty input, but got managed: %v, unmanaged: %v", managed, unmanaged)
+	}
+
+	// Scenario 2: All clusters are managed
+	allManagedInput := []types.ClusterInfo{
+		{ID: "cluster1", Managed: true},
+		{ID: "cluster2", Managed: true},
+		{ID: "cluster3", Managed: true},
+	}
+	managed, unmanaged = amsclient.FilterManagedClusters(allManagedInput)
+	if len(managed) != len(allManagedInput) || len(unmanaged) != 0 {
+		t.Errorf("Expected all clusters to be managed, but got managed: %v, unmanaged: %v", managed, unmanaged)
+	}
+
+	// Scenario 3: All clusters are unmanaged
+	allUnmanagedInput := []types.ClusterInfo{
+		{ID: "cluster4", Managed: false},
+		{ID: "cluster5", Managed: false},
+		{ID: "cluster6", Managed: false},
+	}
+	managed, unmanaged = amsclient.FilterManagedClusters(allUnmanagedInput)
+	if len(managed) != 0 || len(unmanaged) != len(allUnmanagedInput) {
+		t.Errorf("Expected all clusters to be unmanaged, but got managed: %v, unmanaged: %v", managed, unmanaged)
+	}
+
+	// Scenario 4: Mixed managed and unmanaged clusters
+	mixedInput := []types.ClusterInfo{
+		{ID: "cluster7", Managed: true},
+		{ID: "cluster8", Managed: false},
+		{ID: "cluster9", Managed: true},
+	}
+	managed, unmanaged = amsclient.FilterManagedClusters(mixedInput)
+	expectedManaged := []string{"cluster7", "cluster9"}
+	expectedUnmanaged := []string{"cluster8"}
+
+	if !equalClusterInfos(managed, expectedManaged) || !equalClusterInfos(unmanaged, expectedUnmanaged) {
+		t.Errorf("Unexpected result for mixed clusters.\nExpected managed: %v, unmanaged: %v\nGot managed: %v, unmanaged: %v", expectedManaged, expectedUnmanaged, managed, unmanaged)
+	}
+
+	// Check the results
+	if !equalClusterInfos(managed, expectedManaged) {
+		t.Errorf("Managed clusters do not match the expected result.\nExpected: %v\nGot: %v", expectedManaged, managed)
+	}
+
+	if !equalClusterInfos(unmanaged, expectedUnmanaged) {
+		t.Errorf("Unmanaged clusters do not match the expected result.\nExpected: %v\nGot: %v", expectedUnmanaged, unmanaged)
+	}
 }
 
 // Public key in PEM format:

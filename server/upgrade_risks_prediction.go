@@ -20,6 +20,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
@@ -134,15 +136,53 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 // Each prediction will have a result (true or false) and a list of the alerts and operator conditions
 // that were taken into account for non-recommended upgrades.
 func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.ResponseWriter, request *http.Request) {
-	log.Debug().Msg("TODO: implement this function")
+	if server.amsClient == nil {
+		log.Error().Msgf("AMS API connection is not initialized")
+		handleServerError(writer, &AMSAPIUnavailableError{})
+		return
+	}
 
-	// Prepare empty response for lintian correctness
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	// try to read list of cluster IDs
+	listOfClusters, successful := httputils.ReadClusterListFromBody(writer, request)
+	if !successful {
+		// wrong state has been handled already
+		return
+	}
+	// Limit number of Clusters to 100.
+	// If we go over this limit, the way we handle the response from AMS should
+	// be modified (default page size is 1 with a size of 100).
+	if len(listOfClusters) > 100 {
+		err := responses.SendBadRequest(writer, "Request body should not contain more than 100 cluster IDs")
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+	}
+
+	clustersInfo, err := server.amsClient.GetMultiClusterInfoForOrganization(orgID, listOfClusters, nil, nil)
+	if err != nil {
+		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg("failure retrieving the clusters information from AMS")
+		handleServerError(writer, err)
+		return
+	}
+
+	_, _ = amsclient.FilterManagedClusters(clustersInfo)
+	//managed, unmanaged := filterManagedClusters(clustersInfo)
+	// TODO: fetch upgrade risks for all unmanaged clusters
+
+	// TODO: add managed clusters to the response with a "OK" status and no prediction nor alerts
+
 	response := &types.UpgradeRisksRecommendations{
 		Status:      "ok",
 		Predictions: []types.UpgradeRisksPrediction{},
 	}
 
-	err := responses.Send(http.StatusOK, writer, response)
+	err = responses.Send(http.StatusOK, writer, response)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
