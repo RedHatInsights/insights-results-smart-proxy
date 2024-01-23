@@ -15,7 +15,11 @@
 package amsclient_test
 
 import (
+	"testing"
 	"time"
+
+	"github.com/RedHatInsights/insights-results-aggregator/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 
 	jwt "github.com/golang-jwt/jwt/v4"
 	ocmtesting "github.com/openshift-online/ocm-sdk-go/testing"
@@ -52,6 +56,52 @@ func MakeTokenString(typ string, life time.Duration) string {
 	})
 
 	return token.Raw
+}
+
+func TestGenerateSearchParameter(t *testing.T) {
+	orgID := "org123"
+	allowedStatuses := []string{"status1", "status2"}
+	disallowedStatuses := []string{"status3", "status4"}
+
+	expectedSearchQuery := "organization_id is 'org123' and cluster_id != '' and status in ('status1','status2') and status not in ('status3','status4')"
+
+	result := amsclient.GenerateSearchParameter(orgID, allowedStatuses, disallowedStatuses)
+
+	if result != expectedSearchQuery {
+		t.Errorf("Expected: %s, Got: %s", expectedSearchQuery, result)
+	}
+}
+
+func TestJoinClusterNames(t *testing.T) {
+	clusterIDs := []types.ClusterName{"cluster1", "cluster2", "cluster3"}
+	separator := ", "
+	expectedResult := "cluster1, cluster2, cluster3"
+	result := amsclient.JoinClusterNames(clusterIDs, separator)
+	if result != expectedResult {
+		t.Errorf("Expected: %s, Got: %s", expectedResult, result)
+	}
+
+	separator = "-"
+	expectedResult = "cluster1-cluster2-cluster3"
+	result = amsclient.JoinClusterNames(clusterIDs, separator)
+	if result != expectedResult {
+		t.Errorf("Expected: %s, Got: %s", expectedResult, result)
+	}
+}
+
+func TestGenerateMulticLusterSearchQuery(t *testing.T) {
+	orgID := "org456"
+	clusterIDs := []types.ClusterName{"cluster4", "cluster5", "cluster6"}
+	allowedStatuses := []string{"status5", "status6"}
+	disallowedStatuses := []string{"status7", "status8"}
+
+	expectedSearchQuery := "organization_id is 'org456' and cluster_id in ('cluster4,cluster5,cluster6') and status in ('status5','status6') and status not in ('status7','status8')"
+
+	result := amsclient.GenerateMulticLusterSearchQuery(orgID, clusterIDs, allowedStatuses, disallowedStatuses)
+
+	if result != expectedSearchQuery {
+		t.Errorf("Expected: %s, Got: %s", expectedSearchQuery, result)
+	}
 }
 
 // Public key in PEM format:
