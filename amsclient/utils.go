@@ -25,42 +25,31 @@ const (
 	searchQuerySeparator = "','"
 )
 
+// searchQueryFor generates a search string that can be appended to an
+// existing search query for the given key and values
+func searchQueryFor(key string, values []string) string {
+	if len(values) > 0 {
+		return fmt.Sprintf(" and %s in ('%s')", key, strings.Join(values, searchQuerySeparator))
+	}
+	return ""
+}
+
+func searchQueryForStatuses(allowedStatuses, disallowedStatuses []string) string {
+	return searchQueryFor("status", allowedStatuses) + searchQueryFor("status not", disallowedStatuses)
+}
+
 // generateSearchParameter generates a search string for given org_id and desired statuses
 func generateSearchParameter(orgID string, allowedStatuses, disallowedStatuses []string) string {
 	searchQuery := fmt.Sprintf("organization_id is '%s' and cluster_id != ''", orgID)
-
-	if len(allowedStatuses) > 0 {
-		clusterIDQuery := " and status in ('" + strings.Join(allowedStatuses, searchQuerySeparator) + "')"
-		searchQuery += clusterIDQuery
-	}
-
-	if len(disallowedStatuses) > 0 {
-		clusterIDQuery := " and status not in ('" + strings.Join(disallowedStatuses, searchQuerySeparator) + "')"
-		searchQuery += clusterIDQuery
-	}
-
+	searchQuery += searchQueryForStatuses(allowedStatuses, disallowedStatuses)
 	return searchQuery
 }
 
-// generateMulticlusterSearchQuery generates a search string for given org_id, list of clusters and desired statuses
-func generateMulticlusterSearchQuery(orgID string, clusterIDs []string, allowedStatuses, disallowedStatuses []string) string {
+// generateMulticlusterSearchQuery generates a search string for given org_id, list of clusters, and desired statuses
+func generateMulticlusterSearchQuery(orgID string, clusterIDs, allowedStatuses, disallowedStatuses []string) string {
 	searchQuery := fmt.Sprintf("organization_id is '%s'", orgID)
-
-	if len(clusterIDs) > 0 {
-		clusterIDQuery := " and cluster_id in ('" + strings.Join(clusterIDs, searchQuerySeparator) + "')"
-		searchQuery += clusterIDQuery
-	}
-
-	if len(allowedStatuses) > 0 {
-		clusterIDQuery := " and status in ('" + strings.Join(allowedStatuses, searchQuerySeparator) + "')"
-		searchQuery += clusterIDQuery
-	}
-
-	if len(disallowedStatuses) > 0 {
-		clusterIDQuery := " and status not in ('" + strings.Join(disallowedStatuses, searchQuerySeparator) + "')"
-		searchQuery += clusterIDQuery
-	}
-
+	searchQuery += searchQueryFor("cluster_id", clusterIDs)
+	searchQuery += searchQueryForStatuses(allowedStatuses, disallowedStatuses)
 	return searchQuery
 }
 
