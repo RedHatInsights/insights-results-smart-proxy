@@ -61,7 +61,7 @@ import (
 //		}
 func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, request *http.Request) {
 	if server.amsClient == nil {
-		log.Error().Msgf("AMS API connection is not initialized")
+		log.Error().Msgf(AMSApiNotInitializedErrorMessage)
 		handleServerError(writer, &AMSAPIUnavailableError{})
 		return
 	}
@@ -130,7 +130,7 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 // that were taken into account for non-recommended upgrades.
 func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.ResponseWriter, request *http.Request) {
 	if server.amsClient == nil {
-		log.Error().Msgf("AMS API connection is not initialized")
+		log.Error().Msgf(AMSApiNotInitializedErrorMessage)
 		handleServerError(writer, &AMSAPIUnavailableError{})
 		return
 	}

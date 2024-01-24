@@ -75,7 +75,6 @@ func (m *mockAMSClient) GetMultiClusterInfoForOrganization(
 ) (
 	clusterInfoList []types.ClusterInfo, err error,
 ) {
-
 	// Create a map for faster lookup
 	idMap := make(map[types.ClusterName]struct{})
 	for _, id := range clusterIDs {
