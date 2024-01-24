@@ -102,56 +102,66 @@ func TestGenerateMulticLusterSearchQuery(t *testing.T) {
 }
 
 func TestFilterManagedClusters(t *testing.T) {
-	// Scenario 1: Empty input slice
-	var emptyInput []types.ClusterInfo
-	managed, unmanaged := amsclient.FilterManagedClusters(emptyInput)
-	if len(managed) != 0 || len(unmanaged) != 0 {
-		t.Errorf("Expected empty result for empty input, but got managed: %v, unmanaged: %v", managed, unmanaged)
+	tests := []struct {
+		name              string
+		input             []types.ClusterInfo
+		expectedManaged   []string
+		expectedUnmanaged []string
+	}{
+		// Scenario 1: Empty input slice
+		{
+			name:              "EmptyInput",
+			input:             []types.ClusterInfo{},
+			expectedManaged:   []string{},
+			expectedUnmanaged: []string{},
+		},
+		// Scenario 2: All clusters are managed
+		{
+			name: "AllManaged",
+			input: []types.ClusterInfo{
+				{ID: "cluster1", Managed: true},
+				{ID: "cluster2", Managed: true},
+				{ID: "cluster3", Managed: true},
+			},
+			expectedManaged:   []string{"cluster1", "cluster2", "cluster3"},
+			expectedUnmanaged: []string{},
+		},
+		// Scenario 3: All clusters are unmanaged
+		{
+			name: "AllUnmanaged",
+			input: []types.ClusterInfo{
+				{ID: "cluster4", Managed: false},
+				{ID: "cluster5", Managed: false},
+				{ID: "cluster6", Managed: false},
+			},
+			expectedManaged:   []string{},
+			expectedUnmanaged: []string{"cluster4", "cluster5", "cluster6"},
+		},
+		// Scenario 4: Mixed managed and unmanaged clusters
+		{
+			name: "Mixed",
+			input: []types.ClusterInfo{
+				{ID: "cluster7", Managed: true},
+				{ID: "cluster8", Managed: false},
+				{ID: "cluster9", Managed: true},
+			},
+			expectedManaged:   []string{"cluster7", "cluster9"},
+			expectedUnmanaged: []string{"cluster8"},
+		},
 	}
 
-	// Scenario 2: All clusters are managed
-	allManagedInput := []types.ClusterInfo{
-		{ID: "cluster1", Managed: true},
-		{ID: "cluster2", Managed: true},
-		{ID: "cluster3", Managed: true},
-	}
-	managed, unmanaged = amsclient.FilterManagedClusters(allManagedInput)
-	if len(managed) != len(allManagedInput) || len(unmanaged) != 0 {
-		t.Errorf("Expected all clusters to be managed, but got managed: %v, unmanaged: %v", managed, unmanaged)
-	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			managed, unmanaged := amsclient.FilterManagedClusters(test.input)
 
-	// Scenario 3: All clusters are unmanaged
-	allUnmanagedInput := []types.ClusterInfo{
-		{ID: "cluster4", Managed: false},
-		{ID: "cluster5", Managed: false},
-		{ID: "cluster6", Managed: false},
-	}
-	managed, unmanaged = amsclient.FilterManagedClusters(allUnmanagedInput)
-	if len(managed) != 0 || len(unmanaged) != len(allUnmanagedInput) {
-		t.Errorf("Expected all clusters to be unmanaged, but got managed: %v, unmanaged: %v", managed, unmanaged)
-	}
+			if !equalClusterInfos(managed, test.expectedManaged) {
+				t.Errorf("Managed clusters do not match the expected result.\nExpected: %v\nGot: %v", test.expectedManaged, managed)
+			}
 
-	// Scenario 4: Mixed managed and unmanaged clusters
-	mixedInput := []types.ClusterInfo{
-		{ID: "cluster7", Managed: true},
-		{ID: "cluster8", Managed: false},
-		{ID: "cluster9", Managed: true},
-	}
-	managed, unmanaged = amsclient.FilterManagedClusters(mixedInput)
-	expectedManaged := []string{"cluster7", "cluster9"}
-	expectedUnmanaged := []string{"cluster8"}
-
-	if !equalClusterInfos(managed, expectedManaged) || !equalClusterInfos(unmanaged, expectedUnmanaged) {
-		t.Errorf("Unexpected result for mixed clusters.\nExpected managed: %v, unmanaged: %v\nGot managed: %v, unmanaged: %v", expectedManaged, expectedUnmanaged, managed, unmanaged)
-	}
-
-	// Check the results
-	if !equalClusterInfos(managed, expectedManaged) {
-		t.Errorf("Managed clusters do not match the expected result.\nExpected: %v\nGot: %v", expectedManaged, managed)
-	}
-
-	if !equalClusterInfos(unmanaged, expectedUnmanaged) {
-		t.Errorf("Unmanaged clusters do not match the expected result.\nExpected: %v\nGot: %v", expectedUnmanaged, unmanaged)
+			if !equalClusterInfos(unmanaged, test.expectedUnmanaged) {
+				t.Errorf("Unmanaged clusters do not match the expected result.\nExpected: %v\nGot: %v", test.expectedUnmanaged, unmanaged)
+			}
+		})
 	}
 }
 
