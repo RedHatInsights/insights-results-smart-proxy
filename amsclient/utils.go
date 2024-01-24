@@ -53,6 +53,8 @@ func generateMulticlusterSearchQuery(orgID string, clusterIDs, allowedStatuses, 
 	return searchQuery
 }
 
+// FilterManagedClusters separates the given slice of ClusterInfo into two slices of
+// cluster IDs depending on if they are managed or not.
 func FilterManagedClusters(clusters []types.ClusterInfo) (managed []string, unmanaged []string) {
 	for _, cluster := range clusters {
 		if cluster.Managed {
