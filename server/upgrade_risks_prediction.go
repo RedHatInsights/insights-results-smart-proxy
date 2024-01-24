@@ -15,6 +15,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -29,14 +30,6 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 
 	"github.com/rs/zerolog/log"
-)
-
-const (
-	// UpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction data engineering service
-	UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-prediction"
-
-	// MultiClusterUpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction data engineering service
-	MultiClusterUpgradeRisksPredictionServiceEndpoint = "upgrade-risks-prediction" // #nosec G101
 )
 
 // method upgradeRisksPrediction returns a recommendation to upgrade or not a cluster
@@ -154,10 +147,12 @@ func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.Respons
 		// wrong state has been handled already
 		return
 	}
+
+	numberOfClusers := len(listOfClusters)
 	// Limit number of Clusters to 100.
 	// If we go over this limit, the way we handle the response from AMS should
 	// be modified (default page size is 1 with a size of 100).
-	if len(listOfClusters) > 100 {
+	if numberOfClusers > 100 {
 		err := responses.SendBadRequest(writer, "Request body should not contain more than 100 cluster IDs")
 		if err != nil {
 			log.Error().Err(err).Msg(responseDataError)
@@ -171,18 +166,45 @@ func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.Respons
 		return
 	}
 
-	_, _ = amsclient.FilterManagedClusters(clustersInfo)
-	//managed, unmanaged := filterManagedClusters(clustersInfo)
-	// TODO: fetch upgrade risks for all unmanaged clusters
+	managed, unmanaged := amsclient.FilterManagedClusters(clustersInfo)
 
-	// TODO: add managed clusters to the response with a "OK" status and no prediction nor alerts
+	log.Info().
+		Uint32(orgIDTag, uint32(orgID)).
+		Int("IDS count", len(managed)).
+		Msg("Number of managed clusters removed from origin request")
 
-	response := &types.UpgradeRisksRecommendations{
-		Status:      "ok",
-		Predictions: []types.UpgradeRisksPrediction{},
+	// Request to Data Engineering Service to retrieve the result
+	predictionResponse, err := server.fetchMulticlusterUpgradePrediction(unmanaged, writer)
+	if err != nil || predictionResponse == nil {
+		// Error already handled or not OK status, already returned
+		return
 	}
 
-	err = responses.Send(http.StatusOK, writer, response)
+	// prepare response
+	response := make(map[string]interface{})
+	response["status"] = predictionResponse.Status
+	predictions := make([]types.UpgradeRisksPrediction, numberOfClusers)
+
+	copy(predictions, predictionResponse.Predictions)
+
+	//  managed clusters to the response with a "OK" status and no prediction nor alerts
+
+	nextPrediction := len(predictionResponse.Predictions)
+	for _, cluster := range managed {
+		predictions[nextPrediction] = types.UpgradeRisksPrediction{
+			PredictionStatus: OkMsg,
+			ClusterID:        types.ClusterName(cluster),
+		}
+		nextPrediction++
+	}
+
+	response["predictions"] = predictions
+
+	// send it all
+	err = responses.SendOK(
+		writer,
+		response,
+	)
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
@@ -194,7 +216,7 @@ func (server *HTTPServer) fetchUpgradePrediction(
 ) (*types.DataEngResponse, error) {
 	dataEngURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
-		UpgradeRisksPredictionServiceEndpoint,
+		UpgradeRisksPredictionEndpoint,
 		cluster,
 	)
 
@@ -237,6 +259,74 @@ func (server *HTTPServer) fetchUpgradePrediction(
 	err = json.Unmarshal(responseBytes, &responseData)
 	if err != nil {
 		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("error unmarshalling data-engineering response")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	return responseData, nil
+}
+
+func (server *HTTPServer) fetchMulticlusterUpgradePrediction(
+	clusters []string,
+	writer http.ResponseWriter,
+) (*types.UpgradeRisksRecommendations, error) {
+	dataEngURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
+		UpgradeRisksPredictionMultiClusterEndpoint,
+	)
+
+	clustersMap := make(map[string]interface{})
+	clustersMap["clusters"] = clusters
+
+	jsonBody, err := json.Marshal(clustersMap)
+	if err != nil {
+		log.Error().Err(err).Str("url", dataEngURL).Msg("error marshalling request body")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	httpClient := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	req, err := http.NewRequest(http.MethodGet, dataEngURL, bytes.NewReader(jsonBody))
+	if err != nil {
+		panic(err)
+	}
+
+	// #nosec G107
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
+	response, err := httpClient.Do(req)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("error reaching the data-eng service")
+		handleServerError(writer, &UpgradesDataEngServiceUnavailableError{})
+		return nil, err
+	}
+
+	defer services.CloseResponseBody(response)
+
+	responseBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("unable to read the body of the response")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		err := responses.Send(response.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, err
+	}
+	responseData := &types.UpgradeRisksRecommendations{}
+	err = json.Unmarshal(responseBytes, &responseData)
+	if err != nil {
+		log.Error().Err(err).Str("url", dataEngURL).Msg("error unmarshalling data-engineering response")
 		handleServerError(writer, err)
 		return nil, err
 	}

@@ -1782,7 +1782,10 @@
                       "$ref": "#/components/schemas/statusResponse"
                     },
                     "predictions": {
-                      "$ref": "#/components/schemas/upgradeRisksPrediction"
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/upgradeRisksPrediction"
+                      }
                     }
                   }
                 }
