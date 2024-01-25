@@ -19,8 +19,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
+
+	ctypes "github.com/RedHatInsights/insights-results-types"
+	"github.com/google/uuid"
 
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
@@ -71,6 +75,34 @@ const upgradeNotRecommended = `
 		"last_checked_at": "0001-01-01T00:00:00Z"
 	},
 	"status":"ok"
+}
+`
+
+const upgradeRecommendedMultiClusterOk = `
+{
+	"status":"ok",
+	"predictions": [
+		{
+			"cluster_id": "%s",
+			"prediction_status": "ok",
+			"upgrade_recommended": true,
+			"upgrade_risks_predictors": {
+				"alerts": [],
+				"operator_conditions": []
+			},
+			"last_checked_at": "0001-01-01T00:00:00Z"
+		},
+		{
+			"cluster_id": "%s",
+			"prediction_status": "ok",
+			"upgrade_recommended": true,
+			"upgrade_risks_predictors": {
+				"alerts": [],
+				"operator_conditions": []
+			},
+			"last_checked_at": "0001-01-01T00:00:00Z"
+		}
+	]
 }
 `
 
@@ -476,6 +508,165 @@ func TestHTTPServer_GetUpgradeRisksPrediction__timesout(t *testing.T) {
 				XRHIdentity:  goodXRHAuthToken,
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusServiceUnavailable,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetMulticlusterUpgradeRisksNoBody(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		expectedResponse := `{"status":"client didn't provide request body"}`
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodPost,
+				Endpoint:    server.UpgradeRisksPredictionMultiClusterEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode:  http.StatusBadRequest,
+				Body:        expectedResponse,
+				BodyChecker: checkBodyAsMap,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetMulticlusterUpgradeRisksServiceUnvailable(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		expectedResponse := `{"status":"Upgrade Failure Prediction service is unreachable"}`
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodPost,
+				Endpoint:    server.UpgradeRisksPredictionMultiClusterEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+				Body:        helpers.ToJSONString(testdata.ClusterIDListInReq),
+			}, &helpers.APIResponse{
+				StatusCode:  http.StatusServiceUnavailable,
+				Body:        expectedResponse,
+				BodyChecker: checkBodyAsMap,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetMulticlusterUpgradeRisksPredictionTwoClusters(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		dataEngServer := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				var clusters ctypes.ClusterListInRequest
+				err := json.NewDecoder(r.Body).Decode(&clusters)
+				assert.NoError(t, err)
+				_, err = fmt.Fprint(w, fmt.Sprintf(upgradeRecommendedMultiClusterOk, clusters.Clusters[0], clusters.Clusters[1]))
+				assert.NoError(t, err)
+			}))
+		defer dataEngServer.Close()
+
+		servicesConfig := helpers.DefaultServicesConfig
+		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil)
+
+		cluster1 := "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+		cluster2 := "34c3ecc5-624a-49a5-bab8-4fdc5e51a288"
+		reqBody := fmt.Sprintf(`{"clusters": ["%s", "%s"]}`, cluster1, cluster2)
+		expectedResponse := fmt.Sprintf(upgradeRecommendedMultiClusterOk, cluster1, cluster2)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodPost,
+				Endpoint:    server.UpgradeRisksPredictionMultiClusterEndpoint,
+				Body:        reqBody,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode:  http.StatusOK,
+				Body:        expectedResponse,
+				BodyChecker: checkBodyAsMap,
+			},
+		)
+	}, testTimeout)
+}
+
+func generateUUIDs(count int) []string {
+	uuids := make([]string, count)
+	for i := 0; i < count; i++ {
+		uuids[i] = uuid.New().String()
+	}
+	return uuids
+}
+
+func TestHTTPServer_GetMulticlusterUpgradeRisksPrediction100Clusters(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+
+		dataEngServer := httptest.NewServer(
+			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				var clusters ctypes.ClusterListInRequest
+				err := json.NewDecoder(r.Body).Decode(&clusters)
+				assert.NoError(t, err)
+				_, err = fmt.Fprint(w, fmt.Sprintf(upgradeRecommendedMultiClusterOk, clusters.Clusters[0], clusters.Clusters[1]))
+				assert.NoError(t, err)
+			}))
+		defer dataEngServer.Close()
+
+		servicesConfig := helpers.DefaultServicesConfig
+		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil)
+
+		clusters := generateUUIDs(100)
+		reqBody := fmt.Sprintf(`{"clusters": ["%s"]}`, strings.Join(clusters, `","`))
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodPost,
+				Endpoint:    server.UpgradeRisksPredictionMultiClusterEndpoint,
+				Body:        reqBody,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode:  http.StatusOK,
+				Body:        fmt.Sprintf(upgradeRecommendedMultiClusterOk, clusters[0], clusters[1]),
+				BodyChecker: checkBodyAsMap,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetMulticlusterUpgradeRisksPrediction101Clusters(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+
+		expectedResponse := `{"status":"client didn't provide a valid request body"}`
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+
+		clusters := generateUUIDs(101)
+		reqBody := fmt.Sprintf(`{"clusters": ["%s"]}`, strings.Join(clusters, `","`))
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodPost,
+				Endpoint:    server.UpgradeRisksPredictionMultiClusterEndpoint,
+				Body:        reqBody,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode:  http.StatusBadRequest,
+				Body:        expectedResponse,
+				BodyChecker: checkBodyAsMap,
 			},
 		)
 	}, testTimeout)

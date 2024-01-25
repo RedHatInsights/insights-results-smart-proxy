@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	ctypes "github.com/RedHatInsights/insights-results-types"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
@@ -31,6 +31,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 )
+
+const MaxAllowedClusters = 100
 
 // method upgradeRisksPrediction returns a recommendation to upgrade or not a cluster
 // and a list of the alerts/operator conditions that were taken into account if the
@@ -129,78 +131,38 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 // Each prediction will have a result (true or false) and a list of the alerts and operator conditions
 // that were taken into account for non-recommended upgrades.
 func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.ResponseWriter, request *http.Request) {
-	if server.amsClient == nil {
-		log.Error().Msgf(AMSApiNotInitializedErrorMessage)
-		handleServerError(writer, &AMSAPIUnavailableError{})
+
+	if request.ContentLength <= 0 {
+		handleServerError(writer, &NoBodyError{})
 		return
 	}
 
-	orgID, err := server.GetCurrentOrgID(request)
+	var clusterList ctypes.ClusterListInRequest
+
+	// try to read cluster list from request parameter
+	err := json.NewDecoder(request.Body).Decode(&clusterList)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
 
-	// try to read list of cluster IDs
-	listOfClusters, successful := httputils.ReadClusterListFromBody(writer, request)
-	if !successful {
-		// wrong state has been handled already
+	if len(clusterList.Clusters) > MaxAllowedClusters {
+		handleServerError(writer, &BadBodyContent{})
 		return
 	}
-
-	numberOfClusers := len(listOfClusters)
-	// Limit number of Clusters to 100.
-	// If we go over this limit, the way we handle the response from AMS should
-	// be modified (default page size is 1 with a size of 100).
-	if numberOfClusers > 100 {
-		err := responses.SendBadRequest(writer, "Request body should not contain more than 100 cluster IDs")
-		if err != nil {
-			log.Error().Err(err).Msg(responseDataError)
-		}
-	}
-
-	clustersInfo, err := server.amsClient.GetMultiClusterInfoForOrganization(orgID, listOfClusters, nil, nil)
-	if err != nil {
-		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg("failure retrieving the clusters information from AMS")
-		handleServerError(writer, err)
-		return
-	}
-
-	managed, unmanaged := amsclient.FilterManagedClusters(clustersInfo)
-
-	log.Info().
-		Uint32(orgIDTag, uint32(orgID)).
-		Int("IDS count", len(managed)).
-		Msg("Number of managed clusters removed from origin request")
 
 	// Request to Data Engineering Service to retrieve the result
-	predictionResponse, err := server.fetchMulticlusterUpgradePrediction(unmanaged, writer)
+	predictionResponse, err := server.fetchMulticlusterUpgradePrediction(clusterList, writer)
 	if err != nil || predictionResponse == nil {
 		// Error already handled or not OK status, already returned
 		return
 	}
 
-	// prepare response
+	// prepare and send response
 	response := make(map[string]interface{})
 	response["status"] = predictionResponse.Status
-	predictions := make([]types.UpgradeRisksPrediction, numberOfClusers)
+	response["predictions"] = predictionResponse.Predictions
 
-	copy(predictions, predictionResponse.Predictions)
-
-	//  managed clusters to the response with a "OK" status and no prediction nor alerts
-
-	nextPrediction := len(predictionResponse.Predictions)
-	for _, cluster := range managed {
-		predictions[nextPrediction] = types.UpgradeRisksPrediction{
-			PredictionStatus: OkMsg,
-			ClusterID:        types.ClusterName(cluster),
-		}
-		nextPrediction++
-	}
-
-	response["predictions"] = predictions
-
-	// send it all
 	err = responses.SendOK(
 		writer,
 		response,
@@ -267,36 +229,32 @@ func (server *HTTPServer) fetchUpgradePrediction(
 }
 
 func (server *HTTPServer) fetchMulticlusterUpgradePrediction(
-	clusters []string,
+	clusterList ctypes.ClusterListInRequest,
 	writer http.ResponseWriter,
 ) (*types.UpgradeRisksRecommendations, error) {
+
 	dataEngURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
 		UpgradeRisksPredictionMultiClusterEndpoint,
 	)
 
-	clustersMap := make(map[string]interface{})
-	clustersMap["clusters"] = clusters
-
-	jsonBody, err := json.Marshal(clustersMap)
-	if err != nil {
-		log.Error().Err(err).Str("url", dataEngURL).Msg("error marshalling request body")
-		handleServerError(writer, err)
-		return nil, err
-	}
-
 	httpClient := http.Client{
 		Timeout: 5 * time.Second,
 	}
 
-	req, err := http.NewRequest(http.MethodGet, dataEngURL, bytes.NewReader(jsonBody))
-	if err != nil {
-		panic(err)
+	var asJson bytes.Buffer
+	encoder := json.NewEncoder(&asJson)
+	// Encode the map into JSON and check for errors
+	if err := encoder.Encode(clusterList); err != nil {
+		log.Error().
+			Err(err).
+			Msg("errro encoding clusterlist to json")
+		return nil, err
 	}
-
 	// #nosec G107
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
-	response, err := httpClient.Do(req)
+	response, err := httpClient.Post(dataEngURL, JSONContentType, &asJson)
+	defer services.CloseResponseBody(response)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -304,8 +262,6 @@ func (server *HTTPServer) fetchMulticlusterUpgradePrediction(
 		handleServerError(writer, &UpgradesDataEngServiceUnavailableError{})
 		return nil, err
 	}
-
-	defer services.CloseResponseBody(response)
 
 	responseBytes, err := io.ReadAll(response.Body)
 	if err != nil {

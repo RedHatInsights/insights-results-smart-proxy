@@ -35,4 +35,57 @@ var (
 
 	AlertExample1             = `{"name": "alert1", "namespace": "namespace1", "severity": "info", "url": "https://my-cluster.com/monitoring/alerts?orderBy=asc&sortBy=Severity&alert-name=alert1"}`
 	OperatorConditionExample1 = `{"name": "foc1", "condition": "ExampleCondition", "reason": "Example reason", "url": "https://my-cluster.com/k8s/cluster/config.openshift.io~v1~ClusterOperator/foc1"}`
+
+	UpgradeRecommendedTwoClusters = `[
+		{
+			"cluster_id": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
+			"prediction_status": "ok",
+			"upgrade_recommended": True,
+			"upgrade_risks_predictors": {
+				"alerts": [],
+				"operator_conditions": [],
+			},
+			"last_checked_at": test_date.isoformat(),
+		},
+		{
+			"cluster_id": "2b9195d4-85d4-428f-944b-4b46f08911f8",
+			"prediction_status": "ok",
+			"upgrade_recommended": True,
+			"upgrade_risks_predictors": {
+				"alerts": [],
+				"operator_conditions": [],
+			},
+			"last_checked_at": test_date.isoformat(),
+		}
+	]`
+
+	UpgradeRecommendedTwoClustersOkOneNoData = `[
+		{
+			"cluster_id": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266",
+			"prediction_status": "ok",
+			"upgrade_recommended": True,
+			"upgrade_risks_predictors": {
+				"alerts": [],
+				"operator_conditions": [],
+			},
+			"last_checked_at": test_date.isoformat(),
+		},
+		{
+			"cluster_id": "2b9195d4-85d4-428f-944b-4b46f08911f8",
+			"prediction_status": "ok",
+			"upgrade_recommended": True,
+			"upgrade_risks_predictors": {
+				"alerts": [],
+				"operator_conditions": [],
+			},
+			"last_checked_at": test_date.isoformat(),
+		},
+		{
+			"cluster_id": "aae0ff10-9892-4572-b77f-73eb3e39825f",
+			"prediction_status": "No data for the cluster",
+			"upgrade_recommended": None,
+			"upgrade_risks_predictors": None,
+			"last_checked_at": None,
+		},
+	]`
 )
