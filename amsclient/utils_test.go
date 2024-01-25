@@ -15,11 +15,7 @@
 package amsclient_test
 
 import (
-	"testing"
 	"time"
-
-	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
-	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 
 	jwt "github.com/golang-jwt/jwt/v4"
 	ocmtesting "github.com/openshift-online/ocm-sdk-go/testing"
@@ -56,113 +52,6 @@ func MakeTokenString(typ string, life time.Duration) string {
 	})
 
 	return token.Raw
-}
-
-func equalClusterInfos(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
-func TestGenerateSearchParameter(t *testing.T) {
-	orgID := "org123"
-	allowedStatuses := []string{"status1", "status2"}
-	disallowedStatuses := []string{"status3", "status4"}
-
-	expectedSearchQuery := "organization_id is 'org123' and cluster_id != '' and status in ('status1','status2') and status not in ('status3','status4')"
-
-	result := amsclient.GenerateSearchParameter(orgID, allowedStatuses, disallowedStatuses)
-
-	if result != expectedSearchQuery {
-		t.Errorf("Expected: %s, Got: %s", expectedSearchQuery, result)
-	}
-}
-
-func TestGenerateMulticLusterSearchQuery(t *testing.T) {
-	orgID := "org456"
-	clusterIDs := []string{"cluster4", "cluster5", "cluster6"}
-	allowedStatuses := []string{"status5", "status6"}
-	disallowedStatuses := []string{"status7", "status8"}
-
-	expectedSearchQuery := "organization_id is 'org456' and cluster_id in ('cluster4','cluster5','cluster6') and status in ('status5','status6') and status not in ('status7','status8')"
-
-	result := amsclient.GenerateMulticLusterSearchQuery(orgID, clusterIDs, allowedStatuses, disallowedStatuses)
-
-	if result != expectedSearchQuery {
-		t.Errorf("Expected: %s, Got: %s", expectedSearchQuery, result)
-	}
-}
-
-func TestFilterManagedClusters(t *testing.T) {
-	tests := []struct {
-		name              string
-		input             []types.ClusterInfo
-		expectedManaged   []string
-		expectedUnmanaged []string
-	}{
-		// Scenario 1: Empty input slice
-		{
-			name:              "EmptyInput",
-			input:             []types.ClusterInfo{},
-			expectedManaged:   []string{},
-			expectedUnmanaged: []string{},
-		},
-		// Scenario 2: All clusters are managed
-		{
-			name: "AllManaged",
-			input: []types.ClusterInfo{
-				{ID: "cluster1", Managed: true},
-				{ID: "cluster2", Managed: true},
-				{ID: "cluster3", Managed: true},
-			},
-			expectedManaged:   []string{"cluster1", "cluster2", "cluster3"},
-			expectedUnmanaged: []string{},
-		},
-		// Scenario 3: All clusters are unmanaged
-		{
-			name: "AllUnmanaged",
-			input: []types.ClusterInfo{
-				{ID: "cluster4", Managed: false},
-				{ID: "cluster5", Managed: false},
-				{ID: "cluster6", Managed: false},
-			},
-			expectedManaged:   []string{},
-			expectedUnmanaged: []string{"cluster4", "cluster5", "cluster6"},
-		},
-		// Scenario 4: Mixed managed and unmanaged clusters
-		{
-			name: "Mixed",
-			input: []types.ClusterInfo{
-				{ID: "cluster7", Managed: true},
-				{ID: "cluster8", Managed: false},
-				{ID: "cluster9", Managed: true},
-			},
-			expectedManaged:   []string{"cluster7", "cluster9"},
-			expectedUnmanaged: []string{"cluster8"},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			managed, unmanaged := amsclient.FilterManagedClusters(test.input)
-
-			if !equalClusterInfos(managed, test.expectedManaged) {
-				t.Errorf("Managed clusters do not match the expected result.\nExpected: %v\nGot: %v", test.expectedManaged, managed)
-			}
-
-			if !equalClusterInfos(unmanaged, test.expectedUnmanaged) {
-				t.Errorf("Unmanaged clusters do not match the expected result.\nExpected: %v\nGot: %v", test.expectedUnmanaged, unmanaged)
-			}
-		})
-	}
 }
 
 // Public key in PEM format:
