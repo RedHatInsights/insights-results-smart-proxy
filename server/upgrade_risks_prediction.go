@@ -32,7 +32,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const MaxAllowedClusters = 100
+const (
+	// MaxAllowedClusters ia the number of clusters allowed in multi-cluster URP query
+	MaxAllowedClusters = 100
+)
 
 // method upgradeRisksPrediction returns a recommendation to upgrade or not a cluster
 // and a list of the alerts/operator conditions that were taken into account if the
@@ -131,7 +134,6 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 // Each prediction will have a result (true or false) and a list of the alerts and operator conditions
 // that were taken into account for non-recommended upgrades.
 func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.ResponseWriter, request *http.Request) {
-
 	if request.ContentLength <= 0 {
 		handleServerError(writer, &NoBodyError{})
 		return
@@ -160,9 +162,16 @@ func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.Respons
 
 	// prepare and send response
 	response := make(map[string]interface{})
-	response["status"] = predictionResponse.Status
-	response["predictions"] = predictionResponse.Predictions
 
+	if predictionResponse.Status != "" {
+		// RHOBS has data for at least one of the clusters
+		response["status"] = predictionResponse.Status
+		response["predictions"] = predictionResponse.Predictions
+	} else {
+		// RHOBS has no data for any of the given clusters
+		response["status"] = "ok"
+		response["predictions"] = []types.UpgradeRisksPrediction{}
+	}
 	err = responses.SendOK(
 		writer,
 		response,
@@ -232,7 +241,6 @@ func (server *HTTPServer) fetchMulticlusterUpgradePrediction(
 	clusterList ctypes.ClusterListInRequest,
 	writer http.ResponseWriter,
 ) (*types.UpgradeRisksRecommendations, error) {
-
 	dataEngURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
 		UpgradeRisksPredictionMultiClusterEndpoint,
@@ -242,8 +250,8 @@ func (server *HTTPServer) fetchMulticlusterUpgradePrediction(
 		Timeout: 5 * time.Second,
 	}
 
-	var asJson bytes.Buffer
-	encoder := json.NewEncoder(&asJson)
+	var asJSON bytes.Buffer
+	encoder := json.NewEncoder(&asJSON)
 	// Encode the map into JSON and check for errors
 	if err := encoder.Encode(clusterList); err != nil {
 		log.Error().
@@ -253,7 +261,7 @@ func (server *HTTPServer) fetchMulticlusterUpgradePrediction(
 	}
 	// #nosec G107
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
-	response, err := httpClient.Post(dataEngURL, JSONContentType, &asJson)
+	response, err := httpClient.Post(dataEngURL, JSONContentType, &asJSON)
 	defer services.CloseResponseBody(response)
 	if err != nil {
 		log.Error().
