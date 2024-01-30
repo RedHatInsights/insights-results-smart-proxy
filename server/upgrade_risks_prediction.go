@@ -15,10 +15,13 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 	"time"
+
+	ctypes "github.com/RedHatInsights/insights-results-types"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
@@ -29,8 +32,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// UpgradeRisksPredictionServiceEndpoint endpoint for the upgrade prediction service
-const UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-prediction"
+const (
+	// MaxAllowedClusters ia the number of clusters allowed in multi-cluster URP query
+	MaxAllowedClusters = 100
+)
 
 // method upgradeRisksPrediction returns a recommendation to upgrade or not a cluster
 // and a list of the alerts/operator conditions that were taken into account if the
@@ -61,7 +66,7 @@ const UpgradeRisksPredictionServiceEndpoint = "cluster/{cluster}/upgrade-risks-p
 //		}
 func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, request *http.Request) {
 	if server.amsClient == nil {
-		log.Error().Msgf("AMS API connection is not initialized")
+		log.Error().Msgf(AMSApiNotInitializedErrorMessage)
 		handleServerError(writer, &AMSAPIUnavailableError{})
 		return
 	}
@@ -125,13 +130,64 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 	}
 }
 
+// upgradeRisksPredictionMultiClusters sends a response with a list of predictions for each cluster.
+// Each prediction will have a result (true or false) and a list of the alerts and operator conditions
+// that were taken into account for non-recommended upgrades.
+func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.ResponseWriter, request *http.Request) {
+	if request.ContentLength <= 0 {
+		handleServerError(writer, &NoBodyError{})
+		return
+	}
+
+	var clusterList ctypes.ClusterListInRequest
+
+	// try to read cluster list from request parameter
+	err := json.NewDecoder(request.Body).Decode(&clusterList)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	if len(clusterList.Clusters) > MaxAllowedClusters {
+		handleServerError(writer, &TooManyClustersError{})
+		return
+	}
+
+	// Request to Data Engineering Service to retrieve the result
+	predictionResponse, err := server.fetchMulticlusterUpgradePrediction(clusterList, writer)
+	if err != nil || predictionResponse == nil {
+		// Error already handled or not OK status, already returned
+		return
+	}
+
+	// prepare and send response
+	response := make(map[string]interface{})
+
+	if predictionResponse.Status != "" {
+		// RHOBS has data for at least one of the clusters
+		response["status"] = predictionResponse.Status
+		response["predictions"] = predictionResponse.Predictions
+	} else {
+		// RHOBS has no data for any of the given clusters
+		response["status"] = "ok"
+		response["predictions"] = []types.UpgradeRisksPrediction{}
+	}
+	err = responses.SendOK(
+		writer,
+		response,
+	)
+	if err != nil {
+		log.Error().Err(err).Msg(responseDataError)
+	}
+}
+
 func (server *HTTPServer) fetchUpgradePrediction(
 	cluster types.ClusterName,
 	writer http.ResponseWriter,
 ) (*types.DataEngResponse, error) {
 	dataEngURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
-		UpgradeRisksPredictionServiceEndpoint,
+		UpgradeRisksPredictionEndpoint,
 		cluster,
 	)
 
@@ -174,6 +230,67 @@ func (server *HTTPServer) fetchUpgradePrediction(
 	err = json.Unmarshal(responseBytes, &responseData)
 	if err != nil {
 		log.Error().Str(clusterIDTag, string(cluster)).Err(err).Msg("error unmarshalling data-engineering response")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	return responseData, nil
+}
+
+func (server *HTTPServer) fetchMulticlusterUpgradePrediction(
+	clusterList ctypes.ClusterListInRequest,
+	writer http.ResponseWriter,
+) (*types.UpgradeRisksRecommendations, error) {
+	dataEngURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.UpgradeRisksPredictionEndpoint,
+		UpgradeRisksPredictionMultiClusterEndpoint,
+	)
+
+	httpClient := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	var asJSON bytes.Buffer
+	encoder := json.NewEncoder(&asJSON)
+	// Encode the map into JSON and check for errors
+	if err := encoder.Encode(clusterList); err != nil {
+		log.Error().
+			Err(err).
+			Msg("errro encoding clusterlist to json")
+		return nil, err
+	}
+	// #nosec G107
+	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
+	response, err := httpClient.Post(dataEngURL, JSONContentType, &asJSON)
+	defer services.CloseResponseBody(response)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("error reaching the data-eng service")
+		handleServerError(writer, &UpgradesDataEngServiceUnavailableError{})
+		return nil, err
+	}
+
+	responseBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("unable to read the body of the response")
+		handleServerError(writer, err)
+		return nil, err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		err := responses.Send(response.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(responseDataError)
+		}
+		return nil, err
+	}
+	responseData := &types.UpgradeRisksRecommendations{}
+	err = json.Unmarshal(responseBytes, &responseData)
+	if err != nil {
+		log.Error().Err(err).Str("url", dataEngURL).Msg("error unmarshalling data-engineering response")
 		handleServerError(writer, err)
 		return nil, err
 	}
