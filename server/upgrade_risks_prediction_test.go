@@ -822,7 +822,7 @@ func TestHTTPServer_GetMulticlusterURPOverMaxAllowed(t *testing.T) {
 		clusters := generateUUIDs(server.MaxAllowedClusters + 1)
 		reqBody := fmt.Sprintf(`{"clusters": ["%s"]}`, strings.Join(clusters, `","`))
 
-		expectedResponse := `{"status":"client didn't provide a valid request body"}`
+		expectedResponse := `{"status":"the maximum amount of clusters allowed are 100"}`
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,

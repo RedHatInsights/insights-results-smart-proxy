@@ -149,7 +149,7 @@ func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.Respons
 	}
 
 	if len(clusterList.Clusters) > MaxAllowedClusters {
-		handleServerError(writer, &BadBodyContent{})
+		handleServerError(writer, &TooManyClustersError{})
 		return
 	}
 
