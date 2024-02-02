@@ -163,15 +163,10 @@ func (server *HTTPServer) upgradeRisksPredictionMultiCluster(writer http.Respons
 	// prepare and send response
 	response := make(map[string]interface{})
 
-	if predictionResponse.Status != "" {
-		// RHOBS has data for at least one of the clusters
-		response["status"] = predictionResponse.Status
-		response["predictions"] = predictionResponse.Predictions
-	} else {
-		// RHOBS has no data for any of the given clusters
-		response["status"] = "ok"
-		response["predictions"] = []types.UpgradeRisksPrediction{}
-	}
+	// RHOBS has data for at least one of the clusters
+	response["status"] = "ok"
+	response["predictions"] = predictionResponse.Predictions
+
 	err = responses.SendOK(
 		writer,
 		response,
