@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog"
@@ -345,4 +346,88 @@ func TestGetRedisConfiguration(t *testing.T) {
 	assert.Equal(t, "localhost:6379", redisConfiguration.RedisEndpoint)
 	assert.Equal(t, "-redis-password-", redisConfiguration.RedisPassword)
 	assert.Equal(t, 30, redisConfiguration.RedisTimeoutSeconds)
+}
+
+// TestGetMetricsConfiguration tests loading the metrics configuration sub-tree
+func TestGetMetricsConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[metrics]
+	namespace = "smart_proxy"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	metricsConfiguration := conf.GetMetricsConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "smart_proxy", metricsConfiguration.Namespace)
+}
+
+// TestGetSentryLoggingConfiguration tests loading the sentry logging configuration sub-tree
+func TestGetSentryLoggingConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[sentry]
+	dsn = "test_dsn"
+	environment = "test_env"
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	sentryConfiguration := conf.GetSentryLoggingConfiguration()
+
+	// check returned structure
+	assert.Equal(t, "test_dsn", sentryConfiguration.SentryDSN)
+	assert.Equal(t, "test_env", sentryConfiguration.SentryEnvironment)
+}
+
+// TestGetCloudWatchConfiguration tests loading the cloud watch configuration sub-tree
+func TestGetCloudWatchConfiguration(t *testing.T) {
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	cloudWatchConfiguration := conf.GetCloudWatchConfiguration()
+
+	// check returned structure
+	assert.Equal(t, logger.CloudWatchConfiguration{
+		AWSAccessID:             "",
+		AWSSecretKey:            "",
+		AWSSessionToken:         "",
+		AWSRegion:               "",
+		LogGroup:                "",
+		StreamName:              "",
+		CreateStreamIfNotExists: false,
+		Debug:                   false,
+	}, cloudWatchConfiguration)
+}
+
+// TestGetLoggingConfiguration tests loading the logging configuration sub-tree
+func TestGetLoggingConfiguration(t *testing.T) {
+	/* Load following configuration:
+
+	[logging]
+	debug = true
+
+	*/
+
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	// call the tested function
+	loggingConfiguration := conf.GetLoggingConfiguration()
+
+	// check returned structure
+	assert.Equal(t, logger.LoggingConfiguration{
+		Debug:                      true,
+		LogLevel:                   "",
+		LoggingToCloudWatchEnabled: false,
+	}, loggingConfiguration)
 }

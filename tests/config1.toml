@@ -38,6 +38,9 @@ client_id = "-client-id-"
 client_secret = "-top-secret-"
 page_size = 6000
 
+[metrics]
+namespace = "smart_proxy"
+
 [kafka_zerolog]
 broker = "-kafka-zerolog-broker-"
 topic = "-kafka-zerolog-topic-"
@@ -49,3 +52,10 @@ database = 42
 endpoint = "localhost:6379"
 password = "-redis-password-"
 timeout_seconds = 30
+
+[sentry]
+dsn = "test_dsn"
+environment = "test_env"
+
+[logging]
+debug = true

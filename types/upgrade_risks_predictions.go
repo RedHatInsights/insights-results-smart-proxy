@@ -53,3 +53,19 @@ type UpgradeRecommendation struct {
 type UpgradeRisksMeta struct {
 	LastCheckedAt Timestamp `json:"last_checked_at"`
 }
+
+// UpgradeRisksPrediction is a data structure to store the prediction status for a cluster, and its
+// recommendation and predictors, if any
+type UpgradeRisksPrediction struct {
+	ClusterID        ClusterName             `json:"cluster_id"`
+	PredictionStatus string                  `json:"prediction_status"`
+	Recommended      *bool                   `json:"upgrade_recommended,omitempty"`
+	RisksPredictors  *UpgradeRisksPredictors `json:"upgrade_risks_predictors,omitempty"`
+	LastCheckedAt    *Timestamp              `json:"last_checked_at,omitempty"`
+}
+
+// UpgradeRisksRecommendations is the main response structure for the multicluster URP endpoint
+type UpgradeRisksRecommendations struct {
+	Status      string                   `json:"status"`
+	Predictions []UpgradeRisksPrediction `json:"predictions"`
+}

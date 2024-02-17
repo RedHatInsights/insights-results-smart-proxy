@@ -1096,7 +1096,7 @@ func (server HTTPServer) reportForListOfClustersEndpoint(writer http.ResponseWri
 // reportForListOfClustersPayloadEndpoint is a handler that returns reports for
 // several clusters that all need to belong to one organization specified in
 // request path. List of clusters is specified in request body which means that
-// clients can use as many cluster ID as the wont without any (real) limits.
+// clients can use as many cluster ID as they want without any (real) limits.
 func (server HTTPServer) reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request) {
 	// try to read results from Insights Results Aggregator service
 	aggregatorResponse, successful := server.fetchAggregatorReportsUsingRequestBodyClusterList(writer, request)

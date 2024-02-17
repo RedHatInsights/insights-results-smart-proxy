@@ -80,6 +80,16 @@ func (*BadBodyContent) Error() string {
 	return "client didn't provide a valid request body"
 }
 
+// TooManyClustersError error meaning that client is asking for too many clusters.
+// It is used in the URP endpoints, where using a big number of clusters may end up
+// in too slow and big requests.
+type TooManyClustersError struct {
+}
+
+func (*TooManyClustersError) Error() string {
+	return fmt.Sprintf("the maximum amount of clusters allowed are %d", MaxAllowedClusters)
+}
+
 // ContentServiceUnavailableError error is used when the content service cannot be reached
 type ContentServiceUnavailableError struct{}
 
@@ -122,7 +132,7 @@ func handleServerError(writer http.ResponseWriter, err error) {
 	var respErr error
 
 	switch err := err.(type) {
-	case *RouterMissingParamError, *RouterParsingError, *json.SyntaxError, *NoBodyError, *ParamsParsingError, *BadBodyContent:
+	case *RouterMissingParamError, *RouterParsingError, *json.SyntaxError, *NoBodyError, *ParamsParsingError, *BadBodyContent, *TooManyClustersError:
 		respErr = responses.SendBadRequest(writer, err.Error())
 	case *json.UnmarshalTypeError:
 		respErr = responses.SendBadRequest(writer, "bad type in json data")

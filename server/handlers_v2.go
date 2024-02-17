@@ -60,6 +60,8 @@ const (
 	RequestIDNotFound = "Request ID not found for given org_id and cluster_id"
 	// RedisNotInitializedErrorMessage is an error message written into log when Redis client is not initialized properly
 	RedisNotInitializedErrorMessage = "Redis is not initialized, request can not be finished correctly"
+	//AMSApiNotInitializedErrorMessage is an error message written into log when AMS API client is not initialized properly
+	AMSApiNotInitializedErrorMessage = "AMS API connection is not initialized"
 )
 
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
@@ -427,7 +429,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 // getSingleClusterInfo retrieves information about given cluster from AMS API, such as the user defined display name
 func (server HTTPServer) getSingleClusterInfo(writer http.ResponseWriter, request *http.Request) {
 	if server.amsClient == nil {
-		log.Error().Msgf("AMS API connection is not initialized")
+		log.Error().Msgf(AMSApiNotInitializedErrorMessage)
 		handleServerError(writer, &AMSAPIUnavailableError{})
 		return
 	}
