@@ -43,6 +43,7 @@ import (
 	"github.com/RedHatInsights/insights-content-service/groups"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
+	utypes "github.com/RedHatInsights/insights-operator-utils/types"
 	ira_server "github.com/RedHatInsights/insights-results-aggregator/server"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/gorilla/handlers"
@@ -91,6 +92,7 @@ const (
 	ackedRulesError      = "Unable to retrieve list of acked rules"
 	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
 	clusterListError     = "problem reading cluster list for org"
+	ruleContentError     = "unable to get content for rule with id %v"
 )
 
 // HTTPServer is an implementation of Server interface
@@ -1473,6 +1475,52 @@ func (server *HTTPServer) getClusterListAndUserData(
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getUserDisabledRulesPerCluster took %s", time.Since(tStart))
 
 	return
+}
+
+// getWorkloadsForCluster returns []types.WorkloadsForCluster{} when no workloads were found for given cluster/namespace.
+// returns nil upon receiving an unexpected error from aggregator.
+func (server *HTTPServer) getWorkloadsForCluster(
+	orgID types.OrgID,
+	clusterID types.ClusterName,
+	namespace types.Namespace,
+) (
+	workloads types.WorkloadsForCluster, err error,
+) {
+	var response struct {
+		Status    string                    `json:"status"`
+		Workloads types.WorkloadsForCluster `json:"workloads"`
+	}
+
+	aggregatorURL := httputils.MakeURLToEndpoint(
+		server.ServicesConfig.AggregatorBaseEndpoint,
+		"organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+		orgID, namespace.UUID, clusterID,
+	)
+
+	// #nosec G107
+	resp, err := http.Get(aggregatorURL)
+	if err != nil {
+		return
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return workloads, &utypes.ItemNotFoundError{}
+	}
+
+	// check the aggregator response
+	if resp.StatusCode != http.StatusOK {
+		err = fmt.Errorf("error reading workloads from aggregator: %v", resp.StatusCode)
+		return
+	}
+
+	defer services.CloseResponseBody(resp)
+
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		return
+	}
+
+	return response.Workloads, nil
 }
 
 // getWorkloadsForOrganization returns a list of workloads for given organization ID.

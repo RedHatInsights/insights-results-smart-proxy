@@ -685,7 +685,7 @@ func getFilteredRecommendationsList(
 				return recommendationList, err
 			}
 			// missing rule content, simply omit the rule as we can't display anything
-			log.Error().Err(err).Msgf("unable to get content for rule with id %v", ruleID)
+			log.Error().Err(err).Msgf(ruleContentError, ruleID)
 			continue
 		}
 
@@ -1634,6 +1634,139 @@ func processWorkloadsRecommendations(
 			Namespace: w.Namespace,
 			Metadata:  w.Metadata,
 		})
+	}
+
+	return
+}
+
+// getDVONamespacesForCluster returns a list of all DVO namespaces for a particular cluster.
+func (server *HTTPServer) getDVONamespacesForCluster(writer http.ResponseWriter, request *http.Request) {
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	// Error message handled by function
+	if !successful {
+		return
+	}
+
+	namespace, err := readNamespace(writer, request)
+	if err != nil {
+		return
+	}
+
+	// get cluster info from AMS API
+	if server.amsClient == nil && !server.Config.UseOrgClustersFallback {
+		log.Error().Msg("unable to retrieve info about cluster")
+		handleServerError(writer, &AMSAPIUnavailableError{})
+		return
+	}
+
+	clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
+	if err != nil {
+		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
+		handleServerError(writer, err)
+		return
+	}
+
+	// get namespace data from aggregator
+	workloads, err := server.getWorkloadsForCluster(orgID, clusterID, namespace)
+	if err != nil {
+		switch err.(type) {
+		case *json.SyntaxError:
+			msg := "aggregator provided a wrong response"
+			log.Error().Err(err).Msg(msg)
+			handleServerError(writer, errors.New(msg))
+			return
+		case *url.Error:
+			log.Error().Err(err).Msg("aggregator is not responding")
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+			return
+		default:
+			handleServerError(writer, err)
+			return
+		}
+	}
+
+	workloadsProcessed, err := fillInWorkloadsData(clusterInfo, workloads)
+	if err != nil {
+		msg := "unable to fill in data from content-service"
+		log.Error().Err(err).Msg(msg)
+		handleServerError(writer, errors.New(msg))
+		return
+	}
+
+	// prepare response
+	responseData := map[string]interface{}{}
+	responseData["status"] = OkMsg
+	responseData["cluster"] = workloadsProcessed.Cluster
+	responseData["namespace"] = workloadsProcessed.Namespace
+	responseData["metadata"] = workloadsProcessed.Metadata
+	responseData["recommendations"] = workloadsProcessed.Recommendations
+
+	// send response to client
+	err = responses.SendOK(writer, responseData)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
+// fillInWorkloadsData fills in data acquired from content-service
+func fillInWorkloadsData(
+	clusterInfo types.ClusterInfo,
+	workloadsForCluster types.WorkloadsForCluster,
+) (
+	workloads types.WorkloadsForCluster,
+	err error,
+) {
+	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
+	if err != nil {
+		return
+	}
+
+	// fill in display name
+	workloadsForCluster.Cluster.DisplayName = clusterInfo.DisplayName
+
+	// fill in all unique severities
+	hitsBySeverity := make(map[int]int, len(uniqueSeverities))
+	for _, severity := range uniqueSeverities {
+		hitsBySeverity[severity] = 0
+	}
+	workloadsForCluster.Metadata.HitsBySeverity = hitsBySeverity
+
+	recommendations := []types.DVORecommendation{}
+
+	// fill in severities and other data from rule content
+	for _, recommendation := range workloadsForCluster.Recommendations {
+		if severity, found := recommendationSeverities[ctypes.RuleID(recommendation.Check)]; found {
+			workloadsForCluster.Metadata.HitsBySeverity[severity]++
+
+			if severity > workloadsForCluster.Metadata.HighestSeverity {
+				workloadsForCluster.Metadata.HighestSeverity = severity
+			}
+		}
+
+		ruleContent, err := content.GetContentForRecommendation(ctypes.RuleID(recommendation.Check))
+		if err != nil {
+			log.Error().Err(err).Msgf(ruleContentError, recommendation.Check)
+			return workloads, err
+		}
+
+		recommendation.Description = ruleContent.Description
+		recommendation.Remediation = ruleContent.Resolution
+		recommendations = append(recommendations, recommendation)
+	}
+
+	workloads = types.WorkloadsForCluster{
+		Cluster:         workloadsForCluster.Cluster,
+		Namespace:       workloadsForCluster.Namespace,
+		Metadata:        workloadsForCluster.Metadata,
+		Recommendations: recommendations,
 	}
 
 	return

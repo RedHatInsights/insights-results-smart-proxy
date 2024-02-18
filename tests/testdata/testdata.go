@@ -36,6 +36,8 @@ const (
 	OrgID = testdata.OrgID
 
 	GeneratedAt = "2020-03-06T12:00:00Z"
+
+	NamespaceUUID1 = "00000000-aaaa-bbbb-cccc-eeeeeeeeeeee"
 )
 
 var (
