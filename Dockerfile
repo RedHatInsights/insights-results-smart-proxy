@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM registry.redhat.io/rhel8/go-toolset:1.18.9-8.1675807488 AS builder
+FROM registry.redhat.io/rhel8/go-toolset:1.18.9  AS builder
 
 COPY . .
 
@@ -21,7 +21,7 @@ USER 0
 RUN make build && \
     chmod a+x insights-results-smart-proxy
 
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.8-5
+FROM registry.access.redhat.com/ubi9/ubi-micro:latest
 
 COPY --from=builder /opt/app-root/src/insights-results-smart-proxy .
 COPY --from=builder /opt/app-root/src/server/api/v1/openapi.json /openapi/v1/openapi.json
