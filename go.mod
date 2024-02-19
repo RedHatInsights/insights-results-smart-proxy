@@ -14,7 +14,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
-	github.com/openshift-online/ocm-sdk-go v0.1.393
+	github.com/openshift-online/ocm-sdk-go v0.1.403
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redhatinsights/app-common-go v1.6.7
 	github.com/redis/go-redis/v9 v9.4.0
