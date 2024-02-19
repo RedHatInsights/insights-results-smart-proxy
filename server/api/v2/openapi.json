@@ -2373,6 +2373,7 @@
           },
           "last_checked_at": {
             "type": "string",
+            "format": "date-time",
             "example": "2011-15-04T00:05:23Z"
           }
         }
