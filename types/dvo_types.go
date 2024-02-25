@@ -59,12 +59,23 @@ type WorkloadsForCluster struct {
 	Recommendations []DVORecommendation `json:"recommendations"`
 }
 
+// WorkloadsForNamespace structure represents a single entry of the namespace list with some aggregations
+type WorkloadsForNamespace struct {
+	Cluster                 Cluster        `json:"cluster"`
+	Namespace               Namespace      `json:"namespace"`
+	Metadata                Metadata       `json:"metadata"`
+	RecommendationsHitCount map[string]int `json:"recommendations_hit_count"`
+}
+
 // DVORecommendation structure represents one DVO-related recommendation
 type DVORecommendation struct {
-	Check       string      `json:"check"`
-	Description string      `json:"description"`
-	Remediation string      `json:"remediation"`
-	Objects     []DVOObject `json:"objects"`
+	Check        string                 `json:"check"`
+	Details      string                 `json:"details"`
+	Resolution   string                 `json:"resolution"`
+	Modified     string                 `json:"modified"`
+	MoreInfo     string                 `json:"more_info"`
+	TemplateData map[string]interface{} `json:"extra_data"`
+	Objects      []DVOObject            `json:"objects"`
 }
 
 // DVOObject structure

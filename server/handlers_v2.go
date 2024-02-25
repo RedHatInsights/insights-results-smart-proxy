@@ -1585,7 +1585,7 @@ func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, reques
 // processWorkloadsRecommendations filter out inactive clusters; calculate aggregations by severity
 func processWorkloadsRecommendations(
 	clusterInfoMap map[ctypes.ClusterName]types.ClusterInfo,
-	workloadsForCluster []types.WorkloadsForCluster,
+	workloadsForCluster []types.WorkloadsForNamespace,
 ) (
 	workloads []types.Workload,
 	err error,
@@ -1614,9 +1614,9 @@ func processWorkloadsRecommendations(
 		w.Metadata.HitsBySeverity = hitsBySeverity
 
 		// calculate hits by severity and highest severity across all recommendations
-		for _, recommendation := range w.Recommendations {
-			if severity, found := recommendationSeverities[ctypes.RuleID(recommendation.Check)]; found {
-				w.Metadata.HitsBySeverity[severity]++
+		for recommendation, hitCount := range w.RecommendationsHitCount {
+			if severity, found := recommendationSeverities[ctypes.RuleID(recommendation)]; found {
+				w.Metadata.HitsBySeverity[severity] += hitCount
 
 				if severity > w.Metadata.HighestSeverity {
 					w.Metadata.HighestSeverity = severity
@@ -1639,7 +1639,7 @@ func processWorkloadsRecommendations(
 	return
 }
 
-// getDVONamespacesForCluster returns a list of all DVO namespaces for a particular cluster.
+// getDVONamespacesForCluster returns a DVO workload recommendations for a single namespace within a cluster
 func (server *HTTPServer) getDVONamespacesForCluster(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
@@ -1744,7 +1744,7 @@ func fillInWorkloadsData(
 	// fill in severities and other data from rule content
 	for _, recommendation := range workloadsForCluster.Recommendations {
 		if severity, found := recommendationSeverities[ctypes.RuleID(recommendation.Check)]; found {
-			workloadsForCluster.Metadata.HitsBySeverity[severity]++
+			workloadsForCluster.Metadata.HitsBySeverity[severity] += len(recommendation.Objects)
 
 			if severity > workloadsForCluster.Metadata.HighestSeverity {
 				workloadsForCluster.Metadata.HighestSeverity = severity
@@ -1757,8 +1757,11 @@ func fillInWorkloadsData(
 			return workloads, err
 		}
 
-		recommendation.Description = ruleContent.Description
-		recommendation.Remediation = ruleContent.Resolution
+		// fill rest of data from content service
+		recommendation.Details = ruleContent.Description
+		recommendation.Resolution = ruleContent.Resolution
+		recommendation.MoreInfo = ruleContent.MoreInfo
+		recommendation.Modified = ruleContent.PublishDate.UTC().Format(time.RFC3339)
 		recommendations = append(recommendations, recommendation)
 	}
 
