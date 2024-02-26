@@ -2769,7 +2769,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_NoWorkloads(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -2844,7 +2844,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_OK(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -2961,7 +2961,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_AggregatorError(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -3033,7 +3033,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -3124,7 +3124,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testin
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -3188,7 +3188,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterNotFound(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3255,7 +3255,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundNoWorkloads(t *testing.T
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3372,7 +3372,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3592,7 +3592,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_RuleConten
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3667,7 +3667,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_NotFoundIn
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3712,7 +3712,7 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorError(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3756,7 +3756,7 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorBadResponse(t *testing.T) 
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{

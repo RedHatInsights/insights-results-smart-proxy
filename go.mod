@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/RedHatInsights/insights-content-service v1.0.0
 	github.com/RedHatInsights/insights-operator-utils v1.25.3
-	github.com/RedHatInsights/insights-results-aggregator v1.3.4
+	github.com/RedHatInsights/insights-results-aggregator v1.4.0
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/go-redis/redismock/v9 v9.2.0
@@ -77,7 +77,6 @@ require (
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.23 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

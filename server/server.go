@@ -1493,7 +1493,7 @@ func (server *HTTPServer) getWorkloadsForCluster(
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+		ira_server.DVOWorkloadRecommendationsSingleNamespace,
 		orgID, namespace.UUID, clusterID,
 	)
 
@@ -1535,7 +1535,7 @@ func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]type
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"organization/{organization}/workloads", // TODO: use real ira_server endpoint
+		ira_server.DVOWorkloadRecommendations,
 		orgID,
 	)
 
