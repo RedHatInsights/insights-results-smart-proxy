@@ -25,7 +25,6 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ctypes "github.com/RedHatInsights/insights-results-types"
-	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
@@ -282,17 +281,16 @@ func readNamespace(writer http.ResponseWriter, request *http.Request) (
 	return
 }
 
+// rule tests used by molodec use non-UUID namespace IDs, we must allow any garbage
+// until that's resolved
 func validateNamespaceID(namespace string) (string, error) {
-	if _, err := uuid.Parse(namespace); err != nil {
-		message := fmt.Sprintf("invalid namespace ID: '%s'. Error: %s", namespace, err.Error())
+	IDValidator := regexp.MustCompile(`^.{1,256}$`)
 
+	if !IDValidator.MatchString(namespace) {
+		message := fmt.Sprintf("invalid namespace ID: '%s'", namespace)
+		err := errors.New(message)
 		log.Error().Err(err).Msg(message)
-
-		return "", &RouterParsingError{
-			ParamName:  NamespaceIDParam,
-			ParamValue: namespace,
-			ErrString:  err.Error(),
-		}
+		return "", err
 	}
 
 	return namespace, nil
