@@ -282,7 +282,22 @@ func readNamespace(writer http.ResponseWriter, request *http.Request) (
 	return
 }
 
+// rule tests used by molodec use non-UUID namespace IDs, we must allow any garbage
+// until that's resolved
 func validateNamespaceID(namespace string) (string, error) {
+	IDValidator := regexp.MustCompile(`^.{1,256}$`)
+
+	if !IDValidator.MatchString(namespace) {
+		message := fmt.Sprintf("invalid namespace ID: '%s'", namespace)
+		err := errors.New(message)
+		log.Error().Err(err).Msg(message)
+		return "", err
+	}
+
+	return namespace, nil
+}
+
+func validateNamespaceUUID(namespace string) (string, error) {
 	if _, err := uuid.Parse(namespace); err != nil {
 		message := fmt.Sprintf("invalid namespace ID: '%s'. Error: %s", namespace, err.Error())
 

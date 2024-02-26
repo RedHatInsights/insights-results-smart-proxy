@@ -3488,7 +3488,9 @@ func TestHTTPServer_DVONamespaceForCluster1_BadClusterID(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_DVONamespaceForCluster1_BadNamespaceID(t *testing.T) {
+// TestHTTPServer_DVONamespaceForCluster1_NonUUIDNamespaceID non-UUID namespace_ids are produced by test rules/molodec,
+// we need to allow anything
+func TestHTTPServer_DVONamespaceForCluster1_NonUUIDNamespaceID(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -3501,6 +3503,19 @@ func TestHTTPServer_DVONamespaceForCluster1_BadNamespaceID(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
+		helpers.GockExpectAPIRequest(
+			t,
+			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
+				EndpointArgs: []interface{}{testdata.OrgID, "namespace ID", testdata.ClusterName},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+			},
+		)
+
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
@@ -3510,10 +3525,10 @@ func TestHTTPServer_DVONamespaceForCluster1_BadNamespaceID(t *testing.T) {
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
 				Endpoint:     server.DVONamespaceForClusterEndpoint,
-				EndpointArgs: []interface{}{"bad namespace ID", testdata.ClusterName},
+				EndpointArgs: []interface{}{"namespace ID", testdata.ClusterName},
 				XRHIdentity:  goodXRHAuthToken,
 			}, &helpers.APIResponse{
-				StatusCode: http.StatusBadRequest,
+				StatusCode: http.StatusNotFound,
 			},
 		)
 	}, testTimeout)
