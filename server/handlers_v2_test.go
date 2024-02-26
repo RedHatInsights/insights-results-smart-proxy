@@ -2769,7 +2769,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_NoWorkloads(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -2812,11 +2812,11 @@ func TestHTTPServer_DVONamespaceListEndpoint_OK(t *testing.T) {
 
 		now := time.Now().UTC().Format(time.RFC3339)
 		aggrResponse := struct {
-			Status    string                      `json:"status"`
-			Workloads []types.WorkloadsForCluster `json:"workloads"`
+			Status    string                        `json:"status"`
+			Workloads []types.WorkloadsForNamespace `json:"workloads"`
 		}{
 			Status: "ok",
-			Workloads: []types.WorkloadsForCluster{
+			Workloads: []types.WorkloadsForNamespace{
 				{
 					Cluster: types.Cluster{
 						UUID: string(data.ClusterInfoResult2Clusters[0].ID),
@@ -2831,13 +2831,9 @@ func TestHTTPServer_DVONamespaceListEndpoint_OK(t *testing.T) {
 						ReportedAt:      now,
 						LastCheckedAt:   now,
 					},
-					Recommendations: []types.DVORecommendation{
-						{
-							Check: string(testdata.Rule1CompositeID),
-						},
-						{
-							Check: string(testdata.Rule2CompositeID),
-						},
+					RecommendationsHitCount: map[string]int{
+						string(testdata.Rule1CompositeID): 1,
+						string(testdata.Rule2CompositeID): 1,
 					},
 				},
 			},
@@ -2848,7 +2844,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_OK(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -2965,7 +2961,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_AggregatorError(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -3005,11 +3001,11 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 
 		now := time.Now().UTC().Format(time.RFC3339)
 		aggrResponse := struct {
-			Status    string                      `json:"status"`
-			Workloads []types.WorkloadsForCluster `json:"workloads"`
+			Status    string                        `json:"status"`
+			Workloads []types.WorkloadsForNamespace `json:"workloads"`
 		}{
 			Status: "ok",
-			Workloads: []types.WorkloadsForCluster{
+			Workloads: []types.WorkloadsForNamespace{
 				{
 					Cluster: types.Cluster{
 						UUID: string(data.ClusterInfoResult2Clusters[0].ID),
@@ -3024,13 +3020,9 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 						ReportedAt:      now,
 						LastCheckedAt:   now,
 					},
-					Recommendations: []types.DVORecommendation{
-						{
-							Check: string("non-existent recommendation ID"),
-						},
-						{
-							Check: string(testdata.Rule2CompositeID),
-						},
+					RecommendationsHitCount: map[string]int{
+						string("non-existent rule ID"):    1,
+						string(testdata.Rule2CompositeID): 1,
 					},
 				},
 			},
@@ -3041,7 +3033,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -3082,11 +3074,11 @@ func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testin
 
 		now := time.Now().UTC().Format(time.RFC3339)
 		aggrResponse := struct {
-			Status    string                      `json:"status"`
-			Workloads []types.WorkloadsForCluster `json:"workloads"`
+			Status    string                        `json:"status"`
+			Workloads []types.WorkloadsForNamespace `json:"workloads"`
 		}{
 			Status: "ok",
-			Workloads: []types.WorkloadsForCluster{
+			Workloads: []types.WorkloadsForNamespace{
 				{
 					Cluster: types.Cluster{
 						UUID: string(testdata.ClusterName), // <-- cluster is not in the list of active clusters from AMS API
@@ -3101,10 +3093,8 @@ func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testin
 						ReportedAt:      now,
 						LastCheckedAt:   now,
 					},
-					Recommendations: []types.DVORecommendation{
-						{
-							Check: string(testdata.Rule1CompositeID),
-						},
+					RecommendationsHitCount: map[string]int{
+						string(testdata.Rule1CompositeID): 1,
 					},
 				},
 				{
@@ -3121,13 +3111,9 @@ func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testin
 						ReportedAt:      now,
 						LastCheckedAt:   now,
 					},
-					Recommendations: []types.DVORecommendation{
-						{
-							Check: string(testdata.Rule1CompositeID),
-						},
-						{
-							Check: string(testdata.Rule2CompositeID),
-						},
+					RecommendationsHitCount: map[string]int{
+						string(testdata.Rule1CompositeID): 1,
+						string(testdata.Rule2CompositeID): 1,
 					},
 				},
 			},
@@ -3138,7 +3124,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testin
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
 			},
 			&helpers.APIResponse{
@@ -3202,7 +3188,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterNotFound(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3269,7 +3255,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundNoWorkloads(t *testing.T
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3345,9 +3331,37 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 				Recommendations: []types.DVORecommendation{
 					{
 						Check: string(testdata.Rule1CompositeID),
+						TemplateData: map[string]interface{}{
+							"samples": []map[string]interface{}{
+								{"name": "displayname"},
+							},
+						},
+						Objects: []types.DVOObject{
+							{
+								Kind: "pod",
+								UID:  uuid.NewString(),
+							},
+						},
 					},
 					{
 						Check: string(testdata.Rule2CompositeID),
+						TemplateData: map[string]interface{}{
+							"samples": []map[string]interface{}{
+								{
+									"name": "displayname",
+								},
+							},
+						},
+						Objects: []types.DVOObject{
+							{
+								Kind: "pod",
+								UID:  uuid.NewString(),
+							},
+							{
+								Kind: "pod",
+								UID:  uuid.NewString(),
+							},
+						},
 					},
 				},
 			},
@@ -3358,7 +3372,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3378,12 +3392,21 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 		expectedResponse.Metadata.HighestSeverity = 2
 		expectedResponse.Metadata.HitsBySeverity = map[int]int{
 			1: 1,
-			2: 1,
+			2: 2,
 		}
-		expectedResponse.Recommendations[0].Description = testdata.RuleErrorKey1.Description
-		expectedResponse.Recommendations[0].Remediation = testdata.RuleErrorKey1.Resolution
-		expectedResponse.Recommendations[1].Description = testdata.RuleErrorKey2.Description
-		expectedResponse.Recommendations[1].Remediation = testdata.RuleErrorKey2.Resolution
+		expectedResponse.Recommendations[0].Details = testdata.RuleErrorKey1.Description
+		expectedResponse.Recommendations[0].Resolution = testdata.RuleErrorKey1.Resolution
+		expectedResponse.Recommendations[0].MoreInfo = testdata.RuleErrorKey1.MoreInfo
+		expectedResponse.Recommendations[0].Modified = testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339)
+		expectedResponse.Recommendations[0].TemplateData = aggrResp.Workloads.Recommendations[0].TemplateData
+		expectedResponse.Recommendations[0].Objects = aggrResp.Workloads.Recommendations[0].Objects
+
+		expectedResponse.Recommendations[1].Details = testdata.RuleErrorKey2.Description
+		expectedResponse.Recommendations[1].Resolution = testdata.RuleErrorKey2.Resolution
+		expectedResponse.Recommendations[1].MoreInfo = testdata.RuleErrorKey2.MoreInfo
+		expectedResponse.Recommendations[1].Modified = testdata.RuleErrorKey2.PublishDate.UTC().Format(time.RFC3339)
+		expectedResponse.Recommendations[1].TemplateData = aggrResp.Workloads.Recommendations[1].TemplateData
+		expectedResponse.Recommendations[1].Objects = aggrResp.Workloads.Recommendations[1].Objects
 
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 
@@ -3569,7 +3592,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_RuleConten
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3644,7 +3667,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_NotFoundIn
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3689,7 +3712,7 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorError(t *testing.T) {
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{
@@ -3733,7 +3756,7 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorBadResponse(t *testing.T) 
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
 				Method:       http.MethodGet,
-				Endpoint:     "organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+				Endpoint:     ira_server.DVOWorkloadRecommendationsSingleNamespace,
 				EndpointArgs: []interface{}{testdata.OrgID, data.NamespaceUUID1, testdata.ClusterName},
 			},
 			&helpers.APIResponse{

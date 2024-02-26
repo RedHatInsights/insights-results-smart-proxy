@@ -1493,7 +1493,7 @@ func (server *HTTPServer) getWorkloadsForCluster(
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"organization/{organization}/namespace/{namespace}/cluster/{cluster}/workloads", // TODO: use real ira_server endpoint
+		ira_server.DVOWorkloadRecommendationsSingleNamespace,
 		orgID, namespace.UUID, clusterID,
 	)
 
@@ -1526,16 +1526,16 @@ func (server *HTTPServer) getWorkloadsForCluster(
 // getWorkloadsForOrganization returns a list of workloads for given organization ID.
 // Empty slice is returned when aggregator responds with 404 Not Found.
 // Nil is returned when any other unexpected error occurs.
-func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]types.WorkloadsForCluster, error) {
+func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]types.WorkloadsForNamespace, error) {
 	// wont be used anywhere else
 	var response struct {
-		Status    string                      `json:"status"`
-		Workloads []types.WorkloadsForCluster `json:"workloads"`
+		Status    string                        `json:"status"`
+		Workloads []types.WorkloadsForNamespace `json:"workloads"`
 	}
 
 	aggregatorURL := httputils.MakeURLToEndpoint(
 		server.ServicesConfig.AggregatorBaseEndpoint,
-		"organization/{organization}/workloads", // TODO: use real ira_server endpoint
+		ira_server.DVOWorkloadRecommendations,
 		orgID,
 	)
 
@@ -1546,7 +1546,7 @@ func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]type
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return []types.WorkloadsForCluster{}, nil
+		return []types.WorkloadsForNamespace{}, nil
 	}
 
 	// check the aggregator response
