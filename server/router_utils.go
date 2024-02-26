@@ -25,7 +25,6 @@ import (
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	ctypes "github.com/RedHatInsights/insights-results-types"
-	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
@@ -292,22 +291,6 @@ func validateNamespaceID(namespace string) (string, error) {
 		err := errors.New(message)
 		log.Error().Err(err).Msg(message)
 		return "", err
-	}
-
-	return namespace, nil
-}
-
-func validateNamespaceUUID(namespace string) (string, error) {
-	if _, err := uuid.Parse(namespace); err != nil {
-		message := fmt.Sprintf("invalid namespace ID: '%s'. Error: %s", namespace, err.Error())
-
-		log.Error().Err(err).Msg(message)
-
-		return "", &RouterParsingError{
-			ParamName:  NamespaceIDParam,
-			ParamValue: namespace,
-			ErrString:  err.Error(),
-		}
 	}
 
 	return namespace, nil
