@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/RedHatInsights/insights-content-service v1.0.0
 	github.com/RedHatInsights/insights-operator-utils v1.25.3
-	github.com/RedHatInsights/insights-results-aggregator v1.4.0
+	github.com/RedHatInsights/insights-results-aggregator v1.4.1
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.3.23
 	github.com/go-redis/redismock/v9 v9.2.0
