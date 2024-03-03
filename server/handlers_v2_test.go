@@ -3397,6 +3397,8 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 		expectedResponse.Recommendations[0].Details = testdata.RuleErrorKey1.Description
 		expectedResponse.Recommendations[0].Resolution = testdata.RuleErrorKey1.Resolution
 		expectedResponse.Recommendations[0].MoreInfo = testdata.RuleErrorKey1.MoreInfo
+		expectedResponse.Recommendations[0].Reason = testdata.RuleErrorKey1.Reason
+		expectedResponse.Recommendations[0].TotalRisk = testdata.RuleWithContent1.TotalRisk
 		expectedResponse.Recommendations[0].Modified = testdata.RuleErrorKey1.PublishDate.UTC().Format(time.RFC3339)
 		expectedResponse.Recommendations[0].TemplateData = aggrResp.Workloads.Recommendations[0].TemplateData
 		expectedResponse.Recommendations[0].Objects = aggrResp.Workloads.Recommendations[0].Objects
@@ -3404,6 +3406,8 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 		expectedResponse.Recommendations[1].Details = testdata.RuleErrorKey2.Description
 		expectedResponse.Recommendations[1].Resolution = testdata.RuleErrorKey2.Resolution
 		expectedResponse.Recommendations[1].MoreInfo = testdata.RuleErrorKey2.MoreInfo
+		expectedResponse.Recommendations[1].Reason = testdata.RuleErrorKey2.Reason
+		expectedResponse.Recommendations[1].TotalRisk = testdata.RuleWithContent2.TotalRisk
 		expectedResponse.Recommendations[1].Modified = testdata.RuleErrorKey2.PublishDate.UTC().Format(time.RFC3339)
 		expectedResponse.Recommendations[1].TemplateData = aggrResp.Workloads.Recommendations[1].TemplateData
 		expectedResponse.Recommendations[1].Objects = aggrResp.Workloads.Recommendations[1].Objects
