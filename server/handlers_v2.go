@@ -1742,7 +1742,8 @@ func fillInWorkloadsData(
 	recommendations := []types.DVORecommendation{}
 
 	// fill in severities and other data from rule content
-	for _, recommendation := range workloadsForCluster.Recommendations {
+	for i := range workloadsForCluster.Recommendations {
+		recommendation := &workloadsForCluster.Recommendations[i]
 		if severity, found := recommendationSeverities[ctypes.RuleID(recommendation.Check)]; found {
 			workloadsForCluster.Metadata.HitsBySeverity[severity] += len(recommendation.Objects)
 
@@ -1751,12 +1752,12 @@ func fillInWorkloadsData(
 			}
 		}
 
-		err = fillDVORecommendationRuleContent(&recommendation)
+		err = fillDVORecommendationRuleContent(recommendation)
 		if err != nil {
 			return workloads, err
 		}
 
-		recommendations = append(recommendations, recommendation)
+		recommendations = append(recommendations, *recommendation)
 	}
 
 	workloads = types.WorkloadsForCluster{
