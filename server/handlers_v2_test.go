@@ -3538,6 +3538,42 @@ func TestHTTPServer_DVONamespaceForCluster1_NonUUIDNamespaceID(t *testing.T) {
 	}, testTimeout)
 }
 
+func TestHTTPServer_DVONamespaceForCluster1_BadNamespaceID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		var longID string
+		for i := 0; i < 8; i++ {
+			longID += uuid.NewString()
+		}
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
+				EndpointArgs: []interface{}{longID, testdata.ClusterName}, // very long string as namespace_id (only validation we're doing)
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusBadRequest,
+			},
+		)
+	}, testTimeout)
+}
+
 func TestHTTPServer_DVONamespaceForCluster1_NoAMS(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -3797,6 +3833,39 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorBadResponse(t *testing.T) 
 				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
 			}, &helpers.APIResponse{
 				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_DVONamespaceForCluster1_AggregatorUnavailable(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+		assert.Nil(t, err)
+
+		// error from AMS API
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			data.ClusterInfoResult,
+		)
+
+		// gock expect missing == aggregator request will timeout
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.DVONamespaceForClusterEndpoint,
+				XRHIdentity:  goodXRHAuthToken,
+				EndpointArgs: []interface{}{data.NamespaceUUID1, testdata.ClusterName},
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusServiceUnavailable,
 			},
 		)
 	}, testTimeout)
