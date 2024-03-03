@@ -760,44 +760,7 @@
                       }
                     },
                     "metadata": {
-                      "type": "object",
-                      "properties": {
-                        "recommendations": {
-                          "type": "integer",
-                          "description": "Total number of DVO recommendations affecting this namespace and cluster"
-                        },
-                        "objects": {
-                          "type": "integer",
-                          "description": "Total number of objects affecting this namespace and cluster"
-                        },
-                        "reported_at": {
-                          "format": "date-time",
-                          "type": "string",
-                          "description": "Timestamp of the first analysis"
-                        },
-                        "last_checked_at": {
-                          "format": "date-time",
-                          "type": "string",
-                          "description": "Timestamp of the last analysis"
-                        },
-                        "highest_severity": {
-                          "type": "integer",
-                          "description": "Highest recommendation severity affecting this namespace + cluster"
-                        },
-                        "hits_by_severity": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "integer"
-                          },
-                          "description": "A dictionary with the number of DVO recommendation hits grouped by their severity. Always provides the severity keys even if there are no recommendations currently hitting.",
-                          "example": {
-                            "1": 2,
-                            "2": 3,
-                            "3": 0,
-                            "4": 1
-                          }
-                        }
-                      }
+                        "$ref": "#/components/schemas/dvoReportMeta"
                     },
                     "recommendations": {
                       "type": "array",
@@ -816,6 +779,30 @@
                           "remediation": {
                             "type": "string",
                             "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base."
+                          },
+                          "modified": {
+                            "description": "The date the recommendation was last updated.",
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string",
+                            "description": "Reason for the issue, giving the user more accurate description of the cause."
+                          },
+                          "total_risk": {
+                            "description": "Total risk - calculated from rule impact and likelihood.",
+                            "enum": [
+                              0,
+                              1,
+                              2,
+                              3,
+                              4
+                            ],
+                            "type": "integer"
+                          },
+                          "extra_data": {
+                            "description": "Used as templating/interpolation data for other content (details, resolution, etc.), has varying structure depending on the rules in the report, but should always be a valid JSON object.",
+                            "type": "object"
                           },
                           "objects": {
                             "type": "array",
@@ -912,44 +899,7 @@
                             }
                           },
                           "metadata": {
-                            "type": "object",
-                            "properties": {
-                              "recommendations": {
-                                "type": "integer",
-                                "description": "Total number of DVO recommendations affecting an organization affecting this namespace"
-                              },
-                              "objects": {
-                                "type": "integer",
-                                "description": "Total number of objects affecting this namespace"
-                              },
-                              "reported_at": {
-                                "format": "date-time",
-                                "type": "string",
-                                "description": "Timestamp of the first analysis"
-                              },
-                              "last_checked_at": {
-                                "format": "date-time",
-                                "type": "string",
-                                "description": "Timestamp of the last analysis"
-                              },
-                              "highest_severity": {
-                                "type": "integer",
-                                "description": "Highest recommendation severity affecting this namespace"
-                              },
-                              "hits_by_severity": {
-                                "type": "object",
-                                "additionalProperties": {
-                                  "type": "integer"
-                                },
-                                "description": "A dictionary with the number of DVO recommendation hits grouped by their severity. Always provides the severity keys even if there are no recommendations currently hitting.",
-                                "example": {
-                                  "1": 2,
-                                  "2": 3,
-                                  "3": 0,
-                                  "4": 1
-                                }
-                              }
-                            }
+                            "$ref": "#/components/schemas/dvoReportMeta"
                           }
                         }
                       }
@@ -1944,6 +1894,46 @@
           "managed": false,
           "count": 9,
           "last_checked_at": "2020-12-08T09:45:23Z"
+        }
+      },
+      "dvoReportMeta": {
+        "type": "object",
+        "properties": {
+          "recommendations": {
+            "type": "integer",
+            "description": "Total number of DVO recommendations affecting this namespace"
+          },
+          "objects": {
+            "type": "integer",
+            "description": "Total number of unique objects (workloads) being affected by DVO recommendations in this namespace. When a workload is being affected by several recommendations at once, it still counts as one affected object/workload in the context of a namespace."
+          },
+          "reported_at": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Timestamp of the first analysis"
+          },
+          "last_checked_at": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Timestamp of the last analysis"
+          },
+          "highest_severity": {
+            "type": "integer",
+            "description": "Highest recommendation severity affecting this namespace + cluster"
+          },
+          "hits_by_severity": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "A dictionary with the number of DVO recommendation hits grouped by their severity. Always provides the severity keys even if there are no recommendations currently hitting.",
+            "example": {
+              "1": 2,
+              "2": 3,
+              "3": 0,
+              "4": 1
+            }
+          }
         }
       },
       "reportResponse": {
