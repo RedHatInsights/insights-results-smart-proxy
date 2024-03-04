@@ -74,6 +74,8 @@ type DVORecommendation struct {
 	Resolution   string                 `json:"resolution"`
 	Modified     string                 `json:"modified"`
 	MoreInfo     string                 `json:"more_info"`
+	Reason       string                 `json:"reason"`
+	TotalRisk    int                    `json:"total_risk"`
 	TemplateData map[string]interface{} `json:"extra_data"`
 	Objects      []DVOObject            `json:"objects"`
 }

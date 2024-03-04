@@ -1742,7 +1742,8 @@ func fillInWorkloadsData(
 	recommendations := []types.DVORecommendation{}
 
 	// fill in severities and other data from rule content
-	for _, recommendation := range workloadsForCluster.Recommendations {
+	for i := range workloadsForCluster.Recommendations {
+		recommendation := &workloadsForCluster.Recommendations[i]
 		if severity, found := recommendationSeverities[ctypes.RuleID(recommendation.Check)]; found {
 			workloadsForCluster.Metadata.HitsBySeverity[severity] += len(recommendation.Objects)
 
@@ -1751,18 +1752,12 @@ func fillInWorkloadsData(
 			}
 		}
 
-		ruleContent, err := content.GetContentForRecommendation(ctypes.RuleID(recommendation.Check))
+		err = fillDVORecommendationRuleContent(recommendation)
 		if err != nil {
-			log.Error().Err(err).Msgf(ruleContentError, recommendation.Check)
 			return workloads, err
 		}
 
-		// fill rest of data from content service
-		recommendation.Details = ruleContent.Description
-		recommendation.Resolution = ruleContent.Resolution
-		recommendation.MoreInfo = ruleContent.MoreInfo
-		recommendation.Modified = ruleContent.PublishDate.UTC().Format(time.RFC3339)
-		recommendations = append(recommendations, recommendation)
+		recommendations = append(recommendations, *recommendation)
 	}
 
 	workloads = types.WorkloadsForCluster{
@@ -1773,4 +1768,22 @@ func fillInWorkloadsData(
 	}
 
 	return
+}
+
+func fillDVORecommendationRuleContent(recommendation *types.DVORecommendation) error {
+	ruleContent, err := content.GetContentForRecommendation(ctypes.RuleID(recommendation.Check))
+	if err != nil {
+		log.Error().Err(err).Msgf(ruleContentError, recommendation.Check)
+		return err
+	}
+
+	// fill DVORecommendation with data from content service
+	recommendation.Details = ruleContent.Description
+	recommendation.Resolution = ruleContent.Resolution
+	recommendation.MoreInfo = ruleContent.MoreInfo
+	recommendation.Reason = ruleContent.Reason
+	recommendation.TotalRisk = ruleContent.TotalRisk
+	recommendation.Modified = ruleContent.PublishDate.UTC().Format(time.RFC3339)
+
+	return nil
 }
