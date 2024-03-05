@@ -772,11 +772,11 @@
                             "description": "The rule ID in the | format.",
                             "example": "rule.module|ERROR_KEY"
                           },
-                          "description": {
+                          "details": {
                             "type": "string",
                             "description": "The title of the rule, a short description."
                           },
-                          "remediation": {
+                          "resolution": {
                             "type": "string",
                             "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base."
                           },
@@ -788,6 +788,10 @@
                           "reason": {
                             "type": "string",
                             "description": "Reason for the issue, giving the user more accurate description of the cause."
+                          },
+                          "more_info": {
+                            "type": "string",
+                            "description": "Additional information regarding the recommendation."
                           },
                           "total_risk": {
                             "description": "Total risk - calculated from rule impact and likelihood.",
