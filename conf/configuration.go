@@ -250,7 +250,7 @@ func getInternalRulesOrganizations() []types.OrgID {
 		log.Fatal().Err(err).Msg("Internal organizations CSV could not be processed")
 	}
 
-	log.Info().Msgf("Internal rules request filtering enabled. Organizations allowed: %v", internalOrganizations)
+	log.Debug().Msgf("Internal rules request filtering enabled. Organizations allowed: %v", internalOrganizations)
 	return internalOrganizations
 }
 

@@ -81,7 +81,7 @@ func GetGroups(conf Configuration) ([]groups.Group, error) {
 		return nil, err
 	}
 
-	log.Info().Msgf("Received %d groups", len(receivedMsg.Groups))
+	log.Debug().Msgf("Received %d groups", len(receivedMsg.Groups))
 	return receivedMsg.Groups, nil
 }
 
@@ -108,7 +108,7 @@ func GetContent(conf Configuration) (*types.RuleContentDirectory, error) {
 		return nil, err
 	}
 
-	log.Info().Msgf("Got %d rules from content-service", len(receivedContent.Rules))
+	log.Debug().Msgf("Got %d rules from content-service", len(receivedContent.Rules))
 
 	return &receivedContent, nil
 }
