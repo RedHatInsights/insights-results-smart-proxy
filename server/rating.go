@@ -40,7 +40,7 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 		return
 	}
 
-	log.Info().Int32("org_id", int32(orgID)).Msg("Extracted user and org")
+	log.Debug().Int32("org_id", int32(orgID)).Msg("Extracted user and org")
 
 	rating, successful := server.postRatingToAggregator(orgID, request, writer)
 	if !successful {
@@ -139,7 +139,7 @@ func (server HTTPServer) getRatingForRecommendation(
 	}
 
 	if aggregatorResp.StatusCode == http.StatusNotFound {
-		log.Info().Msgf("rule rating for rule %v not found", ruleID)
+		log.Debug().Msgf("rule rating for rule %v not found", ruleID)
 		return ruleRating, &utypes.ItemNotFoundError{}
 	}
 

@@ -137,7 +137,7 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 	// rule was not acked -> nothing to return
 	if !found {
 		writer.WriteHeader(http.StatusNotFound)
-		log.Info().Msg("Rule has not been disabled previously -> nothing to return!")
+		log.Debug().Msg("Rule has not been disabled previously -> nothing to return!")
 		return
 	}
 
@@ -312,7 +312,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 
 	// if acknowledgement has NOT been found -> return 404 NotFound
 	if !found {
-		log.Info().Msg("Rule ack can not be found")
+		log.Debug().Msg("Rule ack can not be found")
 		err := &utypes.ItemNotFoundError{ItemID: (ruleID + "|" + types.RuleID(errorKey))}
 		handleServerError(writer, err)
 		return
@@ -374,7 +374,7 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 
 	if !found {
 		writer.WriteHeader(http.StatusNotFound)
-		log.Info().Msg("Rule has not been disabled previously -> ACK won't be deleted")
+		log.Debug().Msg("Rule has not been disabled previously -> ACK won't be deleted")
 		return
 	}
 

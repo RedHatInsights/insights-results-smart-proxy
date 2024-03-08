@@ -875,7 +875,7 @@ func (server HTTPServer) buildReportEndpointResponse(
 		handleServerError(writer, err)
 		return
 	}
-	log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
+	log.Debug().Msgf("Cluster ID: %v; %s flag = %t", clusterID, GetDisabledParam, includeDisabled)
 
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
@@ -896,7 +896,9 @@ func (server HTTPServer) buildReportEndpointResponse(
 	visibleRules, noContentRulesCnt, disabledRulesCnt, err := filterRulesInResponse(
 		aggregatorResponse.Report, osdFlag, includeDisabled, systemWideRuleDisables,
 	)
-	log.Info().Msgf("Cluster ID: %v; visible rules %d, no content rules %d, disabled rules %d", clusterID, len(visibleRules), noContentRulesCnt, disabledRulesCnt)
+	log.Debug().Msgf("Cluster ID: %v; visible rules %d, no content rules %d, disabled rules %d",
+		clusterID, len(visibleRules), noContentRulesCnt, disabledRulesCnt,
+	)
 
 	if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 		handleServerError(writer, err)
@@ -963,7 +965,7 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 		if err != nil {
 			log.Err(err).Msgf("Cluster ID: %v; Got error while parsing `%s` value", clusterID, OSDEligibleParam)
 		}
-		log.Info().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, managedCluster)
+		log.Debug().Msgf("Cluster ID: %v; %s flag = %t", clusterID, OSDEligibleParam, managedCluster)
 	}
 
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
@@ -1296,7 +1298,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 	for i := range aggregatorReport {
 		aggregatorRule := aggregatorReport[i]
 		if !getDisabled && isDisabledRule(aggregatorRule, systemWideDisabledRules) {
-			log.Info().Msgf("disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
+			log.Debug().Msgf("disabled rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 			disabledRulesCnt++
 			continue
 		}
@@ -1305,7 +1307,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 		if err != nil {
 			if !filtered {
 				// rule has not been filtered by OSDEligible field
-				log.Info().Msgf("no content rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
+				log.Debug().Msgf("no content rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 				noContentRulesCnt++
 			}
 			if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
@@ -1319,7 +1321,7 @@ func filterRulesInResponse(aggregatorReport []ctypes.RuleOnReport, filterOSD, ge
 
 		if filtered {
 			// rule has been filtered by OSDEligible field
-			log.Info().Msgf("osd filtered rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
+			log.Debug().Msgf("osd filtered rule ID %v|%v", aggregatorRule.Module, aggregatorRule.ErrorKey)
 			continue
 		}
 
@@ -1445,10 +1447,7 @@ func (server *HTTPServer) getClusterListAndUserData(
 		handleServerError(writer, err)
 		return
 	}
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after readClusterInfoForOrgID took %s", time.Since(tStart))
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
-		"getClusterListAndUserData number of clusters before processing %d", len(clusterInfoList),
-	)
+	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time spent in AMS API %s", time.Since(tStart))
 
 	clusterRecommendationMap, err = server.getClustersAndRecommendations(writer, orgID, userID, types.GetClusterNames(clusterInfoList))
 	if err != nil {
@@ -1460,7 +1459,6 @@ func (server *HTTPServer) getClusterListAndUserData(
 
 		return
 	}
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getClustersAndRecommendations took %s", time.Since(tStart))
 
 	// get a map of acknowledged rules
 	ackedRulesMap, err = server.getRuleAcksMap(orgID)
@@ -1468,11 +1466,10 @@ func (server *HTTPServer) getClusterListAndUserData(
 		handleServerError(writer, err)
 		return
 	}
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getRuleAcksMap took %s", time.Since(tStart))
 
 	// retrieve list of cluster IDs and single disabled rules for each cluster
 	disabledRulesPerCluster = server.getUserDisabledRulesPerCluster(orgID)
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start, after getUserDisabledRulesPerCluster took %s", time.Since(tStart))
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClusterListAndUserData start %s", time.Since(tStart))
 
 	return
 }

@@ -259,7 +259,6 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		log.Error().Err(err).Msgf("problem reading necessary params from request")
 		return
 	}
-	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getRecommendations start")
 
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
@@ -282,7 +281,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 		return
 	}
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf(
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf(
 		"getRecommendations get impacting recommendations from aggregator took %s", time.Since(tStartImpacting),
 	)
 
@@ -310,7 +309,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 		handleServerError(writer, err)
 		return
 	}
-	log.Info().
+	log.Debug().
 		Int(orgIDTag, int(orgID)).
 		Str(userIDTag, string(userID)).
 		Msgf("number of final recommendations: %d", len(recommendationList))
@@ -389,14 +388,12 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		handleServerError(writer, err)
 		return
 	}
-	log.Info().Int(orgIDTag, int(orgID)).Str(userIDTag, string(userID)).Msg("getClustersView start")
 
 	clusterList, clusterRuleHits, ackedRulesMap, disabledRules := server.getClusterListAndUserData(
 		writer,
 		orgID,
 		userID,
 	)
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClustersView start, after getClusterListAndUserData took %s", time.Since(tStart))
 
 	clusterViewResponse, err := matchClusterInfoAndUserData(
 		clusterList, clusterRuleHits, ackedRulesMap, disabledRules,
@@ -405,8 +402,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Msg("getClustersView error generating cluster list response")
 		handleServerError(writer, err)
 	}
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("time since getClustersView start, after matchClusterInfoAndUserData took %s", time.Since(tStart))
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView final number %v", len(clusterViewResponse))
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView final number %v", len(clusterViewResponse))
 
 	resp := make(map[string]interface{})
 	metaCount := map[string]int{
@@ -416,7 +412,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 	resp["meta"] = metaCount
 	resp["data"] = clusterViewResponse
 
-	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView took %s", time.Since(tStart))
+	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("getClustersView took %s", time.Since(tStart))
 
 	err = responses.SendOK(writer, resp)
 	if err != nil {
@@ -1350,15 +1346,11 @@ func (server *HTTPServer) getRequestsForClusterPostVariant(writer http.ResponseW
 		return
 	}
 
-	// log all request IDs, we need to perform it one by one becuase of type conversions
-	log.Info().
+	log.Debug().
 		Uint32(orgIDTag, uint32(orgID)).
 		Str("selected cluster", string(clusterID)).
 		Int("IDS count", len(requestIDsForCluster)).
 		Msg("requestIDs")
-	for i, requestIDForCluster := range requestIDsForCluster {
-		log.Info().Int("#", i).Msg(string(requestIDForCluster))
-	}
 
 	// make sure we don't access server.redis when it's nil
 	if !server.checkRedisClientReadiness(writer) {
