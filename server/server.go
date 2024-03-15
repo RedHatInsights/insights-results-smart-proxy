@@ -1501,7 +1501,8 @@ func (server *HTTPServer) getWorkloadsForCluster(
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
-		return workloads, &utypes.ItemNotFoundError{}
+		return workloads, &utypes.ItemNotFoundError{
+			ItemID: fmt.Sprintf("cluster=%s;namespace=%s", clusterID, namespace)}
 	}
 
 	// check the aggregator response
