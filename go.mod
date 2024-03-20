@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/RedHatInsights/insights-content-service v1.0.0
-	github.com/RedHatInsights/insights-operator-utils v1.25.3
+	github.com/RedHatInsights/insights-operator-utils v1.25.4
 	github.com/RedHatInsights/insights-results-aggregator v1.4.1
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.3.23
@@ -29,7 +29,7 @@ require (
 	github.com/RedHatInsights/kafka-zerolog v1.0.0 // indirect
 	github.com/Shopify/sarama v1.27.1 // indirect
 	github.com/archdx/zerolog-sentry v1.8.2 // indirect
-	github.com/aws/aws-sdk-go v1.49.19 // indirect
+	github.com/aws/aws-sdk-go v1.50.16 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
