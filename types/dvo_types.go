@@ -84,4 +84,5 @@ type DVORecommendation struct {
 type DVOObject struct {
 	Kind string `json:"kind"`
 	UID  string `json:"uid"`
+	Name string `json:"display_name"`
 }
