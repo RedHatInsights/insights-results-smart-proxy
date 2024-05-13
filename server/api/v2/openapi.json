@@ -820,6 +820,11 @@
                                 "uid": {
                                   "type": "string",
                                   "description": "ID of the object."
+                                },
+                                "display_name": {
+                                  "type": "string",
+                                  "description": "A human-readable name for the cluster",
+                                  "example": "Production cluster 1"
                                 }
                               }
                             }
