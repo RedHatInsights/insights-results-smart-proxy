@@ -3861,7 +3861,6 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorBadResponse(t *testing.T) 
 	}, testTimeout)
 }
 
-/*
 func TestHTTPServer_DVONamespaceForCluster1_AggregatorUnavailable(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
@@ -3894,4 +3893,3 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorUnavailable(t *testing.T) 
 		)
 	}, testTimeout)
 }
-*/
