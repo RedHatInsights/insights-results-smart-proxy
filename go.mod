@@ -18,7 +18,7 @@ require (
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redhatinsights/app-common-go v1.6.7
 	github.com/redis/go-redis/v9 v9.5.1
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/h2non/gock.v1 v1.1.2
