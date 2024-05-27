@@ -1614,10 +1614,7 @@ func processWorkloadsRecommendations(
 					w.Metadata.HighestSeverity = severity
 				}
 			} else {
-				msg := "recommendation ID not found in content"
-				err := errors.New(msg)
-				log.Error().Err(err).Send()
-				return workloads, err
+				log.Info().Msgf("recommendation ID [%v] not found in content. Skipping.", recommendation)
 			}
 		}
 
