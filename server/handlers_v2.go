@@ -1,4 +1,4 @@
-// Copyright 2020, 2021 Red Hat, Inc
+// Copyright 2020, 2021, 2022, 2024 Red Hat, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1614,10 +1614,7 @@ func processWorkloadsRecommendations(
 					w.Metadata.HighestSeverity = severity
 				}
 			} else {
-				msg := "recommendation ID not found in content"
-				err := errors.New(msg)
-				log.Error().Err(err).Send()
-				return workloads, err
+				log.Info().Msgf("recommendation ID [%v] not found in content. Skipping.", recommendation)
 			}
 		}
 

@@ -3044,6 +3044,25 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 
 		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
 
+		expectedResponse := types.DVONamespaceListResponse{
+			Status: "ok",
+			Workloads: []types.Workload{
+				{
+					Cluster:   aggrResponse.Workloads[0].Cluster,
+					Namespace: aggrResponse.Workloads[0].Namespace,
+					Metadata:  aggrResponse.Workloads[0].Metadata,
+				},
+			},
+		}
+		// filled in by smart-proxy, wrong rule ID is simply ommitted
+		expectedResponse.Workloads[0].Cluster.DisplayName = data.ClusterDisplayName1
+		expectedResponse.Workloads[0].Metadata.HighestSeverity = 2
+		hitsBySeverity := map[int]int{
+			1: 0, // <-- wrong rule ID not counted
+			2: 1,
+		}
+		expectedResponse.Workloads[0].Metadata.HitsBySeverity = hitsBySeverity
+
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -3053,7 +3072,8 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 				Endpoint:    server.DVONamespaceListEndpoint,
 				XRHIdentity: goodXRHAuthToken,
 			}, &helpers.APIResponse{
-				StatusCode: http.StatusInternalServerError,
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(expectedResponse),
 			},
 		)
 	}, testTimeout)
