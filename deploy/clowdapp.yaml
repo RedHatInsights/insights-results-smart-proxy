@@ -42,8 +42,9 @@ objects:
     envName: ${ENV_NAME}
     testing:
       iqePlugin: ccx
-    optionalDependencies:
+    mandatoryDependencies:
       - ccx-redis
+    optionalDependencies:
       - insights-content-service
       - ccx-insights-results
     deployments:
