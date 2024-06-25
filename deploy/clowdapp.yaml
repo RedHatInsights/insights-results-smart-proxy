@@ -44,7 +44,6 @@ objects:
       iqePlugin: ccx
     mandatoryDependencies:
       - ccx-redis
-    optionalDependencies:
       - insights-content-service
       - ccx-insights-results
     deployments:
