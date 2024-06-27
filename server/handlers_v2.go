@@ -1532,6 +1532,7 @@ func (server *HTTPServer) checkRedisClientReadiness(writer http.ResponseWriter) 
 
 // getDVONamespaceList returns a list of all DVO namespaces to which an account has access.
 func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, request *http.Request) {
+	tStart := time.Now()
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)
@@ -1548,12 +1549,16 @@ func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, reques
 	}
 	clusterInfoMap := types.ClusterInfoArrayToMap(activeClustersInfo)
 
+	log.Info().Int(orgIDTag, int(orgID)).Msgf("getDVONamespaceList took %v to get %d clusters from AMS API", time.Since(tStart), len(activeClustersInfo))
+
 	// get workloads for clusters
 	workloads, err := server.getWorkloadsForOrganization(orgID)
 	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
+
+	log.Info().Int(orgIDTag, int(orgID)).Msgf("getDVONamespaceList took %v to get %d workloads from aggregator", time.Since(tStart), len(workloads))
 
 	workloadsProcessed, err := processWorkloadsRecommendations(clusterInfoMap, workloads)
 	if err != nil {
@@ -1565,6 +1570,8 @@ func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, reques
 	responseData := map[string]interface{}{}
 	responseData["status"] = OkMsg
 	responseData["workloads"] = workloadsProcessed
+
+	log.Info().Int(orgIDTag, int(orgID)).Msgf("getDVONamespaceList took %v to process response into %d results", time.Since(tStart), len(workloadsProcessed))
 
 	// send response to client
 	err = responses.SendOK(writer, responseData)
