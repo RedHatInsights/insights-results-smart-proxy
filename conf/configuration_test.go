@@ -262,7 +262,7 @@ func TestGetAMCClientConfiguration(t *testing.T) {
 	   client_id = "-client-id-"
 	   client_secret = "-top-secret-"
 	   page_size = 6000
-
+	   cluster_list_caching = false
 	*/
 
 	TestLoadConfiguration(t)
@@ -277,6 +277,7 @@ func TestGetAMCClientConfiguration(t *testing.T) {
 	assert.Equal(t, "-top-secret-", amsConfiguration.ClientSecret)
 	assert.Equal(t, "https://api.openshift.com", amsConfiguration.URL)
 	assert.Equal(t, 6000, amsConfiguration.PageSize)
+	assert.Equal(t, false, amsConfiguration.ClusterListCaching)
 }
 
 // TestGetSetupConfiguration tests loading the Setup configuration sub-tree
