@@ -73,12 +73,18 @@ type AMSClient interface {
 
 // amsClientImpl is an implementation of the AMSClient interface
 type amsClientImpl struct {
-	connection *sdk.Connection
-	pageSize   int
+	connection         *sdk.Connection
+	pageSize           int
+	clusterListCaching bool
 }
 
 // NewAMSClient create an AMSClient from the configuration
 func NewAMSClient(conf Configuration) (AMSClient, error) {
+	if conf.ClusterListCaching {
+		log.Info().Msg("Caching for cluster list Enabled")
+	} else {
+		log.Info().Msg("Caching for cluster list Disabled")
+	}
 	return NewAMSClientWithTransport(conf, nil)
 }
 
@@ -90,7 +96,6 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 	if transport != nil {
 		builder.TransportWrapper(func(http.RoundTripper) http.RoundTripper { return transport })
 	}
-
 	if conf.ClientID != "" && conf.ClientSecret != "" {
 		builder = builder.Client(conf.ClientID, conf.ClientSecret)
 	} else if conf.Token != "" {
@@ -100,7 +105,6 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 		log.Error().Err(err).Msg("Cannot create the connection builder")
 		return nil, err
 	}
-
 	conn, err := builder.Build()
 
 	if err != nil {
@@ -113,8 +117,9 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 	}
 
 	return &amsClientImpl{
-		connection: conn,
-		pageSize:   conf.PageSize,
+		connection:         conn,
+		pageSize:           conf.PageSize,
+		clusterListCaching: conf.ClusterListCaching,
 	}, nil
 }
 
@@ -125,6 +130,8 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
+	//TODO check the toggle caching option from conf [CCXDEV-13018]
+	//if c.clusterListCaching {}
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking up active clusters for the organization")
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
 
