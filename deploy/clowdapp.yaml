@@ -152,6 +152,8 @@ objects:
                   optional: true
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__PAGE_SIZE
               value: ${AMS_API_PAGESIZE}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLUSTER_LIST_CACHING
+              value: ${AMS_API_CLUSTER_LIST_CACHING}
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__TOKEN
               valueFrom:
                 secretKeyRef:
@@ -292,5 +294,7 @@ parameters:
   value: "https://api.stage.openshift.com"
 - name: AMS_API_PAGESIZE
   value: "-1"
+- name: AMS_API_CLUSTER_LIST_CACHING
+  value: "false"
 - name: ORG_CLUSTERS_FALLBACK
   value: "false"

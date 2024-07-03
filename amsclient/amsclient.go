@@ -73,12 +73,14 @@ type AMSClient interface {
 
 // amsClientImpl is an implementation of the AMSClient interface
 type amsClientImpl struct {
-	connection *sdk.Connection
-	pageSize   int
+	connection         *sdk.Connection
+	pageSize           int
+	clusterListCaching bool
 }
 
 // NewAMSClient create an AMSClient from the configuration
 func NewAMSClient(conf Configuration) (AMSClient, error) {
+	log.Info().Bool("Enabled", conf.ClusterListCaching).Msg("Caching for cluster list")
 	return NewAMSClientWithTransport(conf, nil)
 }
 
@@ -113,8 +115,9 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 	}
 
 	return &amsClientImpl{
-		connection: conn,
-		pageSize:   conf.PageSize,
+		connection:         conn,
+		pageSize:           conf.PageSize,
+		clusterListCaching: conf.ClusterListCaching,
 	}, nil
 }
 
@@ -125,6 +128,8 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
+	//TODO check the toggle caching option from conf [CCXDEV-13018]
+	//if c.clusterListCaching {}
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking up active clusters for the organization")
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
 
