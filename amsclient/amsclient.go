@@ -80,11 +80,7 @@ type amsClientImpl struct {
 
 // NewAMSClient create an AMSClient from the configuration
 func NewAMSClient(conf Configuration) (AMSClient, error) {
-	if conf.ClusterListCaching {
-		log.Info().Msg("Caching for cluster list Enabled")
-	} else {
-		log.Info().Msg("Caching for cluster list Disabled")
-	}
+	log.Info().Bool("Enabled", conf.ClusterListCaching).Msg("Caching for cluster list")
 	return NewAMSClientWithTransport(conf, nil)
 }
 
