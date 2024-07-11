@@ -1552,7 +1552,7 @@ func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, reques
 	log.Info().Int(orgIDTag, int(orgID)).Msgf("getDVONamespaceList took %v to get %d clusters from AMS API", time.Since(tStart), len(activeClustersInfo))
 
 	// get workloads for clusters
-	workloads, err := server.getWorkloadsForOrganization(orgID)
+	workloads, err := server.getWorkloadsForOrganization(orgID, writer, activeClustersInfo)
 	if err != nil {
 		handleServerError(writer, err)
 		return

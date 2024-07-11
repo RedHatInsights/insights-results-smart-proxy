@@ -1524,7 +1524,9 @@ func (server *HTTPServer) getWorkloadsForCluster(
 // getWorkloadsForOrganization returns a list of workloads for given organization ID.
 // Empty slice is returned when aggregator responds with 404 Not Found.
 // Nil is returned when any other unexpected error occurs.
-func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]types.WorkloadsForNamespace, error) {
+func (server *HTTPServer) getWorkloadsForOrganization(
+	orgID types.OrgID, writer http.ResponseWriter, clusterInfo []types.ClusterInfo,
+) ([]types.WorkloadsForNamespace, error) {
 	// wont be used anywhere else
 	var response struct {
 		Status    string                        `json:"status"`
@@ -1537,10 +1539,26 @@ func (server *HTTPServer) getWorkloadsForOrganization(orgID types.OrgID) ([]type
 		orgID,
 	)
 
-	// #nosec G107
-	resp, err := http.Get(aggregatorURL)
+	// marshalling a list to JSON is much faster than marshaling a map
+	clusterPayload := make([]types.ClusterName, len(clusterInfo))
+	for i, clusterInfo := range clusterInfo {
+		clusterPayload[i] = clusterInfo.ID
+	}
+
+	body, err := json.Marshal(clusterPayload)
 	if err != nil {
+		log.Error().Err(err).Msg("unable to marshal cluster list body")
 		return nil, err
+	}
+
+	resp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
+	if err != nil {
+		if _, ok := err.(*url.Error); ok {
+			handleServerError(writer, &AggregatorServiceUnavailableError{})
+		} else {
+			handleServerError(writer, err)
+		}
+		return nil, nil
 	}
 
 	if resp.StatusCode == http.StatusNotFound {
