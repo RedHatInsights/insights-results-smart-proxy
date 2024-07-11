@@ -2764,13 +2764,15 @@ func TestHTTPServer_DVONamespaceListEndpoint_NoWorkloads(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
+		reqBody, _ := json.Marshal(data.ClusterList1Cluster)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method:       http.MethodGet,
+				Method:       http.MethodPost,
 				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusNotFound,
@@ -2839,13 +2841,15 @@ func TestHTTPServer_DVONamespaceListEndpoint_OK(t *testing.T) {
 			},
 		}
 
+		reqBody, _ := json.Marshal(data.ClusterList2Clusters)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method:       http.MethodGet,
+				Method:       http.MethodPost,
 				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -2956,13 +2960,15 @@ func TestHTTPServer_DVONamespaceListEndpoint_AggregatorError(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
+		reqBody, _ := json.Marshal(data.ClusterList1Cluster)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method:       http.MethodGet,
+				Method:       http.MethodPost,
 				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusInternalServerError,
@@ -3028,13 +3034,15 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 			},
 		}
 
+		reqBody, _ := json.Marshal(data.ClusterList2Clusters)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method:       http.MethodGet,
+				Method:       http.MethodPost,
 				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
@@ -3139,13 +3147,15 @@ func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testin
 			},
 		}
 
+		reqBody, _ := json.Marshal(data.ClusterList2Clusters)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
 			&helpers.APIRequest{
-				Method:       http.MethodGet,
+				Method:       http.MethodPost,
 				Endpoint:     ira_server.DVOWorkloadRecommendations,
 				EndpointArgs: []interface{}{testdata.OrgID},
+				Body:         reqBody,
 			},
 			&helpers.APIResponse{
 				StatusCode: http.StatusOK,
