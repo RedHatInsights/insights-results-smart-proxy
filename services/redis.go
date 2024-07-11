@@ -18,9 +18,11 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/RedHatInsights/insights-operator-utils/redis"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
@@ -73,6 +75,13 @@ type RedisInterface interface {
 		types.ClusterName,
 		types.RequestID,
 	) ([]types.RuleID, error)
+	StoreClustersInfo(
+		types.OrgID,
+		[]types.ClusterInfo,
+	) error
+	GetClustersInfoForOrgID(
+		types.OrgID,
+	) ([]types.ClusterInfo, error)
 }
 
 // RedisClient is a local type which embeds the imported redis.Client to include its own functionality
@@ -245,6 +254,55 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 		}
 
 		ruleHits = append(ruleHits, types.RuleID(ruleHit))
+	}
+
+	return
+}
+
+// StoreClustersInfo is used to store a set of ClusterInfo elements into the Redis storage
+func (redisClient *RedisClient) StoreClustersInfo(
+	orgID types.OrgID,
+	clustersInfo []types.ClusterInfo,
+) error {
+	ctx := context.Background()
+	key := fmt.Sprintf("organization:%d:clusters_info", orgID)
+
+	marshaledArray, err := json.Marshal(clustersInfo)
+	if err != nil {
+		return err
+	}
+
+	cmd := redisClient.Client.Connection.Set(ctx, key, marshaledArray, 300*time.Second)
+
+	if err := cmd.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetClustersInfoForOrgID is ised to get the clusters info for all the clusters in an organization
+func (redisClient *RedisClient) GetClustersInfoForOrgID(
+	orgID types.OrgID,
+) (clustersInfo []types.ClusterInfo, err error) {
+	ctx := context.Background()
+	key := fmt.Sprintf("organization:%d:clusters_info", orgID)
+
+	cmd := redisClient.Client.Connection.Get(ctx, key)
+	if err = cmd.Err(); err != nil {
+		log.Error().Err(err).Msg(redisCmdExecutionFailedMsg)
+		return
+	}
+
+	data, err := cmd.Result()
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting result")
+		return
+	}
+	err = json.Unmarshal([]byte(data), &clustersInfo)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to unmarshal result into an array")
+		return
 	}
 
 	return

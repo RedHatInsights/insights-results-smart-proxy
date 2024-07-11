@@ -252,10 +252,16 @@ type InfoResponse struct {
 
 // ClusterInfo is a data structure containing some relevant cluster information
 type ClusterInfo struct {
-	ID          ClusterName `json:"cluster_id"`
-	DisplayName string      `json:"display_name"`
-	Managed     bool        `json:"managed"`
-	Status      string      `json:"status"`
+	ID          ClusterName `json:"cluster_id" redis:"cluster_id"`
+	DisplayName string      `json:"display_name" redis:"display_name"`
+	Managed     bool        `json:"managed" redis:"managed"`
+	Status      string      `json:"status" redis:"status"`
+}
+
+type ReducedClusterInfo struct {
+	DisplayName string `redis:"display_name"`
+	Managed     bool   `redis:"managed"`
+	Status      string `redis:"status"`
 }
 
 // ClustersDetailData is the inner data structure for /clusters_detail
