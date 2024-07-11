@@ -294,11 +294,6 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	// retrieve user disabled rules for given list of active clusters
 	disabledClustersForRules := server.getRuleDisabledClusters(writer, orgID, clusterIDList)
-	if err != nil {
-		log.Error().Err(err).Msg("problem getting user disabled rules for list of clusters")
-		// server error has been handled already
-		return
-	}
 
 	recommendationList, err = getFilteredRecommendationsList(
 		activeClustersInfo, impactingRecommendations, impactingFlag, ackedRulesMap, disabledClustersForRules,
