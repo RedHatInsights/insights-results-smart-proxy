@@ -1551,6 +1551,7 @@ func (server *HTTPServer) getWorkloadsForOrganization(
 		return nil, err
 	}
 
+	// #nosec G107
 	resp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
 	if err != nil {
 		if _, ok := err.(*url.Error); ok {
