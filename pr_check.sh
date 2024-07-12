@@ -30,7 +30,7 @@ DEPLOY_FRONTENDS="true"   # enable for front-end/UI tests
 
 export IQE_PLUGINS="ccx"
 # Run all pipeline and ui tests
-export IQE_MARKER_EXPRESSION="pipeline or (core and ui)"
+export IQE_MARKER_EXPRESSION="pipeline or (smoke and ui)"
 export IQE_FILTER_EXPRESSION=""
 export IQE_REQUIREMENTS_PRIORITY=""
 export IQE_TEST_IMPORTANCE=""
