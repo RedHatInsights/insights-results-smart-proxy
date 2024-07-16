@@ -22,6 +22,8 @@ import (
 	"github.com/google/uuid"
 	sdk "github.com/openshift-online/ocm-sdk-go"
 	accMgmt "github.com/openshift-online/ocm-sdk-go/accountsmgmt/v1"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
 
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
@@ -70,6 +72,18 @@ type AMSClient interface {
 		types.ClusterInfo, error,
 	)
 }
+
+var (
+	amsRequests = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "ams_api_performed_requests",
+		Help: "Total number of queries sent to AMS service",
+	}, []string{"org_id"})
+
+	clusterListLength = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "clusters_per_organization",
+		Help: "Total number of clusters in a given organization reported by AMS service",
+	}, []string{"org_id"})
+)
 
 // amsClientImpl is an implementation of the AMSClient interface
 type amsClientImpl struct {
@@ -133,6 +147,10 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking up active clusters for the organization")
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
 
+	if metric, err := amsRequests.GetMetricWithLabelValues(fmt.Sprint(orgID)); err == nil {
+		metric.Inc()
+	}
+
 	tStart := time.Now()
 
 	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
@@ -154,6 +172,9 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	}
 
 	log.Info().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization from AMS API took %s", time.Since(tStart))
+	if metric, err := clusterListLength.GetMetricWithLabelValues(fmt.Sprint(orgID)); err == nil {
+		metric.Set(float64(len(clusterInfoList)))
+	}
 	return
 }
 
