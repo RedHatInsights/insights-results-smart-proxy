@@ -294,11 +294,6 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	// retrieve user disabled rules for given list of active clusters
 	disabledClustersForRules := server.getRuleDisabledClusters(writer, orgID, clusterIDList)
-	if err != nil {
-		log.Error().Err(err).Msg("problem getting user disabled rules for list of clusters")
-		// server error has been handled already
-		return
-	}
 
 	recommendationList, err = getFilteredRecommendationsList(
 		activeClustersInfo, impactingRecommendations, impactingFlag, ackedRulesMap, disabledClustersForRules,
@@ -1552,7 +1547,7 @@ func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, reques
 	log.Info().Int(orgIDTag, int(orgID)).Msgf("getDVONamespaceList took %v to get %d clusters from AMS API", time.Since(tStart), len(activeClustersInfo))
 
 	// get workloads for clusters
-	workloads, err := server.getWorkloadsForOrganization(orgID)
+	workloads, err := server.getWorkloadsForOrganization(orgID, writer, activeClustersInfo)
 	if err != nil {
 		handleServerError(writer, err)
 		return
