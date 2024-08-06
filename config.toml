@@ -50,7 +50,11 @@ cluster_list_caching = false
 namespace = "smart_proxy"
 
 [sentry]
-dns = ""
+dsn = ""
+environment = "dev"
+
+[logging]
+logging_to_sentry_enabled = false
 
 [kafka_zerolog]
 broker = ""
