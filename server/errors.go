@@ -127,7 +127,8 @@ func (*ParamsParsingError) Error() string {
 
 // handleServerError handles separate server errors and sends appropriate responses
 func handleServerError(writer http.ResponseWriter, err error) {
-	log.Error().Err(err).Msg("handleServerError()")
+	handleServerErrorStr := "handleServerError()"
+	var level = log.Warn() // set the default log level for most HTTP responses
 
 	var respErr error
 
@@ -147,8 +148,11 @@ func handleServerError(writer http.ResponseWriter, err error) {
 		*UpgradesDataEngServiceUnavailableError:
 		respErr = responses.SendServiceUnavailable(writer, err.Error())
 	default:
+		level = log.Error()
 		respErr = responses.SendInternalServerError(writer, "Internal Server Error")
 	}
+
+	level.Err(err).Msg(handleServerErrorStr)
 
 	if respErr != nil {
 		log.Error().Err(respErr).Msg(responseDataError)
