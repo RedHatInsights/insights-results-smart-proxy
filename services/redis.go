@@ -227,7 +227,7 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 	// report not found in storage
 	if simplifiedReport.RequestID == "" {
 		err = &utypes.ItemNotFoundError{ItemID: requestID}
-		log.Error().Err(err).Msgf("request data for request_id %v not found in Redis", requestID)
+		log.Warn().Err(err).Msgf("request data for request_id %v not found in Redis", requestID)
 		return
 	}
 
