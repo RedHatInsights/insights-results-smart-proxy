@@ -35,12 +35,14 @@ const (
 	ContentEndpoint = "content"
 	// GroupsEndpoint is the content-service endpoint for getting the list of groups
 	GroupsEndpoint = "groups"
+
+	urlStr = "url"
 )
 
 func getFromURL(endpoint string) (*http.Response, error) {
 	parsedURL, err := url.Parse(endpoint)
 	if err != nil {
-		log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", endpoint)
+		log.Error().Err(err).Str(urlStr, endpoint).Msg("Error during endpoint URL parsing")
 		return nil, err
 	}
 
@@ -48,7 +50,7 @@ func getFromURL(endpoint string) (*http.Response, error) {
 
 	resp, err := http.Get(parsedURL.String())
 	if err != nil {
-		log.Error().Err(err).Msgf("Error during retrieve of %s", parsedURL.String())
+		log.Error().Err(err).Str(urlStr, parsedURL.String()).Msg("Error during retrieve of URL")
 		return nil, err
 	}
 

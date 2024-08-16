@@ -24,6 +24,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	ruleIDStr   = "ruleID"
+	errorKeyStr = "errorKey"
+	urlStr      = "url"
+	reportStr   = "report"
+)
+
 func logClusterInfos(orgID types.OrgID, clusterID types.ClusterName, ruleHits []types.RuleOnReport) {
 	logMessage := fmt.Sprintf("rule hits for %d.%s:", orgID, clusterID)
 	for _, ruleHit := range ruleHits {

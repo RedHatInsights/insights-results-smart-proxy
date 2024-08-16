@@ -149,7 +149,7 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 
 	clusterInfoList, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg(subscriptionListRequestError)
+		log.Warn().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg(subscriptionListRequestError)
 		return
 	}
 
@@ -170,7 +170,7 @@ func (c *amsClientImpl) GetClusterDetailsFromExternalClusterID(externalID types.
 
 	clusterInfoList, err := c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Str(clusterIDTag, string(externalID)).Msg(subscriptionListRequestError)
+		log.Warn().Err(err).Str(clusterIDTag, string(externalID)).Msg(subscriptionListRequestError)
 		return
 	}
 	if clusterInfoList == nil {
@@ -197,7 +197,7 @@ func (c *amsClientImpl) GetSingleClusterInfoForOrganization(orgID types.OrgID, c
 	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
 	clusterInfoList, err := c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg(subscriptionListRequestError)
+		log.Warn().Err(err).Str(clusterIDTag, string(clusterID)).Msg(subscriptionListRequestError)
 		return
 	}
 	if clusterInfoList == nil {
@@ -222,7 +222,7 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string,
 		Send()
 
 	if err != nil {
-		log.Error().Err(err).Msg(orgIDRequestFailure)
+		log.Warn().Err(err).Msg(orgIDRequestFailure)
 		return "", err
 	}
 
@@ -275,7 +275,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 				if id, ok := item.GetID(); ok {
 					log.Warn().Str("InternalClusterID", id).Msg("cluster has no external ID")
 				} else {
-					log.Error().Msgf("No external or internal cluster ID. Cluster [%v]", item)
+					log.Error().Interface("cluster", item).Msg("No external or internal cluster ID")
 				}
 
 				continue

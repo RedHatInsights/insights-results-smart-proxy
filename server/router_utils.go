@@ -74,7 +74,7 @@ func readCompositeRuleID(request *http.Request) (
 	ruleIDParam, err := httputils.GetRouterParam(request, RuleIDParamName)
 	if err != nil {
 		const message = "unable to get rule id"
-		log.Error().Err(err).Msg(message)
+		log.Warn().Err(err).Msg(message)
 		return
 	}
 
