@@ -29,6 +29,8 @@ import (
 const (
 	internalRuleStr = "internal"
 	ocsRuleStr      = "ocs"
+	ruleIDStr       = "ruleID"
+	errorKeyStr     = "errorKey"
 )
 
 var (
@@ -52,19 +54,19 @@ func LoadRuleContent(contentDir *ctypes.RuleContentDirectory) {
 			// we allow empty/missing, but not incorrect
 			active, success, missing := getActiveStatus(errorProperties.Metadata.Status)
 			if !success {
-				log.Error().Msgf(`rule ID %v with key %v has invalid status attribute`, ruleID, errorKey)
+				log.Error().Interface(ruleIDStr, ruleID).Str(errorKeyStr, errorKey).Msg(`invalid status attribute`)
 				continue
 			} else if missing {
-				log.Debug().Msgf(`rule ID %v with key %v has missing status attribute`, ruleID, errorKey)
+				log.Debug().Interface(ruleIDStr, ruleID).Str(errorKeyStr, errorKey).Msg(`missing status attribute`)
 			}
 
 			// we allow empty/missing, but not incorrect format
 			publishDate, missing, err := timeParse(errorProperties.Metadata.PublishDate)
 			if err != nil {
-				log.Error().Err(err).Msgf(`rule ID %v with key %v has improper publish_date attribute`, ruleID, errorKey)
+				log.Error().Interface(ruleIDStr, ruleID).Str(errorKeyStr, errorKey).Err(err).Msg(`improper publish_date attribute`)
 				continue
 			} else if missing {
-				log.Debug().Msgf(`rule ID %v with key %v has missing publish_date attribute`, ruleID, errorKey)
+				log.Debug().Interface(ruleIDStr, ruleID).Str(errorKeyStr, errorKey).Msg(`missing publish_date attribute`)
 			}
 
 			totalRisk := calculateTotalRisk(impact.Impact, errorProperties.Metadata.Likelihood)
@@ -141,7 +143,7 @@ func timeParse(value string) (publishDate time.Time, missing bool, err error) {
 	}
 
 	if err != nil {
-		log.Error().Msgf("problem parsing publish_date: %v", err)
+		log.Error().Err(err).Msg("problem parsing publish_date")
 		err = errors.New("invalid format of publish_date")
 	}
 
@@ -164,7 +166,7 @@ func getActiveStatus(status string) (active, success, missing bool) {
 		success = true
 		missing = true
 	default:
-		log.Error().Msgf("invalid rule error key status: '%s'", status)
+		log.Error().Str("status", status).Msg("invalid rule error key status")
 	}
 
 	return

@@ -90,9 +90,9 @@ const (
 	dotReport = ".report"
 
 	ackedRulesError      = "Unable to retrieve list of acked rules"
-	compositeRuleIDError = "Error generating composite rule ID for [%v] and [%v]"
+	compositeRuleIDError = "Error generating composite rule ID"
 	clusterListError     = "problem reading cluster list for org"
-	ruleContentError     = "unable to get content for rule with id %v"
+	ruleContentError     = "unable to get content for rule"
 )
 
 // HTTPServer is an implementation of Server interface
@@ -299,7 +299,7 @@ func (server *HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(ht
 
 		endpointURL, err := server.composeEndpoint(baseURL, request.RequestURI)
 		if err != nil {
-			log.Error().Err(err).Msgf("Error during endpoint %s URL parsing", request.RequestURI)
+			log.Error().Err(err).Str(urlStr, request.RequestURI).Msg("Error during endpoint %s URL parsing")
 			handleServerError(writer, err)
 			return
 		}
@@ -321,7 +321,7 @@ func (server *HTTPServer) proxyTo(baseURL string, options *ProxyOptions) func(ht
 		// Maybe this code should be on responses.SendRaw or something like that
 		err = responses.Send(response.StatusCode, writer, body)
 		if err != nil {
-			log.Error().Err(err).Msgf("Error writing the response")
+			log.Error().Err(err).Msg("Error writing the response")
 			handleServerError(writer, err)
 			return
 		}
@@ -351,7 +351,7 @@ func sendRequest(
 	log.Debug().Msgf("Connecting to %s", req.URL.RequestURI())
 	response, err := client.Do(req)
 	if err != nil {
-		log.Error().Err(err).Msgf("Error during retrieve of %s", req.URL.RequestURI())
+		log.Error().Err(err).Str(urlStr, req.URL.RequestURI()).Msg("Error during retrieve from URL")
 		return nil, nil, err
 	}
 
@@ -367,7 +367,7 @@ func sendRequest(
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Error().Err(err).Msgf("Error while retrieving content from request to %s", req.RequestURI)
+		log.Error().Err(err).Str(urlStr, req.RequestURI).Msg("Error while retrieving content from request")
 		return nil, nil, err
 	}
 
@@ -454,7 +454,7 @@ func (server HTTPServer) getClusterDetailsFromAggregator(orgID ctypes.OrgID) ([]
 	// #nosec G107
 	response, err := http.Get(aggregatorURL)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem getting cluster list from aggregator")
+		log.Error().Err(err).Msg("problem getting cluster list from aggregator")
 		if _, ok := err.(*url.Error); ok {
 			return nil, &AggregatorServiceUnavailableError{}
 		}
@@ -766,7 +766,7 @@ func (server HTTPServer) fetchAggregatorReport(
 
 	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
-		log.Error().Err(err).Msgf("fetchAggregatorReport unable to get orgID or userID for cluster %v", clusterID)
+		log.Error().Err(err).Interface("clusterID", clusterID).Msg("fetchAggregatorReport unable to get orgID or userID for cluster")
 		handleServerError(writer, err)
 		return
 	}
@@ -910,7 +910,7 @@ func (server HTTPServer) buildReportEndpointResponse(
 }
 
 func sendReportReponse(writer http.ResponseWriter, report interface{}) {
-	err := responses.SendOK(writer, responses.BuildOkResponseWithData("report", report))
+	err := responses.SendOK(writer, responses.BuildOkResponseWithData(reportStr, report))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
@@ -953,7 +953,7 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 		if server.amsClient != nil {
 			clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
 			if err != nil {
-				log.Error().Err(err).Msg("unable to retrieve info from AMS API")
+				log.Warn().Err(err).Msg("unable to retrieve info from AMS API")
 				handleServerError(writer, err)
 				return
 			}
@@ -1034,9 +1034,9 @@ func (server HTTPServer) getKnownUserAgentProduct(request *http.Request) (userAg
 	case browserUserAgent:
 		log.Info().Msg("request made by a regular web browser")
 	default:
-		log.Error().Str(userAgentHeader, request.Header.Get(userAgentHeader)).Msgf(
-			"improper or unknown user agent product [%v]", userAgentProduct,
-		)
+		log.Error().Str(userAgentHeader, request.Header.Get(userAgentHeader)).
+			Str("userAgentProduct", userAgentProduct).
+			Msg("improper or unknown user agent product")
 	}
 
 	return
@@ -1071,7 +1071,8 @@ func (server HTTPServer) getRuleCount(visibleRules []types.RuleWithContentRespon
 	// This case should appear as "No issues found" in customer-facing applications, because the only
 	// thing we could show is rule module + error key, which have no informational value to customers.
 	if len(visibleRules) == 0 && noContentRulesCnt > 0 && disabledRulesCnt == 0 {
-		log.Error().Msgf("Cluster ID: %v; Rules are hitting, but we don't have content for any of them.", clusterID)
+		log.Error().Interface("clusterID", clusterID).
+			Msg("Rules are hitting, but we don't have content for any of them.")
 		totalRuleCnt = 0
 	}
 	return totalRuleCnt
@@ -1171,7 +1172,7 @@ func (server HTTPServer) singleRuleEndpoint(writer http.ResponseWriter, request 
 		}
 	}
 
-	err = responses.SendOK(writer, responses.BuildOkResponseWithData("report", *rule))
+	err = responses.SendOK(writer, responses.BuildOkResponseWithData(reportStr, *rule))
 	if err != nil {
 		log.Error().Err(err).Msg(responseDataError)
 	}
@@ -1230,7 +1231,7 @@ func (server HTTPServer) getGroupsConfig() (
 	select {
 	case val, ok := <-server.ErrorFoundChannel:
 		if !ok {
-			log.Error().Msgf("errorFound channel is closed")
+			log.Error().Msg("errorFound channel is closed")
 			return
 		}
 		errorFound = val
@@ -1396,7 +1397,7 @@ func (server *HTTPServer) readListOfDisabledRulesForClusters(
 	// #nosec G107
 	resp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
-		log.Error().Err(err).Msgf("readListOfDisabledRulesForClusters problem getting response from aggregator")
+		log.Error().Err(err).Msg("readListOfDisabledRulesForClusters problem getting response from aggregator")
 		if _, ok := err.(*url.Error); ok {
 			handleServerError(writer, &AggregatorServiceUnavailableError{})
 		} else {

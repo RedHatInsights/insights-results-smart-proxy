@@ -203,8 +203,8 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 
 	// display parsed rule ID and error key
 	log.Debug().
-		Str("ruleID", string(ruleID)).
-		Str("errorKey", string(errorKey)).
+		Str(ruleIDStr, string(ruleID)).
+		Str(errorKeyStr, string(errorKey)).
 		Msg("Parsed rule selector")
 
 	// test if the rule has been acknowledged already
@@ -401,7 +401,9 @@ func generateRuleAckMap(acks []types.SystemWideRuleDisable) (ruleAcksMap map[typ
 		if err == nil {
 			ruleAcksMap[compositeRuleID] = true
 		} else {
-			log.Error().Err(err).Msgf(compositeRuleIDError, ack.RuleID, ack.ErrorKey)
+			log.Error().Err(err).Interface(ruleIDStr, ack.RuleID).
+				Interface(errorKeyStr, ack.ErrorKey).Msg(compositeRuleIDError)
+
 		}
 	}
 	return

@@ -211,7 +211,7 @@ func (server HTTPServer) getOrganizationOverview(
 					return overview, err
 				}
 				// missing rule content, simply omit the rule as we can't display anything
-				log.Error().Err(err).Msgf(ruleContentError, ruleID)
+				log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg(ruleContentError)
 				filteredRecommendations++
 				continue
 			}
@@ -316,7 +316,7 @@ func generateOrgOverview(
 		var clusterReport types.ReportRules
 
 		if err := json.Unmarshal(singleReport, &clusterReport); err != nil {
-			log.Error().Err(err).Msgf("The report %v is not ok", singleReport)
+			log.Error().Err(err).Interface(reportStr, singleReport).Msg("The report is not ok")
 			continue
 		}
 
@@ -339,7 +339,7 @@ func generateOrgOverview(
 				if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 					return sptypes.OrgOverviewResponse{}, err
 				}
-				log.Error().Err(err).Msgf("Unable to retrieve content for rule %s", ruleID)
+				log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg("Unable to retrieve content for rule")
 				continue
 			}
 
