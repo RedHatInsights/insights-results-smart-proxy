@@ -88,7 +88,7 @@ func readCompositeRuleID(request *http.Request) (
 			ParamValue: ruleIDParam,
 			ErrString:  msg.Error(),
 		}
-		log.Error().Err(err).Send()
+		log.Error().Err(err).Msg("invalid composite rule ID")
 		return
 	}
 
