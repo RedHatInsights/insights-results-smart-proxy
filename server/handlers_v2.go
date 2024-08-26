@@ -170,7 +170,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 
 	ruleID, err := readCompositeRuleID(request)
 	if err != nil {
-		log.Error().Err(err).Msg("error retrieving rule ID from request")
+		log.Warn().Err(err).Msg("error retrieving rule ID from request")
 		handleServerError(writer, err)
 		return
 	}
