@@ -118,7 +118,7 @@ func (server *HTTPServer) readParamsGetRecommendations(writer http.ResponseWrite
 
 	impactingParamBool, err := readImpactingParam(request)
 	if err != nil {
-		log.Err(err).Msgf("Error parsing `%s` URL parameter.", ImpactingParam)
+		log.Warn().Err(err).Msgf("Error parsing `%s` URL parameter.", ImpactingParam)
 		handleServerError(writer, &RouterParsingError{
 			ParamName: ImpactingParam,
 			ErrString: "Unparsable boolean value",
