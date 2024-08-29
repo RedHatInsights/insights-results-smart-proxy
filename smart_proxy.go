@@ -131,16 +131,14 @@ func startServer() ExitCode {
 
 	redisClient, err := services.NewRedisClient(redisConf)
 	if err != nil {
-		redisClient = nil
-	} else {
-		// PING Redis server
-		if err = redisClient.HealthCheck(); err != nil {
-			log.Error().Err(err).Msg("failed to ping Redis server")
-			redisClient = nil
-		} else {
-			log.Info().Msg("Redis client created, Redis server is responding")
-		}
+		log.Error().Err(err).Msg("failed to initialize Redis server")
+		return ExitStatusServerError
 	}
+	if err = redisClient.HealthCheck(); err != nil {
+		log.Error().Err(err).Msg("failed to ping Redis server")
+		return ExitStatusServerError
+	}
+	log.Info().Msg("Redis client created, Redis server is responding")
 
 	serverInstance = server.New(serverCfg, servicesCfg, amsClient, redisClient, groupsChannel, errorFoundChannel, errorChannel)
 
