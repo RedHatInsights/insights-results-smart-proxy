@@ -279,7 +279,7 @@ func loadOrgIDsFromCSV(r io.Reader) ([]types.OrgID, error) {
 			)
 		}
 
-		orgIDs = append(orgIDs, types.OrgID(orgID))
+		orgIDs = append(orgIDs, types.OrgID(uint32(orgID)))
 	}
 
 	return orgIDs, nil

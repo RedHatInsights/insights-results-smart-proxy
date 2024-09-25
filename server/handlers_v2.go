@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"time"
@@ -63,6 +64,16 @@ const (
 	//AMSApiNotInitializedErrorMessage is an error message written into log when AMS API client is not initialized properly
 	AMSApiNotInitializedErrorMessage = "AMS API connection is not initialized"
 )
+
+func safeUint8(value int) uint8 {
+	if value < 0 {
+		return 0
+	}
+	if value > math.MaxUint8 {
+		return math.MaxUint8
+	}
+	return uint8(value)
+}
 
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
 // checks if user has permissions to access it.
@@ -137,9 +148,9 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 		Reason:       ruleContent.Reason,
 		Resolution:   ruleContent.Resolution,
 		MoreInfo:     ruleContent.MoreInfo,
-		TotalRisk:    uint8(ruleContent.TotalRisk),
-		Impact:       uint8(ruleContent.Impact),
-		Likelihood:   uint8(ruleContent.Likelihood),
+		TotalRisk:    safeUint8(ruleContent.TotalRisk),
+		Impact:       safeUint8(ruleContent.Impact),
+		Likelihood:   safeUint8(ruleContent.Likelihood),
 		PublishDate:  ruleContent.PublishDate,
 		Tags:         ruleContent.Tags,
 	}
@@ -220,10 +231,10 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		Reason:         ruleContent.Reason,
 		Resolution:     ruleContent.Resolution,
 		MoreInfo:       ruleContent.MoreInfo,
-		TotalRisk:      uint8(ruleContent.TotalRisk),
-		ResolutionRisk: uint8(ruleContent.ResolutionRisk),
-		Impact:         uint8(ruleContent.Impact),
-		Likelihood:     uint8(ruleContent.Likelihood),
+		TotalRisk:      safeUint8(ruleContent.TotalRisk),
+		ResolutionRisk: safeUint8(ruleContent.ResolutionRisk),
+		Impact:         safeUint8(ruleContent.Impact),
+		Likelihood:     safeUint8(ruleContent.Likelihood),
 		PublishDate:    ruleContent.PublishDate,
 		Rating:         rating.Rating,
 		AckedCount:     0,
@@ -691,7 +702,11 @@ func getFilteredRecommendationsList(
 			}
 		} else {
 			// rule has osd_customer tag and can be shown for all clusters
-			impactedClustersCnt = uint32(len(impactingClustersList))
+			if len(impactingClustersList) > math.MaxUint32 {
+				impactedClustersCnt = math.MaxUint32
+			} else {
+				impactedClustersCnt = uint32(len(impactingClustersList))
+			}
 		}
 
 		recommendationList = append(recommendationList, types.RecommendationListView{
@@ -699,10 +714,10 @@ func getFilteredRecommendationsList(
 			Description:         ruleContent.Description,
 			Generic:             ruleContent.Generic,
 			PublishDate:         ruleContent.PublishDate,
-			TotalRisk:           uint8(ruleContent.TotalRisk),
-			ResolutionRisk:      uint8(ruleContent.ResolutionRisk),
-			Impact:              uint8(ruleContent.Impact),
-			Likelihood:          uint8(ruleContent.Likelihood),
+			TotalRisk:           safeUint8(ruleContent.TotalRisk),
+			ResolutionRisk:      safeUint8(ruleContent.ResolutionRisk),
+			Impact:              safeUint8(ruleContent.Impact),
+			Likelihood:          safeUint8(ruleContent.Likelihood),
 			Tags:                ruleContent.Tags,
 			Disabled:            ruleDisabled,
 			ImpactedClustersCnt: impactedClustersCnt,
