@@ -75,6 +75,16 @@ func safeUint8(value int) uint8 {
 	return uint8(value)
 }
 
+func safeUint32(value int) uint32 {
+	if value < 0 {
+		return 0
+	}
+	if value > math.MaxUint32 {
+		return math.MaxUint32
+	}
+	return uint32(value)
+}
+
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
 // checks if user has permissions to access it.
 func (server HTTPServer) getContentCheckInternal(ruleID ctypes.RuleID, request *http.Request) (
@@ -702,11 +712,7 @@ func getFilteredRecommendationsList(
 			}
 		} else {
 			// rule has osd_customer tag and can be shown for all clusters
-			if len(impactingClustersList) > math.MaxUint32 {
-				impactedClustersCnt = math.MaxUint32
-			} else {
-				impactedClustersCnt = uint32(len(impactingClustersList))
-			}
+			impactedClustersCnt = safeUint32(len(impactingClustersList))
 		}
 
 		recommendationList = append(recommendationList, types.RecommendationListView{

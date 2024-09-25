@@ -271,7 +271,7 @@ func loadOrgIDsFromCSV(r io.Reader) ([]types.OrgID, error) {
 			continue // skip header
 		}
 
-		orgID, err := strconv.ParseUint(line[0], 10, 64)
+		orgID, err := strconv.ParseUint(line[0], 10, 32)
 		if err != nil {
 			return nil, fmt.Errorf(
 				"organization ID on line %v in CSV is not numerical. Found value: %v",
