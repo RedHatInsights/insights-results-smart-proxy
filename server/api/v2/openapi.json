@@ -114,6 +114,60 @@
         }
       }
     },
+    "/groups": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON array of groups."
+          },
+          "503": {
+            "content": {
+              "text/plain": {}
+            },
+            "description": "Content service is unavailable"
+          }
+        },
+        "operationId": "getRuleGroups",
+        "summary": "Get all rule groups and their relevant information",
+        "description": "This simply redirects to an endpoint of the same name of a service called insights-content-service"
+      }
+    },
     "/cluster/{clusterId}/reports": {
       "get": {
         "tags": [
