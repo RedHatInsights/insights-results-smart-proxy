@@ -3771,18 +3771,21 @@ func TestHTTPServer_ClustersRecommendationsEndpoint_DisabledAndAcked(t *testing.
 	}, testTimeout)
 }
 
+// TestHTTPServer_GroupsEndpoint tests the groups endpoint for both API versions
 // TODO: fix race condition/deadlock, then this test can be enabled again
 // If this test fails again, please refer to CCXDEV-11314 and attach the CI run
 func TestHTTPServer_GroupsEndpoint(t *testing.T) {
-	groupsChannel := make(chan []groups.Group)
-	errorFoundChannel := make(chan bool)
-	errorChannel := make(chan error)
+	for _, prefix := range []string{serverConfigXRH.APIv1Prefix, serverConfigXRH.APIv2Prefix} {
+		t.Run(prefix, func(t *testing.T) {
+			groupsChannel := make(chan []groups.Group)
+			errorFoundChannel := make(chan bool)
+			errorChannel := make(chan error)
 
-	records := make([]groups.Group, 1)
-	go func() { groupsChannel <- records }()
-	go func() { errorFoundChannel <- false }()
+			records := make([]groups.Group, 1)
+			go func() { groupsChannel <- records }()
+			go func() { errorFoundChannel <- false }()
 
-	expectedBody := `
+			expectedBody := `
 		{
 			"groups": [
 				{
@@ -3793,17 +3796,31 @@ func TestHTTPServer_GroupsEndpoint(t *testing.T) {
 			],
 			"status": "ok"
 		}`
-	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		helpers.AssertAPIRequest(t, nil, nil, groupsChannel, errorFoundChannel, errorChannel, &helpers.APIRequest{
-			Method:      http.MethodGet,
-			Endpoint:    server.RuleGroupsEndpoint,
-			OrgID:       testdata.OrgID,
-			XRHIdentity: goodXRHAuthToken,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       expectedBody,
+
+			testServer := helpers.CreateHTTPServer(
+				&helpers.DefaultServerConfig,
+				nil, nil, nil,
+				groupsChannel,
+				errorFoundChannel,
+				errorChannel,
+			)
+
+			req := &helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.RuleGroupsEndpoint,
+				OrgID:       testdata.OrgID,
+				XRHIdentity: goodXRHAuthToken,
+			}
+			expectedResponse := &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedBody,
+			}
+
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				iou_helpers.AssertAPIRequest(t, testServer, prefix, req, expectedResponse)
+			}, 30*time.Second)
 		})
-	}, 30*time.Second)
+	}
 }
 
 // TODO: fix race condition/deadlock, then this test can be enabled again
