@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/RedHatInsights/insights-content-service v1.0.0
-	github.com/RedHatInsights/insights-operator-utils v1.25.10
+	github.com/RedHatInsights/insights-operator-utils v1.25.11
 	github.com/RedHatInsights/insights-results-aggregator v1.4.1
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.23.4
@@ -46,7 +46,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gchaincl/sqlhooks v1.3.0 // indirect
 	github.com/getkin/kin-openapi v0.22.1 // indirect
-	github.com/getsentry/sentry-go v0.24.1 // indirect
+	github.com/getsentry/sentry-go v0.28.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
@@ -76,7 +76,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.23 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

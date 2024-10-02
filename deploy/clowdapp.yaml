@@ -234,7 +234,8 @@ objects:
 parameters:
 - description: Image name
   name: IMAGE
-  value: quay.io/cloudservices/ccx-smart-proxy
+  required: true
+  value: quay.io/redhat-services-prod/obsint-processing-tenant/smart-proxy/smart-proxy
 - description: Image tag
   name: IMAGE_TAG
   required: true
