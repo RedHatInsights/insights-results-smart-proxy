@@ -40,7 +40,7 @@ const (
 	// RuleHitsFieldName represent the name of hte field in Redis hash containing simplified rule hits
 	RuleHitsFieldName = "rule_hits"
 	// ScanBatchCount is the number of records to go through in a single SCAN operation
-	ScanBatchCount = 1000
+	ScanBatchCount = 100
 
 	redisCmdExecutionFailedMsg = "failed to execute command against Redis server"
 )
