@@ -68,8 +68,8 @@ github.com/RedHatInsights/insights-operator-utils v1.21.0/go.mod h1:B2hizFGwXCc8
 github.com/RedHatInsights/insights-operator-utils v1.21.2/go.mod h1:3Pfsgsi7GCu2wgIqQlt1llpyQyyxsDWEGdgnPvadM40=
 github.com/RedHatInsights/insights-operator-utils v1.21.8/go.mod h1:qa1a8NdarIzcZkr5mu9fBw4OarOfg1qZFZC1vNGbyas=
 github.com/RedHatInsights/insights-operator-utils v1.24.5/go.mod h1:7qR/8rlMdiqoXAkZyQ5JhVrVNCa6SBwNUt4KMq/17j4=
-github.com/RedHatInsights/insights-operator-utils v1.25.11 h1:BcD9ISCkzDFnhor3d4So6nmjVjILQATS8GJhoRVqOak=
-github.com/RedHatInsights/insights-operator-utils v1.25.11/go.mod h1:zC4Wok6rNTMSQU8ey8ulPby2IB1wcujgFteB866vo1A=
+github.com/RedHatInsights/insights-operator-utils v1.25.12 h1:2hxQUdHCG7wLbHEikEtIi5R/dbiXvuAddD/HJtgVXDw=
+github.com/RedHatInsights/insights-operator-utils v1.25.12/go.mod h1:zC4Wok6rNTMSQU8ey8ulPby2IB1wcujgFteB866vo1A=
 github.com/RedHatInsights/insights-results-aggregator v0.0.0-20200604090056-3534f6dd9c1c/go.mod h1:7Pc15NYXErx7BMJ4rF1Hacm+29G6atzjhwBpXNFMt+0=
 github.com/RedHatInsights/insights-results-aggregator v1.4.1 h1:GBqHrT+LzkBAk4fYDWdvF04XdOdC3EXov9z9lEBFeN4=
 github.com/RedHatInsights/insights-results-aggregator v1.4.1/go.mod h1:hAVwcog5dsSFYIp8E+D4cD8uYKYISIziKpDvNxKD0TM=
@@ -668,8 +668,8 @@ github.com/onsi/gomega v1.8.1/go.mod h1:Ho0h+IUsWyvy1OpqCwxlQ/21gkhVunqlU8fDGcoT
 github.com/onsi/gomega v1.25.0 h1:Vw7br2PCDYijJHSfBOWhov+8cAnUf8MfMaIOV323l6Y=
 github.com/onsi/gomega v1.25.0/go.mod h1:r+zV744Re+DiYCIPRlYOTxn0YkOLcAnW8k1xXdMPGhM=
 github.com/op/go-logging v0.0.0-20160315200505-970db520ece7/go.mod h1:HzydrMdWErDVzsI23lYNej1Htcns9BCg93Dk0bBINWk=
-github.com/openshift-online/ocm-sdk-go v0.1.444 h1:ivk5YKpgKfblJu3HzrZ7FyJD5FSdNySl+r/Tw0I9sjs=
-github.com/openshift-online/ocm-sdk-go v0.1.444/go.mod h1:CiAu2jwl3ITKOxkeV0Qnhzv4gs35AmpIzVABQLtcI2Y=
+github.com/openshift-online/ocm-sdk-go v0.1.445 h1:NfaY+biXaREPnGYxa8G2zS2OZpN06yNnDR95sZoqKUQ=
+github.com/openshift-online/ocm-sdk-go v0.1.445/go.mod h1:CiAu2jwl3ITKOxkeV0Qnhzv4gs35AmpIzVABQLtcI2Y=
 github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492/go.mod h1:Ngi6UdF0k5OKD5t5wlmGhe/EDKPoUM3BXZSSfIuJbis=
 github.com/opentracing/basictracer-go v1.0.0/go.mod h1:QfBfYuafItcjQuMwinw9GhYKwFXS9KnPs5lxoYwgW74=
 github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=

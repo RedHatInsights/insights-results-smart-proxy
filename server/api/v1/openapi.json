@@ -176,7 +176,7 @@
             "name": "orgId",
             "description": "ID of the requested organization.",
             "schema": {
-              "format": "int64",
+              "format": "int32",
               "minimum": 0,
               "type": "integer"
             },
