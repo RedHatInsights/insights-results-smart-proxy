@@ -24,6 +24,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// RBACConfig holds the configuration for RBAC settings.
 type RBACConfig struct {
 	Host        string `mapstructure:"host" toml:"host"`
 	Port        uint16 `mapstructure:"port" toml:"port,omitempty"`
@@ -36,8 +37,9 @@ func IsEnabled(config *RBACConfig) bool {
 	return config.Enabled
 }
 
-// constructRBACURL constructs the RBAC URL with the query parameters for
-// checking access to Advisor OCP resources
+// constructRBACURL constructs the RBAC URL with the query parameters for checking
+// access to Advisor OCP resources. It takes an RBACConfig and returns the
+// constructed base URL, host, and any error encountered.
 func constructRBACURL(config *RBACConfig) (string, string, error) {
 	if !strings.HasPrefix(config.Host, "http://") && !strings.HasPrefix(config.Host, "https://") {
 		config.Host = "https://" + config.Host // Default to HTTPS if no scheme is provided
@@ -54,9 +56,7 @@ func constructRBACURL(config *RBACConfig) (string, string, error) {
 		baseURL.Host = fmt.Sprintf("%s:%d", baseURL.Hostname(), config.Port)
 	}
 
-	// Add the /access/ endpoint and ocp-advisor parameter. This could be configured via env-var,
-	// but I don't think there's a need for complicating things further
-
+	// Add the /access/ endpoint and ocp-advisor parameter
 	baseURL.Path = "/access/"
 
 	params := url.Values{}
