@@ -18,26 +18,13 @@ package server
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/RedHatInsights/insights-operator-utils/collections"
+	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
-)
-
-const (
-	// XRHAuthTokenHeader reprsents the name of the header used in XRH authorization type
-	// #nosec G101
-	XRHAuthTokenHeader = "x-rh-identity"
-	// #nosec G101
-	malformedTokenMessage = "Malformed authentication token"
-	invalidTokenMessage   = "Invalid/Malformed auth token"
-	// #nosec G101
-	missingTokenMessage = "Missing auth token"
 )
 
 // Authentication middleware for checking auth rights
@@ -51,41 +38,8 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 		}
 
 		// try to read auth. header from HTTP request (if provided by client)
-		token, isTokenValid := server.getAuthTokenHeader(w, r)
-		if !isTokenValid {
-			// everything has been handled already
-			return
-		}
-
-		if server.Config.LogAuthToken {
-			log.Info().Msgf("Authentication token: %s", token)
-		}
-
-		// decode auth. token to JSON string
-		decoded, err := base64.StdEncoding.DecodeString(token)
-
-		// if token is malformed return HTTP code 403 to client
+		tk, err := auth.DecodeTokenFromHeader(w, r, server.Config.AuthType)
 		if err != nil {
-			// malformed token, returns with HTTP code 403 as usual
-			log.Error().Err(err).Msg(malformedTokenMessage)
-			handleServerError(w, &AuthenticationError{ErrString: malformedTokenMessage})
-			return
-		}
-
-		tk := &types.Token{}
-
-		if server.Config.AuthType == "xrh" {
-			// auth type is xrh (x-rh-identity header)
-			err = json.Unmarshal(decoded, tk)
-			if err != nil {
-				// malformed token, returns with HTTP code 403 as usual
-				log.Error().Err(err).Msg(malformedTokenMessage)
-				handleServerError(w, &AuthenticationError{ErrString: malformedTokenMessage})
-				return
-			}
-		} else {
-			err := errors.New("unknown auth type")
-			log.Error().Err(err).Send()
 			handleServerError(w, err)
 			return
 		}
@@ -102,7 +56,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 				tk.Identity.User,
 			)
 			log.Error().Msg(msg)
-			handleServerError(w, &AuthenticationError{ErrString: msg})
+			handleServerError(w, &auth.AuthenticationError{ErrString: msg})
 			return
 		}
 
@@ -121,7 +75,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 
 // GetCurrentUserID retrieves current user's id from request
 func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID, error) {
-	identity, err := server.GetAuthToken(request)
+	identity, err := auth.GetAuthToken(request)
 	if err != nil {
 		return types.UserID(""), err
 	}
@@ -131,7 +85,7 @@ func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID,
 
 // GetCurrentOrgID retrieves the ID of the organization the user belongs to
 func (server *HTTPServer) GetCurrentOrgID(request *http.Request) (types.OrgID, error) {
-	identity, err := server.GetAuthToken(request)
+	identity, err := auth.GetAuthToken(request)
 	if err != nil {
 		return types.OrgID(0), err
 	}
@@ -144,45 +98,11 @@ func (server *HTTPServer) GetCurrentOrgID(request *http.Request) (types.OrgID, e
 func (server *HTTPServer) GetCurrentOrgIDUserIDFromToken(request *http.Request) (
 	types.OrgID, types.UserID, error,
 ) {
-	identity, err := server.GetAuthToken(request)
+	identity, err := auth.GetAuthToken(request)
 	if err != nil {
 		log.Err(err).Msg("error retrieving identity from token")
 		return types.OrgID(0), types.UserID("0"), err
 	}
 
 	return identity.OrgID, identity.User.UserID, nil
-}
-
-// GetAuthToken returns current authentication token
-func (server *HTTPServer) GetAuthToken(request *http.Request) (*types.Identity, error) {
-	i := request.Context().Value(types.ContextKeyUser)
-
-	if i == nil {
-		return nil, &AuthenticationError{ErrString: "token is not provided"}
-	}
-
-	identity, ok := i.(types.Identity)
-	if !ok {
-		return nil, &AuthenticationError{ErrString: "contextKeyUser has wrong type"}
-	}
-
-	return &identity, nil
-}
-
-func (server *HTTPServer) getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool) {
-	var tokenHeader string
-
-	log.Debug().Msg("Retrieving x-rh-identity token")
-	// Grab the token from the header
-	tokenHeader = r.Header.Get(XRHAuthTokenHeader)
-
-	log.Debug().Int("Length", len(tokenHeader)).Msg("Token retrieved")
-
-	if tokenHeader == "" {
-		log.Error().Msg(missingTokenMessage)
-		handleServerError(w, &AuthenticationError{ErrString: missingTokenMessage})
-		return "", false
-	}
-
-	return tokenHeader, true
 }

@@ -17,5 +17,7 @@ limitations under the License.
 package auth
 
 var (
-	ConstructRBACURL = constructRBACURL
+	MissingTokenMessage = missingTokenMessage
+	InvalidTokenMessage = invalidTokenMessage
+	ConstructRBACURL    = constructRBACURL
 )

@@ -51,6 +51,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 
@@ -1216,7 +1217,7 @@ func (server *HTTPServer) checkInternalRulePermissions(request *http.Request) er
 
 	// If the loop ends without returning nil, then an authentication error should be raised
 	const message = "This organization is not allowed to access this recommendation"
-	return &AuthenticationError{ErrString: message}
+	return &auth.AuthenticationError{ErrString: message}
 }
 
 // getGroupsConfig retrieves the groups configuration from a channel to get the
