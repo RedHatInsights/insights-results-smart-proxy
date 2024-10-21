@@ -27,6 +27,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	accountType          = "Account Type"
+	accountNotAuthorized = "Account does not have the required permissions"
+)
+
 // Authentication middleware for checking auth rights
 func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +78,38 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 	})
 }
 
+// Authorization middleware for checking permissions
+func (server *HTTPServer) Authorization(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, err := auth.DecodeTokenFromHeader(w, r, server.Config.AuthType)
+		if err != nil {
+			handleServerError(w, err)
+			return
+		}
+
+		// For now we will only log authorization and only handle service accounts. This logic should
+		// be for all users, but let's first make sure we won't disturb existing users by only
+		// logging unauthorized service accounts
+		if token.Identity.Type == "ServiceAccount" {
+			// Check permissions for service accounts
+			if !server.rbacClient.IsAuthorized(auth.GetAuthTokenHeader(r)) {
+				log.Warn().Str(accountType, token.Identity.Type).Msg(accountNotAuthorized)
+				if server.rbacClient.IsEnforcing() {
+					handleServerError(w, &auth.AuthorizationError{ErrString: accountNotAuthorized})
+					return
+				}
+			}
+		} else {
+			log.Debug().Str(accountType, token.Identity.Type).Msg("RBAC is only used with service accounts for now")
+			// handleServerError(w, &auth.AuthorizationError{ErrString: "unknown identity type"})
+			return
+		}
+
+		// Access is authorized, proceed with the request
+		next.ServeHTTP(w, r)
+	})
+}
+
 // GetCurrentUserID retrieves current user's id from request
 func (server *HTTPServer) GetCurrentUserID(request *http.Request) (types.UserID, error) {
 	identity, err := auth.GetAuthToken(request)
@@ -105,4 +142,8 @@ func (server *HTTPServer) GetCurrentOrgIDUserIDFromToken(request *http.Request) 
 	}
 
 	return identity.OrgID, identity.User.UserID, nil
+}
+
+func (server *HTTPServer) SetRBACClient(client auth.RBACClient) {
+	server.rbacClient = client
 }

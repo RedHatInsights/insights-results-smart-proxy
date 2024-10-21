@@ -81,6 +81,8 @@ objects:
               value: "${IRSP_ENABLE_INTERNAL_ORGANIZATIONS}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ORG_CLUSTERS_FALLBACK
               value: "${ORG_CLUSTERS_FALLBACK}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__USE_RBAC
+              value: "${USE_RBAC}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR
               value: ${INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT
@@ -100,6 +102,10 @@ objects:
                   key: password
             - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__TIMEOUT_SECONDS
               value: ${INSIGHTS_REDIS_TIMEOUT_SECONDS}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__RBAC__URL
+              value: "${RBAC_SERVER_URL}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__RBAC__ENFORCE
+              value: "${ENFORCE_RBAC}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
               value: "${IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
@@ -313,4 +319,9 @@ parameters:
   value: "false"
 - name: ORG_CLUSTERS_FALLBACK
   value: "false"
-
+- name: USE_RBAC
+  value: "false"
+- name: RBAC_SERVER_URL
+  value: "https://console.stage.redhat.com/api/rbac/v1"
+- name: ENFORCE_RBAC
+  value: "false"
