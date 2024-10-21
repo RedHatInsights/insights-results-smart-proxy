@@ -30,19 +30,19 @@ func TestConstructRBACURL(t *testing.T) {
 		expectError  bool
 	}{
 		{
-			config:       &auth.RBACConfig{Host: "example.com", Port: 443},
-			expectedURL:  "https://example.com:443/access/?application=ocp-advisor&limit=100",
-			expectedHost: "example.com:443",
+			config:       &auth.RBACConfig{URL: "example.com"},
+			expectedURL:  "https://example.com/access/?application=ocp-advisor&limit=100",
+			expectedHost: "example.com",
 			expectError:  false,
 		},
 		{
-			config:       &auth.RBACConfig{Host: "http://example.com", Port: 0},
+			config:       &auth.RBACConfig{URL: "http://example.com"},
 			expectedURL:  "http://example.com/access/?application=ocp-advisor&limit=100",
 			expectedHost: "example.com",
 			expectError:  false,
 		},
 		{
-			config:       &auth.RBACConfig{Host: "wrong-schema:/invalid", Port: 0},
+			config:       &auth.RBACConfig{URL: "wrong-schema:/invalid"},
 			expectedURL:  "https://wrong-schema:/access/?application=ocp-advisor&limit=100",
 			expectedHost: "wrong-schema:",
 			expectError:  false, //url.Parse and url.ParseURI can't catch bad URLs, careful!

@@ -26,8 +26,7 @@ import (
 
 // RBACConfig holds the configuration for RBAC settings.
 type RBACConfig struct {
-	Host        string `mapstructure:"host" toml:"host"`
-	Port        uint16 `mapstructure:"port" toml:"port,omitempty"`
+	URL         string `mapstructure:"url" toml:"url"`
 	Enabled     bool   `mapstructure:"enabled" toml:"enabled"`
 	EnforceAuth bool   `mapstructure:"enforce" toml:"enforce"`
 }
@@ -41,19 +40,14 @@ func IsEnabled(config *RBACConfig) bool {
 // access to Advisor OCP resources. It takes an RBACConfig and returns the
 // constructed base URL, host, and any error encountered.
 func constructRBACURL(config *RBACConfig) (string, string, error) {
-	if !strings.HasPrefix(config.Host, "http://") && !strings.HasPrefix(config.Host, "https://") {
-		config.Host = "https://" + config.Host // Default to HTTPS if no scheme is provided
+	if !strings.HasPrefix(config.URL, "http://") && !strings.HasPrefix(config.URL, "https://") {
+		config.URL = "https://" + config.URL // Default to HTTPS if no scheme is provided
 	}
 
 	// Parse the URL to handle both the Host and the Endpoint correctly
-	baseURL, err := url.Parse(config.Host)
+	baseURL, err := url.Parse(config.URL)
 	if err != nil {
 		return "", "", fmt.Errorf("invalid host format: %v", err)
-	}
-
-	// Check if a port is provided and append it to the host
-	if config.Port != 0 {
-		baseURL.Host = fmt.Sprintf("%s:%d", baseURL.Hostname(), config.Port)
 	}
 
 	// Add the /access/ endpoint and ocp-advisor parameter
