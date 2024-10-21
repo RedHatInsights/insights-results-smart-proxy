@@ -16,6 +16,8 @@ package server_test
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -49,6 +51,25 @@ var (
 		},
 	}
 )
+
+func getRequest(t *testing.T, identity string) *http.Request {
+	t.Helper()
+
+	req, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
+	assert.NoError(t, err)
+
+	if identity == "valid" {
+		ctx := context.WithValue(req.Context(), types.ContextKeyUser, validIdentityXRH.Identity)
+		req = req.WithContext(ctx)
+	}
+
+	if identity == "bad" {
+		ctx := context.WithValue(req.Context(), types.ContextKeyUser, "not an identity")
+		req = req.WithContext(ctx)
+	}
+
+	return req
+}
 
 func TestGetCurrentUserID(t *testing.T) {
 	testCases := []testCase{
@@ -202,21 +223,105 @@ func TestUnsupportedAuthType(t *testing.T) {
 	})
 }
 
-func getRequest(t *testing.T, identity string) *http.Request {
-	t.Helper()
+// Tests for authorization middleware
+// MockRBACClient is a mock implementation of the RBAC client for testing
+type MockRBACClient struct {
+	authorized bool
+	enforcing  bool
+}
 
-	req, err := http.NewRequest(http.MethodGet, "an url", http.NoBody)
+func (m *MockRBACClient) IsAuthorized(token string) bool {
+	return m.authorized
+}
+
+func (m *MockRBACClient) IsEnforcing() bool {
+	return m.enforcing
+}
+
+func TestAuthorizationMiddleware(t *testing.T) {
+	jsonData, err := json.Marshal(validIdentityXRH)
 	assert.NoError(t, err)
 
-	if identity == "valid" {
-		ctx := context.WithValue(req.Context(), types.ContextKeyUser, validIdentityXRH.Identity)
-		req = req.WithContext(ctx)
+	token := base64.StdEncoding.EncodeToString(jsonData)
+
+	testCases := []struct {
+		name           string
+		xrhHeader      types.Token
+		rbacClient     *MockRBACClient
+		expectedStatus int
+	}{
+		{
+			name: "valid service account with permissions",
+			xrhHeader: types.Token{
+				Identity: types.Identity{
+					AccountNumber: types.UserID("1"),
+					OrgID:         1,
+					User: types.User{
+						UserID: types.UserID("service-account-id"),
+					},
+					Type: "ServiceAccount",
+				}},
+			rbacClient:     &MockRBACClient{authorized: true, enforcing: true},
+			expectedStatus: http.StatusOK,
+		},
+		{
+			name: "valid service account without permissions",
+			xrhHeader: types.Token{
+				Identity: types.Identity{
+					AccountNumber: types.UserID("1"),
+					OrgID:         1,
+					User: types.User{
+						UserID: types.UserID("service-account-id"),
+					},
+					Type: "ServiceAccount",
+				}},
+			rbacClient:     &MockRBACClient{authorized: false, enforcing: true},
+			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name: "unknown identity type",
+			xrhHeader: types.Token{
+				Identity: types.Identity{
+					AccountNumber: types.UserID("1"),
+					OrgID:         1,
+					User: types.User{
+						UserID: types.UserID("user-id"),
+					},
+					Type: "UnknownType",
+				}},
+			rbacClient:     &MockRBACClient{authorized: false, enforcing: true},
+			expectedStatus: http.StatusForbidden,
+		},
 	}
 
-	if identity == "bad" {
-		ctx := context.WithValue(req.Context(), types.ContextKeyUser, "not an identity")
-		req = req.WithContext(ctx)
-	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			// Set the authorization header, anything but an empty string is enough for these UTs
+			req.Header.Set("x-rh-identity", token)
 
-	return req
+			// Set the context with the identity
+			ctx := context.WithValue(req.Context(), types.ContextKeyUser, tc.xrhHeader)
+			req = req.WithContext(ctx)
+
+			recorder := httptest.NewRecorder()
+			testServer := server.HTTPServer{
+				Config: server.Configuration{
+					AuthType: "xrh",
+					UseRBAC:  true,
+				},
+			}
+			testServer.SetRBACClient(tc.rbacClient)
+			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// Placeholder to wrap with Authorization handler
+				w.WriteHeader(http.StatusOK)
+			})
+
+			authHandler := testServer.Authorization(handler)
+
+			authHandler.ServeHTTP(recorder, req)
+
+			assert.Equal(t, tc.expectedStatus, recorder.Code)
+		})
+	}
 }

@@ -210,6 +210,9 @@ func (server *HTTPServer) Initialize() http.Handler {
 		router.Use(corsMiddleware)
 	}
 
+	if server.Config.UseRBAC {
+		router.Use(func(next http.Handler) http.Handler { return server.Authorization(next) })
+	}
 	server.addEndpointsToRouter(router)
 
 	return router

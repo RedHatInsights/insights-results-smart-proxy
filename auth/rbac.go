@@ -56,6 +56,8 @@ func NewRBACClient(conf *RBACConfig) (RBACClient, error) {
 	}, nil
 }
 
+// IsEnforcing returns wether requests should be denied if the requester does not
+// have the correct permissions.
 func (rc *rbacClientImpl) IsEnforcing() bool {
 	return rc.enforceAuth
 }
@@ -71,6 +73,7 @@ func (rc *rbacClientImpl) getPermissions(identityToken string) map[string][]stri
 	if len(acls) > 0 {
 		permissions := aggregatePermissions(acls)
 		if len(permissions) > 0 {
+			log.Info().Any("RBAC permissions", permissions).Send()
 			return permissions
 		}
 		return nil

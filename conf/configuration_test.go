@@ -441,6 +441,5 @@ func TestLoadRBACConfiguration(t *testing.T) {
 	cfg := conf.GetRBACConfiguration()
 
 	assert.Equal(t, "https://api.openshift.com", cfg.URL)
-	assert.Equal(t, false, cfg.Enabled)
 	assert.Equal(t, false, cfg.EnforceAuth)
 }

@@ -71,6 +71,7 @@ var (
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: false,
 		InternalRulesOrganizations:       []ctypes.OrgID{1},
+		UseRBAC:                          false,
 	}
 
 	serverConfigInternalOrganizations1 = server.Configuration{

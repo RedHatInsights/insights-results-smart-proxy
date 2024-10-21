@@ -27,13 +27,7 @@ import (
 // RBACConfig holds the configuration for RBAC settings.
 type RBACConfig struct {
 	URL         string `mapstructure:"url" toml:"url"`
-	Enabled     bool   `mapstructure:"enabled" toml:"enabled"`
 	EnforceAuth bool   `mapstructure:"enforce" toml:"enforce"`
-}
-
-// IsEnabled returns true if RBAC is enabled in the configuration
-func IsEnabled(config *RBACConfig) bool {
-	return config.Enabled
 }
 
 // constructRBACURL constructs the RBAC URL with the query parameters for checking
