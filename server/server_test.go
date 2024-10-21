@@ -1252,6 +1252,7 @@ func TestServerStartError(t *testing.T) {
 		nil,
 		nil,
 		nil,
+		nil,
 	)
 
 	err := testServer.Start()
@@ -1281,7 +1282,7 @@ func TestAddCORSHeaders(t *testing.T) {
 func TestHTTPServer_SetAMSInfoInReportNoAMSClient(t *testing.T) {
 	report := types.SmartProxyReportV2{}
 	config := helpers.DefaultServerConfig
-	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil, nil, nil)
 	testServer.SetAMSInfoInReport(testdata.ClusterName, &report)
 	assert.Equal(t, string(testdata.ClusterName), report.Meta.DisplayName)
 }
@@ -1294,7 +1295,7 @@ func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 		testdata.OrgID,
 		data.ClusterInfoResult,
 	)
-	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil, nil, nil)
 	testServer.SetAMSInfoInReport(testdata.ClusterName, &report)
 	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }

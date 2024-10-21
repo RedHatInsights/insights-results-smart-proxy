@@ -219,7 +219,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk(t *testing.T) {
 		clusters[1], data.ClusterDisplayName2, disabledAt, justificationNote,
 	)
 
-	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 	iou_helpers.AssertAPIRequest(
 		t,
@@ -350,7 +350,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_ImpactedClusterDi
 
 	expectedResponse = fmt.Sprintf(expectedResponse, clusters[0], data.ClusterDisplayName1, disabledAt, justificationNote)
 
-	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 	iou_helpers.AssertAPIRequest(
 		t,
@@ -485,7 +485,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_DisabledClusterNo
 	// 2nd cluster is there
 	expectedResponse = fmt.Sprintf(expectedResponse, clusters[1], data.ClusterDisplayName2)
 
-	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 	iou_helpers.AssertAPIRequest(
 		t,
@@ -637,7 +637,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_AckedRule_CCXDEV_
 		clusters[1], data.ClusterDisplayName2, disabledAt, justificationNote,
 	)
 
-	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 	// rule acked == all rules must be marked as disabled
 	iou_helpers.AssertAPIRequest(
@@ -803,7 +803,7 @@ func TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk_AckedRule_Disable
 		clusters[1], data.ClusterDisplayName2, disabledAt, justificationNote,
 	)
 
-	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 	// rule acked == all rules must be marked as disabled
 	iou_helpers.AssertAPIRequest(
@@ -894,7 +894,7 @@ func TestHTTPServer_ClustersDetailEndpointAMSManagedClusters(t *testing.T) {
 				"status":"ok"
 			}
 			`
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		// cluster is managed, but rule is not == must not show as hitting
 		iou_helpers.AssertAPIRequest(
@@ -1185,7 +1185,7 @@ func TestHTTPServer_GetSingleClusterInfo(t *testing.T) {
 		expectedResponse = fmt.Sprintf(expectedResponse, clusterInfoList[0].ID, clusterInfoList[0].DisplayName,
 			clusterInfoList[0].Managed, clusterInfoList[0].Status,
 		)
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -1214,7 +1214,7 @@ func TestHTTPServer_GetSingleClusterInfoClusterNotFound(t *testing.T) {
 			[]types.ClusterInfo{},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -1236,7 +1236,7 @@ func TestHTTPServer_GetRequestStatusForCluster_RedisNil(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -1260,7 +1260,7 @@ func TestHTTPServer_GetRequestStatusForCluster_RedisError500(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetErr(errors.New("Redis server failure"))
@@ -1289,7 +1289,7 @@ func TestHTTPServer_GetRequestStatusForCluster_NoRequestsForCluster(t *testing.T
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{}, 0)
@@ -1320,7 +1320,7 @@ func TestHTTPServer_GetRequestStatusForCluster_RequestNotFound(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{"requestIDNotTheOne", "requestIDAlsoNotTheOne"}, 0)
@@ -1352,7 +1352,7 @@ func TestHTTPServer_GetRequestStatusForCluster_BadRequestClusterID(t *testing.T)
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -1379,7 +1379,7 @@ func TestHTTPServer_GetRequestStatusForCluster_BadRequestID(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid requestID in endpoint arg
 		iou_helpers.AssertAPIRequest(
@@ -1406,7 +1406,7 @@ func TestHTTPServer_GetRequestStatusForCluster_BadAuthToken(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// bad token
 		iou_helpers.AssertAPIRequest(
@@ -1431,7 +1431,7 @@ func TestHTTPServer_GetRequestStatusForCluster_SingleRequestID(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{"requestID1"}, 0)
@@ -1464,7 +1464,7 @@ func TestHTTPServer_GetRequestStatusForCluster_RequestIDOnSecondPage(t *testing.
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{"requestID1"}, 42)
@@ -1499,7 +1499,7 @@ func TestHTTPServer_GetRequestsForCluster_OK1Request(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey1stCommand := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey1stCommand, services.ScanBatchCount).SetVal([]string{"requestID1"}, 0)
@@ -1542,7 +1542,7 @@ func TestHTTPServer_GetRequestsForCluster_OK3Requests(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		requestIDs := make([]string, 3)
 		for i := range requestIDs {
@@ -1599,7 +1599,7 @@ func TestHTTPServer_GetRequestsForCluster_RequestsNotFound(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey, services.ScanBatchCount).SetVal([]string{}, 0)
@@ -1633,7 +1633,7 @@ func TestHTTPServer_GetRequestsForCluster_BadRequestClusterID(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -1660,7 +1660,7 @@ func TestHTTPServer_GetRequestsForCluster_BadAuthToken(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -1683,7 +1683,7 @@ func TestHTTPServer_GetRequestsForCluster_NoRedis(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -1707,7 +1707,7 @@ func TestHTTPServer_GetRequestsForCluster_RedisError500(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey1stCommand := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey1stCommand, services.ScanBatchCount).SetErr(errors.New("Redis server failure"))
@@ -1736,7 +1736,7 @@ func TestHTTPServer_GetRequestsForCluster_RedisError500_2ndCmd(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey1stCommand := fmt.Sprintf(services.RequestIDsScanPattern, testdata.OrgID, testdata.ClusterName)
 		redisServer.ExpectScan(0, expectedKey1stCommand, services.ScanBatchCount).SetVal([]string{"requestID1"}, 0)
@@ -1770,7 +1770,7 @@ func TestHTTPServer_GetReportForRequest_OK1Request(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
 		redisServer.ExpectHMGet(
@@ -1814,7 +1814,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_OK3Request1Found(t *testing
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		requestIDs := make([]string, 3)
 		for i := range requestIDs {
@@ -1873,7 +1873,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_OK1RequestNotFound(t *testi
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
 		redisServer.ExpectHMGet(
@@ -1915,7 +1915,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_NoRedis(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 
 		requestIDList := []types.RequestID{"requestID1"}
 		reqBody, _ := json.Marshal(requestIDList)
@@ -1943,7 +1943,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_RedisError500(t *testing.T)
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
 		redisServer.ExpectHMGet(
@@ -1979,7 +1979,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadRequestClusterID(t *test
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		requestIDList := []types.RequestID{"requestID1"}
 		reqBody, _ := json.Marshal(requestIDList)
@@ -2010,7 +2010,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadAuthToken(t *testing.T) 
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		requestIDList := []types.RequestID{"requestID1"}
 		reqBody, _ := json.Marshal(requestIDList)
@@ -2040,7 +2040,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_NoBody(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -2067,7 +2067,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadBodyContent(t *testing.T
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -2095,7 +2095,7 @@ func TestHTTPServer_GetRequestsForClusterPostVariant_BadRequestID(t *testing.T) 
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		requestIDList := []types.RequestID{"_"}
 		reqBody, _ := json.Marshal(requestIDList)
@@ -2128,7 +2128,7 @@ func TestHTTPServer_GetReportForRequest_OK_RequestNotFound(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
@@ -2164,7 +2164,7 @@ func TestHTTPServer_GetReportForRequest_OK_NoRuleHits(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 		expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName, "requestID1")
@@ -2233,7 +2233,7 @@ func TestHTTPServer_GetReportForRequest_OK_1RuleHit(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
@@ -2303,7 +2303,7 @@ func TestHTTPServer_GetReportForRequest_BadAuthToken(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -2329,7 +2329,7 @@ func TestHTTPServer_GetReportForRequest_BadRequestClusterID(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid clusterID
 		iou_helpers.AssertAPIRequest(
@@ -2356,7 +2356,7 @@ func TestHTTPServer_GetReportForRequest_BadRequestID(t *testing.T) {
 		// mock server not needed because the request will not get to part requiring Redis
 		redisClient, _ := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// invalid requestID in endpoint arg
 		iou_helpers.AssertAPIRequest(
@@ -2389,7 +2389,7 @@ func TestHTTPServer_GetReportForRequest_NoRuleContent(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
@@ -2459,7 +2459,7 @@ func TestHTTPServer_GetReportForRequest_OK_2RuleHits1Acked(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 		expectedRuleHits := fmt.Sprintf("%v|%v,%v|%v", testdata.Rule1ID, testdata.ErrorKey1, testdata.Rule2ID, testdata.ErrorKey2)
@@ -2533,7 +2533,7 @@ func TestHTTPServer_GetReportForRequest_OK_3RuleHits1Acked1Disabled(t *testing.T
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 
@@ -2625,7 +2625,7 @@ func TestHTTPServer_GetReportForRequest_AggregatorError(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
@@ -2670,7 +2670,7 @@ func TestHTTPServer_GetReportForRequest_AggregatorError_2ndCall(t *testing.T) {
 
 		redisClient, redisServer := helpers.GetMockRedis()
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
 
 		// redis expects
 		expectedRuleHits := fmt.Sprintf("%v|%v", testdata.Rule1ID, testdata.ErrorKey1)
@@ -2726,7 +2726,7 @@ func TestHTTPServer_GetReportForRequest_NoRedis(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 
 		requestIDList := []types.RequestID{"requestID1"}
 		reqBody, _ := json.Marshal(requestIDList)
@@ -2779,7 +2779,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_NoWorkloads(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		expectedResponse := `{"status": "ok", "workloads": []}`
 
@@ -2857,7 +2857,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_OK(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		expectedResponse := types.DVONamespaceListResponse{
 			Status: "ok",
@@ -2907,7 +2907,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_NoAuthToken(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -2930,7 +2930,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_NoAMS(t *testing.T) {
 		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 		assert.Nil(t, err)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -2975,7 +2975,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_AggregatorError(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3050,7 +3050,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_RecommendationDoesNotExist(t *testi
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		expectedResponse := types.DVONamespaceListResponse{
 			Status: "ok",
@@ -3163,7 +3163,7 @@ func TestHTTPServer_DVONamespaceListEndpoint_FilterOutInactiveClusters(t *testin
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		expectedResponse := types.DVONamespaceListResponse{
 			Status: "ok",
@@ -3226,7 +3226,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterNotFound(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3307,7 +3307,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundNoWorkloads(t *testing.T
 			2: 0,
 		}
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3445,7 +3445,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads(t *testing
 		expectedResponse.Recommendations[1].TemplateData = aggrResp.Workloads.Recommendations[1].TemplateData
 		expectedResponse.Recommendations[1].Objects = aggrResp.Workloads.Recommendations[1].Objects
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3477,7 +3477,7 @@ func TestHTTPServer_DVONamespaceForCluster1_BadAuthToken(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3507,7 +3507,7 @@ func TestHTTPServer_DVONamespaceForCluster1_BadClusterID(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3553,7 +3553,7 @@ func TestHTTPServer_DVONamespaceForCluster1_NonUUIDNamespaceID(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3584,7 +3584,7 @@ func TestHTTPServer_DVONamespaceForCluster1_BadNamespaceID(t *testing.T) {
 			data.ClusterInfoResult,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		var longID string
 		for i := 0; i < 8; i++ {
@@ -3614,7 +3614,7 @@ func TestHTTPServer_DVONamespaceForCluster1_NoAMS(t *testing.T) {
 		err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
 		assert.Nil(t, err)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3689,7 +3689,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_RuleConten
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3764,7 +3764,7 @@ func TestHTTPServer_DVONamespaceForCluster1_ClusterFoundWithWorkloads_NotFoundIn
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3808,7 +3808,7 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorError(t *testing.T) {
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3853,7 +3853,7 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorBadResponse(t *testing.T) 
 			},
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -3886,7 +3886,7 @@ func TestHTTPServer_DVONamespaceForCluster1_AggregatorUnavailable(t *testing.T) 
 
 		// gock expect missing == aggregator request will timeout
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,

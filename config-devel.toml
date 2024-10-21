@@ -52,3 +52,8 @@ database = 0
 endpoint = "localhost:6379"
 password = ""
 timeout_seconds = 30
+
+[rbac]
+host = https://console.redhat.com/api/rbac/v1
+enabled = false
+enforce = false
