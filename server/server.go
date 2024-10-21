@@ -107,6 +107,7 @@ type HTTPServer struct {
 	ErrorChannel      chan error
 	Serv              *http.Server
 	redis             services.RedisInterface
+	rbacClient        auth.RBACClient
 }
 
 // RequestModifier is a type of function which modifies request when proxying
@@ -130,6 +131,7 @@ func New(config Configuration,
 	groupsChannel chan []groups.Group,
 	errorFoundChannel chan bool,
 	errorChannel chan error,
+	rbacClient auth.RBACClient,
 ) *HTTPServer {
 	return &HTTPServer{
 		Config:            config,
@@ -140,6 +142,7 @@ func New(config Configuration,
 		GroupsChannel:     groupsChannel,
 		ErrorFoundChannel: errorFoundChannel,
 		ErrorChannel:      errorChannel,
+		rbacClient:        rbacClient,
 	}
 }
 
@@ -419,7 +422,7 @@ func (server HTTPServer) readClusterInfoForOrgID(orgID ctypes.OrgID) (
 
 	if !server.Config.UseOrgClustersFallback {
 		err := fmt.Errorf("amsclient not initialized")
-		log.Error().Err(err).Msg("")
+		log.Error().Err(err).Send()
 		return nil, err
 	}
 

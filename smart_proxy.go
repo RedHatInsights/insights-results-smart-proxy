@@ -34,6 +34,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
@@ -113,6 +114,7 @@ func startServer() ExitCode {
 	servicesCfg := conf.GetServicesConfiguration()
 	amsConfig := conf.GetAMSClientConfiguration()
 	redisConf := conf.GetRedisConfiguration()
+	rbacCfg := conf.GetRBACConfiguration()
 	groupsChannel := make(chan []groups.Group)
 	errorFoundChannel := make(chan bool)
 	errorChannel := make(chan error)
@@ -140,7 +142,12 @@ func startServer() ExitCode {
 	}
 	log.Info().Msg("Redis client created, Redis server is responding")
 
-	serverInstance = server.New(serverCfg, servicesCfg, amsClient, redisClient, groupsChannel, errorFoundChannel, errorChannel)
+	rbac, err := auth.NewRBACClient(&rbacCfg)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to initialize RBAC client")
+		return ExitStatusServerError
+	}
+	serverInstance = server.New(serverCfg, servicesCfg, amsClient, redisClient, groupsChannel, errorFoundChannel, errorChannel, rbac)
 
 	// fill-in additional info used by /info endpoint handler
 	fillInInfoParams(serverInstance.InfoParams)

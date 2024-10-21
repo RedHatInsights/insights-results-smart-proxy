@@ -217,7 +217,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction(t *testing.T) {
 		)
 
 		expectedResponse := upgradeRecommended
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -264,7 +264,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 		)
 
 		expectedResponse := upgradeNotRecommended
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -300,7 +300,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotRecommended(t *testing.T) {
 func TestHTTPServer_GetUpgradeRisksPredictionOfflineAMS(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
 		cluster := testdata.GetRandomClusterInfoListAllUnManaged(1)[0].ID
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -331,7 +331,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterNotBelonging(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -360,7 +360,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionNotFound(t *testing.T) {
 			testdata.OrgID,
 			clusterInfoList,
 		)
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		helpers.GockExpectAPIRequest(
 			t,
@@ -403,7 +403,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionInvalidResponse(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
@@ -446,7 +446,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionClusterHasNoData(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 		helpers.GockExpectAPIRequest(
 			t,
 			helpers.DefaultServicesConfig.UpgradeRisksPredictionEndpoint,
@@ -489,7 +489,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionUnavailableDataEngineering(t *testi
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 		iou_helpers.AssertAPIRequest(
 			t,
 			testServer,
@@ -519,7 +519,7 @@ func TestHTTPServer_GetUpgradeRisksPredictionManagedCluster(t *testing.T) {
 			clusterInfoList,
 		)
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -562,7 +562,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction__timesout(t *testing.T) {
 		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
 		testServer := helpers.CreateHTTPServer(
 			&helpers.DefaultServerConfig, &servicesConfig, amsClientMock,
-			nil, nil, nil, nil)
+			nil, nil, nil, nil, nil)
 
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -582,7 +582,7 @@ func TestHTTPServer_GetUpgradeRisksPrediction__timesout(t *testing.T) {
 
 func TestHTTPServer_GetMulticlusterURPNoBody(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 		expectedResponse := `{"status":"client didn't provide request body"}`
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -603,7 +603,7 @@ func TestHTTPServer_GetMulticlusterURPNoBody(t *testing.T) {
 
 func TestHTTPServer_GetMulticlusterUpgradeRisksServiceUnvailable(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 		expectedResponse := `{"status":"Upgrade Failure Prediction service is unreachable"}`
 		iou_helpers.AssertAPIRequest(
 			t,
@@ -638,7 +638,7 @@ func TestHTTPServer_GetMulticlusterUpgradeRisksPredictionTwoClusters(t *testing.
 
 		servicesConfig := helpers.DefaultServicesConfig
 		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil, nil)
 
 		cluster1 := "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
 		cluster2 := "34c3ecc5-624a-49a5-bab8-4fdc5e51a288"
@@ -677,7 +677,7 @@ func TestHTTPServer_GetMulticlusterUpgradeRisksPredictionNoData(t *testing.T) {
 
 		servicesConfig := helpers.DefaultServicesConfig
 		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil, nil)
 
 		// Same as response from data-eng, but omiting empty values
 		expectedResponse := `
@@ -728,7 +728,7 @@ func TestHTTPServer_GetMulticlusterUpgradeRisksPredictionOneNoData(t *testing.T)
 		servicesConfig := helpers.DefaultServicesConfig
 		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
 
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil, nil)
 
 		// Same as response from data-eng, but omiting empty values
 		expectedResponse := `
@@ -794,7 +794,7 @@ func TestHTTPServer_GetMulticlusterUpgradeRisksPredictionMaxAllowedClusters(t *t
 		defer dataEngServer.Close()
 		servicesConfig := helpers.DefaultServicesConfig
 		servicesConfig.UpgradeRisksPredictionEndpoint = dataEngServer.URL
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, &servicesConfig, nil, nil, nil, nil, nil, nil)
 
 		clusters := generateUUIDs(server.MaxAllowedClusters)
 		reqBody := fmt.Sprintf(`{"clusters": ["%s"]}`, strings.Join(clusters, `","`))
@@ -818,7 +818,7 @@ func TestHTTPServer_GetMulticlusterUpgradeRisksPredictionMaxAllowedClusters(t *t
 
 func TestHTTPServer_GetMulticlusterURPOverMaxAllowed(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(t testing.TB) {
-		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil)
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
 		clusters := generateUUIDs(server.MaxAllowedClusters + 1)
 		reqBody := fmt.Sprintf(`{"clusters": ["%s"]}`, strings.Join(clusters, `","`))
 
