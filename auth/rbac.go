@@ -62,11 +62,6 @@ func (rc *rbacClientImpl) IsEnforcing() bool {
 
 // IsAuthorized checks if an account has the correct permissions to access our resources
 func (rc *rbacClientImpl) IsAuthorized(token string) bool {
-	// baseURL := "https://console.redhat.com/api/rbac/v1" // TODO: env var, separate URL from endpoint like this: https://console.redhat.com and /api/rbac/v1/access so we can include port if needed. use helper func to create url
-	// baseURL := "https://console.stage.redhat.com/api/rbac/v1"
-
-	// Here you can add additional logic to parse the response body if needed
-	// For now, we assume that a 200 response means permissions are valid
 	permissions := rc.getPermissions(token)
 	return permissions != nil
 }
@@ -138,7 +133,6 @@ func (rc *rbacClientImpl) requestAccess(url, identityToken string) []types.RbacD
 // from RBAC and creates and return the map of permissions where key is
 // resourceType (openshift.cluster, openshift.node, openshift.project) and the values are the
 // slice of resources (cluster names, node names, project names).
-// We might not need it, but since it's part of the response, this might be useful.
 func aggregatePermissions(acls []types.RbacData) map[string][]string {
 	permissions := map[string][]string{}
 	for _, acl := range acls {
