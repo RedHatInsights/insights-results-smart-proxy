@@ -45,6 +45,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 	types "github.com/RedHatInsights/insights-results-types"
@@ -84,6 +85,7 @@ var Config struct {
 	SentryLoggingConf logger.SentryLoggingConfiguration `mapstructure:"sentry" toml:"sentry"`
 	KafkaZerologConf  logger.KafkaZerologConfiguration  `mapstructure:"kafka_zerolog" toml:"kafka_zerolog"`
 	AMSClientConf     amsclient.Configuration           `mapstructure:"amsclient" toml:"amsclient"`
+	RBACConf          auth.RBACConfig                   `mapstructure:"rbac" toml:"rbac"`
 }
 
 // LoadConfiguration loads configuration from defaultConfigFile, file set in
@@ -208,6 +210,10 @@ func GetAMSClientConfiguration() amsclient.Configuration {
 // GetRedisConfiguration returns Redis configuration
 func GetRedisConfiguration() services.RedisConfiguration {
 	return Config.RedisConf
+}
+
+func GetRBACConfiguration() auth.RBACConfig {
+	return Config.RBACConf
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
