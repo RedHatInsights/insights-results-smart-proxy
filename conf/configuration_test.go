@@ -432,3 +432,16 @@ func TestGetLoggingConfiguration(t *testing.T) {
 		LoggingToCloudWatchEnabled: false,
 	}, loggingConfiguration)
 }
+
+// TestLoadRBACConfiguration tests loading the RBAC configuration sub-tree
+func TestLoadRBACConfiguration(t *testing.T) {
+	TestLoadConfiguration(t)
+	helpers.FailOnError(t, os.Chdir(".."))
+
+	cfg := conf.GetRBACConfiguration()
+
+	assert.Equal(t, "https://api.openshift.com", cfg.Host)
+	assert.Equal(t, false, cfg.Enabled)
+	assert.Equal(t, false, cfg.EnforceAuth)
+	assert.Equal(t, uint16(0), cfg.Port)
+}
