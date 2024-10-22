@@ -31,6 +31,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -38,7 +39,6 @@ import (
 	// interface in debug mode
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
 	_ "net/http/pprof" // #nosec G108
-	"path/filepath"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
@@ -162,32 +162,8 @@ func (server *HTTPServer) Initialize() http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(httputils.LogRequest)
 
-	apiPrefix := server.Config.APIv1Prefix
-
-	metricsURL := apiPrefix + MetricsEndpoint
-	openAPIv1URL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
-	openAPIv2URL := server.Config.APIv2Prefix + filepath.Base(server.Config.APIv2SpecFile)
-	infoV1URL := apiPrefix + InfoEndpoint
-	infoV2URL := server.Config.APIv2Prefix + InfoEndpoint
-	// enable authentication, but only if it is setup in configuration
-	if server.Config.Auth {
-		// we have to enable authentication for all endpoints,
-		// including endpoints for Prometheus metrics and OpenAPI
-		// specification, because there is not single prefix of other
-		// REST API calls. The special endpoints needs to be handled in
-		// middleware which is not optimal
-		noAuthURLs := []string{
-			metricsURL,
-			openAPIv1URL,
-			openAPIv2URL,
-			infoV1URL,
-			infoV2URL,
-			metricsURL + "?",   // to be able to test using Frisby
-			openAPIv1URL + "?", // to be able to test using Frisby
-			openAPIv2URL + "?", // to be able to test using Frisby
-		}
-		router.Use(func(next http.Handler) http.Handler { return server.Authentication(next, noAuthURLs) })
-	}
+	// Set up authentication and authorization middleware
+	server.setupAuthMiddleware(router)
 
 	if server.Config.EnableCORS {
 		headersOK := handlers.AllowedHeaders([]string{
@@ -210,12 +186,45 @@ func (server *HTTPServer) Initialize() http.Handler {
 		router.Use(corsMiddleware)
 	}
 
-	if server.Config.UseRBAC {
-		router.Use(func(next http.Handler) http.Handler { return server.Authorization(next) })
-	}
 	server.addEndpointsToRouter(router)
 
 	return router
+}
+
+// setupAuthMiddleware sets up the authentication and authorization middlewares
+// for the given router.
+func (server *HTTPServer) setupAuthMiddleware(router *mux.Router) {
+	apiPrefix := server.Config.APIv1Prefix
+
+	metricsURL := apiPrefix + MetricsEndpoint
+	openAPIv1URL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
+	openAPIv2URL := server.Config.APIv2Prefix + filepath.Base(server.Config.APIv2SpecFile)
+	infoV1URL := apiPrefix + InfoEndpoint
+	infoV2URL := server.Config.APIv2Prefix + InfoEndpoint
+
+	// Define noAuthURLs for use in authentication and authorization middleware
+	noAuthURLs := []string{
+		metricsURL,
+		openAPIv1URL,
+		openAPIv2URL,
+		infoV1URL,
+		infoV2URL,
+		metricsURL + "?",   // to be able to test using Frisby
+		openAPIv1URL + "?", // to be able to test using Frisby
+		openAPIv2URL + "?", // to be able to test using Frisby
+	}
+
+	if server.Config.Auth {
+		router.Use(func(next http.Handler) http.Handler {
+			return server.Authentication(next, noAuthURLs)
+		})
+	}
+
+	if server.Config.UseRBAC {
+		router.Use(func(next http.Handler) http.Handler {
+			return server.Authorization(next, noAuthURLs)
+		})
+	}
 }
 
 func (server *HTTPServer) addEndpointsToRouter(router *mux.Router) {

@@ -317,7 +317,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				w.WriteHeader(http.StatusOK)
 			})
 
-			authHandler := testServer.Authorization(handler)
+			authHandler := testServer.Authorization(handler, nil)
 
 			authHandler.ServeHTTP(recorder, req)
 
