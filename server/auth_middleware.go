@@ -20,10 +20,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"github.com/RedHatInsights/insights-operator-utils/collections"
 	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	types "github.com/RedHatInsights/insights-results-types"
+	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,17 +34,53 @@ const (
 	accountNotAuthorized = "Account does not have the required permissions"
 )
 
+// setupAuthMiddleware sets up the authentication and authorization middlewares
+// for the given router.
+func (server *HTTPServer) setupAuthMiddleware(router *mux.Router) {
+	apiPrefix := server.Config.APIv1Prefix
+
+	metricsURL := apiPrefix + MetricsEndpoint
+	openAPIv1URL := apiPrefix + filepath.Base(server.Config.APIv1SpecFile)
+	openAPIv2URL := server.Config.APIv2Prefix + filepath.Base(server.Config.APIv2SpecFile)
+	infoV1URL := apiPrefix + InfoEndpoint
+	infoV2URL := server.Config.APIv2Prefix + InfoEndpoint
+
+	// Define noAuthURLs for use in authentication and authorization middleware
+	noAuthURLs := []string{
+		metricsURL,
+		openAPIv1URL,
+		openAPIv2URL,
+		infoV1URL,
+		infoV2URL,
+		metricsURL + "?",   // to be able to test using Frisby
+		openAPIv1URL + "?", // to be able to test using Frisby
+		openAPIv2URL + "?", // to be able to test using Frisby
+	}
+
+	if server.Config.Auth {
+		router.Use(func(next http.Handler) http.Handler {
+			return server.Authentication(next, noAuthURLs)
+		})
+	}
+
+	if server.Config.UseRBAC {
+		router.Use(func(next http.Handler) http.Handler {
+			return server.Authorization(next, noAuthURLs)
+		})
+	}
+}
+
 // Authentication middleware for checking auth rights
 func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// for specific URLs it is ok to not use auth. mechanisms at all
+		// For specific URLs it is ok to not use auth. mechanisms at all
 		// this is specific to OpenAPI JSON response and for all OPTION HTTP methods
 		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == "OPTIONS" {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		// try to read auth. header from HTTP request (if provided by client)
+		// Try to read auth. header from HTTP request (if provided by client)
 		tk, err := auth.DecodeTokenFromHeader(w, r, server.Config.AuthType)
 		if err != nil {
 			handleServerError(w, err)
@@ -85,6 +123,12 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 		// for specific URLs it is ok to not use auth. mechanisms at all
 		// this is specific to OpenAPI JSON response and for all OPTION HTTP methods
 		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == "OPTIONS" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// We also leave ACM folks out of this for now
+		if server.getKnownUserAgentProduct(r) == acmUserAgent {
 			next.ServeHTTP(w, r)
 			return
 		}

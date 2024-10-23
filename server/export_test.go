@@ -29,4 +29,5 @@ package server
 var (
 	FillImpacted      = fillImpacted
 	HandleServerError = handleServerError
+	AcmUserAgent      = acmUserAgent
 )
