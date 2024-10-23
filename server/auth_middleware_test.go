@@ -325,3 +325,59 @@ func TestAuthorizationMiddleware(t *testing.T) {
 		})
 	}
 }
+
+func TestAuthorization_NoAuthURLs(t *testing.T) {
+	// Setup the server and the request
+	rbacClient := &MockRBACClient{authorized: false, enforcing: true}
+	noAuthURLs := []string{"/public-endpoint"}
+	testServer := server.HTTPServer{
+		Config: server.Configuration{
+			Auth:     true,
+			AuthType: "xrh",
+			UseRBAC:  true,
+		},
+	}
+	testServer.SetRBACClient(rbacClient)
+
+	// Create a request to a noAuthURL
+	req := httptest.NewRequest(http.MethodGet, "/public-endpoint", nil)
+	rr := httptest.NewRecorder()
+
+	// Call the authorization middleware
+	handler := testServer.Authorization(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}), noAuthURLs)
+
+	handler.ServeHTTP(rr, req)
+
+	// Verify that the response is OK and RBAC was not used
+	assert.Equal(t, http.StatusOK, rr.Code)
+}
+
+func TestAuthorization_ACMUserAgent(t *testing.T) {
+	// Setup the server and the request
+	rbacClient := &MockRBACClient{authorized: false, enforcing: true}
+	testServer := server.HTTPServer{
+		Config: server.Configuration{
+			Auth:     true,
+			AuthType: "xrh",
+			UseRBAC:  true,
+		},
+	}
+	testServer.SetRBACClient(rbacClient)
+
+	// Create a request with the ACM user agent
+	req := httptest.NewRequest(http.MethodGet, "/some-endpoint", nil)
+	req.Header.Set("User-Agent", server.AcmUserAgent)
+	rr := httptest.NewRecorder()
+
+	// Call the authorization middleware
+	handler := testServer.Authorization(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}), []string{})
+
+	handler.ServeHTTP(rr, req)
+
+	// Verify that the response is OK and RBAC was not used
+	assert.Equal(t, http.StatusOK, rr.Code)
+}
