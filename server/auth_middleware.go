@@ -127,12 +127,6 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 			return
 		}
 
-		// We also leave ACM folks out of this for now
-		if server.getKnownUserAgentProduct(r) == acmUserAgent {
-			next.ServeHTTP(w, r)
-			return
-		}
-
 		token, err := auth.DecodeTokenFromHeader(w, r, server.Config.AuthType)
 		if err != nil {
 			handleServerError(w, err)
