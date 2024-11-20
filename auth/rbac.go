@@ -65,14 +65,14 @@ func (rc *rbacClientImpl) IsEnforcing() bool {
 // IsAuthorized checks if an account has the correct permissions to access our resources
 func (rc *rbacClientImpl) IsAuthorized(token string) bool {
 	permissions := rc.getPermissions(token)
-	log.Debug().Interface("permissions", permissions).Msg("Account openshift permissions")
+	log.Info().Interface("permissions", permissions).Msg("Account openshift permissions")
 	return permissions != nil
 }
 
 func (rc *rbacClientImpl) getPermissions(identityToken string) map[string][]string {
 	acls := rc.requestAccess(rc.uri, identityToken)
 	if len(acls) > 0 {
-		log.Debug().Interface("acls", acls).Msg("Account all permissions")
+		log.Info().Interface("acls", acls).Msg("Account all permissions")
 		permissions := aggregatePermissions(acls)
 		if len(permissions) > 0 {
 			log.Info().Any("RBAC openshift permissions", permissions).Send()
@@ -80,7 +80,7 @@ func (rc *rbacClientImpl) getPermissions(identityToken string) map[string][]stri
 		}
 		return nil
 	}
-	log.Debug().Msg("Account has no ACLs")
+	log.Info().Msg("Account has no ACLs")
 	return nil
 }
 

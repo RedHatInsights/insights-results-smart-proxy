@@ -137,7 +137,7 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 		// be for all users, but let's first make sure we won't disturb existing users by only
 		// logging unauthorized service accounts
 		if token.Identity.Type == "ServiceAccount" {
-			log.Debug().Str("client ID", token.Identity.ServiceAccount.ClientID).Msg("Received a request from a service account")
+			log.Info().Str("client ID", token.Identity.ServiceAccount.ClientID).Msg("Received a request from a service account")
 			// Check permissions for service accounts
 			if !server.rbacClient.IsAuthorized(auth.GetAuthTokenHeader(r)) {
 				log.Warn().Str(accountType, token.Identity.Type).Msg(accountNotAuthorized)
