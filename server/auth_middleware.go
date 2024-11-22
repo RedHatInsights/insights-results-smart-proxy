@@ -127,12 +127,6 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 			return
 		}
 
-		// We also leave ACM folks out of this for now
-		if server.getKnownUserAgentProduct(r) == acmUserAgent {
-			next.ServeHTTP(w, r)
-			return
-		}
-
 		token, err := auth.DecodeTokenFromHeader(w, r, server.Config.AuthType)
 		if err != nil {
 			handleServerError(w, err)
@@ -143,6 +137,7 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 		// be for all users, but let's first make sure we won't disturb existing users by only
 		// logging unauthorized service accounts
 		if token.Identity.Type == "ServiceAccount" {
+			log.Debug().Str("client ID", token.Identity.ServiceAccount.ClientID).Msg("Received a request from a service account")
 			// Check permissions for service accounts
 			if !server.rbacClient.IsAuthorized(auth.GetAuthTokenHeader(r)) {
 				log.Warn().Str(accountType, token.Identity.Type).Msg(accountNotAuthorized)
@@ -154,7 +149,8 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 		} else {
 			log.Debug().Str(accountType, token.Identity.Type).Msg("RBAC is only used with service accounts for now")
 			// handleServerError(w, &auth.AuthorizationError{ErrString: "unknown identity type"})
-			return
+			// We don't use return because RBAC is not mandatory for users yet
+			// return
 		}
 
 		// Access is authorized, proceed with the request

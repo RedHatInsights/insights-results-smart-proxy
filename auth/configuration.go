@@ -45,7 +45,7 @@ func constructRBACURL(config *RBACConfig) (string, string, error) {
 	}
 
 	// Add the /access/ endpoint and ocp-advisor parameter
-	baseURL.Path = "/access/"
+	baseURL.Path += "/access/"
 
 	params := url.Values{}
 	params.Add("application", "ocp-advisor")
