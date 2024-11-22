@@ -320,8 +320,8 @@ parameters:
 - name: ORG_CLUSTERS_FALLBACK
   value: "false"
 - name: USE_RBAC
-  value: "true"
+  value: "false"
 - name: RBAC_SERVER_URL
   value: "http://rbac-service:8000/api/rbac/v1"
 - name: ENFORCE_RBAC
-  value: "true"
+  value: "false"
