@@ -55,6 +55,11 @@ func TestAggregatePermissions(t *testing.T) {
 			permissions: []string{"other:other:*", "ocp-advisor:recommendation-results:*"},
 			want:        map[string][]string{"recommendation-results": {"*"}},
 		},
+		{
+			name:        "bad RBAC response (not enough elements)",
+			permissions: []string{"ocp-advisor:recommendation-results"},
+			want:        map[string][]string{},
+		},
 	}
 
 	for _, tc := range testCases {

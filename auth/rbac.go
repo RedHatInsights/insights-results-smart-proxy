@@ -145,6 +145,10 @@ func aggregatePermissions(acls []types.RbacData) map[string][]string {
 	permissions := map[string][]string{}
 	for _, acl := range acls {
 		splits := strings.Split(acl.Permission, ":")
+		if len(splits) < 3 {
+			log.Warn().Str("ACL", acl.Permission).Msg("Unexpected RBAC response")
+			continue
+		}
 		if splits[0] != "ocp-advisor" {
 			// check the ACL is for ocp-advisor, not for other APIs
 			continue
