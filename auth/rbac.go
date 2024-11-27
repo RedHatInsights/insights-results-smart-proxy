@@ -65,7 +65,7 @@ func (rc *rbacClientImpl) IsEnforcing() bool {
 // IsAuthorized checks if an account has the correct permissions to access our resources
 func (rc *rbacClientImpl) IsAuthorized(token string) bool {
 	permissions := rc.getPermissions(token)
-	log.Debug().Interface("permissions", permissions).Msg("Account openshift permissions")
+	log.Debug().Interface("permissions", permissions).Msg("Account ocp-advisor permissions")
 	return permissions != nil
 }
 
@@ -75,6 +75,7 @@ func (rc *rbacClientImpl) getPermissions(identityToken string) map[string][]stri
 		log.Debug().Interface("acls", acls).Msg("Account all permissions")
 		permissions := aggregatePermissions(acls)
 		if len(permissions) > 0 {
+			// as we just need a read permission, we accept any > 0 here
 			log.Info().Any("RBAC openshift permissions", permissions).Send()
 			return permissions
 		}
@@ -137,30 +138,31 @@ func (rc *rbacClientImpl) requestAccess(url, identityToken string) []types.RbacD
 
 // aggregatePermissions loop over all the permissions/roles/alcs of the user returned
 // from RBAC and creates and return the map of permissions where key is
-// resourceType (openshift.cluster, openshift.node, openshift.project) and the values are the
+// resourceType (recommendation-results) and the values are the
 // slice of resources (cluster names, node names, project names).
+// We are interested in this ACLs: https://github.com/RedHatInsights/rbac-config/blob/master/configs/prod/permissions/ocp-advisor.json
 func aggregatePermissions(acls []types.RbacData) map[string][]string {
 	permissions := map[string][]string{}
 	for _, acl := range acls {
-		resourceType := strings.Split(acl.Permission, ":")[1]
-		if strings.Contains(resourceType, "openshift") {
+		splits := strings.Split(acl.Permission, ":")
+		if len(splits) < 3 {
+			log.Warn().Str("ACL", acl.Permission).Msg("Unexpected RBAC response")
+			continue
+		}
+		if splits[0] != "ocp-advisor" {
+			// check the ACL is for ocp-advisor, not for other APIs
+			continue
+		}
+		resourceType := splits[1]
+		verb := splits[2]
+		// ignore other kind of permissions, we just want recommendation-results
+		if strings.Contains(resourceType, "recommendation-results") {
 			if _, ok := permissions[resourceType]; !ok {
+				// add the resource type to the permissions map if not already
+				// there so that we can then add the permission verb
 				permissions[resourceType] = []string{}
 			}
-			if len(acl.ResourceDefinitions) == 0 {
-				permissions[resourceType] = append(permissions[resourceType], "*")
-			} else {
-				for _, resourceDefinition := range acl.ResourceDefinitions {
-					switch t := resourceDefinition.AttributeFilter.Value.(type) {
-					case []interface{}:
-						for _, v := range t {
-							permissions[resourceType] = append(permissions[resourceType], fmt.Sprint(v))
-						}
-					case string:
-						permissions[resourceType] = append(permissions[resourceType], t)
-					}
-				}
-			}
+			permissions[resourceType] = append(permissions[resourceType], verb)
 		} else if resourceType == "*" {
 			permissions["*"] = []string{}
 		}
