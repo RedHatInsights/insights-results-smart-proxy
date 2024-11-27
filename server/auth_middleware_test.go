@@ -24,9 +24,12 @@ import (
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
+	"github.com/prometheus/client_golang/prometheus"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/metrics"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	types "github.com/RedHatInsights/insights-results-types"
+	prommodels "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -131,7 +134,6 @@ func TestGetCurrentOrgID(t *testing.T) {
 	testServer := server.HTTPServer{}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-
 			req := getRequest(t, tc.identity)
 
 			orgID, err := testServer.GetCurrentOrgID(req)
@@ -239,11 +241,6 @@ func (m *MockRBACClient) IsEnforcing() bool {
 }
 
 func TestAuthorizationMiddleware(t *testing.T) {
-	jsonData, err := json.Marshal(validIdentityXRH)
-	assert.NoError(t, err)
-
-	token := base64.StdEncoding.EncodeToString(jsonData)
-
 	testCases := []struct {
 		name           string
 		xrhHeader      types.Token
@@ -290,12 +287,17 @@ func TestAuthorizationMiddleware(t *testing.T) {
 					Type: "UnknownType",
 				}},
 			rbacClient:     &MockRBACClient{authorized: false, enforcing: true},
-			expectedStatus: http.StatusForbidden,
+			expectedStatus: http.StatusOK, // RBAC is only enforced on ServiceAccounts
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			jsonData, err := json.Marshal(tc.xrhHeader)
+			assert.NoError(t, err)
+
+			token := base64.StdEncoding.EncodeToString(jsonData)
+
 			req := httptest.NewRequest(http.MethodGet, "/", nil)
 			// Set the authorization header, anything but an empty string is enough for these UTs
 			req.Header.Set("x-rh-identity", token)
@@ -317,11 +319,20 @@ func TestAuthorizationMiddleware(t *testing.T) {
 				w.WriteHeader(http.StatusOK)
 			})
 
+			initValueRBACIdentityType := int64(getCounterVecValue(t, metrics.RBACIdentityType, tc.xrhHeader.Identity.Type))
+			initValueRBACServiceAccountRejected := int64(getCounterValue(t, metrics.RBACServiceAccountRejected))
 			authHandler := testServer.Authorization(handler, nil)
 
 			authHandler.ServeHTTP(recorder, req)
 
 			assert.Equal(t, tc.expectedStatus, recorder.Code)
+
+			assertCounterVecValue(t, 1, metrics.RBACIdentityType, tc.xrhHeader.Identity.Type, initValueRBACIdentityType)
+			if tc.expectedStatus == http.StatusForbidden {
+				assertCounterValue(t, 1, metrics.RBACServiceAccountRejected, initValueRBACServiceAccountRejected)
+			} else {
+				assertCounterValue(t, 0, metrics.RBACServiceAccountRejected, initValueRBACServiceAccountRejected)
+			}
 		})
 	}
 }
@@ -352,4 +363,30 @@ func TestAuthorization_NoAuthURLs(t *testing.T) {
 
 	// Verify that the response is OK and RBAC was not used
 	assert.Equal(t, http.StatusOK, rr.Code)
+}
+
+func assertCounterVecValue(tb testing.TB, expected int64, counterVec *prometheus.CounterVec, label string, initValue int64) {
+	assert.Equal(tb, float64(initValue+expected), getCounterVecValue(tb, counterVec, label))
+}
+
+func assertCounterValue(tb testing.TB, expected int64, counter prometheus.Counter, initValue int64) {
+	assert.Equal(tb, float64(expected+initValue), getCounterValue(tb, counter))
+}
+
+func getCounterVecValue(tb testing.TB, counterVec *prometheus.CounterVec, label string) float64 {
+	counter, err := counterVec.GetMetricWithLabelValues(label)
+	if err != nil {
+		tb.Errorf("Unable to get counter from counterVec %v", err)
+	}
+	return getCounterValue(tb, counter)
+}
+
+func getCounterValue(tb testing.TB, counter prometheus.Counter) float64 {
+	pb := &prommodels.Metric{}
+	err := counter.Write(pb)
+	if err != nil {
+		tb.Errorf("Unable to get counter from counter %v", err)
+	}
+
+	return pb.GetCounter().GetValue()
 }
