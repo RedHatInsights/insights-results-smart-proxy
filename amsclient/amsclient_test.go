@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
