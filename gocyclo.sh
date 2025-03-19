@@ -1,5 +1,6 @@
 #!/bin/bash
-# Copyright 2020 Red Hat, Inc
+
+# Copyright 2021, 2025 Red Hat, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+BLUE=$(tput setaf 4)
+RED_BG=$(tput setab 1)
+GREEN_BG=$(tput setab 2)
+NC=$(tput sgr0) # No Color
+
+echo -e "${BLUE}Finding functions and methods with high cyclomatic complexity${NC}"
+
 
 if ! [ -x "$(command -v gocyclo)" ]
 then
     echo -e "${BLUE}Installing gocyclo${NC}"
-    GO111MODULE=off go get github.com/fzipp/gocyclo/cmd/gocyclo
+    if ! go install github.com/fzipp/gocyclo/cmd/gocyclo@latest; then
+        echo -e "${RED_BG}[FAIL]${NC} Cannot install gocyclo"
+        exit 1
+    fi
+    echo -e "${BLUE}Installed ${NC}"
 fi
 
-gocyclo -over 14 -avg .
+if ! gocyclo -over 14 -avg .
+then
+    echo -e "${RED_BG}[FAIL]${NC} Functions/methods with high cyclomatic complexity detected"
+    exit 1
+else
+    echo -e "${GREEN_BG}[OK]${NC} All functions and methods have reasonable cyclomatic complexity"
+    exit 0
+fi
