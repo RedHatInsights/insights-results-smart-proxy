@@ -19,7 +19,7 @@ require (
 	github.com/prometheus/client_model v0.6.1
 	github.com/redhatinsights/app-common-go v1.6.8
 	github.com/redis/go-redis/v9 v9.7.3
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 	github.com/spf13/viper v1.20.0
 	github.com/stretchr/testify v1.10.0
 	gopkg.in/h2non/gock.v1 v1.1.2
