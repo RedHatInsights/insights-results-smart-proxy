@@ -42,9 +42,9 @@ jobs:
 
           # Optional: golangci-lint command line arguments.
           args: >
-            --enable=goimports,gosimple,nilerr,prealloc,staticcheck,unconvert,unused,whitespace,zerologlint
+            --enable=goconst,gocyclo,gofmt,goimports,gosec,gosimple,nilerr,prealloc,revive,staticcheck,unconvert,unused,whitespace,zerologlint
             --timeout=3m
-          
+
           # Optional: show only new issues if it's a pull request. The default value is `false`.
           only-new-issues: true
 

@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: default clean build fmt lint vet cyclo ineffassign shellcheck errcheck goconst gosec abcgo style run test cover rest_api_tests rules_content sqlite_db license before_commit openapi-check help godoc install_docgo install_addlicense
+.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before_commit openapi-check help install_addlicense install_golangci_lint
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -19,40 +19,8 @@ build-cover:	${SOURCES}  ## Build binary with code coverage detection support
 ${BINARY}: ${SOURCES}
 	./build.sh
 
-fmt: ## Run go fmt -w for all sources
-	@echo "Running go formatting"
-	./gofmt.sh
-
-lint: ## Run golint
-	@echo "Running go lint"
-	./golint.sh
-
-vet: ## Run go vet. Report likely mistakes in source code
-	@echo "Running go vet"
-	./govet.sh
-
-cyclo: ## Run gocyclo
-	@echo "Running gocyclo"
-	./gocyclo.sh
-
-ineffassign: ## Run ineffassign checker
-	@echo "Running ineffassign checker"
-	./ineffassign.sh
-
 shellcheck: ## Run shellcheck
 	shellcheck --exclude=SC1090,SC2086,SC2034,SC1091,SC2317 *.sh
-
-errcheck: ## Run errcheck
-	@echo "Running errcheck"
-	./goerrcheck.sh
-
-goconst: ## Run goconst checker
-	@echo "Running goconst checker"
-	./goconst.sh
-
-gosec: ## Run gosec checker
-	@echo "Running gosec checker"
-	./gosec.sh
 
 abcgo: ## Run ABC metrics checker
 	@echo "Run ABC metrics checker"
@@ -61,7 +29,10 @@ abcgo: ## Run ABC metrics checker
 openapi-check:
 	./check_openapi.sh
 
-style: fmt vet lint cyclo shellcheck errcheck goconst gosec ineffassign abcgo ## Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
+golangci-lint: install_golangci_lint
+	golangci-lint run --enable=goconst,gocyclo,gofmt,goimports,gosec,gosimple,nilerr,prealloc,revive,staticcheck,unconvert,unused,whitespace,zerologlint  --timeout=3m 
+
+style: shellcheck abcgo golangci-lint ## Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 
 run: clean build ## Build the project and executes the binary
 	./insights-results-smart-proxy
@@ -94,4 +65,5 @@ function_list: ${BINARY} ## List all functions in generated binary file
 	go tool objdump ${BINARY} | grep ^TEXT | sed "s/^TEXT\s//g"
 
 install_addlicense:
-        [[ `command -v addlicense` ]] || go install github.com/google/addlicense
+	[[ `command -v addlicense` ]] || go install github.com/google/addlicense
+
