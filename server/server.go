@@ -928,7 +928,7 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 	userAgentProduct := server.getKnownUserAgentProduct(request)
 
 	if userAgentProduct == insightsOperatorUserAgent {
-		// request made my insights-operator, we need to retrieve the managed status of a cluster from AMS
+		// request made by insights-operator, we need to retrieve the managed status of a cluster from AMS
 		if server.amsClient != nil {
 			clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
 			if err != nil {
