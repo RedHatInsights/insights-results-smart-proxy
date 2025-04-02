@@ -355,7 +355,15 @@ func sendRequest(
 
 func (server *HTTPServer) composeEndpoint(baseEndpoint, currentEndpoint string) (*url.URL, error) {
 	endpoint := strings.TrimPrefix(currentEndpoint, server.Config.APIv1Prefix)
-	return url.Parse(baseEndpoint + endpoint)
+	endpoint = strings.TrimPrefix(endpoint, server.Config.APIv2Prefix)
+	endpoint = strings.TrimPrefix(endpoint, server.Config.APIdbgPrefix)
+
+	joinedURL, err := url.JoinPath(baseEndpoint, endpoint)
+	if err != nil {
+		log.Error().Err(err).Str("api", baseEndpoint).Str("endpoint", currentEndpoint).Msg("Error while joining endpoint to given API URL")
+		return nil, err
+	}
+	return url.Parse(joinedURL)
 }
 
 func copyHeader(srcHeaders, dstHeaders http.Header) {

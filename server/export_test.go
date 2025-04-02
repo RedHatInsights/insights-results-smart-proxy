@@ -30,4 +30,5 @@ var (
 	FillImpacted      = fillImpacted
 	HandleServerError = handleServerError
 	AcmUserAgent      = acmUserAgent
+	ComposeEndpoint   = (*HTTPServer).composeEndpoint
 )
