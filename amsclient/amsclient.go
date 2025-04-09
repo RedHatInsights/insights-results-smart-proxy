@@ -239,11 +239,12 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (
 	orgIDs = make([]string, response.Items().Len())
 
 	// AMS API doesn't know this org_id. Out of our control, but ultimately fixable by user.
-	// If AMS is enabled, we're relying on it, meaning this has to result in a 403
+	// If AMS is enabled, we're relying on it, meaning this has to result in a 4xx.
+	// 404 is used to ensure compatibility with Advisor UI, as it relies on 404 to render the correct response.
 	if len(orgIDs) == 0 {
 		err := errors.New(orgNoInternalID)
 		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Send()
-		return nil, &utypes.ForbiddenError{ErrString: "An external API doesn't know about your organization yet."}
+		return nil, &utypes.ItemNotFoundError{ItemID: orgID}
 	}
 
 	// special case, could possibly cause edge cases down the road, keep the debug log
