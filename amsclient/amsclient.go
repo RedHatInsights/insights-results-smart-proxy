@@ -242,7 +242,7 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (
 	// If AMS is enabled, we're relying on it, meaning this has to result in a 403
 	if len(orgIDs) == 0 {
 		err := errors.New(orgNoInternalID)
-		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err)
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Send()
 		return nil, &utypes.ForbiddenError{ErrString: "An external API doesn't know about your organization yet."}
 	}
 
@@ -255,7 +255,7 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (
 		internalID, ok := item.GetID()
 		if !ok {
 			err := errors.New(orgIDRequestFailure)
-			log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err)
+			log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Send()
 			return nil, err
 		}
 
