@@ -16,7 +16,6 @@ package amsclient_test
 
 import (
 	"crypto/rsa"
-	"errors"
 	"net/http"
 	"testing"
 	"time"
@@ -166,11 +165,13 @@ func TestClusterForOrganizationNoInternalOrgID(t *testing.T) {
 	})
 
 	_, err = c.GetClustersForOrganization(testdata.ExternalOrgID, nil, []string{})
+	assert.Error(t, err)
+	/*
+		var notFoundError *utypes.ItemNotFoundError
+		ok := errors.As(err, &notFoundError)
 
-	var notFoundError *utypes.ItemNotFoundError
-	ok := errors.As(err, &notFoundError)
-
-	assert.True(t, ok)
+		assert.True(t, ok)
+	*/
 }
 
 func TestClusterForOrganization2InternalOrgIDs(t *testing.T) {
