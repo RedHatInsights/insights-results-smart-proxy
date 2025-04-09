@@ -32,19 +32,26 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
 )
 
+// OCM SDK encodes URLs with escaped hex characters
+// %%2C means ,
+// %%3D means =
+// %%21 means !
+// %28%27 %27%29 means (' ')
 const (
 	organizationsSearchEndpoint = "api/accounts_mgmt/v1/organizations?fields=id%%2Cexternal_id&search=external_id+%%3D+{orgID}"
 
 	subscriptionsSearchEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged%%2Cstatus&page={pageNum}&" +
-		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27&size={pageSize}")
+		"search=organization_id+in+%%28%%27{orgID}%%27%%29+and+cluster_id+%%21%%3D+%%27%%27&size={pageSize}")
+	subscriptionsSearchEndpointMultipleOrgs = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged%%2Cstatus&page={pageNum}&" +
+		"search=organization_id+in+%%28%%27{orgID1}%%27%%2C%%27{orgID2}%%27%%29+and+cluster_id+%%21%%3D+%%27%%27&size={pageSize}")
 	subscriptionsSearchEndpointWithFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged%%2Cstatus&page={pageNum}&" +
-		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%29&size={pageSize}")
+		"search=organization_id+in+%%28%%27{orgID}%%27%%29+and+cluster_id+%%21%%3D+%%27%%27+and+status+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%29&size={pageSize}")
 	subscriptionsSearchEndpointWithDefaultFilter = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged%%2Cstatus&page={pageNum}&" +
-		"search=organization_id+is+%%27{orgID}%%27+and+cluster_id+%%21%%3D+%%27%%27+and+status+not+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%2C%%27{status3}%%27%%29&size={pageSize}")
+		"search=organization_id+in+%%28%%27{orgID}%%27%%29+and+cluster_id+%%21%%3D+%%27%%27+and+status+not+in+%%28%%27{status1}%%27%%2C%%27{status2}%%27%%2C%%27{status3}%%27%%29&size={pageSize}")
 	clusterDetailsSearchEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged%%2Cstatus&page={pageNum}&" +
 		"search=external_cluster_id+%%3D+%%27{clusterID}%%27&size={pageSize}")
 	singleClusterInfoEndpoint = ("api/accounts_mgmt/v1/subscriptions?fields=external_cluster_id%%2Cdisplay_name%%2Ccluster_id%%2Cmanaged%%2Cstatus&page={pageNum}&" +
-		"search=organization_id+%%3D+%%27{orgID}%%27+and+external_cluster_id+%%3D+%%27{clusterID}%%27&size={pageSize}")
+		"search=organization_id+in+%%28%%27{orgID}%%27%%29+and+external_cluster_id+%%3D+%%27{clusterID}%%27&size={pageSize}")
 )
 
 var (
@@ -125,6 +132,77 @@ func TestClusterForOrganization(t *testing.T) {
 		Method:       http.MethodGet,
 		Endpoint:     subscriptionsSearchEndpoint,
 		EndpointArgs: []interface{}{2, testdata.InternalOrgID, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionEmptyResponse),
+	})
+
+	clusterList, err := c.GetClustersForOrganization(testdata.ExternalOrgID, nil, []string{})
+	helpers.FailOnError(t, err)
+	assert.Equal(t, 2, len(clusterList))
+	assert.ElementsMatch(t, testdata.OKClustersForOrganization, clusterList)
+}
+
+func TestClusterForOrganizationNoInternalOrgID(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponseNoID),
+	})
+
+	_, err = c.GetClustersForOrganization(testdata.ExternalOrgID, nil, []string{})
+	assert.ErrorContains(t, err, "An external API doesn't know about your organization yet.")
+}
+
+func TestClusterForOrganization2InternalOrgIDs(t *testing.T) {
+	defer helpers.CleanAfterGock(t)
+	c, err := amsclient.NewAMSClientWithTransport(defaultConfig, gock.DefaultTransport)
+	helpers.FailOnError(t, err)
+
+	// prepare organizations response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     organizationsSearchEndpoint,
+		EndpointArgs: []interface{}{testdata.ExternalOrgID},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.OrganizationResponse2IDs),
+	})
+
+	// prepare cluster list request response
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     subscriptionsSearchEndpointMultipleOrgs,
+		EndpointArgs: []interface{}{1, testdata.InternalOrgID, testdata.InternalOrgID2, defaultConfig.PageSize},
+	}, &helpers.APIResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: helpers.ToJSONString(testdata.SubscriptionsResponse),
+	})
+	// second and more requests will be done until the last one returns an empty response (0 sized)
+	helpers.GockExpectAPIRequest(t, defaultConfig.URL, &helpers.APIRequest{
+		Method:       http.MethodGet,
+		Endpoint:     subscriptionsSearchEndpointMultipleOrgs,
+		EndpointArgs: []interface{}{2, testdata.InternalOrgID, testdata.InternalOrgID2, defaultConfig.PageSize},
 	}, &helpers.APIResponse{
 		StatusCode: http.StatusOK,
 		Headers: map[string]string{
