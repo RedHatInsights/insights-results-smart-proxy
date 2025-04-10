@@ -244,7 +244,7 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (
 	if len(orgIDs) == 0 {
 		err := errors.New(orgNoInternalID)
 		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Send()
-		return nil, err
+		return nil, &utypes.ItemNotFoundError{ItemID: orgID}
 	}
 
 	// special case, could possibly cause edge cases down the road, keep the debug log
