@@ -172,7 +172,6 @@ func TestClusterForOrganizationNoInternalOrgID(t *testing.T) {
 	ok := errors.As(err, &notFoundError)
 
 	assert.True(t, ok)
-
 }
 
 func TestClusterForOrganization2InternalOrgIDs(t *testing.T) {
