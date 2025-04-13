@@ -1,6 +1,8 @@
 module github.com/RedHatInsights/insights-results-smart-proxy
 
-go 1.22
+go 1.22.0
+
+toolchain go1.22.9
 
 require (
 	github.com/BurntSushi/toml v1.5.0
@@ -16,7 +18,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/openshift-online/ocm-sdk-go v0.1.465
 	github.com/prometheus/client_golang v1.22.0
-	github.com/prometheus/client_model v0.6.1
+	github.com/prometheus/client_model v0.6.2
 	github.com/redhatinsights/app-common-go v1.6.8
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/rs/zerolog v1.34.0
