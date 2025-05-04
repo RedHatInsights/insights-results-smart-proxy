@@ -7,7 +7,7 @@ toolchain go1.22.9
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/RedHatInsights/insights-content-service v1.0.0
-	github.com/RedHatInsights/insights-operator-utils v1.25.12
+	github.com/RedHatInsights/insights-operator-utils v1.25.13
 	github.com/RedHatInsights/insights-results-aggregator v1.4.1
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.23.5
