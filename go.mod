@@ -1,6 +1,7 @@
 module github.com/RedHatInsights/insights-results-smart-proxy
 
-go 1.22.0
+go 1.22.5
+
 toolchain go1.24.1
 
 require (
