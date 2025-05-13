@@ -61,6 +61,8 @@ const (
 	// envPrefix is prefix for all environment variables that contains
 	// various configuration options
 	envPrefix = "INSIGHTS_RESULTS_SMART_PROXY_"
+
+	noInMemoryDB = "warning: no in-memory database section in Clowder config"
 )
 
 // SetupConfiguration should only be used at startup
@@ -139,10 +141,9 @@ func LoadConfiguration(defaultConfigFile string) error {
 		return fmt.Errorf("fatal error config file: %s", err)
 	}
 
-	if clowder.IsClowderEnabled() {
-		fmt.Println("Clowder is enabled")
-	} else {
-		fmt.Println("Clowder is disabled")
+	if err := updateConfigFromClowder(); err != nil {
+		fmt.Println("Error loading clowder configuration")
+		return err
 	}
 
 	// everything's should be ok
@@ -214,6 +215,35 @@ func GetRedisConfiguration() services.RedisConfiguration {
 
 func GetRBACConfiguration() auth.RBACConfig {
 	return Config.RBACConf
+}
+
+func updateConfigFromClowder() error {
+	if !clowder.IsClowderEnabled() {
+		fmt.Println("Clowder is disabled")
+		return nil
+	}
+
+	fmt.Println("Clowder is enabled")
+
+	// get in-memory DB configuration from clowder
+	if clowder.LoadedConfig.InMemoryDb != nil {
+		updateRedisConfig()
+	} else {
+		fmt.Println(noInMemoryDB)
+	}
+
+	return nil
+
+}
+
+func updateRedisConfig() {
+	Config.RedisConf.RedisEndpoint = fmt.Sprintf("%s:%d", clowder.LoadedConfig.InMemoryDb.Hostname, clowder.LoadedConfig.InMemoryDb.Port)
+	if clowder.LoadedConfig.InMemoryDb.Username != nil {
+		Config.RedisConf.RedisUsername = *clowder.LoadedConfig.InMemoryDb.Username
+	}
+	if clowder.LoadedConfig.InMemoryDb.Password != nil {
+		Config.RedisConf.RedisPassword = *clowder.LoadedConfig.InMemoryDb.Password
+	}
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
