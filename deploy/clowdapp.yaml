@@ -40,6 +40,7 @@ objects:
     name: ccx-smart-proxy
   spec:
     envName: ${ENV_NAME}
+    inMemoryDb: true
     testing:
       iqePlugin: ccx
     mandatoryDependencies:
