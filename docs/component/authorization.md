@@ -68,7 +68,7 @@ enforce = false
 
 For the authorization middleware to take action when access is not authorized, the RBAC enforcement must be enabled. This is done by setting the `enforce` flag in the RBAC client configuration.
 - If enforcement is not enabled, the middleware will not block access even if the user is not authorized.
-- For now, anything decision taken by the authorization middleware is logged, with the hope to get more information on customers' readiness and make future development easier.
+- For now, any decision taken by the authorization middleware is logged, with the hope to get more information on customers' readiness and make future development easier.
 
 ## Testing
 
