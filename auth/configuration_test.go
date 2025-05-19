@@ -42,8 +42,15 @@ func TestConstructRBACURL(t *testing.T) {
 			expectError:  false,
 		},
 		{
+			// ephemeral case:
+			config:       &auth.RBACConfig{URL: "http://rbac-service:8000/api/rbac/v1"},
+			expectedURL:  "http://rbac-service:8000/api/rbac/v1/access/?application=ocp-advisor&limit=100",
+			expectedHost: "rbac-service:8000",
+			expectError:  false,
+		},
+		{
 			config:       &auth.RBACConfig{URL: "wrong-schema:/invalid"},
-			expectedURL:  "https://wrong-schema:/access/?application=ocp-advisor&limit=100",
+			expectedURL:  "https://wrong-schema:/invalid/access/?application=ocp-advisor&limit=100",
 			expectedHost: "wrong-schema:",
 			expectError:  false, //url.Parse and url.ParseURI can't catch bad URLs, careful!
 		},

@@ -30,12 +30,12 @@ import (
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
-	"github.com/RedHatInsights/insights-operator-utils/metrics"
 	"github.com/rs/zerolog/log"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
 	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/conf"
+	"github.com/RedHatInsights/insights-results-smart-proxy/metrics"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 	"github.com/RedHatInsights/insights-results-smart-proxy/services"
 

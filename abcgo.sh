@@ -29,7 +29,11 @@ fi
 if ! [ -x "$(command -v abcgo)" ]
 then
     echo -e "${BLUE}Installing abcgo${NC}"
-    GO111MODULE=off go get -u github.com/droptheplot/abcgo
+    if ! go install github.com/droptheplot/abcgo@latest; then
+        echo -e "${RED_BG}[FAIL]${NC} Cannot install abcgo!"
+        exit 1
+    fi
+    echo -e "${BLUE}Installed ${NC}"
 fi
 
 if [ "$VERBOSE" = true ]; then

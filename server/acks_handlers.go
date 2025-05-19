@@ -403,7 +403,6 @@ func generateRuleAckMap(acks []types.SystemWideRuleDisable) (ruleAcksMap map[typ
 		} else {
 			log.Error().Err(err).Interface(ruleIDStr, ack.RuleID).
 				Interface(errorKeyStr, ack.ErrorKey).Msg(compositeRuleIDError)
-
 		}
 	}
 	return

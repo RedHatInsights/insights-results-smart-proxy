@@ -55,7 +55,8 @@ var (
 		},
 	}
 
-	// OrganizationResponse2IDs contains a correct response, but with 2 orgs, which should not happen
+	// OrganizationResponse2IDs contains a correct response, but with 2 orgs, which might happen temporarily during
+	// ownership or membership transfer.
 	OrganizationResponse2IDs map[string]interface{} = map[string]interface{}{
 		"kind":  "OrganizationList",
 		"page":  1,
@@ -71,6 +72,17 @@ var (
 				"id":          InternalOrgID2,
 			},
 		},
+	}
+
+	// OrganizationResponseNoID contains a correct response, but no internal org matching the external one.
+	// Might happen as a temprary state before OCM gets the information about a newly created account, but our API
+	// shouldn't return 5xx as it's ultimately fixable by the user or external systems.
+	OrganizationResponseNoID map[string]interface{} = map[string]interface{}{
+		"kind":  "OrganizationList",
+		"page":  0,
+		"size":  0,
+		"total": 0,
+		"items": []map[string]interface{}{},
 	}
 
 	// SubscriptionsResponse contains a valid response for subscription from AMS, 2 clusters

@@ -24,6 +24,7 @@ import (
 
 	"github.com/RedHatInsights/insights-operator-utils/collections"
 	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
+	"github.com/RedHatInsights/insights-results-smart-proxy/metrics"
 	types "github.com/RedHatInsights/insights-results-types"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
@@ -119,16 +120,9 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 // Authorization middleware for checking permissions
 func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		// for specific URLs it is ok to not use auth. mechanisms at all
 		// this is specific to OpenAPI JSON response and for all OPTION HTTP methods
 		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == "OPTIONS" {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// We also leave ACM folks out of this for now
-		if server.getKnownUserAgentProduct(r) == acmUserAgent {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -139,13 +133,17 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 			return
 		}
 
+		metrics.RBACIdentityType.WithLabelValues(token.Identity.Type).Inc()
+
 		// For now we will only log authorization and only handle service accounts. This logic should
 		// be for all users, but let's first make sure we won't disturb existing users by only
 		// logging unauthorized service accounts
 		if token.Identity.Type == "ServiceAccount" {
+			log.Debug().Str("client ID", token.Identity.ServiceAccount.ClientID).Msg("Received a request from a service account")
 			// Check permissions for service accounts
 			if !server.rbacClient.IsAuthorized(auth.GetAuthTokenHeader(r)) {
 				log.Warn().Str(accountType, token.Identity.Type).Msg(accountNotAuthorized)
+				metrics.RBACServiceAccountRejected.Inc()
 				if server.rbacClient.IsEnforcing() {
 					handleServerError(w, &auth.AuthorizationError{ErrString: accountNotAuthorized})
 					return
@@ -154,7 +152,8 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 		} else {
 			log.Debug().Str(accountType, token.Identity.Type).Msg("RBAC is only used with service accounts for now")
 			// handleServerError(w, &auth.AuthorizationError{ErrString: "unknown identity type"})
-			return
+			// We don't use return because RBAC is not mandatory for users yet
+			// return
 		}
 
 		// Access is authorized, proceed with the request

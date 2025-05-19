@@ -1321,6 +1321,44 @@ func TestInfoEndpointNoAuthToken(t *testing.T) {
 	})
 }
 
+// TestComposeEndpoint checks that composeEndpoint method correctly remove the API prefix
+func TestComposeEndpoint(t *testing.T) {
+	type testCase struct {
+		name     string
+		endpoint string
+	}
+	testCases := []testCase{
+		{
+			"test removal of v1 API prefix",
+			"/api/v1/endpoint",
+		},
+		{
+			"test removal of v2 API prefix",
+			"/api/dbg/endpoint",
+		},
+		{
+			"test removal of dbg API prefix",
+			"/api/dbg/endpoint",
+		},
+		{
+			"test that nothing is removed if prefix is missing",
+			"/endpoint",
+		},
+	}
+
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
+	baseEndpoint := helpers.DefaultServicesConfig.AggregatorBaseEndpoint
+	expectedResponse := "http://localhost:8080/endpoint"
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			endpoint, err := server.ComposeEndpoint(testServer, baseEndpoint, tc.endpoint)
+			assert.NoError(t, err)
+			assert.Equal(t, expectedResponse, endpoint.String())
+		})
+	}
+}
+
 func ruleIDsChecker(t testing.TB, expected, got []byte) {
 	type Response struct {
 		Status string   `json:"status"`

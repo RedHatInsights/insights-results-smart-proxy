@@ -322,6 +322,6 @@ parameters:
 - name: USE_RBAC
   value: "false"
 - name: RBAC_SERVER_URL
-  value: "https://console.stage.redhat.com/api/rbac/v1"
+  value: "http://rbac-service:8000/api/rbac/v1"
 - name: ENFORCE_RBAC
   value: "false"
