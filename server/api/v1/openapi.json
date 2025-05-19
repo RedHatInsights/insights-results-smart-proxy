@@ -68,19 +68,19 @@
                         "SmartProxy": {
                           "type": "object",
                           "additionalProperties": {
-                             "type": "string"
+                            "type": "string"
                           }
                         },
                         "Aggregator": {
                           "type": "object",
                           "additionalProperties": {
-                             "type": "string"
+                            "type": "string"
                           }
                         },
                         "ContentService": {
                           "type": "object",
                           "additionalProperties": {
-                             "type": "string"
+                            "type": "string"
                           }
                         }
                       }
@@ -154,6 +154,9 @@
             },
             "description": "A JSON array of groups."
           },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
           "503": {
             "content": {
               "text/plain": {}
@@ -163,7 +166,7 @@
         },
         "operationId": "getRuleGroups",
         "summary": "Get all rule groups and their relevant information",
-        "description": "This simply redirects to an endpoint of the same name of a service called insights-operator-service"
+        "description": "This simply redirects to an endpoint of the same name of a service called insights-content-service"
       }
     },
     "/organizations/{orgId}/clusters": {
@@ -176,7 +179,7 @@
             "name": "orgId",
             "description": "ID of the requested organization.",
             "schema": {
-              "format": "int64",
+              "format": "int32",
               "minimum": 0,
               "type": "integer"
             },
@@ -206,6 +209,9 @@
               }
             },
             "description": "A JSON array of clusters that belong to the specified organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         },
         "operationId": "getClustersForOrganization",
@@ -246,6 +252,9 @@
           },
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         },
         "operationId": "getReportsForClusters",
@@ -276,6 +285,9 @@
           },
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           },
           "404": {
             "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
@@ -310,6 +322,9 @@
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
           },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
           "404": {
             "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
@@ -342,6 +357,9 @@
           },
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           },
           "404": {
             "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
@@ -379,6 +397,9 @@
               }
             },
             "description": "A JSON array of all the rule IDs."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         },
         "operationId": "getRuleIDs",
@@ -415,6 +436,9 @@
               }
             },
             "description": "A JSON object with the content."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           },
           "404": {
             "content": {
@@ -468,6 +492,9 @@
               }
             },
             "description": "A JSON object with the content."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         },
         "operationId": "getContent",
@@ -498,6 +525,9 @@
           },
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           },
           "404": {
             "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
@@ -564,6 +594,9 @@
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
           },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
           "404": {
             "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
           }
@@ -584,7 +617,7 @@
             "$ref": "#/components/parameters/clusterId"
           },
           {
-            "$ref": "#/components/parameters/ruleId" 
+            "$ref": "#/components/parameters/ruleId"
           },
           {
             "$ref": "#/components/parameters/errorKey"
@@ -592,10 +625,13 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/status" 
+            "$ref": "#/components/responses/status"
           },
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           },
           "404": {
             "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
@@ -621,6 +657,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         },
         "operationId": "getOverviewForOrganization",
@@ -664,6 +703,9 @@
               }
             },
             "description": "Status ok"
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         }
       }
@@ -726,7 +768,7 @@
                             }
                           },
                           "example": {
-			    "count": 9,
+                            "count": 9,
                             "last_checked_at": "2020-12-08T09:45:23Z"
                           }
                         }
@@ -740,6 +782,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           },
           "404": {
             "description": "Resource not found, usually caused when the cluster ID is not registered and request come from Insights Operator."
@@ -800,6 +845,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         },
         "tags": [
@@ -829,8 +877,6 @@
             "$ref": "#/components/parameters/osdEligible"
           }
         ],
-
-
         "responses": {
           "200": {
             "description": "Latest available rule report for the given organization, cluster combination and rule ID. Returns rule and it description that were hit by the cluster.",
@@ -851,6 +897,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         },
         "operationId": "getSingleReportForCluster",
@@ -858,9 +907,6 @@
         "description": "The rule is specified by the cluster ID and rule ID from params and information about the org_id and user_id is taken from the token. The latest rule report available for the given combination will be returned."
       }
     },
-  
-
-
     "/clusters/reports": {
       "post": {
         "tags": [
@@ -902,6 +948,9 @@
           },
           "400": {
             "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
           }
         }
       }
@@ -1298,8 +1347,8 @@
             "additionalProperties": {
               "type": "array",
               "items": {
-                  "type": "string"
-                }
+                "type": "string"
+              }
             }
           }
         }
@@ -1352,6 +1401,22 @@
         "description": "Content service is unavailable",
         "content": {
           "text/plain": {}
+        }
+      },
+      "unauthorized": {
+        "description": "The requester is unauthorized. If using a service account, you may not belong to the right group with the right role. Please make sure you configured your user access on the console.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "Account does not have the required permissions"
+                }
+              }
+            }
+          }
         }
       },
       "status": {

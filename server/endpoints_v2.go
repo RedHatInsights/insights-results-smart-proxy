@@ -134,6 +134,7 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 
 	// Common REST API endpoints
 	router.HandleFunc(apiV2Prefix+MainEndpoint, server.mainEndpoint).Methods(http.MethodGet)
+	router.HandleFunc(apiV2Prefix+RuleGroupsEndpoint, server.getGroups).Methods(http.MethodGet, http.MethodOptions)
 
 	// Reports endpoints
 	server.addV2ReportsEndpointsToRouter(router, apiV2Prefix)

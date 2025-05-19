@@ -17,7 +17,7 @@ package amsclient_test
 import (
 	"time"
 
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 	ocmtesting "github.com/openshift-online/ocm-sdk-go/testing"
 )
 

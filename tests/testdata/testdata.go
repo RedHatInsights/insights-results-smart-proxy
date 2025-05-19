@@ -92,6 +92,8 @@ var (
 		},
 	}
 
+	ClusterList1Cluster = []types.ClusterName{testdata.ClusterName}
+
 	ClusterInfoResult2Clusters = []types.ClusterInfo{
 		{
 			ID:          testdata.GetRandomClusterID(),
@@ -102,6 +104,8 @@ var (
 			DisplayName: ClusterDisplayName2,
 		},
 	}
+
+	ClusterList2Clusters = []types.ClusterName{ClusterInfoResult2Clusters[0].ID, ClusterInfoResult2Clusters[1].ID}
 )
 
 // GetRandomClusterInfo function returns a ClusterInfo with random ID

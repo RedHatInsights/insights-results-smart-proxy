@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/amsclient"
+	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
@@ -190,6 +191,7 @@ func assertAPIRequest(
 		groupsChannel,
 		errorFoundChannel,
 		errorChannel,
+		nil, // RBAC client
 	)
 
 	// send the request to newly created REST API server and check its
@@ -207,6 +209,7 @@ func CreateHTTPServer(
 	groupsChannel chan []groups.Group,
 	errorFoundChannel chan bool,
 	errorChannel chan error,
+	rbacClient auth.RBACClient,
 ) *server.HTTPServer {
 	// if custom server configuration is not provided, use default one
 	if serverConfig == nil {
@@ -230,5 +233,6 @@ func CreateHTTPServer(
 		groupsChannel,
 		errorFoundChannel,
 		errorChannel,
+		rbacClient,
 	)
 }

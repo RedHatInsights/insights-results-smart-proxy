@@ -74,7 +74,7 @@ func readCompositeRuleID(request *http.Request) (
 	ruleIDParam, err := httputils.GetRouterParam(request, RuleIDParamName)
 	if err != nil {
 		const message = "unable to get rule id"
-		log.Error().Err(err).Msg(message)
+		log.Warn().Err(err).Msg(message)
 		return
 	}
 
@@ -88,7 +88,7 @@ func readCompositeRuleID(request *http.Request) (
 			ParamValue: ruleIDParam,
 			ErrString:  msg.Error(),
 		}
-		log.Error().Err(err).Send()
+		log.Error().Err(err).Msg("invalid composite rule ID")
 		return
 	}
 
@@ -118,7 +118,7 @@ func (server *HTTPServer) readParamsGetRecommendations(writer http.ResponseWrite
 
 	impactingParamBool, err := readImpactingParam(request)
 	if err != nil {
-		log.Err(err).Msgf("Error parsing `%s` URL parameter.", ImpactingParam)
+		log.Warn().Err(err).Msgf("Error parsing `%s` URL parameter.", ImpactingParam)
 		handleServerError(writer, &RouterParsingError{
 			ParamName: ImpactingParam,
 			ErrString: "Unparsable boolean value",

@@ -60,3 +60,8 @@ environment = "test_env"
 
 [logging]
 debug = true
+
+[rbac]
+url = "https://api.openshift.com"
+enabled = false
+enforce = false

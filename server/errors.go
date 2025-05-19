@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 
 	"github.com/RedHatInsights/insights-operator-utils/responses"
@@ -55,15 +56,6 @@ func (e *RouterParsingError) Error() string {
 		"Error during parsing param '%v' with value '%v'. Error: '%v'",
 		e.ParamName, e.ParamValue, e.ErrString,
 	)
-}
-
-// AuthenticationError happens during auth problems, for example malformed token
-type AuthenticationError struct {
-	ErrString string
-}
-
-func (e *AuthenticationError) Error() string {
-	return e.ErrString
 }
 
 // NoBodyError error meaning that client didn't provide body when it's required
@@ -127,7 +119,8 @@ func (*ParamsParsingError) Error() string {
 
 // handleServerError handles separate server errors and sends appropriate responses
 func handleServerError(writer http.ResponseWriter, err error) {
-	log.Error().Err(err).Msg("handleServerError()")
+	handleServerErrorStr := "handleServerError()"
+	var level = log.Warn // set the default log level for most HTTP responses
 
 	var respErr error
 
@@ -140,15 +133,18 @@ func handleServerError(writer http.ResponseWriter, err error) {
 		respErr = responses.SendNotFound(writer, err.Error())
 	case *types.NoContentError:
 		respErr = responses.SendNoContent(writer)
-	case *AuthenticationError:
+	case *auth.AuthenticationError, *auth.AuthorizationError:
 		respErr = responses.SendForbidden(writer, err.Error())
 	case *ContentServiceUnavailableError, *AggregatorServiceUnavailableError,
 		*AMSAPIUnavailableError, *content.RuleContentDirectoryTimeoutError,
 		*UpgradesDataEngServiceUnavailableError:
 		respErr = responses.SendServiceUnavailable(writer, err.Error())
 	default:
+		level = log.Error
 		respErr = responses.SendInternalServerError(writer, "Internal Server Error")
 	}
+
+	level().Err(err).Msg(handleServerErrorStr)
 
 	if respErr != nil {
 		log.Error().Err(respErr).Msg(responseDataError)

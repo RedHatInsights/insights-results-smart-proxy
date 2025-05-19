@@ -40,7 +40,7 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 		return
 	}
 
-	log.Debug().Int32("org_id", int32(orgID)).Msg("Extracted user and org")
+	log.Debug().Uint32("org_id", uint32(orgID)).Msg("Extracted user and org")
 
 	rating, successful := server.postRatingToAggregator(orgID, request, writer)
 	if !successful {
@@ -126,7 +126,7 @@ func (server HTTPServer) getRatingForRecommendation(
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Get(aggregatorURL)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem getting URL %v from aggregator", aggregatorURL)
+		log.Error().Err(err).Str(urlStr, aggregatorURL).Msg("problem getting URL from aggregator")
 		return
 	}
 
@@ -134,7 +134,7 @@ func (server HTTPServer) getRatingForRecommendation(
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
-		log.Error().Err(err).Msgf("problem reading response from URL %v from aggregator", aggregatorURL)
+		log.Error().Err(err).Str(urlStr, aggregatorURL).Msg("problem reading response from URL from aggregator")
 		return
 	}
 

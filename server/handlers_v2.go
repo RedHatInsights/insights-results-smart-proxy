@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"time"
@@ -64,6 +65,26 @@ const (
 	AMSApiNotInitializedErrorMessage = "AMS API connection is not initialized"
 )
 
+func safeUint8(value int) (uint8, error) {
+	if value < 0 {
+		return 0, fmt.Errorf("cannot convert negative number to uint8: %d", value)
+	}
+	if value > math.MaxUint8 {
+		return 0, fmt.Errorf("value %d is greater than the maximum uint8 value", value)
+	}
+	return uint8(value), nil
+}
+
+func safeUint32(value int) (uint32, error) {
+	if value < 0 {
+		return 0, fmt.Errorf("cannot convert negative number to uint32: %d", value)
+	}
+	if value > math.MaxUint32 {
+		return 0, fmt.Errorf("value %d is greater than the maximum uint32 value", value)
+	}
+	return uint32(value), nil
+}
+
 // getContentCheckInternal retrieves static content for the given ruleID and if the rule is internal,
 // checks if user has permissions to access it.
 func (server HTTPServer) getContentCheckInternal(ruleID ctypes.RuleID, request *http.Request) (
@@ -98,14 +119,14 @@ func (server HTTPServer) getRuleWithGroups(
 ) {
 	ruleContent, err = server.getContentCheckInternal(ruleID, request)
 	if err != nil {
-		log.Error().Msgf("error retrieving rule content for rule ID %v", ruleID)
+		log.Error().Interface(ruleIDStr, ruleID).Msg("error retrieving rule content for rule")
 		return
 	}
 
 	// retrieve the latest groups configuration
 	ruleGroups, err = server.getGroupsConfig()
 	if err != nil {
-		log.Error().Msgf("error retrieving rule groups")
+		log.Error().Msg("error retrieving rule groups")
 		return
 	}
 
@@ -117,14 +138,30 @@ func (server HTTPServer) getRuleWithGroups(
 func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, request *http.Request) {
 	ruleID, err := readCompositeRuleID(request)
 	if err != nil {
-		log.Error().Err(err).Msgf("error retrieving rule ID from request")
+		log.Warn().Err(err).Msgf("error retrieving rule ID from request")
 		handleServerError(writer, err)
 		return
 	}
 
 	ruleContent, ruleGroups, err := server.getRuleWithGroups(request, ruleID)
 	if err != nil {
-		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		log.Warn().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		handleServerError(writer, err)
+		return
+	}
+
+	totalRisk, err := safeUint8(ruleContent.TotalRisk)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	impact, err := safeUint8(ruleContent.Impact)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	likelihood, err := safeUint8(ruleContent.Likelihood)
+	if err != nil {
 		handleServerError(writer, err)
 		return
 	}
@@ -137,9 +174,9 @@ func (server HTTPServer) getRecommendationContent(writer http.ResponseWriter, re
 		Reason:       ruleContent.Reason,
 		Resolution:   ruleContent.Resolution,
 		MoreInfo:     ruleContent.MoreInfo,
-		TotalRisk:    uint8(ruleContent.TotalRisk),
-		Impact:       uint8(ruleContent.Impact),
-		Likelihood:   uint8(ruleContent.Likelihood),
+		TotalRisk:    totalRisk,
+		Impact:       impact,
+		Likelihood:   likelihood,
 		PublishDate:  ruleContent.PublishDate,
 		Tags:         ruleContent.Tags,
 	}
@@ -170,14 +207,14 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 
 	ruleID, err := readCompositeRuleID(request)
 	if err != nil {
-		log.Error().Err(err).Msgf("error retrieving rule ID from request")
+		log.Warn().Err(err).Msg("error retrieving rule ID from request")
 		handleServerError(writer, err)
 		return
 	}
 
 	ruleContent, ruleGroups, err := server.getRuleWithGroups(request, ruleID)
 	if err != nil {
-		log.Error().Err(err).Msgf("error retrieving rule content and groups for rule ID %v", ruleID)
+		log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg("error retrieving rule content and groups for rule")
 		handleServerError(writer, err)
 		return
 	}
@@ -188,7 +225,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		case *utypes.ItemNotFoundError:
 			break
 		case *url.Error:
-			log.Error().Err(err).Msgf("aggregator is not responding")
+			log.Error().Err(err).Msg("aggregator is not responding")
 			handleServerError(writer, &AggregatorServiceUnavailableError{})
 			return
 		default:
@@ -211,6 +248,29 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		orgID,
 	)
 
+	totalRisk, err := safeUint8(ruleContent.TotalRisk)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	resolutionRisk, err := safeUint8(ruleContent.ResolutionRisk)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
+	impact, err := safeUint8(ruleContent.Impact)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+	likelihood, err := safeUint8(ruleContent.Likelihood)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
 	// fill in user rating and other DB stuff from aggregator
 	contentResponse := types.RecommendationContentUserData{
 		// RuleID in rule.module|ERROR_KEY format
@@ -220,10 +280,10 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 		Reason:         ruleContent.Reason,
 		Resolution:     ruleContent.Resolution,
 		MoreInfo:       ruleContent.MoreInfo,
-		TotalRisk:      uint8(ruleContent.TotalRisk),
-		ResolutionRisk: uint8(ruleContent.ResolutionRisk),
-		Impact:         uint8(ruleContent.Impact),
-		Likelihood:     uint8(ruleContent.Likelihood),
+		TotalRisk:      totalRisk,
+		ResolutionRisk: resolutionRisk,
+		Impact:         impact,
+		Likelihood:     likelihood,
 		PublishDate:    ruleContent.PublishDate,
 		Rating:         rating.Rating,
 		AckedCount:     0,
@@ -240,7 +300,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 	// send response to client
 	err = responses.SendOK(writer, responseContent)
 	if err != nil {
-		log.Error().Err(err).Msgf(problemSendingResponseError)
+		log.Error().Err(err).Msg(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -256,7 +316,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	userID, orgID, impactingFlag, err := server.readParamsGetRecommendations(writer, request)
 	if err != nil {
 		// everything handled
-		log.Error().Err(err).Msgf("problem reading necessary params from request")
+		log.Error().Err(err).Msg("problem reading necessary params from request")
 		return
 	}
 
@@ -294,11 +354,6 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	// retrieve user disabled rules for given list of active clusters
 	disabledClustersForRules := server.getRuleDisabledClusters(writer, orgID, clusterIDList)
-	if err != nil {
-		log.Error().Err(err).Msg("problem getting user disabled rules for list of clusters")
-		// server error has been handled already
-		return
-	}
 
 	recommendationList, err = getFilteredRecommendationsList(
 		activeClustersInfo, impactingRecommendations, impactingFlag, ackedRulesMap, disabledClustersForRules,
@@ -323,7 +378,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 	)
 	err = responses.SendOK(writer, resp)
 	if err != nil {
-		log.Error().Err(err).Msgf(problemSendingResponseError)
+		log.Error().Err(err).Msg(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -416,7 +471,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 
 	err = responses.SendOK(writer, resp)
 	if err != nil {
-		log.Error().Err(err).Msgf(problemSendingResponseError)
+		log.Error().Err(err).Msg(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -425,7 +480,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 // getSingleClusterInfo retrieves information about given cluster from AMS API, such as the user defined display name
 func (server HTTPServer) getSingleClusterInfo(writer http.ResponseWriter, request *http.Request) {
 	if server.amsClient == nil {
-		log.Error().Msgf(AMSApiNotInitializedErrorMessage)
+		log.Error().Msg(AMSApiNotInitializedErrorMessage)
 		handleServerError(writer, &AMSAPIUnavailableError{})
 		return
 	}
@@ -458,7 +513,7 @@ func (server HTTPServer) getSingleClusterInfo(writer http.ResponseWriter, reques
 	}
 
 	if err = responses.SendOK(writer, responses.BuildOkResponseWithData("cluster", clusterInfo)); err != nil {
-		log.Error().Err(err).Msgf(problemSendingResponseError)
+		log.Error().Err(err).Msg(problemSendingResponseError)
 		handleServerError(writer, err)
 		return
 	}
@@ -524,7 +579,7 @@ func matchClusterInfoAndUserData(
 					clusterViewItem.TotalHitCount++
 				} else {
 					// rule content is missing for this rule; mimicking behaviour of other apps such as OCM = skip rule
-					log.Error().Msgf("rule content was not found for following rule ID. Skipping rule %v.", ruleID)
+					log.Error().Interface(ruleIDStr, ruleID).Msg("rule content was not found for following rule ID. Skipping it")
 				}
 			}
 		}
@@ -585,7 +640,8 @@ func (server *HTTPServer) getUserDisabledRulesPerCluster(orgID types.OrgID) (
 
 		compositeRuleID, err := generateCompositeRuleIDFromDisabled(*disabledRule)
 		if err != nil {
-			log.Error().Err(err).Msgf(compositeRuleIDError, disabledRule.RuleID, disabledRule.ErrorKey)
+			log.Error().Err(err).Interface(ruleIDStr, disabledRule.RuleID).
+				Interface(errorKeyStr, disabledRule.ErrorKey).Msg(compositeRuleIDError)
 			continue
 		}
 
@@ -658,7 +714,7 @@ func getFilteredRecommendationsList(
 	// iterate over rules and count impacted clusters, exluding user disabled ones
 	for _, ruleID := range ruleIDList {
 		var impactedClustersCnt uint32
-
+		var ruleContent *types.RuleWithContent
 		// rule has system-wide disabled status if found in the ack map,
 		// but the user must be able to see the number of impacted clusters in the UI, so we need to go on
 		_, ruleDisabled := ruleAcksMap[ruleID]
@@ -675,13 +731,13 @@ func getFilteredRecommendationsList(
 			impactingClustersList = excludeDisabledClusters(impactingClustersList, disabledClusters)
 		}
 
-		ruleContent, err := content.GetContentForRecommendation(ruleID)
+		ruleContent, err = content.GetContentForRecommendation(ruleID)
 		if err != nil {
 			if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 				return recommendationList, err
 			}
 			// missing rule content, simply omit the rule as we can't display anything
-			log.Error().Err(err).Msgf(ruleContentError, ruleID)
+			log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg(ruleContentError)
 			continue
 		}
 
@@ -695,25 +751,61 @@ func getFilteredRecommendationsList(
 			}
 		} else {
 			// rule has osd_customer tag and can be shown for all clusters
-			impactedClustersCnt = uint32(len(impactingClustersList))
+			impactedClustersCnt, err = safeUint32(len(impactingClustersList))
+			if err != nil {
+				return
+			}
 		}
 
-		recommendationList = append(recommendationList, types.RecommendationListView{
-			RuleID:              ruleID,
-			Description:         ruleContent.Description,
-			Generic:             ruleContent.Generic,
-			PublishDate:         ruleContent.PublishDate,
-			TotalRisk:           uint8(ruleContent.TotalRisk),
-			ResolutionRisk:      uint8(ruleContent.ResolutionRisk),
-			Impact:              uint8(ruleContent.Impact),
-			Likelihood:          uint8(ruleContent.Likelihood),
-			Tags:                ruleContent.Tags,
-			Disabled:            ruleDisabled,
-			ImpactedClustersCnt: impactedClustersCnt,
-		})
+		recommendationListView, err := parseRecommendationListView(
+			ruleID, ruleContent, ruleDisabled, impactedClustersCnt)
+		if err != nil {
+			return recommendationList, err
+		}
+		recommendationList = append(recommendationList, recommendationListView)
 	}
 
 	return
+}
+
+func parseRecommendationListView(
+	ruleID types.RuleID, ruleContent *types.RuleWithContent, ruleDisabled bool,
+	impactedClustersCnt uint32) (
+	types.RecommendationListView, error) {
+	recommendationListView := types.RecommendationListView{}
+	totalRisk, err := safeUint8(ruleContent.TotalRisk)
+	if err != nil {
+		return recommendationListView, err
+	}
+
+	resolutionRisk, err := safeUint8(ruleContent.ResolutionRisk)
+	if err != nil {
+		return recommendationListView, err
+	}
+
+	impact, err := safeUint8(ruleContent.Impact)
+	if err != nil {
+		return recommendationListView, err
+	}
+	likelihood, err := safeUint8(ruleContent.Likelihood)
+	if err != nil {
+		return recommendationListView, err
+	}
+
+	recommendationListView = types.RecommendationListView{
+		RuleID:              ruleID,
+		Description:         ruleContent.Description,
+		Generic:             ruleContent.Generic,
+		PublishDate:         ruleContent.PublishDate,
+		TotalRisk:           totalRisk,
+		ResolutionRisk:      resolutionRisk,
+		Impact:              impact,
+		Likelihood:          likelihood,
+		Tags:                ruleContent.Tags,
+		Disabled:            ruleDisabled,
+		ImpactedClustersCnt: impactedClustersCnt,
+	}
+	return recommendationListView, nil
 }
 
 // getImpactingRecommendations retrieves a list of recommendations from aggregator based on the list of clusters
@@ -739,7 +831,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	jsonMarshalled, err := json.Marshal(clusterList)
 	if err != nil {
-		log.Error().Err(err).Msgf("getImpactingRecommendations problem unmarshalling cluster list")
+		log.Error().Err(err).Msg("getImpactingRecommendations problem unmarshalling cluster list")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -748,7 +840,7 @@ func (server HTTPServer) getImpactingRecommendations(
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
-		log.Error().Err(err).Msgf("getImpactingRecommendations problem getting response from aggregator")
+		log.Error().Err(err).Msg("getImpactingRecommendations problem getting response from aggregator")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -757,7 +849,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
-		log.Error().Err(err).Msgf("getImpactingRecommendations problem reading response body")
+		log.Error().Err(err).Msg("getImpactingRecommendations problem reading response body")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -765,7 +857,7 @@ func (server HTTPServer) getImpactingRecommendations(
 	if aggregatorResp.StatusCode != http.StatusOK {
 		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 		if err != nil {
-			log.Error().Err(err).Msgf(problemSendingResponseError)
+			log.Error().Err(err).Msg(problemSendingResponseError)
 			handleServerError(writer, err)
 		}
 		return nil, err
@@ -773,7 +865,7 @@ func (server HTTPServer) getImpactingRecommendations(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
-		log.Error().Err(err).Msgf("getImpactingRecommendations problem unmarshalling JSON response")
+		log.Error().Err(err).Msg("getImpactingRecommendations problem unmarshalling JSON response")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -811,7 +903,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(jsonMarshalled))
 	if err != nil {
-		log.Error().Err(err).Msgf("getClustersAndRecommendations problem getting response from aggregator")
+		log.Error().Err(err).Msg("getClustersAndRecommendations problem getting response from aggregator")
 		if _, ok := err.(*url.Error); ok {
 			handleServerError(writer, &AggregatorServiceUnavailableError{})
 		} else {
@@ -823,7 +915,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 
 	responseBytes, err := io.ReadAll(aggregatorResp.Body)
 	if err != nil {
-		log.Error().Err(err).Msgf("getClustersAndRecommendations problem reading response body")
+		log.Error().Err(err).Msg("getClustersAndRecommendations problem reading response body")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -831,7 +923,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 	if aggregatorResp.StatusCode != http.StatusOK {
 		err := responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
 		if err != nil {
-			log.Error().Err(err).Msgf(problemSendingResponseError)
+			log.Error().Err(err).Msg(problemSendingResponseError)
 			handleServerError(writer, err)
 		}
 		return nil, err
@@ -839,7 +931,7 @@ func (server HTTPServer) getClustersAndRecommendations(
 
 	err = json.Unmarshal(responseBytes, &aggregatorResponse)
 	if err != nil {
-		log.Error().Err(err).Msgf("getClustersAndRecommendations problem unmarshalling JSON response")
+		log.Error().Err(err).Msg("getClustersAndRecommendations problem unmarshalling JSON response")
 		handleServerError(writer, err)
 		return nil, err
 	}
@@ -1164,7 +1256,7 @@ func (server *HTTPServer) processClustersDetailResponse(
 		if ruleAcked {
 			disabledAt, err := time.Parse(time.RFC3339, acknowledge.CreatedAt)
 			if err != nil {
-				log.Error().Msgf("error parsing time as RFC3339: %v", acknowledge.CreatedAt)
+				log.Error().Err(err).Str("createdAt", acknowledge.CreatedAt).Msg("error parsing time as RFC3339")
 				disabledAt = time.Time{}
 			}
 			disabledCluster := ctypes.DisabledClusterInfo{
@@ -1468,7 +1560,7 @@ func filterRulesGetContent(
 		ruleContent, err := content.GetContentForRecommendation(ruleID)
 		if err != nil {
 			// rule content not found, log and skip as in other endpoints
-			log.Error().Err(err).Msgf("error retrieving rule content for rule %v", ruleID)
+			log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg("error retrieving rule content for rule")
 			continue
 		}
 
@@ -1552,7 +1644,7 @@ func (server *HTTPServer) getDVONamespaceList(writer http.ResponseWriter, reques
 	log.Info().Int(orgIDTag, int(orgID)).Msgf("getDVONamespaceList took %v to get %d clusters from AMS API", time.Since(tStart), len(activeClustersInfo))
 
 	// get workloads for clusters
-	workloads, err := server.getWorkloadsForOrganization(orgID)
+	workloads, err := server.getWorkloadsForOrganization(orgID, writer, activeClustersInfo)
 	if err != nil {
 		handleServerError(writer, err)
 		return
@@ -1769,7 +1861,7 @@ func fillInWorkloadsData(
 func fillDVORecommendationRuleContent(recommendation *types.DVORecommendation) error {
 	ruleContent, err := content.GetContentForRecommendation(ctypes.RuleID(recommendation.Check))
 	if err != nil {
-		log.Error().Err(err).Msgf(ruleContentError, recommendation.Check)
+		log.Error().Err(err).Interface("recommendation.Check", recommendation.Check).Msg(ruleContentError)
 		return err
 	}
 

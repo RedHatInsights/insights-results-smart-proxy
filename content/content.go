@@ -109,7 +109,7 @@ func (s *RulesWithContentStorage) SetRuleWithContent(
 	if err == nil {
 		s.recommendationsWithContent[compositeRuleID] = ruleWithContent
 	} else {
-		log.Error().Err(err).Msgf("Error generating composite rule ID for [%v] and [%v]", ruleID, errorKey)
+		log.Warn().Err(err).Msgf("Error generating composite rule ID for [%v] and [%v]", ruleID, errorKey)
 	}
 
 	s.rulesWithContent[ruleIDAndErrorKey{
@@ -460,7 +460,7 @@ func FetchRuleContent(rule *ctypes.RuleOnReport, OSDEligible bool) (
 
 	ruleWithContent, err := GetRuleWithErrorKeyContent(ruleID, errorKey)
 	if err != nil {
-		log.Error().Err(err).Msgf(
+		log.Warn().Err(err).Msgf(
 			"unable to get content for rule with id %v and error key %v", ruleID, errorKey,
 		)
 		return

@@ -66,7 +66,7 @@ const (
 //		}
 func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, request *http.Request) {
 	if server.amsClient == nil {
-		log.Error().Msgf(AMSApiNotInitializedErrorMessage)
+		log.Error().Msg(AMSApiNotInitializedErrorMessage)
 		handleServerError(writer, &AMSAPIUnavailableError{})
 		return
 	}
@@ -86,17 +86,17 @@ func (server *HTTPServer) upgradeRisksPrediction(writer http.ResponseWriter, req
 	clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
 
 	if err != nil {
-		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("failure retrieving the cluster's organization")
+		log.Warn().Err(err).Str(clusterIDTag, string(clusterID)).Msg("failure retrieving the cluster's organization")
 		handleServerError(writer, err)
 		return
 	} else if clusterInfo.ID != clusterID {
-		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
+		log.Warn().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
 		handleServerError(writer, &utypes.ItemNotFoundError{ItemID: clusterID})
 		return
 	}
 
 	if clusterInfo.Managed {
-		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster doesn't belong to the expected org")
+		log.Warn().Err(err).Str(clusterIDTag, string(clusterID)).Msg("cluster is managed")
 		handleServerError(writer, &utypes.NoContentError{
 			ErrString: "the upgrade failure prediction service is not available for managed clusters",
 		})

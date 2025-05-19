@@ -70,7 +70,7 @@ func readRuleSelectorAndJustificationFromBody(writer http.ResponseWriter, reques
 	err := json.NewDecoder(request.Body).Decode(&parameters)
 
 	if err != nil {
-		log.Error().Err(err).Msg("wrong payload provided by client")
+		log.Warn().Err(err).Msg("wrong payload provided by client")
 		// return HTTP code 400 to client
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return parameters, err
@@ -329,8 +329,8 @@ func formatNullTime(t sql.NullTime) string {
 func logFullRuleSelector(orgID types.OrgID, ruleID types.RuleID, errorKey types.ErrorKey) {
 	log.Debug().
 		Int("org", int(orgID)).
-		Str("ruleID", string(ruleID)).
-		Str("errorKey", string(errorKey)).
+		Str(ruleIDStr, string(ruleID)).
+		Str(errorKeyStr, string(errorKey)).
 		Msg("Selector for rule acknowledgement")
 }
 

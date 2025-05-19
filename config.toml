@@ -28,6 +28,7 @@ enable_internal_rules_organizations = false
 internal_rules_organizations = []
 log_auth_token = true
 org_clusters_fallback = false
+use_rbac = false
 
 [services]
 aggregator = "http://localhost:8080/api/v1/"
@@ -50,7 +51,11 @@ cluster_list_caching = false
 namespace = "smart_proxy"
 
 [sentry]
-dns = ""
+dsn = ""
+environment = "dev"
+
+[logging]
+logging_to_sentry_enabled = false
 
 [kafka_zerolog]
 broker = ""
@@ -63,3 +68,7 @@ database = 0
 endpoint = "localhost:6379"
 password = ""
 timeout_seconds = 30
+
+[rbac]
+url = "https://console.redhat.com/api/rbac/v1"
+enforce = false

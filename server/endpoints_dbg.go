@@ -22,12 +22,6 @@ import (
 )
 
 const (
-	// DbgOrganizationsEndpoint returns all organizations. DEBUG only
-	DbgOrganizationsEndpoint = ira_server.OrganizationsEndpoint
-	// DbgDeleteOrganizationsEndpoint deletes all {organizations}(comma separated array). DEBUG only
-	DbgDeleteOrganizationsEndpoint = ira_server.DeleteOrganizationsEndpoint
-	// DbgDeleteClustersEndpoint deletes all {clusters}(comma separated array). DEBUG only
-	DbgDeleteClustersEndpoint = ira_server.DeleteClustersEndpoint
 	// DbgGetVoteOnRuleEndpoint is an endpoint to get vote on rule. DEBUG only
 	DbgGetVoteOnRuleEndpoint = "clusters/{cluster}/rules/{rule_id}/error_key/{error_key}/get_vote"
 )
@@ -36,10 +30,6 @@ const (
 func (server *HTTPServer) adddbgEndpointsToRouter(router *mux.Router) {
 	apiPrefix := server.Config.APIdbgPrefix
 	aggregatorBaseEndpoint := server.ServicesConfig.AggregatorBaseEndpoint
-
-	router.HandleFunc(apiPrefix+DbgOrganizationsEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+DbgDeleteOrganizationsEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodDelete)
-	router.HandleFunc(apiPrefix+DbgDeleteClustersEndpoint, server.proxyTo(aggregatorBaseEndpoint, nil)).Methods(http.MethodDelete)
 
 	router.HandleFunc(apiPrefix+DbgGetVoteOnRuleEndpoint, server.proxyTo(
 		aggregatorBaseEndpoint,

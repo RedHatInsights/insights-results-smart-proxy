@@ -71,6 +71,7 @@ var (
 		EnableCORS:                       false,
 		EnableInternalRulesOrganizations: false,
 		InternalRulesOrganizations:       []ctypes.OrgID{1},
+		UseRBAC:                          false,
 	}
 
 	serverConfigInternalOrganizations1 = server.Configuration{
@@ -1252,6 +1253,7 @@ func TestServerStartError(t *testing.T) {
 		nil,
 		nil,
 		nil,
+		nil,
 	)
 
 	err := testServer.Start()
@@ -1281,7 +1283,7 @@ func TestAddCORSHeaders(t *testing.T) {
 func TestHTTPServer_SetAMSInfoInReportNoAMSClient(t *testing.T) {
 	report := types.SmartProxyReportV2{}
 	config := helpers.DefaultServerConfig
-	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&config, nil, nil, nil, nil, nil, nil, nil)
 	testServer.SetAMSInfoInReport(testdata.ClusterName, &report)
 	assert.Equal(t, string(testdata.ClusterName), report.Meta.DisplayName)
 }
@@ -1294,7 +1296,7 @@ func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 		testdata.OrgID,
 		data.ClusterInfoResult,
 	)
-	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil, nil)
+	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil, nil, nil)
 	testServer.SetAMSInfoInReport(testdata.ClusterName, &report)
 	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
 }
@@ -1317,6 +1319,44 @@ func TestInfoEndpointNoAuthToken(t *testing.T) {
 			StatusCode: http.StatusOK,
 		})
 	})
+}
+
+// TestComposeEndpoint checks that composeEndpoint method correctly remove the API prefix
+func TestComposeEndpoint(t *testing.T) {
+	type testCase struct {
+		name     string
+		endpoint string
+	}
+	testCases := []testCase{
+		{
+			"test removal of v1 API prefix",
+			"/api/v1/endpoint",
+		},
+		{
+			"test removal of v2 API prefix",
+			"/api/dbg/endpoint",
+		},
+		{
+			"test removal of dbg API prefix",
+			"/api/dbg/endpoint",
+		},
+		{
+			"test that nothing is removed if prefix is missing",
+			"/endpoint",
+		},
+	}
+
+	testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
+	baseEndpoint := helpers.DefaultServicesConfig.AggregatorBaseEndpoint
+	expectedResponse := "http://localhost:8080/endpoint"
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			endpoint, err := server.ComposeEndpoint(testServer, baseEndpoint, tc.endpoint)
+			assert.NoError(t, err)
+			assert.Equal(t, expectedResponse, endpoint.String())
+		})
+	}
 }
 
 func ruleIDsChecker(t testing.TB, expected, got []byte) {

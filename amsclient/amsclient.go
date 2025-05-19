@@ -15,8 +15,10 @@
 package amsclient
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -128,14 +130,12 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
-	//TODO check the toggle caching option from conf [CCXDEV-13018]
-	//if c.clusterListCaching {}
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg("Looking up active clusters for the organization")
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msgf("GetClustersForOrganization start. AMS client page size %v", c.pageSize)
 
 	tStart := time.Now()
 
-	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
+	internalOrgIDs, err := c.GetInternalOrgIDFromExternal(orgID)
 	if err != nil {
 		return
 	}
@@ -144,12 +144,13 @@ func (c *amsClientImpl) GetClustersForOrganization(orgID types.OrgID, statusFilt
 		statusNegativeFilter = DefaultStatusNegativeFilters
 	}
 
-	searchQuery := generateSearchParameter(internalOrgID, statusFilter, statusNegativeFilter)
 	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
+
+	searchQuery := generateSingleClusterSearch(internalOrgIDs, statusFilter, statusNegativeFilter)
 
 	clusterInfoList, err = c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg(subscriptionListRequestError)
+		log.Warn().Err(err).Uint32(orgIDTag, uint32(orgID)).Msg(subscriptionListRequestError)
 		return
 	}
 
@@ -170,7 +171,7 @@ func (c *amsClientImpl) GetClusterDetailsFromExternalClusterID(externalID types.
 
 	clusterInfoList, err := c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Str(clusterIDTag, string(externalID)).Msg(subscriptionListRequestError)
+		log.Warn().Err(err).Str(clusterIDTag, string(externalID)).Msg(subscriptionListRequestError)
 		return
 	}
 	if clusterInfoList == nil {
@@ -187,17 +188,21 @@ func (c *amsClientImpl) GetSingleClusterInfoForOrganization(orgID types.OrgID, c
 ) {
 	tStart := time.Now()
 
-	internalOrgID, err := c.GetInternalOrgIDFromExternal(orgID)
+	internalOrgIDs, err := c.GetInternalOrgIDFromExternal(orgID)
 	if err != nil {
 		return
 	}
 
-	searchQuery := fmt.Sprintf("organization_id = '%s' and external_cluster_id = '%s'", internalOrgID, clusterID)
+	searchQuery := fmt.Sprintf(
+		"organization_id in ('%s') and external_cluster_id = '%s'",
+		strings.Join(internalOrgIDs, "','"),
+		clusterID,
+	)
 
 	subscriptionListRequest := c.connection.AccountsMgmt().V1().Subscriptions().List()
 	clusterInfoList, err := c.executeSubscriptionListRequest(subscriptionListRequest, searchQuery)
 	if err != nil {
-		log.Error().Err(err).Str(clusterIDTag, string(clusterID)).Msg(subscriptionListRequestError)
+		log.Warn().Err(err).Str(clusterIDTag, string(clusterID)).Msg(subscriptionListRequestError)
 		return
 	}
 	if clusterInfoList == nil {
@@ -210,34 +215,55 @@ func (c *amsClientImpl) GetSingleClusterInfoForOrganization(orgID types.OrgID, c
 	return clusterInfoList[0], nil
 }
 
-// GetInternalOrgIDFromExternal will retrieve the internal organization ID from an external one using AMS API
-func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error) {
+// GetInternalOrgIDFromExternal will retrieve the internal organization IDs (used internally in OCM API)
+// from the external org ID (used in c.r.c. systems) using the AMS API. One external org ID might
+// represent multiple internal org IDs, but they still match the same external org ID which we save in the DB.
+func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (
+	orgIDs []string, err error,
+) {
 	log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg(
-		"Looking for the internal organization ID for an external one",
+		"Looking for the internal organization IDs from an external one",
 	)
 	orgsListRequest := c.connection.AccountsMgmt().V1().Organizations().List()
+
 	response, err := orgsListRequest.
 		Search(fmt.Sprintf("external_id = %d", orgID)).
 		Fields("id,external_id").
 		Send()
 
 	if err != nil {
-		log.Error().Err(err).Msg(orgIDRequestFailure)
-		return "", err
+		log.Warn().Err(err).Msg(orgIDRequestFailure)
+		return
 	}
 
-	if response.Items().Len() != 1 {
-		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgMoreInternalOrgs)
-		return "", fmt.Errorf(orgMoreInternalOrgs)
+	orgIDs = make([]string, response.Items().Len())
+
+	// AMS API doesn't know this org_id. Out of our control, but ultimately fixable by user.
+	// If AMS is enabled, we're relying on it, meaning this has to result in a 4xx.
+	// 404 is used to ensure compatibility with Advisor UI, as it relies on 404 to render the correct response.
+	if len(orgIDs) == 0 {
+		err := errors.New(orgNoInternalID)
+		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Send()
+		return nil, &utypes.ItemNotFoundError{ItemID: orgID}
 	}
 
-	internalID, ok := response.Items().Get(0).GetID()
-	if !ok {
-		log.Error().Uint32(orgIDTag, uint32(orgID)).Msg(orgNoInternalID)
-		return "", fmt.Errorf(orgNoInternalID)
+	// special case, could possibly cause edge cases down the road, keep the debug log
+	if len(orgIDs) > 1 {
+		log.Debug().Uint32(orgIDTag, uint32(orgID)).Msg(orgMoreInternalOrgs)
 	}
 
-	return internalID, nil
+	for i, item := range response.Items().Slice() {
+		internalID, ok := item.GetID()
+		if !ok {
+			err := errors.New(orgIDRequestFailure)
+			log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Send()
+			return nil, err
+		}
+
+		orgIDs[i] = internalID
+	}
+
+	return orgIDs, nil
 }
 
 func (c *amsClientImpl) executeSubscriptionListRequest(
@@ -275,7 +301,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 				if id, ok := item.GetID(); ok {
 					log.Warn().Str("InternalClusterID", id).Msg("cluster has no external ID")
 				} else {
-					log.Error().Msgf("No external or internal cluster ID. Cluster [%v]", item)
+					log.Error().Interface("cluster", item).Msg("No external or internal cluster ID")
 				}
 
 				continue

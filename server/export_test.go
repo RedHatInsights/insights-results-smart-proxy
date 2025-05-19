@@ -27,7 +27,8 @@ package server
 // to see why this trick is needed.
 
 var (
-	FillImpacted       = fillImpacted
-	GetAuthTokenHeader = (*HTTPServer).getAuthTokenHeader
-	HandleServerError  = handleServerError
+	FillImpacted      = fillImpacted
+	HandleServerError = handleServerError
+	AcmUserAgent      = acmUserAgent
+	ComposeEndpoint   = (*HTTPServer).composeEndpoint
 )

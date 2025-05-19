@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/RedHatInsights/insights-operator-utils/types"
+	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"
 )
 
@@ -54,20 +55,6 @@ func TestRouterParsingError(t *testing.T) {
 		ParamName:  "paramName",
 		ParamValue: "paramValue",
 		ErrString:  "errorMessage"}
-
-	// check if error value is correct
-	assert.Equal(t, err.Error(), expected)
-}
-
-// TestAuthenticationError checks the method Error() for data structure
-// AuthenticationError
-func TestAuthenticationError(t *testing.T) {
-	// expected error value
-	const expected = "errorMessage"
-
-	// construct an instance of error interface
-	err := server.AuthenticationError{
-		ErrString: "errorMessage"}
 
 	// check if error value is correct
 	assert.Equal(t, err.Error(), expected)
@@ -169,7 +156,8 @@ func TestHandleServerError(t *testing.T) {
 	// check the behaviour with all error types defined in this package
 	testResponse(t, &server.RouterMissingParamError{}, http.StatusBadRequest)
 	testResponse(t, &server.RouterParsingError{}, http.StatusBadRequest)
-	testResponse(t, &server.AuthenticationError{}, http.StatusForbidden)
+	testResponse(t, &auth.AuthenticationError{}, http.StatusForbidden)
+	testResponse(t, &auth.AuthorizationError{}, http.StatusForbidden)
 	testResponse(t, &server.NoBodyError{}, http.StatusBadRequest)
 	testResponse(t, &server.BadBodyContent{}, http.StatusBadRequest)
 	testResponse(t, &server.ContentServiceUnavailableError{}, http.StatusServiceUnavailable)

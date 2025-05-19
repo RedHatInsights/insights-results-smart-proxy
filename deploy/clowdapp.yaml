@@ -81,6 +81,8 @@ objects:
               value: "${IRSP_ENABLE_INTERNAL_ORGANIZATIONS}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ORG_CLUSTERS_FALLBACK
               value: "${ORG_CLUSTERS_FALLBACK}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__USE_RBAC
+              value: "${USE_RBAC}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR
               value: ${INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT
@@ -100,12 +102,18 @@ objects:
                   key: password
             - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__TIMEOUT_SECONDS
               value: ${INSIGHTS_REDIS_TIMEOUT_SECONDS}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__RBAC__URL
+              value: "${RBAC_SERVER_URL}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__RBAC__ENFORCE
+              value: "${ENFORCE_RBAC}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
               value: "${IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE}"
             - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
               value: ${LOGGING_TO_CLOUD_WATCH_ENABLED}
             - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOG_LEVEL
               value: ${LOG_LEVEL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_SENTRY_ENABLED
+              value: ${SENTRY_ENABLED}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__DEBUG
               value: ${CLOUDWATCH_DEBUG}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__STREAM_NAME
@@ -136,6 +144,16 @@ objects:
                   name: cloudwatch
                   key: aws_secret_access_key
                   optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_SENTRY_ENABLED
+              value: ${SENTRY_ENABLED}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SENTRY__DSN
+              valueFrom:
+                secretKeyRef:
+                  key: dsn
+                  name: insights-results-smart-proxy-dsn
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SENTRY__ENVIRONMENT
+              value: ${ENV_NAME}
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__URL
               value: ${AMS_API_URL}
             - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLIENT_ID
@@ -218,11 +236,12 @@ objects:
       app: ccx-smart-proxy
     sessionAffinity: None
     type: ClusterIP
-    
+
 parameters:
 - description: Image name
   name: IMAGE
-  value: quay.io/cloudservices/ccx-smart-proxy
+  required: true
+  value: quay.io/redhat-services-prod/obsint-processing-tenant/smart-proxy/smart-proxy
 - description: Image tag
   name: IMAGE_TAG
   required: true
@@ -283,6 +302,8 @@ parameters:
   required: true
 - name: LOG_LEVEL
   value: "INFO"
+- name: SENTRY_ENABLED
+  value: "false"
 - name: CLOUDWATCH_DEBUG
   value: "false"
   required: true
@@ -297,4 +318,10 @@ parameters:
 - name: AMS_API_CLUSTER_LIST_CACHING
   value: "false"
 - name: ORG_CLUSTERS_FALLBACK
+  value: "false"
+- name: USE_RBAC
+  value: "false"
+- name: RBAC_SERVER_URL
+  value: "http://rbac-service:8000/api/rbac/v1"
+- name: ENFORCE_RBAC
   value: "false"

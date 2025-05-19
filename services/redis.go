@@ -42,7 +42,7 @@ const (
 	// RuleHitsFieldName represent the name of hte field in Redis hash containing simplified rule hits
 	RuleHitsFieldName = "rule_hits"
 	// ScanBatchCount is the number of records to go through in a single SCAN operation
-	ScanBatchCount = 1000
+	ScanBatchCount = 100
 
 	redisCmdExecutionFailedMsg = "failed to execute command against Redis server"
 )
@@ -124,7 +124,9 @@ func (redisClient *RedisClient) GetRequestIDsForClusterID(
 		var err error
 		keys, cursor, err = redisClient.Client.Connection.Scan(ctx, cursor, scanKey, ScanBatchCount).Result()
 		if err != nil {
-			log.Error().Err(err).Msgf("failed to execute SCAN command for key '%v' and cursor '%d'", scanKey, cursor)
+			log.Error().Err(err).
+				Str("scanKey", scanKey).Uint64("cursor", cursor).
+				Msg("failed to execute SCAN command for key and cursor")
 			return nil, err
 		}
 
@@ -236,7 +238,7 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 	// report not found in storage
 	if simplifiedReport.RequestID == "" {
 		err = &utypes.ItemNotFoundError{ItemID: requestID}
-		log.Error().Err(err).Msgf("request data for request_id %v not found in Redis", requestID)
+		log.Warn().Err(err).Msgf("request data for request_id %v not found in Redis", requestID)
 		return
 	}
 
@@ -249,7 +251,7 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 
 		isRuleIDValid := ruleIDRegex.MatchString(ruleHit)
 		if !isRuleIDValid {
-			log.Error().Msgf("rule_id [%v] retrieved from Redis is in invalid format", ruleHit)
+			log.Error().Str("rule_id", ruleHit).Msg("rule_id retrieved from Redis is in invalid format")
 			continue
 		}
 
