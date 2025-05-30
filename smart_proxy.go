@@ -119,6 +119,9 @@ func startServer() ExitCode {
 	errorFoundChannel := make(chan bool)
 	errorChannel := make(chan error)
 
+	log.Info().Msgf("HOSTNAME env var: '%v'", os.Getenv("HOSTNAME"))
+	log.Info().Msgf("POD_NAME env var: '%v'", os.Getenv("POD_NAME"))
+
 	if metricsCfg.Namespace != "" {
 		metrics.AddAPIMetricsWithNamespace(metricsCfg.Namespace)
 	}
