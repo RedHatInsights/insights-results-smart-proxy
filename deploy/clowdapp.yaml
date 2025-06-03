@@ -178,10 +178,6 @@ objects:
                   name: ams-client-auth
                   key: amsclient_token
                   optional: true
-            - name: POD_NAME # using the Downward API to get the pod name in the container
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
           image: ${IMAGE}:${IMAGE_TAG}
           livenessProbe:
             failureThreshold: 3
