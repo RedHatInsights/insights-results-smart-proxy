@@ -8,6 +8,7 @@
 [![Build Status](https://ci.ext.devshift.net/buildStatus/icon?job=RedHatInsights-insights-results-smart-proxy-gh-build-master)](https://ci.ext.devshift.net/job/RedHatInsights-insights-results-smart-proxy-gh-build-master/)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/RedHatInsights/insights-results-smart-proxy)
 [![License](https://img.shields.io/badge/license-Apache-blue)](https://github.com/RedHatInsights/insights-results-smart-proxy/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/RedHatInsights/insights-results-smart-proxy/branch/master/graph/badge.svg)](https://codecov.io/gh/RedHatInsights/insights-results-smart-proxy)
 
 Smart proxy for insights results
 
