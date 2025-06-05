@@ -141,10 +141,7 @@ func LoadConfiguration(defaultConfigFile string) error {
 		return fmt.Errorf("fatal error config file: %s", err)
 	}
 
-	if err := updateConfigFromClowder(); err != nil {
-		fmt.Println("Error loading clowder configuration")
-		return err
-	}
+	updateConfigFromClowder()
 
 	// everything's should be ok
 	return nil
@@ -217,10 +214,10 @@ func GetRBACConfiguration() auth.RBACConfig {
 	return Config.RBACConf
 }
 
-func updateConfigFromClowder() error {
+func updateConfigFromClowder() {
 	if !clowder.IsClowderEnabled() {
 		fmt.Println("Clowder is disabled")
-		return nil
+		return
 	}
 
 	fmt.Println("Clowder is enabled")
@@ -231,9 +228,6 @@ func updateConfigFromClowder() error {
 	} else {
 		fmt.Println(noInMemoryDB)
 	}
-
-	return nil
-
 }
 
 func updateRedisConfig() {
