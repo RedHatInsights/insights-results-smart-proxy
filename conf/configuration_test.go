@@ -17,10 +17,13 @@ limitations under the License.
 package conf_test
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
 	"time"
+
+	clowder "github.com/redhatinsights/app-common-go/pkg/api/v1"
 
 	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
@@ -217,6 +220,9 @@ func TestLoadConfigurationFromEnv(t *testing.T) {
 // the config file for testing from an environment variable. Clowder config is
 // available but clowder is not supported in this environment.
 func TestLoadConfigurationFromEnvVariableClowderEnabledNotSupported(t *testing.T) {
+	// explicit Clowder config
+	clowder.LoadedConfig = &clowder.AppConfig{}
+
 	os.Clearenv()
 
 	mustSetEnv(t, "CCX_NOTIFICATION_SERVICE_CONFIG_FILE", "tests/config1")
@@ -228,7 +234,11 @@ func TestLoadConfigurationFromEnvVariableClowderEnabledNotSupported(t *testing.T
 // the config file for testing from an environment variable. Clowder config is
 // available and clowder is supported in this environment.
 func TestLoadConfigurationFromEnvVariableClowderEnabledAndSupported(t *testing.T) {
+	// explicit Clowder config
+	clowder.LoadedConfig = &clowder.AppConfig{}
+
 	os.Clearenv()
+
 	mustSetEnv(t, "CCX_NOTIFICATION_SERVICE_CONFIG_FILE", "tests/config1")
 	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
 	mustSetEnv(t, "CLOWDER_ENABLED", "true")
@@ -442,4 +452,37 @@ func TestLoadRBACConfiguration(t *testing.T) {
 
 	assert.Equal(t, "https://api.openshift.com", cfg.URL)
 	assert.Equal(t, false, cfg.EnforceAuth)
+}
+
+// TestClowderConfigForRedis tests loading the config file for testing from an
+// environment variable. Clowder config is enabled in this case, checking the Redis
+// configuration.
+func TestClowderConfigForRedis(t *testing.T) {
+	os.Clearenv()
+
+	var hostname = "redis"
+	var port = 6379
+	var username = "user"
+	var password = "password"
+
+	// explicit Redis config
+	clowder.LoadedConfig = &clowder.AppConfig{
+		InMemoryDb: &clowder.InMemoryDBConfig{
+			Hostname: hostname,
+			Port:     port,
+			Username: &username,
+			Password: &password,
+		},
+	}
+
+	mustSetEnv(t, "INSIGHTS_RESULTS_SMART_PROXY_CONFIG_FILE", "../tests/config1")
+	mustSetEnv(t, "ACG_CONFIG", "tests/clowder_config.json")
+
+	err := conf.LoadConfiguration("config")
+	assert.NoError(t, err, "Failed loading configuration file")
+
+	redisCfg := conf.GetRedisConfiguration()
+	assert.Equal(t, fmt.Sprintf("%s:%d", hostname, port), redisCfg.RedisEndpoint)
+	assert.Equal(t, username, redisCfg.RedisUsername)
+	assert.Equal(t, password, redisCfg.RedisPassword)
 }
