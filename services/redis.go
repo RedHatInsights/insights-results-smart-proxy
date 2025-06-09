@@ -85,6 +85,7 @@ func NewRedisClient(conf RedisConfiguration) (RedisInterface, error) {
 	client, err := redis.CreateRedisClient(
 		conf.RedisEndpoint,
 		conf.RedisDatabase,
+		conf.RedisUsername,
 		conf.RedisPassword,
 		conf.RedisTimeoutSeconds,
 	)
