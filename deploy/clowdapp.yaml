@@ -116,8 +116,6 @@ objects:
               value: ${SENTRY_ENABLED}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__DEBUG
               value: ${CLOUDWATCH_DEBUG}
-            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__STREAM_NAME
-              value: ${IRSP_LOG_STREAM}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__CREATE_STREAM_IF_NOT_EXISTS
               value: ${CREATE_STREAM_IF_NOT_EXISTS}
             - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__AWS_REGION
@@ -178,10 +176,6 @@ objects:
                   name: ams-client-auth
                   key: amsclient_token
                   optional: true
-            - name: POD_NAME # using the Downward API to get the pod name in the container
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
           image: ${IMAGE}:${IMAGE_TAG}
           livenessProbe:
             failureThreshold: 3
@@ -311,8 +305,6 @@ parameters:
 - name: CLOUDWATCH_DEBUG
   value: "false"
   required: true
-- name: IRSP_LOG_STREAM
-  value: "insights-results-smart-proxy"
 - name: CREATE_STREAM_IF_NOT_EXISTS
   value: "true"
 - name: AMS_API_URL
