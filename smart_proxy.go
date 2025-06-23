@@ -52,6 +52,12 @@ const (
 	// ExitStatusServerError means that the HTTP server cannot be initialized
 	ExitStatusServerError
 	defaultConfigFileName = "config"
+	//Constants for commands
+	commandStartService = "start-service"
+	commandPrintVersion = "print-version"
+	commandPrintHelp    = "print-help"
+	commandPrintConfig  = "print-config"
+	commandPrintEnv     = "print-env"
 )
 
 const helpMessageTemplate = `
@@ -234,22 +240,22 @@ func handleGroupError(err error,
 // handleCommand select the function to be called depending on command argument
 func handleCommand(command string) ExitCode {
 	switch command {
-	case "start-service":
+	case commandStartService:
 		return startServer()
 
-	case "print-version":
+	case commandPrintVersion:
 		printVersionInfo()
 		return ExitStatusOK
 
-	case "print-help":
+	case commandPrintHelp:
 		printHelp()
 		return ExitStatusOK
 
-	case "print-config":
+	case commandPrintConfig:
 		printConfig()
 		return ExitStatusOK
 
-	case "print-env":
+	case commandPrintEnv:
 		printEnv()
 		return ExitStatusOK
 	}
@@ -294,7 +300,7 @@ func main() {
 
 	args := flag.Args()
 
-	command := "start-service"
+	command := commandStartService
 	if len(args) >= 1 {
 		command = strings.ToLower(strings.TrimSpace(args[0]))
 	}
