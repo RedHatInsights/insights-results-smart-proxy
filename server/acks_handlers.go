@@ -36,7 +36,7 @@ const (
 	improperRuleSelectorFormat = "improper rule selector format"
 	readRuleStatusError        = "read rule status error"
 	readRuleJustificationError = "can not retrieve rule disable justification from Aggregator"
-	aggregatorResponseError    = "Problem retrieving response from aggregator endpoint"
+	aggregatorResponseError    = "problem retrieving response from aggregator endpoint"
 )
 
 // method readAckList list acks from this account where the rule is active.
