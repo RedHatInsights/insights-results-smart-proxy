@@ -40,11 +40,12 @@ objects:
     name: ccx-smart-proxy
   spec:
     envName: ${ENV_NAME}
+    inMemoryDb: true
+    sharedInMemoryDbAppName: valkey-writer
     testing:
       iqePlugin: ccx
-    mandatoryDependencies:
-      - ccx-redis
-      - insights-content-service
+    dependencies:
+      - valkey-writer
       - ccx-insights-results
     deployments:
       - name: service
