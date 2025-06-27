@@ -29,9 +29,6 @@ abcgo: ## Run ABC metrics checker
 openapi-check:
 	./check_openapi.sh
 
-golangci-lint: install_golangci_lint
-	golangci-lint run --enable=goconst,gocyclo,gofmt,goimports,gosec,gosimple,nilerr,prealloc,revive,staticcheck,unconvert,unused,whitespace,zerologlint  --timeout=3m 
-
 style: shellcheck abcgo golangci-lint ## Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 
 run: clean build ## Build the project and executes the binary
@@ -67,3 +64,39 @@ function_list: ${BINARY} ## List all functions in generated binary file
 install_addlicense:
 	[[ `command -v addlicense` ]] || go install github.com/google/addlicense
 
+golangci-lint: install_golangci_lint
+	golangci-lint run
+	glangci-lint fmt
+
+
+golangci-lint-fix:
+	@echo "Running linters and formatters with auto-fix..."; \
+	git add -A; \
+	git commit --allow-empty -q -m "WIP: pre-lint-fix"; \
+	\
+	golangci-lint run --fix > /dev/null 2>&1; \
+	golangci-lint fmt > /dev/null 2>&1; \
+	\
+	if ! git diff --quiet HEAD; then \
+		echo -e "\n\033[32mApplied automatic fixes:\033[0m"; \
+		git --no-pager diff HEAD; \
+	else \
+		echo -e "\n\033[32mNo automatic fixes were needed.\033[0m"; \
+	fi; \
+	\
+	echo "--------------------------------------------------------------------------"; \
+	echo -e "\033[1;33mMake sure to fix issues that cannot be fixed automatically:\033[0m"; \
+	echo "--------------------------------------------------------------------------"; \
+	golangci-lint run || true; \
+	\
+	git reset HEAD~1 > /dev/null; \
+	echo "Done."
+
+
+install_golangci_lint:
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		brew install golangci-lint; \
+		brew upgrade golangci-lint; \
+	else \
+		go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.0.2; \
+	fi
