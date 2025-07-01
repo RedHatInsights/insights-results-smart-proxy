@@ -1,0 +1,9 @@
+{
+  "gomod": {
+    "packageRules": [
+      {
+        "groupName": "all dependencies"
+      }
+    ]
+  }
+}
