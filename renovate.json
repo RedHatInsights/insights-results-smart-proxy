@@ -1,22 +1,8 @@
 {
   "gomod": {
-    "schedule": [
-      "after 5am on sunday"
-    ],
-    "postUpdateOptions": [
-      "gomodUpdateImportPaths",
-      "gomodTidy"
-    ],
     "packageRules": [
       {
-        "matchManagers": [
-          "gomod"
-        ],
-        "matchDepTypes": [
-          "indirect"
-        ],
-        "groupName": "all dependencies",
-        "enabled": true
+        "groupName": "all dependencies"
       }
     ]
   }
