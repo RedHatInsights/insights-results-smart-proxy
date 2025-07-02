@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before_commit openapi-check help install_addlicense install_golangci_lint
+.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before-commit openapi-check help install-addlicense install-golangci-lint golangci-lint-fix
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -43,10 +43,10 @@ cover: test
 coverage:
 	@go tool cover -func=coverage.out
 
-license: install_addlicense
+license: install-addlicense
 	addlicense -c "Red Hat, Inc" -l "apache" -v ./
 
-before_commit: style test license openapi-check
+before-commit: style test license openapi-check
 	./check_coverage.sh
 
 help: ## Show this help screen
@@ -58,18 +58,18 @@ help: ## Show this help screen
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ''
 
-function_list: ${BINARY} ## List all functions in generated binary file
+function-list: ${BINARY} ## List all functions in generated binary file
 	go tool objdump ${BINARY} | grep ^TEXT | sed "s/^TEXT\s//g"
 
-install_addlicense:
+install-addlicense:
 	[[ `command -v addlicense` ]] || go install github.com/google/addlicense
 
-golangci-lint: install_golangci_lint
+golangci-lint: install-golangci-lint
 	golangci-lint run
 	glangci-lint fmt
 
 
-golangci-lint-fix:
+golangci-lint-fix: install-golangci-lint
 	@echo "Running linters and formatters with auto-fix...";
 	@echo "-----------------------------------------------------------------------"; 
 	@echo -e "\033[1;33mReview golangci-lint fixes and resolve any issues it couldn’t auto-fix\033[0m"
@@ -78,7 +78,7 @@ golangci-lint-fix:
 	golangci-lint fmt
 
 
-install_golangci_lint:
+install-golangci-lint:
 	@if [ "$$(uname)" = "Darwin" ]; then \
 		brew install golangci-lint; \
 		brew upgrade golangci-lint; \
