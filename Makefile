@@ -70,27 +70,12 @@ golangci-lint: install_golangci_lint
 
 
 golangci-lint-fix:
-	@echo "Running linters and formatters with auto-fix..."; \
-	git add -A; \
-	git commit --allow-empty -q -m "WIP: pre-lint-fix"; \
-	\
-	golangci-lint run --fix > /dev/null 2>&1; \
-	golangci-lint fmt > /dev/null 2>&1; \
-	\
-	if ! git diff --quiet HEAD; then \
-		echo -e "\n\033[32mApplied automatic fixes:\033[0m"; \
-		git --no-pager diff HEAD; \
-	else \
-		echo -e "\n\033[32mNo automatic fixes were needed.\033[0m"; \
-	fi; \
-	\
-	echo "--------------------------------------------------------------------------"; \
-	echo -e "\033[1;33mMake sure to fix issues that cannot be fixed automatically:\033[0m"; \
-	echo "--------------------------------------------------------------------------"; \
-	golangci-lint run || true; \
-	\
-	git reset HEAD~1 > /dev/null; \
-	echo "Done."
+	@echo "Running linters and formatters with auto-fix...";
+	@echo "-----------------------------------------------------------------------"; 
+	@echo -e "\033[1;33mReview golangci-lint fixes and resolve any issues it couldn’t auto-fix\033[0m"
+	@echo "-----------------------------------------------------------------------"; 
+	golangci-lint run --fix
+	golangci-lint fmt
 
 
 install_golangci_lint:
