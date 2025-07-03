@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before-commit openapi-check help install-addlicense install-golangci-lint golangci-lint-fix
+.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before-commit openapi-check help install-addlicense install-golangci-lint
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -65,18 +65,12 @@ install-addlicense:
 	[[ `command -v addlicense` ]] || go install github.com/google/addlicense
 
 golangci-lint: install-golangci-lint
-	golangci-lint run
-	glangci-lint fmt
-
-
-golangci-lint-fix: install-golangci-lint
 	@echo "Running linters and formatters with auto-fix...";
 	@echo "-----------------------------------------------------------------------"; 
 	@echo -e "\033[1;33mReview golangci-lint fixes and resolve any issues it couldn’t auto-fix\033[0m"
 	@echo "-----------------------------------------------------------------------"; 
 	golangci-lint run --fix
 	golangci-lint fmt
-
 
 install-golangci-lint:
 	@if [ "$$(uname)" = "Darwin" ]; then \
