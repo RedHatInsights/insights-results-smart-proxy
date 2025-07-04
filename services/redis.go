@@ -160,7 +160,7 @@ func (redisClient *RedisClient) GetTimestampsForRequestIDs(
 	}
 
 	// queue commands in Redis pipeline. EXEC command is issued upon function exit
-	commands, err := redisClient.Client.Connection.Pipelined(ctx, func(pipe redisV9.Pipeliner) error {
+	commands, err := redisClient.Connection.Pipelined(ctx, func(pipe redisV9.Pipeliner) error {
 		for _, key := range keys {
 			pipe.HMGet(ctx, key, RequestIDFieldName, ReceivedTimestampFieldName, ProcessedTimestampFieldName)
 		}
@@ -215,7 +215,7 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 	ctx := context.Background()
 	key := fmt.Sprintf(SimplifiedReportKey, orgID, clusterID, requestID)
 
-	cmd := redisClient.Client.Connection.HMGet(ctx, key, RequestIDFieldName, RuleHitsFieldName)
+	cmd := redisClient.Connection.HMGet(ctx, key, RequestIDFieldName, RuleHitsFieldName)
 	if err = cmd.Err(); err != nil {
 		log.Error().Err(err).Msg(redisCmdExecutionFailedMsg)
 		return

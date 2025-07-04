@@ -453,14 +453,14 @@ func readInfoAPIEndpoint(url string) (map[string]string, error) {
 
 	// check the status code
 	if response.StatusCode != http.StatusOK {
-		err = fmt.Errorf("Improper status code %d", response.StatusCode)
+		err = fmt.Errorf("improper status code %d", response.StatusCode)
 		return nil, err
 	}
 
 	// try to read response body
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		err = errors.New("Problem reading response from /info endpoint")
+		err = errors.New("problem reading response from /info endpoint")
 		return nil, err
 	}
 
@@ -469,7 +469,7 @@ func readInfoAPIEndpoint(url string) (map[string]string, error) {
 
 	err = json.Unmarshal(body, &decoded)
 	if err != nil {
-		err = errors.New("Problem unmarshalling JSON response from /info endpoint")
+		err = errors.New("problem unmarshalling JSON response from /info endpoint")
 		return nil, err
 	}
 

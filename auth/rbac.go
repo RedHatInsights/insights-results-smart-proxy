@@ -27,6 +27,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// RBACClient defines the interface for an RBAC client.
 type RBACClient interface {
 	IsAuthorized(token string) bool
 	IsEnforcing() bool
@@ -130,8 +131,8 @@ func (rc *rbacClientImpl) requestAccess(url, identityToken string) []types.RbacD
 
 	access = append(access, response.Data...)
 	if response.Links.Next != "" {
-		next_url := fmt.Sprintf("%s%s", rc.host, response.Links.Next)
-		access = append(access, rc.requestAccess(next_url, identityToken)...)
+		nextURL := fmt.Sprintf("%s%s", rc.host, response.Links.Next)
+		access = append(access, rc.requestAccess(nextURL, identityToken)...)
 	}
 	return access
 }
