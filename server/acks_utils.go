@@ -36,7 +36,7 @@ import (
 	types "github.com/RedHatInsights/insights-results-types"
 )
 
-const aggregatorImproperCodeMessage = "Aggregator responded with improper HTTP code: %v"
+const aggregatorImproperCodeMessage = "aggregator responded with improper HTTP code: %v"
 
 // readJustificationFromBody function tries to read data
 // structure types.AcknowledgemenJustification from response
@@ -248,7 +248,7 @@ func (server *HTTPServer) readListOfAckedRules(
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK {
-		err := fmt.Errorf("Unexpected HTTP code during reading list of rules: %v", response.StatusCode)
+		err := fmt.Errorf("unexpected HTTP code during reading list of rules: %v", response.StatusCode)
 		return nil, err
 	}
 
@@ -257,7 +257,7 @@ func (server *HTTPServer) readListOfAckedRules(
 	// decode the response payload
 	err = json.NewDecoder(response.Body).Decode(&payload)
 	if err != nil {
-		err = errors.New("Problem unmarshalling JSON response from aggregator endpoint")
+		err = errors.New("problem unmarshalling JSON response from aggregator endpoint")
 		return nil, err
 	}
 
@@ -296,7 +296,7 @@ func (server *HTTPServer) readRuleDisableStatus(
 
 	// check the aggregator response
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusNotFound {
-		err := fmt.Errorf("Aggregator responded with improper HTTP code: %v", response.StatusCode)
+		err := fmt.Errorf("aggregator responded with improper HTTP code: %v", response.StatusCode)
 		return acknowledgement, false, err
 	}
 

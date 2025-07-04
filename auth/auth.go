@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package auth handles authentication by decoding the Base64-encoded
+// 'x-rh-identity' token from HTTP requests into a user identity object.
 package auth
 
 import (
@@ -40,7 +42,7 @@ const (
 
 // DecodeTokenFromHeader decodes the authentication token from the HTTP request header.
 // It returns a pointer to a Token and an error if the token is missing or malformed.
-func DecodeTokenFromHeader(w http.ResponseWriter, r *http.Request, authType string) (*types.Token, error) {
+func DecodeTokenFromHeader(_ http.ResponseWriter, r *http.Request, authType string) (*types.Token, error) {
 	// Try to read the authentication header from the HTTP request (if provided by the client).
 	token := GetAuthTokenHeader(r)
 	if token == "" {

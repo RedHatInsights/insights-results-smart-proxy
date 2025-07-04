@@ -60,7 +60,7 @@ const (
 	// for given cluster
 	RequestIDNotFound = "Request ID not found for given org_id and cluster_id"
 	// RedisNotInitializedErrorMessage is an error message written into log when Redis client is not initialized properly
-	RedisNotInitializedErrorMessage = "Redis is not initialized, request can not be finished correctly"
+	RedisNotInitializedErrorMessage = "redis is not initialized, request can not be finished correctly"
 	//AMSApiNotInitializedErrorMessage is an error message written into log when AMS API client is not initialized properly
 	AMSApiNotInitializedErrorMessage = "AMS API connection is not initialized"
 )
@@ -685,6 +685,7 @@ func excludeDisabledClusters(
 	return
 }
 
+//nolint:gocyclo
 func getFilteredRecommendationsList(
 	activeClustersInfo []types.ClusterInfo,
 	impactingRecommendations ctypes.RecommendationImpactedClusters,

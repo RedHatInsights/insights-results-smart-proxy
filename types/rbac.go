@@ -14,18 +14,21 @@
 
 package types
 
+// RbacResponse represents structure of a response from the RBAC service.
 type RbacResponse struct {
 	Meta  RbacMetadata `json:"meta"`
 	Links rbacLinks    `json:"links"`
 	Data  []RbacData   `json:"data"`
 }
 
+// RbacMetadata holds pagination information provided by the RBAC service.
 type RbacMetadata struct {
 	Count  int `json:"count"`
 	Limit  int `json:"limit,omitempty"`
 	Offset int `json:"offset,omitempty"`
 }
 
+// RbacData represents a single permission record or Access Control Entry.
 type RbacData struct {
 	ResourceDefinitions []rbacResourceDefinitions `json:"resourceDefinitions,omitempty"`
 	Permission          string                    `json:"permission,omitempty"`

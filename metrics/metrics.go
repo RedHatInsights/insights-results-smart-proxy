@@ -1,3 +1,4 @@
+// Package metrics defines Prometheus counters used by the smart-proxy.
 package metrics
 
 import (
@@ -26,6 +27,8 @@ var RBACIdentityType = promauto.NewCounterVec(rbacIdentityTypeOps, []string{"typ
 // their ACL and our RBAC policies.
 var RBACServiceAccountRejected = promauto.NewCounter(rbacServiceAccountRejectedOps)
 
+// AddAPIMetricsWithNamespace registers API and RBAC metrics under the
+// given Prometheus namespace.
 func AddAPIMetricsWithNamespace(namespace string) {
 	metrics.AddAPIMetricsWithNamespace(namespace)
 

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package amsclient provides a client for fetching cluster data from the AMS
+// API, handling pagination and organization ID translation.
 package amsclient
 
 import (
@@ -35,9 +37,9 @@ const (
 	defaultPageSize = 500
 
 	// strings for logging and errors
-	orgNoInternalID              = "Organization doesn't have proper internal ID"
-	orgMoreInternalOrgs          = "More than one internal organization for the given orgID"
-	orgIDRequestFailure          = "Request to get the organization info failed"
+	orgNoInternalID              = "organization doesn't have proper internal ID"
+	orgMoreInternalOrgs          = "more than one internal organization for the given orgID"
+	orgIDRequestFailure          = "request to get the organization info failed"
 	subscriptionListRequestError = "problem executing subscription list request"
 	orgIDTag                     = "OrgID"
 	clusterIDTag                 = "ClusterID"
@@ -100,7 +102,7 @@ func NewAMSClientWithTransport(conf Configuration, transport http.RoundTripper) 
 	} else if conf.Token != "" {
 		builder = builder.Tokens(conf.Token)
 	} else {
-		err := fmt.Errorf("No credentials provided. Cannot create the API client")
+		err := fmt.Errorf("cannot create api client: no credentials provided")
 		log.Error().Err(err).Msg("Cannot create the connection builder")
 		return nil, err
 	}

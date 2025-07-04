@@ -38,7 +38,7 @@ func (m *mockAMSClient) GetClustersForOrganization(
 ) {
 	clusterInfoList, ok := m.clustersPerOrg[orgID]
 	if !ok {
-		return nil, fmt.Errorf("No clusters")
+		return nil, fmt.Errorf("no clusters")
 	}
 
 	return

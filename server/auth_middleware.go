@@ -76,7 +76,7 @@ func (server *HTTPServer) Authentication(next http.Handler, noAuthURLs []string)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// For specific URLs it is ok to not use auth. mechanisms at all
 		// this is specific to OpenAPI JSON response and for all OPTION HTTP methods
-		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == "OPTIONS" {
+		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == http.MethodOptions {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -122,7 +122,7 @@ func (server *HTTPServer) Authorization(next http.Handler, noAuthURLs []string) 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// for specific URLs it is ok to not use auth. mechanisms at all
 		// this is specific to OpenAPI JSON response and for all OPTION HTTP methods
-		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == "OPTIONS" {
+		if collections.StringInSlice(r.RequestURI, noAuthURLs) || r.Method == http.MethodOptions {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -195,6 +195,7 @@ func (server *HTTPServer) GetCurrentOrgIDUserIDFromToken(request *http.Request) 
 	return identity.OrgID, identity.User.UserID, nil
 }
 
+// SetRBACClient sets the server’s RBAC client.
 func (server *HTTPServer) SetRBACClient(client auth.RBACClient) {
 	server.rbacClient = client
 }

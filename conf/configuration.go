@@ -210,6 +210,7 @@ func GetRedisConfiguration() services.RedisConfiguration {
 	return Config.RedisConf
 }
 
+// GetRBACConfiguration returns the RBAC configuration loaded in Config.
 func GetRBACConfiguration() auth.RBACConfig {
 	return Config.RBACConf
 }

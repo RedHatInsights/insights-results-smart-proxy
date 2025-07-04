@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before_commit openapi-check help install_addlicense install_golangci_lint
+.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before-commit openapi-check help install-addlicense install-golangci-lint
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -29,9 +29,6 @@ abcgo: ## Run ABC metrics checker
 openapi-check:
 	./check_openapi.sh
 
-golangci-lint: install_golangci_lint
-	golangci-lint run --enable=goconst,gocyclo,gofmt,goimports,gosec,gosimple,nilerr,prealloc,revive,staticcheck,unconvert,unused,whitespace,zerologlint  --timeout=3m 
-
 style: shellcheck abcgo golangci-lint ## Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
 
 run: clean build ## Build the project and executes the binary
@@ -46,10 +43,10 @@ cover: test
 coverage:
 	@go tool cover -func=coverage.out
 
-license: install_addlicense
+license: install-addlicense
 	addlicense -c "Red Hat, Inc" -l "apache" -v ./
 
-before_commit: style test license openapi-check
+before-commit: style test license openapi-check
 	./check_coverage.sh
 
 help: ## Show this help screen
@@ -61,9 +58,24 @@ help: ## Show this help screen
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ''
 
-function_list: ${BINARY} ## List all functions in generated binary file
+function-list: ${BINARY} ## List all functions in generated binary file
 	go tool objdump ${BINARY} | grep ^TEXT | sed "s/^TEXT\s//g"
 
-install_addlicense:
+install-addlicense:
 	[[ `command -v addlicense` ]] || go install github.com/google/addlicense
 
+golangci-lint: install-golangci-lint
+	@echo "Running linters and formatters with auto-fix...";
+	@echo "-----------------------------------------------------------------------"; 
+	@echo -e "\033[1;33mReview golangci-lint fixes and resolve any issues it couldn’t auto-fix\033[0m"
+	@echo "-----------------------------------------------------------------------"; 
+	golangci-lint run --fix
+	golangci-lint fmt
+
+install-golangci-lint:
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		brew install golangci-lint; \
+		brew upgrade golangci-lint; \
+	else \
+		go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.0.2; \
+	fi

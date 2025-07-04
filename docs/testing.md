@@ -12,8 +12,8 @@ nav_order: 6
 1. TOC
 {:toc}
 
-tl;dr: `make before_commit` will run most of the checks by magic, `VERBOSE=true
-make before_commit` will do the same but print more information about what it's
+tl;dr: `make before-commit` will run most of the checks by magic, `VERBOSE=true
+make before-commit` will do the same but print more information about what it's
 doing.
 
 The following tests can be run to test your code in

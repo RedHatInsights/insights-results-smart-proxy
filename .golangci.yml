@@ -11,7 +11,39 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+version: "2"
 
 run:
-    skip-files:
-        - export_test.go
+  timeout: 5m
+  go: '1.23.0'
+linters:
+    default: standard
+    enable:
+      - goconst
+      - gocyclo
+      - gosec
+      - staticcheck
+      - nilerr
+      - prealloc
+      - revive
+      - staticcheck
+      - unconvert
+      - unused
+      - whitespace
+      - zerologlint
+    settings:
+        gocyclo:
+            min-complexity: 13
+        goconst:
+            min-occurrences: 2
+    exclusions:
+        paths:
+          - export_test.go
+          - _test\.go$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    paths:
+      - export_test.go
