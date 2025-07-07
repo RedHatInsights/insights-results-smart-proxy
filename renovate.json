@@ -1,7 +1,15 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "gomod": {
     "packageRules": [
       {
+        "matchManagers": [
+          "gomod"
+        ],
+        "matchDepTypes": [
+          "indirect"
+        ],
+        "enabled": true,
         "groupName": "all dependencies"
       }
     ]
