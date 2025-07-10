@@ -100,7 +100,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.23.4 // indirect
 	github.com/onsi/gomega v1.37.0 // indirect
 	github.com/openshift-online/ocm-api-model/clientapi v0.0.0-20250626190813-a7916a5d0c97 // indirect
-	github.com/openshift-online/ocm-api-model/model v0.0.0-20250619114224-37dc3401307a // indirect
+	github.com/openshift-online/ocm-api-model/model v0.0.0-20250626190813-a7916a5d0c97 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
