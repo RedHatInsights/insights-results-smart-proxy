@@ -1504,12 +1504,8 @@
                         },
                         "rating": {
                           "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
-                          "enum": [
-                            "-1",
-                            "0",
-                            "1"
-                          ],
-                          "type": "integer"
+                          "type": "integer",
+                          "enum": [-1, 0, 1]
                         },
                         "hosts_acked_count": {
                           "type": "integer"
@@ -2419,7 +2415,9 @@
             "type": "string"
           },
           "rating": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [-1, 0, 1],
+            "description": "User rating - value of user rating. -1 is dislike, 0 is no vote, 1 is like."
           }
         }
       },
