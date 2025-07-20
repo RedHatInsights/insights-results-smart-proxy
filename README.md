@@ -19,7 +19,6 @@ Smart proxy for insights results
 * [BDD tests](#bdd-tests)
 * [Makefile targets](#makefile-targets)
 * [Contribution](#contribution)
-* [Package manifest](#package-manifest)
 
 <!-- vim-markdown-toc -->
 
@@ -82,7 +81,3 @@ help                 Show this help screen
 
 Please look into document [CONTRIBUTING.md](CONTRIBUTING.md) that contains all information about how to
 contribute to this project.
-
-## Package manifest
-
-Package manifest is available at [docs/manifest.txt](docs/manifest.txt).
