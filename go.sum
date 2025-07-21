@@ -707,8 +707,8 @@ github.com/openshift-online/ocm-api-model/clientapi v0.0.424 h1:UgETlB56bFRBCjd4
 github.com/openshift-online/ocm-api-model/clientapi v0.0.424/go.mod h1:fZwy5HY2URG9nrExvQeXrDU/08TGqZ16f8oymVEN5lo=
 github.com/openshift-online/ocm-api-model/model v0.0.424 h1:Z26ZNwBHQTVT+lNuB7bAfRbXXthzaw8GhE4Dqi7rqo4=
 github.com/openshift-online/ocm-api-model/model v0.0.424/go.mod h1:B/fZxd88BTKig/rCCc189cENnFlEzxQslHHzoSgvo1I=
-github.com/openshift-online/ocm-sdk-go v0.1.471 h1:xnZJDXULhKknCT+zU3IvXpEDJYlLlP0hP8NkbVHo/ng=
-github.com/openshift-online/ocm-sdk-go v0.1.471/go.mod h1:JuDmf4h0bHdKX3ZM/SlAC02dCIcI4RlYqzwwUxUWz7w=
+github.com/openshift-online/ocm-sdk-go v0.1.472 h1:qdQI5rytZS9VXWf8QHdytv1lG+OudlkNhBBx9Fon5vg=
+github.com/openshift-online/ocm-sdk-go v0.1.472/go.mod h1:2dhKwgpzAbHq2lzK2guJWDMdLJf/8JPP4bYqpAS0PZE=
 github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492/go.mod h1:Ngi6UdF0k5OKD5t5wlmGhe/EDKPoUM3BXZSSfIuJbis=
 github.com/opentracing/basictracer-go v1.0.0/go.mod h1:QfBfYuafItcjQuMwinw9GhYKwFXS9KnPs5lxoYwgW74=
 github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
