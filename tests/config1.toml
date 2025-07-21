@@ -42,12 +42,6 @@ cluster_list_caching = false
 [metrics]
 namespace = "smart_proxy"
 
-[kafka_zerolog]
-broker = "-kafka-zerolog-broker-"
-topic = "-kafka-zerolog-topic-"
-cert_path = "-kafka-zerolog-cert-path-"
-level = "-kafka-zerolog-level-"
-
 [redis]
 database = 42
 endpoint = "localhost:6379"

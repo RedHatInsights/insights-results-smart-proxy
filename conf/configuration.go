@@ -85,7 +85,6 @@ var Config struct {
 	LoggingConf       logger.LoggingConfiguration       `mapstructure:"logging" toml:"logging"`
 	CloudWatchConf    logger.CloudWatchConfiguration    `mapstructure:"cloudwatch" toml:"cloudwatch"`
 	SentryLoggingConf logger.SentryLoggingConfiguration `mapstructure:"sentry" toml:"sentry"`
-	KafkaZerologConf  logger.KafkaZerologConfiguration  `mapstructure:"kafka_zerolog" toml:"kafka_zerolog"`
 	AMSClientConf     amsclient.Configuration           `mapstructure:"amsclient" toml:"amsclient"`
 	RBACConf          auth.RBACConfig                   `mapstructure:"rbac" toml:"rbac"`
 }
@@ -193,11 +192,6 @@ func GetCloudWatchConfiguration() logger.CloudWatchConfiguration {
 // GetSentryLoggingConfiguration returns sentry logging configuration
 func GetSentryLoggingConfiguration() logger.SentryLoggingConfiguration {
 	return Config.SentryLoggingConf
-}
-
-// GetKafkaZerologConfiguration returns the kafkazero log configuration
-func GetKafkaZerologConfiguration() logger.KafkaZerologConfiguration {
-	return Config.KafkaZerologConf
 }
 
 // GetAMSClientConfiguration returns the amsclient configuration
