@@ -57,12 +57,6 @@ environment = "dev"
 [logging]
 logging_to_sentry_enabled = false
 
-[kafka_zerolog]
-broker = ""
-topic = ""
-cert_path = ""
-level = ""
-
 [redis]
 database = 0
 endpoint = "localhost:6379"
