@@ -28,7 +28,7 @@ permissions:
 jobs:
   golangci:
     name: BLABALALALA THIS IS IT
-    uses: golangci-lint-shared-workflow/.github/workflows/golangci-lint.yml@main
+    uses: Jakub007d/golangci-lint-shared-workflow/.github/workflows/golangci-lint.yml@main
     with:
       only-new-issues: true
       golangci-version: latest
