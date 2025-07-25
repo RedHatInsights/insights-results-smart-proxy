@@ -27,6 +27,7 @@ permissions:
   # pull-requests: read
 jobs:
   golangci:
+    name: BLABALALALA THIS IS IT
     uses: golangci-lint-shared-workflow/.github/workflows/golangci-lint.yml@main
     with:
       only-new-issues: true
