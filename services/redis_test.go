@@ -19,6 +19,7 @@ package services_test
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -28,6 +29,7 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
 	"github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 	"github.com/RedHatInsights/insights-results-smart-proxy/types"
+	"github.com/hashicorp/go-uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -449,4 +451,61 @@ func TestGetRuleHitsForRequest_OKScanError(t *testing.T) {
 	assert.Len(t, ruleHits, 0)
 
 	helpers.RedisExpectationsMet(t, server)
+}
+
+const clustersInfoSize = 30000
+
+func BenchmarkStoreClustersInfoForOrg(b *testing.B) {
+	params := prepareClustersInfoData(clustersInfoSize)
+	conf := services.RedisConfiguration{
+		RedisEndpoint:       "localhost:6379",
+		RedisDatabase:       0,
+		RedisTimeoutSeconds: 30,
+	}
+	client, err := services.NewRedisClient(conf)
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+		b.Fail()
+	}
+
+	for i := 0; i <= b.N; i++ {
+		client.StoreClustersInfo(types.OrgID(1), params)
+	}
+}
+
+func BenchmarkGetClustersInfoForOrg(b *testing.B) {
+	conf := services.RedisConfiguration{
+		RedisEndpoint:       "localhost:6379",
+		RedisDatabase:       0,
+		RedisTimeoutSeconds: 30,
+	}
+	client, err := services.NewRedisClient(conf)
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+		b.Fail()
+	}
+	params := prepareClustersInfoData(clustersInfoSize)
+	client.StoreClustersInfo(types.OrgID(1), params)
+
+	for i := 0; i <= b.N; i++ {
+		client.GetClustersInfoForOrgID(types.OrgID(1))
+	}
+}
+
+func prepareClustersInfoData(n int) []types.ClusterInfo {
+	var clustersInfo []types.ClusterInfo = make([]types.ClusterInfo, n)
+	var src = rand.NewSource(time.Now().UnixNano())
+	var r = rand.New(src)
+
+	for index := 0; index < n; index++ {
+		uuid, _ := uuid.GenerateUUID()
+		clustersInfo[index] = types.ClusterInfo{
+			ID:          types.ClusterName(uuid),
+			DisplayName: fmt.Sprintf("The cluster name is %s", uuid),
+			Managed:     r.Intn(2) != 0,
+			Status:      "ok",
+		}
+	}
+
+	return clustersInfo
 }
