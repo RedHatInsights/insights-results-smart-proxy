@@ -29,7 +29,7 @@ CACHE_FROM_LATEST_IMAGE="true"
 DEPLOY_FRONTENDS="true"   # enable for front-end/UI tests
 # Set the correct images for pull requests.
 # pr_check in pull requests still uses the old cloudservices images
-EXTRA_DEPLOY_ARGS="--set-parameter ccx-smart-proxy/IMAGE=quay.io/cloudservices/ccx-smart-proxy --no-remove-resources"
+EXTRA_DEPLOY_ARGS="--set-parameter ccx-smart-proxy/IMAGE=quay.io/cloudservices/ccx-smart-proxy"
 
 export IQE_PLUGINS="ccx"
 # Run all pipeline and ui tests
