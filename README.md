@@ -34,6 +34,13 @@ from a single service.
 
 ## Documentation
 
+### For Developers
+
+- **[Developer Guide](DEVELOPER_GUIDE.md)** - High-level overview of the codebase, architecture, and development workflows
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to this project
+
+### Complete Documentation
+
 Documentation is hosted on Github Pages <https://redhatinsights.github.io/insights-results-smart-proxy/>.
 Sources are located in [docs](https://github.com/RedHatInsights/insights-results-smart-proxy/tree/master/docs).
 
