@@ -384,14 +384,13 @@ func TestGetCloudWatchConfiguration(t *testing.T) {
 
 	// check returned structure
 	assert.Equal(t, logger.CloudWatchConfiguration{
-		AWSAccessID:             "",
-		AWSSecretKey:            "",
-		AWSSessionToken:         "",
-		AWSRegion:               "",
-		LogGroup:                "",
-		StreamName:              "",
-		CreateStreamIfNotExists: false,
-		Debug:                   false,
+		AWSAccessID:     "",
+		AWSSecretKey:    "",
+		AWSSessionToken: "",
+		AWSRegion:       "",
+		LogGroup:        "",
+		StreamName:      "",
+		Debug:           false,
 	}, cloudWatchConfiguration)
 }
 
