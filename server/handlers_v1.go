@@ -205,6 +205,10 @@ func (server HTTPServer) getOrganizationOverview(
 
 		var filteredRecommendations int
 		for _, ruleID := range enabledOnlyRecommendations {
+			log.Info().Str("ruleID", string(ruleID)).Msg("Processing rule ID")
+			if string(ruleID) == "" {
+				log.Info().Msg("Found empty ruleID in enabledOnlyRecommendations")
+			}
 			ruleContent, err := content.GetContentForRecommendation(ruleID)
 			if err != nil {
 				if err, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
