@@ -197,11 +197,22 @@ func (server HTTPServer) getOrganizationOverview(
 			continue
 		}
 
+		// Debug: log input recommendations before filtering
+		log.Debug().
+			Interface("inputRecommendations", hittingRecommendations.Recommendations).
+			Str("clusterID", string(clusterInfo.ID)).
+			Msg("Input data before filterOutDisabledRules")
+
 		// filter out acked and disabled rules
 		enabledOnlyRecommendations := filterOutDisabledRules(
 			hittingRecommendations.Recommendations, clusterInfo.ID,
 			systemWideDisabledRules, disabledRulesPerCluster,
 		)
+
+		// Debug: log filtered recommendations after filtering
+		log.Debug().
+			Interface("enabledOnlyRecommendations", enabledOnlyRecommendations).
+			Msg("Output data after filterOutDisabledRules")
 
 		var filteredRecommendations int
 		for _, ruleID := range enabledOnlyRecommendations {
