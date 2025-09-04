@@ -16,11 +16,11 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
-	github.com/openshift-online/ocm-sdk-go v0.1.476
+	github.com/openshift-online/ocm-sdk-go v0.1.477
 	github.com/prometheus/client_golang v1.23.0
 	github.com/prometheus/client_model v0.6.2
 	github.com/redhatinsights/app-common-go v1.6.8
-	github.com/redis/go-redis/v9 v9.12.1
+	github.com/redis/go-redis/v9 v9.13.0
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.11.1
@@ -112,8 +112,8 @@ require (
 	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
 	github.com/onsi/ginkgo/v2 v2.25.1 // indirect
 	github.com/onsi/gomega v1.38.1 // indirect
-	github.com/openshift-online/ocm-api-model/clientapi v0.0.431 // indirect
-	github.com/openshift-online/ocm-api-model/model v0.0.431 // indirect
+	github.com/openshift-online/ocm-api-model/clientapi v0.0.432-0.20250828221234-d914d24fd262 // indirect
+	github.com/openshift-online/ocm-api-model/model v0.0.432-0.20250828221234-d914d24fd262 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
