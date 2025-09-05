@@ -161,6 +161,9 @@ func (server *HTTPServer) Initialize() http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use(httputils.LogRequest)
 
+	// Add custom metrics middleware to capture user-agent information
+	router.Use(MetricsMiddleware)
+
 	// Set up authentication and authorization middleware
 	server.setupAuthMiddleware(router)
 

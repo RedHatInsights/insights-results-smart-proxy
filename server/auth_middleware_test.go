@@ -327,7 +327,7 @@ func TestAuthorizationMiddleware(t *testing.T) {
 
 			assert.Equal(t, tc.expectedStatus, recorder.Code)
 
-			assertCounterVecValue(t, 1, metrics.RBACIdentityType, tc.xrhHeader.Identity.Type, initValueRBACIdentityType)
+			assertCounterVecValue(t, 1, metrics.RBACIdentityType, initValueRBACIdentityType, tc.xrhHeader.Identity.Type)
 			if tc.expectedStatus == http.StatusForbidden {
 				assertCounterValue(t, 1, metrics.RBACServiceAccountRejected, initValueRBACServiceAccountRejected)
 			} else {
@@ -365,16 +365,16 @@ func TestAuthorization_NoAuthURLs(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rr.Code)
 }
 
-func assertCounterVecValue(tb testing.TB, expected int64, counterVec *prometheus.CounterVec, label string, initValue int64) {
-	assert.Equal(tb, float64(initValue+expected), getCounterVecValue(tb, counterVec, label))
+func assertCounterVecValue(tb testing.TB, expected int64, counterVec *prometheus.CounterVec, initValue int64, labels ...string) {
+	assert.Equal(tb, float64(initValue+expected), getCounterVecValue(tb, counterVec, labels...))
 }
 
 func assertCounterValue(tb testing.TB, expected int64, counter prometheus.Counter, initValue int64) {
 	assert.Equal(tb, float64(expected+initValue), getCounterValue(tb, counter))
 }
 
-func getCounterVecValue(tb testing.TB, counterVec *prometheus.CounterVec, label string) float64 {
-	counter, err := counterVec.GetMetricWithLabelValues(label)
+func getCounterVecValue(tb testing.TB, counterVec *prometheus.CounterVec, labels ...string) float64 {
+	counter, err := counterVec.GetMetricWithLabelValues(labels...)
 	if err != nil {
 		tb.Errorf("Unable to get counter from counterVec %v", err)
 	}

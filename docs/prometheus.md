@@ -16,6 +16,15 @@ of them related with the API usage. These are the API metrics exposed:
 1. `api_endpoints_response_time` API endpoints response time
 1. `api_endpoints_status_codes` a counter of the HTTP status code responses
    returned back by the service
+
+Additionally, the Smart Proxy provides enhanced metrics that include User-Agent information:
+
+1. `api_endpoints_requests_with_user_agent` the total number of requests per endpoint with user agent labels
+
+This enhanced metric include the following label:
+- `endpoint`: The API endpoint pattern
+- `user_agent`: Normalized user agent (e.g., "insights-operator", "browser", "curl", etc.)
+
    
 Additionally it is possible to consume all metrics provided by Go runtime. There
 metrics start with `go_` and `process_` prefixes.
