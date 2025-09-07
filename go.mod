@@ -2,7 +2,7 @@ module github.com/RedHatInsights/insights-results-smart-proxy
 
 go 1.24.0
 
-toolchain go1.24.5
+toolchain go1.25.1
 
 require (
 	github.com/BurntSushi/toml v1.5.0
