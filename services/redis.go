@@ -242,6 +242,10 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 		ruleIDRegex := regexp.MustCompile(`^([a-zA-Z_0-9.]+)[|]([a-zA-Z_0-9.]+)$`)
 
 		isRuleIDValid := ruleIDRegex.MatchString(ruleHit)
+		if ruleHit == "" {
+			log.Debug().Str("RequestID",simplifiedReport.RequestID).Msg("There are no rule hits for given request id")
+			continue
+		}
 		if !isRuleIDValid {
 			log.Error().Str("rule_id", ruleHit).Msg("rule_id retrieved from Redis is in invalid format")
 			continue
