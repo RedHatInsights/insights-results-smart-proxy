@@ -243,7 +243,7 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 
 		isRuleIDValid := ruleIDRegex.MatchString(ruleHit)
 		if ruleHit == "" {
-			log.Debug().Str("RequestID",simplifiedReport.RequestID).Msg("There are no rule hits for given request id")
+			log.Debug().Str("RequestID", simplifiedReport.RequestID).Msg("There are no rule hits for given request id")
 			continue
 		}
 		if !isRuleIDValid {
