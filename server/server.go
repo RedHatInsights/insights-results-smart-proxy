@@ -1027,17 +1027,17 @@ func (server HTTPServer) getKnownUserAgentProduct(request *http.Request) (userAg
 
 	switch userAgentProduct {
 	case insightsOperatorUserAgent:
-		log.Info().Msg("request made by Insights Operator to be shown in the OCP Web console")
+		log.Debug().Msg("request made by Insights Operator to be shown in the OCP Web console")
 	case acmUserAgent:
-		log.Info().Msg("request made by ACM Operator to be shown in the the Advanced Cluster Management")
+		log.Debug().Msg("request made by ACM Operator to be shown in the the Advanced Cluster Management")
 	case browserUserAgent:
-		log.Info().Msg("request made by a regular web browser")
+		log.Debug().Msg("request made by a regular web browser")
 	case openAPIGeneratorUserAgent:
-		log.Info().Msg("request made by OpenAPI-generated test client from iqe tests")
+		log.Debug().Msg("request made by OpenAPI-generated test client from iqe tests")
 	case pythonRequestsUserAgent:
-		log.Warn().Msg("request made by Python requests library probably from iqe tests")
+		log.Debug().Msg("request made by Python requests library probably from iqe tests")
 	case nonRelevantUserAgent:
-		log.Warn().Msg("request made by non-relevant-user-agent test case from iqe tests")
+		log.Debug().Msg("request made by non-relevant-user-agent test case from iqe tests")
 	default:
 		log.Error().Str(userAgentHeader, request.Header.Get(userAgentHeader)).
 			Str("userAgentProduct", userAgentProduct).
