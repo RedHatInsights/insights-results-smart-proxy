@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
+	"github.com/RedHatInsights/insights-operator-utils/responses"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog/log"
 
@@ -56,11 +57,14 @@ func readRuleIDWithErrorKey(writer http.ResponseWriter, request *http.Request) (
 
 	ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ctypes.RuleID(ruleIDWithErrorKey))
 	if err != nil {
-		handleServerError(writer, &RouterParsingError{
-			ParamName:  RuleIDParamName,
-			ParamValue: ruleIDWithErrorKey,
-			ErrString:  err.Error(),
-		})
+		// Sending response without logging error in handleServerError as the function already sends warning logs
+		respErr := responses.SendBadRequest(writer, fmt.Sprintf(
+			"Error during parsing param '%s' with value '%s'. Error: '%s'",
+			RuleIDParamName, ruleIDWithErrorKey, err.Error(),
+		))
+		if respErr != nil {
+			log.Error().Err(respErr).Msg("Error sending bad request response")
+		}
 		return ctypes.RuleID(""), ctypes.ErrorKey(""), err
 	}
 
@@ -88,7 +92,7 @@ func readCompositeRuleID(request *http.Request) (
 			ParamValue: ruleIDParam,
 			ErrString:  msg.Error(),
 		}
-		log.Error().Err(err).Msg("invalid composite rule ID")
+		log.Warn().Err(err).Msg("invalid composite rule ID")
 		return
 	}
 

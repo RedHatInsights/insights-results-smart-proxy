@@ -74,6 +74,15 @@ const (
 	// browserUserAgent is the standard product name set by web browsers (requests made via OCM, OCP Advisor, ..)
 	browserUserAgent = "Mozilla"
 
+	// openAPIGeneratorUserAgent is the product name set by OpenAPI-generated  in iqe tests clients
+	openAPIGeneratorUserAgent = "OpenAPI-Generator"
+
+	// pythonRequestsUserAgent is the product name set by Python requests library in iqe tests
+	pythonRequestsUserAgent = "python-requests"
+
+	// nonRelevantUserAgent is a test user agent used in iqe tests to verify unknown user agent handling
+	nonRelevantUserAgent = "non-relevant-user-agent"
+
 	// JSONContentType represents the application/json content type
 	JSONContentType = "application/json; charset=utf-8"
 
@@ -1018,11 +1027,17 @@ func (server HTTPServer) getKnownUserAgentProduct(request *http.Request) (userAg
 
 	switch userAgentProduct {
 	case insightsOperatorUserAgent:
-		log.Info().Msg("request made by Insights Operator to be shown in the OCP Web console")
+		log.Debug().Msg("request made by Insights Operator to be shown in the OCP Web console")
 	case acmUserAgent:
-		log.Info().Msg("request made by ACM Operator to be shown in the the Advanced Cluster Management")
+		log.Debug().Msg("request made by ACM Operator to be shown in the the Advanced Cluster Management")
 	case browserUserAgent:
-		log.Info().Msg("request made by a regular web browser")
+		log.Debug().Msg("request made by a regular web browser")
+	case openAPIGeneratorUserAgent:
+		log.Debug().Msg("request made by OpenAPI-generated test client from iqe tests")
+	case pythonRequestsUserAgent:
+		log.Debug().Msg("request made by Python requests library probably from iqe tests")
+	case nonRelevantUserAgent:
+		log.Debug().Msg("request made by non-relevant-user-agent test case from iqe tests")
 	default:
 		log.Error().Str(userAgentHeader, request.Header.Get(userAgentHeader)).
 			Str("userAgentProduct", userAgentProduct).
