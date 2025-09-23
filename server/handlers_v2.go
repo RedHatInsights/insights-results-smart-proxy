@@ -1567,7 +1567,7 @@ func filterRulesGetContent(
 
 		ruleID, errorKey, err := types.RuleIDWithErrorKeyFromCompositeRuleID(ruleID)
 		if err != nil {
-			log.Error().Msg("error getting rule module and error key from composite rule ID.")
+			log.Warn().Msg("error getting rule module and error key from composite rule ID.")
 		}
 		// fill in data from rule content
 		simplifiedRuleHit := types.SimplifiedRuleHit{
