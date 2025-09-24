@@ -214,7 +214,7 @@ func (server HTTPServer) getRecommendationContentWithUserData(writer http.Respon
 
 	ruleContent, ruleGroups, err := server.getRuleWithGroups(request, ruleID)
 	if err != nil {
-		log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg("error retrieving rule content and groups for rule")
+		log.Warn().Err(err).Interface(ruleIDStr, ruleID).Msg("error retrieving rule content and groups for rule")
 		handleServerError(writer, err)
 		return
 	}
@@ -322,7 +322,7 @@ func (server HTTPServer) getRecommendations(writer http.ResponseWriter, request 
 
 	activeClustersInfo, err := server.readClusterInfoForOrgID(orgID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
+		log.Warn().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
 		handleServerError(writer, err)
 		return
 	}
@@ -499,7 +499,7 @@ func (server HTTPServer) getSingleClusterInfo(writer http.ResponseWriter, reques
 
 	clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
 	if err != nil {
-		log.Error().Err(err).Msg("problem retrieving cluster info from AMS API")
+		log.Warn().Err(err).Msg("problem retrieving cluster info from AMS API")
 		handleServerError(writer, err)
 		return
 	}
@@ -507,7 +507,7 @@ func (server HTTPServer) getSingleClusterInfo(writer http.ResponseWriter, reques
 	// retrieval failed, but error is nil
 	if clusterInfo.ID == "" {
 		err := &utypes.ItemNotFoundError{ItemID: clusterID}
-		log.Error().Err(err).Msg("unexpected problem retrieving cluster info from AMS API")
+		log.Warn().Err(err).Msg("unexpected problem retrieving cluster info from AMS API")
 		handleServerError(writer, err)
 		return
 	}
@@ -1561,7 +1561,7 @@ func filterRulesGetContent(
 		ruleContent, err := content.GetContentForRecommendation(ruleID)
 		if err != nil {
 			// rule content not found, log and skip as in other endpoints
-			log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg("error retrieving rule content for rule")
+			log.Warn().Err(err).Interface(ruleIDStr, ruleID).Msg("error retrieving rule content for rule")
 			continue
 		}
 
