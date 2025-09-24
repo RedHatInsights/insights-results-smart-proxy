@@ -310,7 +310,7 @@ func (c *amsClientImpl) executeSubscriptionListRequest(
 			}
 
 			if _, err := uuid.Parse(clusterIDstr); err != nil {
-				log.Error().Str(clusterIDTag, clusterIDstr).Msg("Invalid cluster UUID")
+				log.Warn().Str(clusterIDTag, clusterIDstr).Msg("Invalid cluster UUID")
 				continue
 			}
 
