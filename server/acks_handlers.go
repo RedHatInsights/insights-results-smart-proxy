@@ -117,7 +117,7 @@ func (server *HTTPServer) getAcknowledge(writer http.ResponseWriter, request *ht
 
 	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
 	if err != nil {
-		log.Error().Err(err).Msg(improperRuleSelectorFormat)
+		log.Warn().Err(err).Msg(improperRuleSelectorFormat)
 		// server error has been handled already
 		return
 	}
@@ -195,7 +195,7 @@ func (server *HTTPServer) acknowledgePost(writer http.ResponseWriter, request *h
 	// check if rule selector has the proper format
 	ruleID, errorKey, err := parsers.ParseRuleSelector(parameters.RuleSelector)
 	if err != nil {
-		log.Error().Err(err).Msg(improperRuleSelectorFormat)
+		log.Warn().Err(err).Msg(improperRuleSelectorFormat)
 		// return HTTP code 400 to client
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
@@ -284,7 +284,7 @@ func (server *HTTPServer) updateAcknowledge(writer http.ResponseWriter, request 
 
 	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
 	if err != nil {
-		log.Error().Err(err).Msg(improperRuleSelectorFormat)
+		log.Warn().Err(err).Msg(improperRuleSelectorFormat)
 		// server error has been handled already
 		return
 	}
@@ -355,7 +355,7 @@ func (server *HTTPServer) deleteAcknowledge(writer http.ResponseWriter, request 
 
 	ruleID, errorKey, err := readRuleIDWithErrorKey(writer, request)
 	if err != nil {
-		log.Error().Err(err).Msg(improperRuleSelectorFormat)
+		log.Warn().Err(err).Msg(improperRuleSelectorFormat)
 		// server error has been handled already
 		return
 	}
