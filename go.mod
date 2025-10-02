@@ -31,26 +31,26 @@ require (
 	github.com/IBM/sarama v1.46.1 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/archdx/zerolog-sentry v1.8.5 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.39.1 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.39.2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.1 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.31.10 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.18.14 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.8 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.8 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.8 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.31.12 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.16 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.9 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.9 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
-	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.58.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.58.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.8 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.29.4 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.38.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.9 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.29.6 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.38.6 // indirect
 	github.com/aws/smithy-go v1.23.0 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
-	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
+	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -63,12 +63,12 @@ require (
 	github.com/getkin/kin-openapi v0.133.0 // indirect
 	github.com/getsentry/sentry-go v0.35.3 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
-	github.com/go-openapi/jsonpointer v0.22.0 // indirect
-	github.com/go-openapi/swag/jsonname v0.25.0 // indirect
+	github.com/go-openapi/jsonpointer v0.22.1 // indirect
+	github.com/go-openapi/swag/jsonname v0.25.1 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
-	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
+	github.com/go-yaml/yaml/v3 v3.0.1 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/golang/glog v1.2.5 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
@@ -78,7 +78,7 @@ require (
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/itchyny/gojq v0.12.17 // indirect
-	github.com/itchyny/timefmt-go v0.1.6 // indirect
+	github.com/itchyny/timefmt-go v0.1.7 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -86,7 +86,7 @@ require (
 	github.com/jackc/pgproto3/v2 v2.3.3 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgtype v1.14.4 // indirect
-	github.com/jackc/pgx/v4 v4.18.3 // indirect
+	github.com/jackc/pgx/v5 v5.7.6 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect
@@ -96,7 +96,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
-	github.com/lzap/cloudwatchwriter2 v1.5.5 // indirect
+	github.com/lzap/cloudwatchwriter2 v1.6.0 // indirect
 	github.com/mailru/easyjson v0.9.1 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -127,9 +127,9 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/verdverm/frisby v0.0.0-20170604211311-b16556248a9a // indirect
-	github.com/woodsbury/decimal128 v1.3.0 // indirect
+	github.com/woodsbury/decimal128 v1.4.0 // indirect
 	go.uber.org/automaxprocs v1.6.0 // indirect
-	go.yaml.in/yaml/v2 v2.4.2 // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
 	golang.org/x/net v0.44.0 // indirect
