@@ -2,7 +2,6 @@ module github.com/RedHatInsights/insights-results-smart-proxy
 
 go 1.24.0
 
-
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/RedHatInsights/insights-content-service v1.0.0
@@ -15,7 +14,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
-	github.com/openshift-online/ocm-sdk-go v0.1.478
+	github.com/openshift-online/ocm-sdk-go v0.1.479
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/client_model v0.6.2
 	github.com/redhatinsights/app-common-go v1.6.8
@@ -109,8 +108,8 @@ require (
 	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
 	github.com/onsi/ginkgo/v2 v2.26.0 // indirect
 	github.com/onsi/gomega v1.38.2 // indirect
-	github.com/openshift-online/ocm-api-model/clientapi v0.0.433 // indirect
-	github.com/openshift-online/ocm-api-model/model v0.0.433 // indirect
+	github.com/openshift-online/ocm-api-model/clientapi v0.0.434 // indirect
+	github.com/openshift-online/ocm-api-model/model v0.0.434 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
