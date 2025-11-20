@@ -226,7 +226,7 @@ func (server HTTPServer) getOrganizationOverview(
 					return overview, err
 				}
 				// missing rule content, simply omit the rule as we can't display anything
-				log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg(ruleContentError)
+				log.Warn().Err(err).Interface(ruleIDStr, ruleID).Msg(ruleContentError)
 				filteredRecommendations++
 				continue
 			}
@@ -354,7 +354,7 @@ func generateOrgOverview(
 				if _, ok := err.(*content.RuleContentDirectoryTimeoutError); ok {
 					return sptypes.OrgOverviewResponse{}, err
 				}
-				log.Error().Err(err).Interface(ruleIDStr, ruleID).Msg("Unable to retrieve content for rule")
+				log.Warn().Err(err).Interface(ruleIDStr, ruleID).Msg("Unable to retrieve content for rule")
 				continue
 			}
 
