@@ -1039,7 +1039,7 @@ func (server HTTPServer) getKnownUserAgentProduct(request *http.Request) (userAg
 	case nonRelevantUserAgent:
 		log.Debug().Msg("request made by non-relevant-user-agent test case from iqe tests")
 	default:
-		log.Error().Str(userAgentHeader, request.Header.Get(userAgentHeader)).
+		log.Warn().Str(userAgentHeader, request.Header.Get(userAgentHeader)).
 			Str("userAgentProduct", userAgentProduct).
 			Msg("improper or unknown user agent product")
 	}
