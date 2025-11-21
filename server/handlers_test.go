@@ -4151,3 +4151,53 @@ func TestHTTPServer_OverviewWithClusterIDsEndpoint_MissingRuleContent(t *testing
 		})
 	}, testTimeout)
 }
+
+// TestHTTPServer_ReportEndpoint_AggregatorFailure_MultipleStatusCodes tests that different non-200 status codes
+// all follow the same error handling path in fetchAggregatorReport
+func TestHTTPServer_ReportEndpoint_AggregatorFailure_MultipleStatusCodes(t *testing.T) {
+	err := loadMockRuleContentDir(&testdata.RuleContentDirectory3Rules)
+	assert.Nil(t, err)
+
+	// Test different HTTP status codes to verify they all trigger the same error path
+	testCases := []struct {
+		name       string
+		statusCode int
+		body       string
+	}{
+		{"404 Not Found", http.StatusNotFound, `{"status": "Not Found"}`},
+		{"500 Internal Server Error", http.StatusInternalServerError, `{"status": "Internal Server Error"}`},
+		{"403 Forbidden", http.StatusForbidden, `{"status": "Forbidden"}`},
+		{"503 Service Unavailable", http.StatusServiceUnavailable, `{"status": "Service Unavailable"}`},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+
+				// Mock aggregator to return the specific status code
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint, &helpers.APIRequest{
+					Method:       http.MethodGet,
+					Endpoint:     ira_server.ReportEndpoint,
+					EndpointArgs: []interface{}{testdata.OrgID, testdata.ClusterName, testdata.UserID},
+				}, &helpers.APIResponse{
+					StatusCode: tc.statusCode,
+					Body:       tc.body,
+				})
+
+				// All non-200 status codes should be passed through to the client
+				helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+					Method:       http.MethodGet,
+					Endpoint:     server.ReportEndpoint,
+					EndpointArgs: []interface{}{testdata.ClusterName},
+					UserID:       testdata.UserID,
+					OrgID:        testdata.OrgID,
+					XRHIdentity:  goodXRHAuthToken,
+				}, &helpers.APIResponse{
+					StatusCode: tc.statusCode,
+					Body:       tc.body,
+				})
+			}, testTimeout)
+		})
+	}
+}

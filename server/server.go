@@ -773,7 +773,7 @@ func (server HTTPServer) fetchAggregatorReport(
 
 	aggregatorResponse, successful = server.readAggregatorReportForClusterID(orgID, clusterID, userID, writer)
 	if !successful {
-		log.Error().Msg("fetchAggregatorReport unable to get response from aggregator")
+		log.Warn().Msg("fetchAggregatorReport unable to get response from aggregator")
 		return
 	}
 	return
