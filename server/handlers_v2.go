@@ -579,7 +579,7 @@ func matchClusterInfoAndUserData(
 					clusterViewItem.TotalHitCount++
 				} else {
 					// rule content is missing for this rule; mimicking behaviour of other apps such as OCM = skip rule
-					log.Error().Interface(ruleIDStr, ruleID).Msg("rule content was not found for following rule ID. Skipping it")
+					log.Warn().Interface(ruleIDStr, ruleID).Msg("rule content was not found for following rule ID. Skipping it")
 				}
 			}
 		}
@@ -640,7 +640,8 @@ func (server *HTTPServer) getUserDisabledRulesPerCluster(orgID types.OrgID) (
 
 		compositeRuleID, err := generateCompositeRuleIDFromDisabled(*disabledRule)
 		if err != nil {
-			log.Error().Err(err).Interface(ruleIDStr, disabledRule.RuleID).
+			// Just logging the error, as it's not critical and we can continue
+			log.Warn().Err(err).Interface(ruleIDStr, disabledRule.RuleID).
 				Interface(errorKeyStr, disabledRule.ErrorKey).Msg(compositeRuleIDError)
 			continue
 		}
@@ -1604,7 +1605,7 @@ func (server HTTPServer) getDisabledRulesForClusterMap(
 		compositeRuleID, err := generateCompositeRuleIDFromDisabled(disabledRule)
 
 		if err != nil {
-			log.Error().Err(err).Msg("error generating composite rule ID")
+			log.Warn().Err(err).Msg(compositeRuleIDError)
 			continue
 		}
 

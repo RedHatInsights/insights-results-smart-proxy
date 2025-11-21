@@ -4201,3 +4201,191 @@ func TestHTTPServer_ReportEndpoint_AggregatorFailure_MultipleStatusCodes(t *test
 		})
 	}
 }
+
+// TestHTTPServer_ClustersRecommendationsEndpoint_MissingRuleContent tests the error handling when a rule ID
+// has no content available
+func TestHTTPServer_ClustersRecommendationsEndpoint_MissingRuleContent(t *testing.T) {
+	// Create a rule content directory with only one rule, but the aggregator will return a different rule ID
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{
+				testdata.RuleContent1, // Only rule 1 is available in content service
+			},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := data.GetRandomClusterInfoList(1)
+		// Ensure cluster is not managed to avoid managed cluster filtering
+		clusterInfoList[0].Managed = false
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// Return a rule that doesn't exist in our content directory
+		// Use a realistic rule ID format that will pass filtering but not be found in recommendationSeverities
+		missingRuleID := "ccx_rules_ocp.external.rules.missing_rule|MISSING_ERROR_KEY"
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr, missingRuleID,
+		)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDInGoodAuthToken},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
+
+		// Expected response: cluster is listed but with 0 total hits because the rule was skipped
+		expectedResponse := []types.ClusterListView{
+			{
+				ClusterID:       clusterInfoList[0].ID,
+				ClusterName:     clusterInfoList[0].DisplayName,
+				Managed:         clusterInfoList[0].Managed,
+				TotalHitCount:   0, // Rule was skipped due to missing content
+				LastCheckedAt:   types.Timestamp(testTimeStr),
+				HitsByTotalRisk: map[int]int{1: 0}, // Only severity 1 is available with testdata.RuleContent1
+			},
+		}
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigXRH.APIv2Prefix, &helpers.APIRequest{
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body: helpers.ToJSONString(map[string]interface{}{
+				"status": "ok",
+				"meta":   map[string]int{"count": 1},
+				"data":   expectedResponse,
+			}),
+		})
+	}, testTimeout)
+}
+
+// TestHTTPServer_ClustersRecommendationsEndpoint_InvalidDisabledRuleID tests getUserDisabledRulesPerCluster
+// with invalid rule ID format to cover lines 644-645 in handlers_v2.go
+func TestHTTPServer_ClustersRecommendationsEndpoint_InvalidDisabledRuleID(t *testing.T) {
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{
+				testdata.RuleContent1,
+			},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := data.GetRandomClusterInfoList(2)
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// Mock aggregator response with some recommendations
+		respBody := fmt.Sprintf(`{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v"]
+				},
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["%v"]
+				}
+			}
+		}`, clusterInfoList[0].ID, testTimeStr, testdata.Rule1CompositeID,
+			clusterInfoList[1].ID, testTimeStr, testdata.Rule1CompositeID)
+
+		// prepare response from amsclient for list of clusters
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDInGoodAuthToken},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
+
+		// Mock the disabled rules response with invalid rule ID containing special characters
+		disabledRulesBody := fmt.Sprintf(`{
+			"rules":[
+				{
+					"ClusterID": "%v",
+					"RuleID": "invalid@rule#with$special%%chars.report",
+					"ErrorKey": ""
+				},
+				{
+					"ClusterID": "%v",
+					"RuleID": "%v.report",
+					"ErrorKey": "%v"
+				}
+			],
+			"status":"ok"
+		}`, clusterInfoList[0].ID, clusterInfoList[1].ID, testdata.Rule1ID, testdata.ErrorKey1)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     ira_server.ListOfDisabledRules,
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       disabledRulesBody,
+			},
+		)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
+
+		// This will trigger getUserDisabledRulesPerCluster internally, which should log warnings for invalid rule IDs
+		iou_helpers.AssertAPIRequest(t, testServer, serverConfigXRH.APIv2Prefix, &helpers.APIRequest{
+			Method:      http.MethodGet,
+			Endpoint:    server.ClustersRecommendationsEndpoint,
+			XRHIdentity: goodXRHAuthToken,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			// The response should still be successful, but the invalid rule should be skipped
+		})
+
+	}, testTimeout)
+}
