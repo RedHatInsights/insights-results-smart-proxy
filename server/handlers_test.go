@@ -3991,3 +3991,163 @@ func TestHTTPServer_GetClustersForOrganizationAggregatorFallback(t *testing.T) {
 		},
 	)
 }
+
+// TestHTTPServer_OverviewEndpoint_MissingRuleContent tests the error handling when GetContentForRecommendation
+// returns an ItemNotFoundError, covering line 229 in handlers_v1.go
+func TestHTTPServer_OverviewEndpoint_MissingRuleContent(t *testing.T) {
+	// Create a rule content directory with only one rule, but the aggregator will return a different rule ID
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{
+				testdata.RuleContent1, // Only rule 1 is available
+			},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		clusterInfoList := make([]types.ClusterInfo, 1)
+		clusterInfoList[0] = data.GetRandomClusterInfo()
+		clusterList := types.GetClusterNames(clusterInfoList)
+		reqBody, _ := json.Marshal(clusterList)
+
+		// Return a rule that doesn't exist in our content directory
+		respBody := `{
+			"clusters":{
+				"%v": {
+					"created_at": "%v",
+					"recommendations": ["non.existent.rule|ERROR_KEY"]
+				}
+			}
+		}`
+		respBody = fmt.Sprintf(respBody,
+			clusterInfoList[0].ID, testTimeStr,
+		)
+
+		// prepare list of organizations response
+		amsClientMock := helpers.AMSClientWithOrgResults(
+			testdata.OrgID,
+			clusterInfoList,
+		)
+
+		// prepare response from aggregator
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ClustersRecommendationsListEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID, userIDInGoodAuthToken},
+				Body:         reqBody,
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       respBody,
+			},
+		)
+
+		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
+		expectNoRulesDisabledPerCluster(&t, testdata.OrgID)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, amsClientMock, nil, nil, nil, nil, nil)
+
+		// The request should succeed but the overview should show 0 clusters hit
+		// because the missing rule content is logged and skipped
+		expectedResponse := types.OrgOverviewResponse{
+			ClustersHit:            0,
+			ClustersHitByTotalRisk: map[int]int{},
+			ClustersHitByTag:       map[string]int{},
+		}
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			helpers.DefaultServerConfig.APIv1Prefix,
+			&helpers.APIRequest{
+				Method:      http.MethodGet,
+				Endpoint:    server.OverviewEndpoint,
+				XRHIdentity: goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("overview", expectedResponse)),
+			},
+		)
+	}, testTimeout)
+}
+
+// TestHTTPServer_OverviewWithClusterIDsEndpoint_MissingRuleContent tests the error handling when GetRuleWithErrorKeyContent
+// returns an ItemNotFoundError, covering line 357 in handlers_v1.go
+func TestHTTPServer_OverviewWithClusterIDsEndpoint_MissingRuleContent(t *testing.T) {
+	// Create a rule content directory with only one rule
+	err := loadMockRuleContentDir(
+		createRuleContentDirectoryFromRuleContent(
+			[]ctypes.RuleContent{
+				testdata.RuleContent1, // Only rule 1 is available
+			},
+		),
+	)
+	assert.Nil(t, err)
+
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// Create aggregator response with a rule that doesn't exist in our content directory
+		clusterName := ctypes.ClusterName(data.ClusterIDListInReq.Clusters[0])
+
+		// Add a report with a non-existent rule
+		reportWithMissingRule := ctypes.ReportRules{
+			HitRules: []ctypes.RuleOnReport{
+				{
+					Module:   "non.existent.rule",
+					ErrorKey: "MISSING_ERROR_KEY",
+				},
+			},
+		}
+		reportBytes, _ := json.Marshal(reportWithMissingRule)
+
+		aggregatorReportWithMissingRule := ctypes.ClusterReports{
+			ClusterList: []ctypes.ClusterName{clusterName},
+			Errors:      []ctypes.ClusterName{},
+			Reports: map[ctypes.ClusterName]json.RawMessage{
+				clusterName: reportBytes,
+			},
+			GeneratedAt: testTimeStr,
+			Status:      "ok",
+		}
+
+		// prepare reports response
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+			&helpers.APIRequest{
+				Method:       http.MethodPost,
+				Endpoint:     ira_server.ReportForListOfClustersPayloadEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID},
+			},
+			&helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       helpers.ToJSONString(aggregatorReportWithMissingRule),
+			},
+		)
+
+		expectNoRulesDisabledSystemWide(&t, testdata.OrgID)
+
+		// The request should succeed but the overview should show 1 cluster hit
+		// but 0 rules processed because the missing rule content is logged and skipped
+		expectedResponse := types.OrgOverviewResponse{
+			ClustersHit:            1, // Cluster is counted as hit even if all rules are missing
+			ClustersHitByTotalRisk: map[int]int{},
+			ClustersHitByTag:       map[string]int{},
+		}
+
+		helpers.AssertAPIRequest(t, nil, nil, nil, nil, nil, &helpers.APIRequest{
+			Method:      http.MethodPost,
+			Endpoint:    server.OverviewEndpoint,
+			OrgID:       testdata.OrgID,
+			UserID:      testdata.UserID,
+			Body:        helpers.ToJSONString(data.ClusterIDListInReq),
+			XRHIdentity: goodXRHAuthToken,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.ToJSONString(responses.BuildOkResponseWithData("overview", expectedResponse)),
+		})
+	}, testTimeout)
+}
