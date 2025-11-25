@@ -1758,7 +1758,7 @@ func (server *HTTPServer) getDVONamespacesForCluster(writer http.ResponseWriter,
 
 	clusterInfo, err := server.amsClient.GetSingleClusterInfoForOrganization(orgID, clusterID)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
+		log.Warn().Err(err).Int(orgIDTag, int(orgID)).Msg(clusterListError)
 		handleServerError(writer, err)
 		return
 	}

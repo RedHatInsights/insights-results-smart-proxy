@@ -27,6 +27,7 @@ import (
 
 	"github.com/RedHatInsights/insights-content-service/groups"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
@@ -1299,6 +1300,29 @@ func TestHTTPServer_SetAMSInfoInReportAMSClientClusterIDFound(t *testing.T) {
 	testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil, nil, nil)
 	testServer.SetAMSInfoInReport(testdata.ClusterName, &report)
 	assert.Equal(t, data.ClusterDisplayName1, report.Meta.DisplayName)
+}
+
+func TestHTTPServer_getClustersForOrg_AMSError(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		config := helpers.DefaultServerConfig
+		// create a mock AMS client that returns an error
+		amsClientMock := helpers.AMSClientWithError("AMS API connection failed")
+		testServer := helpers.CreateHTTPServer(&config, nil, amsClientMock, nil, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv1Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.ClustersForOrganizationEndpoint,
+				EndpointArgs: []interface{}{testdata.OrgID},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
 }
 
 // TestInfoEndpointNoAuthToken checks that the info endpoint can be accessed without authenticating
