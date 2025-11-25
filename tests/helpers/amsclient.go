@@ -27,6 +27,7 @@ import (
 
 type mockAMSClient struct {
 	clustersPerOrg map[types.OrgID][]types.ClusterInfo
+	errorToReturn  error
 }
 
 func (m *mockAMSClient) GetClustersForOrganization(
@@ -36,6 +37,11 @@ func (m *mockAMSClient) GetClustersForOrganization(
 	clusterInfoList []types.ClusterInfo,
 	err error,
 ) {
+	// if there's an error to return, return it
+	if m.errorToReturn != nil {
+		return nil, m.errorToReturn
+	}
+
 	clusterInfoList, ok := m.clustersPerOrg[orgID]
 	if !ok {
 		return nil, fmt.Errorf("no clusters")
@@ -87,5 +93,13 @@ func AMSClientWithOrgResults(orgID types.OrgID, clusters []types.ClusterInfo) am
 		clustersPerOrg: map[types.OrgID][]types.ClusterInfo{
 			orgID: clusters,
 		},
+	}
+}
+
+// AMSClientWithError creates a mock of AMSClient interface that returns an error
+// when GetClustersForOrganization is called
+func AMSClientWithError(errorMessage string) amsclient.AMSClient {
+	return &mockAMSClient{
+		errorToReturn: fmt.Errorf("%s", errorMessage),
 	}
 }

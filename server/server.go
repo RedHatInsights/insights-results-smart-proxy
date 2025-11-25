@@ -393,7 +393,7 @@ func (server HTTPServer) getClusterInfoFromAMS(orgID ctypes.OrgID) (
 	// providing nil filters will mean default filters will be applied
 	clusterInfoList, err = server.amsClient.GetClustersForOrganization(orgID, nil, nil)
 	if err != nil {
-		log.Error().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving clusters from AMS API")
+		log.Warn().Err(err).Int(orgIDTag, int(orgID)).Msg("Error retrieving clusters from AMS API")
 		return
 	}
 	log.Info().Int(orgIDTag, int(orgID)).Msgf("Number of clusters retrieved from the AMS API: %v", len(clusterInfoList))
