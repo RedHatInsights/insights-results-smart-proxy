@@ -254,7 +254,5 @@ Before pushing changes, ensure:
 - [Insights Results Aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
 - [Insights Content Service](https://github.com/RedHatInsights/insights-content-service)
 - [app-common-go](https://github.com/RedHatInsights/app-common-go)
-- [Insights Content Service](https://gitlab.cee.redhat.com/ccx/content-service)
-- [Insights Results Aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
 - [Upgrade Risk Prediction Service](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng)
 - [AMS (OCM Account Management Service)](https://github.com/openshift-online/ocm-sdk-go/tree/main/accountsmgmt/v1)
