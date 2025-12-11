@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Project Overview
-insights-results-smart-proxy is a Go-based smart proxy service for the Red Hat Insights ecosystem that acts as a unified gateway between external data pipeline clients and internal services. It aggregates and composes responses from multiple backend services including the Insights Results Aggregator and Insights Content Service, providing a single API for clients to access cluster recommendations, rule content metadata, and other Insights data. The service is exposed directly to clients through cloud.redhat.com and console.redhat.com.
+insights-results-smart-proxy is a Go-based service for the Red Hat Insights ecosystem that acts as a unified gateway between external data pipeline clients and internal services. It aggregates and composes responses from multiple backend services including the [Insights Content Service](https://gitlab.cee.redhat.com/ccx/content-service) and [Insights Results Aggregator](https://github.com/RedHatInsights/insights-results-aggregator), providing a single API for clients to access cluster recommendations, rule content metadata, and other Insights data. The service is exposed directly to clients through console.redhat.com.
 
 **Tech Stack**: Go 1.22+, Redis (caching), Prometheus, Sentry/Glitchtip, REST API, AMS (OCM Account Management Service), RBAC integration
 
@@ -93,17 +93,18 @@ Makefile                 - Build and development targets
 
 ### Smart Proxy Architecture
 
-This service acts as a **unified gateway and orchestrator**. The main flow is: receive client requests -> fetch from multiple services -> compose response -> return to client.
+This service acts as a **unified gateway and orchestrator**. The main flow is: receive client requests -> authenticate/authorize -> fetch from multiple services -> compose response -> return to client.
 
-1. **Client Requests**: External clients (OCM, ACM, OCP Web Console) send requests to Smart Proxy
-2. **Service Orchestration**: Smart Proxy routes requests to appropriate backend services:
+1. **Client Requests**: External clients (OCM, ACM, OCP Web Console) send requests with x-rh-identity header to Smart Proxy
+2. **Authentication & Authorization**: Validate x-rh-identity token and check RBAC permissions
+3. **Service Orchestration**: Smart Proxy routes requests to appropriate backend services:
    - Insights Results Aggregator (cluster reports and recommendations)
    - Insights Content Service (rule metadata and groups)
    - AMS/OCM API (cluster metadata and organization info)
    - RBAC service (user permissions)
-3. **Response Composition**: Aggregates and enriches data from multiple services
-4. **Caching**: Redis cache for cluster lists and frequently accessed data
-5. **Metrics**: Prometheus tracks service health and performance
+4. **Response Composition**: Aggregates and enriches data from multiple services
+5. **Caching**: Redis cache for cluster lists and frequently accessed data
+6. **Metrics**: Prometheus tracks service health and performance
 
 ### API Versions
 
@@ -131,7 +132,7 @@ The service exposes two API versions:
 1. **Cluster Reports**: Aggregates cluster recommendations from Aggregator service with rule content from Content Service
 2. **Rule Acknowledgments**: Users can acknowledge/disable specific rules for clusters
 3. **User Ratings**: Feedback mechanism for rule quality
-4. **Upgrade Risks Predictions**: Integration with upgrade prediction service
+4. **Upgrade Risks Predictions**: Integration with [upgrade prediction service](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng)
 5. **Groups Management**: Rule groups and tags from Content Service
 6. **DVO Recommendations**: Deployment Validation Operator recommendations
 7. **Cluster List Caching**: Redis-based caching of AMS cluster lists for performance
@@ -253,3 +254,7 @@ Before pushing changes, ensure:
 - [Insights Results Aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
 - [Insights Content Service](https://github.com/RedHatInsights/insights-content-service)
 - [app-common-go](https://github.com/RedHatInsights/app-common-go)
+- [Insights Content Service](https://gitlab.cee.redhat.com/ccx/content-service)
+- [Insights Results Aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
+- [Upgrade Risk Prediction Service](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng)
+- [AMS (OCM Account Management Service)](https://github.com/openshift-online/ocm-sdk-go/tree/main/accountsmgmt/v1)
