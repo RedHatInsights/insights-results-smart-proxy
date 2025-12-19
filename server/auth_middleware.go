@@ -188,7 +188,7 @@ func (server *HTTPServer) GetCurrentOrgIDUserIDFromToken(request *http.Request) 
 ) {
 	identity, err := auth.GetAuthToken(request)
 	if err != nil {
-		log.Err(err).Msg("error retrieving identity from token")
+		log.Warn().Err(err).Msg("error retrieving identity from token")
 		return types.OrgID(0), types.UserID("0"), err
 	}
 
