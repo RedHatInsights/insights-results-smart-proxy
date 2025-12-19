@@ -48,24 +48,26 @@ export IQE_ENV="ephemeral"
 
 
 function build_image() {
-   source $CICD_ROOT/build.sh
+   source ${CICD_ROOT}/build.sh
 }
 
+# shellcheck disable=SC2329
 function deploy_ephemeral() {
-   source $CICD_ROOT/deploy_ephemeral_env.sh
+   source ${CICD_ROOT}/deploy_ephemeral_env.sh
 }
 
+# shellcheck disable=SC2329
 function run_smoke_tests() {
    # component name needs to be re-export to match ClowdApp name (as bonfire requires for this)
    export COMPONENT_NAME="ccx-smart-proxy"
-   source $CICD_ROOT/cji_smoke_test.sh
-   source $CICD_ROOT/post_test_results.sh  # publish results in Ibutsu
+   source ${CICD_ROOT}/cji_smoke_test.sh
+   source ${CICD_ROOT}/post_test_results.sh  # publish results in Ibutsu
 }
 
 
 # Install bonfire repo/initialize
 CICD_URL=https://raw.githubusercontent.com/RedHatInsights/bonfire/master/cicd
-curl -s $CICD_URL/bootstrap.sh > .cicd_bootstrap.sh && source .cicd_bootstrap.sh
+curl -s ${CICD_URL}/bootstrap.sh > .cicd_bootstrap.sh && source .cicd_bootstrap.sh
 echo "creating PR image"
 build_image
 
@@ -74,4 +76,3 @@ deploy_ephemeral
 
 echo "PR smoke tests disabled"
 run_smoke_tests
-
