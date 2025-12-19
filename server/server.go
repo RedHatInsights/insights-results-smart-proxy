@@ -765,7 +765,7 @@ func (server HTTPServer) fetchAggregatorReport(
 
 	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
-		log.Error().Err(err).Interface("clusterID", clusterID).Msg("fetchAggregatorReport unable to get orgID or userID for cluster")
+		log.Warn().Err(err).Interface("clusterID", clusterID).Msg("fetchAggregatorReport unable to get orgID or userID for cluster")
 		handleServerError(writer, err)
 		return
 	}

@@ -439,7 +439,7 @@ func (server HTTPServer) getClustersView(writer http.ResponseWriter, request *ht
 
 	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
-		log.Err(err).Msg(orgIDTokenError)
+		log.Warn().Err(err).Msg(orgIDTokenError)
 		handleServerError(writer, err)
 		return
 	}
@@ -1081,7 +1081,7 @@ func (server HTTPServer) getClustersDetailForRule(writer http.ResponseWriter, re
 	}
 	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
-		log.Err(err).Msg(orgIDTokenError)
+		log.Warn().Err(err).Msg(orgIDTokenError)
 		handleServerError(writer, err)
 		return
 	}

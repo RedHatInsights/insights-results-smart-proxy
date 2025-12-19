@@ -257,7 +257,7 @@ func (server HTTPServer) getOrganizationOverview(
 func (server HTTPServer) overviewEndpoint(writer http.ResponseWriter, request *http.Request) {
 	orgID, userID, err := server.GetCurrentOrgIDUserIDFromToken(request)
 	if err != nil {
-		log.Err(err).Msg(orgIDTokenError)
+		log.Warn().Err(err).Msg(orgIDTokenError)
 		handleServerError(writer, err)
 		return
 	}
