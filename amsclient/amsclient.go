@@ -244,8 +244,7 @@ func (c *amsClientImpl) GetInternalOrgIDFromExternal(orgID types.OrgID) (
 	// If AMS is enabled, we're relying on it, meaning this has to result in a 4xx.
 	// 404 is used to ensure compatibility with Advisor UI, as it relies on 404 to render the correct response.
 	if len(orgIDs) == 0 {
-		err := errors.New(orgNoInternalID)
-		log.Error().Uint32(orgIDTag, uint32(orgID)).Err(err).Send()
+		log.Warn().Uint32(orgIDTag, uint32(orgID)).Msg(orgNoInternalID)
 		return nil, &utypes.ItemNotFoundError{ItemID: orgID}
 	}
 

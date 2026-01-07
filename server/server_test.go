@@ -26,8 +26,8 @@ import (
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 
 	"github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
+	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
