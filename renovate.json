@@ -30,7 +30,7 @@
     {
       "description": "Group UBI9 go-toolset Docker image",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["ubi9/go-toolset"],
+      "matchPackageNames": ["registry.access.redhat.com/ubi9/go-toolset"],
       "groupName": "Go"
     },
     {
