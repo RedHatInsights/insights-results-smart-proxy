@@ -22,8 +22,21 @@
       "rangeStrategy": "bump"
     },
     {
-      "description": "Group all Go-related updates together",
-      "matchPackageNames": ["go", "ubi9/go-toolset"],
+      "description": "Group Go language version from go.mod",
+      "matchDatasources": ["golang-version"],
+      "matchDepNames": ["go"],
+      "groupName": "Go"
+    },
+    {
+      "description": "Group UBI9 go-toolset Docker image",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ubi9/go-toolset"],
+      "groupName": "Go"
+    },
+    {
+      "description": "Group Go version in GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "matchDepNames": ["go"],
       "groupName": "Go"
     }
   ]

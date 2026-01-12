@@ -19,4 +19,4 @@ jobs:
       - name: Report status
         if: failure()
         run: |
-          echo "::error::Go version mismatch detected. Please sync versions in go.mod and Dockerfile."
+          echo "::error::Go version mismatch detected. Please make sure the versions are in sync."
