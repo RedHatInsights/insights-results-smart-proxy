@@ -22,18 +22,13 @@ on:
 jobs:
   gotests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version:
-          - "1.23"
-          - "1.24"
-    name: Tests for Go ${{ matrix.go-version}}
+    name: Tests for Go 1.24
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: "1.24"
       - name: Show env
         run: env
       - name: Unit tests
