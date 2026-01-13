@@ -22,13 +22,13 @@ on:
 jobs:
   gotests:
     runs-on: ubuntu-latest
-    name: Tests for Go 1.24
+    name: Tests for Go 1.25
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.24"
+          go-version: "1.25"
       - name: Show env
         run: env
       - name: Unit tests
