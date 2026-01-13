@@ -7,6 +7,12 @@ echo ""
 
 # Extract Docker image name from Dockerfile
 DOCKER_IMAGE=$(grep 'FROM registry.access.redhat.com/ubi9/go-toolset:' Dockerfile | head -n 1 | sed -E 's/.*FROM ([^ ]+).*/\1/')
+
+if [ -z "$DOCKER_IMAGE" ]; then
+    echo "ERROR: Could not extract Docker image from Dockerfile"
+    exit 1
+fi
+
 echo "INFO: Inspecting Docker image: $DOCKER_IMAGE"
 
 # Use skopeo to inspect the image and extract Go version from 'io.k8s.display-name' label
@@ -22,6 +28,12 @@ echo "INFO: Docker image Go version: $DOCKER_GO_VERSION"
 
 # Extract Go version from gotests workflow
 GOTESTS_VERSION=$(grep 'go-version:' .github/workflows/gotests.yml | sed -E 's/.*go-version:\s*"?([0-9]+\.[0-9]+)"?.*/\1/')
+
+if [ -z "$GOTESTS_VERSION" ]; then
+    echo "ERROR: Could not extract Go version from gotests.yml"
+    exit 1
+fi
+
 echo "INFO: gotests.yml: $GOTESTS_VERSION"
 
 # Extract major.minor versions (e.g., 1.24 from 1.24.0)
