@@ -13,10 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install skopeo and jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo jq
+
       - name: Check Go version consistency
         run: ./scripts/check_go_versions.sh
 
       - name: Report status
         if: failure()
         run: |
-          echo "::error::Go version mismatch detected. Please make sure the versions are in sync."
+          echo "::error::Go version mismatch detected. Please sync go-version in gotests.yml with Docker image."
