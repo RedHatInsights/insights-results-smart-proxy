@@ -9,8 +9,24 @@ echo ""
 GO_MOD_VERSION=$(grep '^go ' go.mod | awk '{print $2}')
 echo "INFO: go.mod: $GO_MOD_VERSION"
 
-# Extract Go version from Dockerfile (handle ubi9/go-toolset:X.Y format)
-DOCKER_VERSION=$(grep 'FROM registry.access.redhat.com/ubi9/go-toolset:' Dockerfile | head -n 1 | sed -E 's/.*go-toolset:([0-9]+\.[0-9]+).*/\1/')
+# Extract Docker image name from Dockerfile
+DOCKER_IMAGE=$(grep 'FROM registry.access.redhat.com/ubi9/go-toolset:' Dockerfile | head -n 1 | sed -E 's/.*FROM ([^ ]+).*/\1/')
+
+if [ -z "$DOCKER_IMAGE" ]; then
+    echo "ERROR: Could not extract Docker image from Dockerfile"
+    exit 1
+fi
+
+echo "INFO: Inspecting Docker image: $DOCKER_IMAGE"
+
+# Use skopeo to inspect the image and extract Go version from labels
+DOCKER_VERSION=$(skopeo inspect docker://$DOCKER_IMAGE | jq -r '.Labels.version_major_minor // empty')
+
+if [ -z "$DOCKER_VERSION" ]; then
+    echo "ERROR: Could not extract Go version from Docker image"
+    exit 1
+fi
+
 echo "INFO: Dockerfile: $DOCKER_VERSION"
 
 # Extract Go version from gotests workflow
