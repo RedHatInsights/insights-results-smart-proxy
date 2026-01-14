@@ -22,7 +22,7 @@ on:
 jobs:
   gotests:
     runs-on: ubuntu-latest
-    name: Tests for Go 1.24
+    name: Go tests
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
