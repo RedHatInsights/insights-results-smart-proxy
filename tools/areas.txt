@@ -1,0 +1,76 @@
+component 80 136 153 165 Customer cluster
+component 438 166 105 111 Ingress service
+topic 543 166 183 111 platform.upload.announce
+component 452 51 248 68 Insights storage broker
+storage 700 37 98 82 S3 Ingress S3 bucket
+channel 233 166 205 111 Insights archive
+channel 726 127 47 170 Event new insights archive
+channel 901 142 94 50 Insights archive
+channel 798 64 58 63 Insights archive
+topic 856 46 149 67 archive.results
+component 900 170 128 89 DVO extractor
+channel 1005 46 125 53 Images SHAs
+channel 1110 140 139 40 Images SHAs
+component 773 127 128 89 SHA extractor
+component 1110 40 139 105 Archive DB writer
+storage 1110 180 139 96 CVE database
+component 773 216 128 81 CCX data pipeline
+channel 901 235 103 49 Rule hits
+topic 900 314 140 68 ccx.ocp.results
+topic 1080 314 140 68 ccx.ocp.dvo
+channel 865 382 80 65 Rule hits to DB writer
+channel 995 382 80 65 Rule hits to Notification writer
+channel 1115 382 80 65 DVO results to DVO writer
+component 1086 730 128 80 Notification rules
+channel 1040 760 60 30 Notification rules
+component 1063 810 168 131 Template renderer
+channel 820 852 179 72 Markdown templates
+component 501 360 91 91 Insights content service
+channel 481 437 129 99 Markdown templates
+channel 800 300 45 79 Markdown templates
+component 856 450 103 90 Insights results DB writer
+component 746 450 96 94 Cache writer
+storage 646 520 122 88 Redis
+interface 658 350 77 118 Rules
+component 980 447 103 89 Notification writer
+component 1100 447 103 89 DVO writer
+channel 854 536 100 64 Rule hits to aggregator DB
+channel 983 536 94 64 Rule hits to notification DB
+storage 854 600 100 120 Aggregator DB
+storage 983 600 94 120 Notification DB
+storage 1100 600 105 120 DVO DB
+channel 915 720 162 60 Rule hits from notification DB
+component 692 720 187 132 CCX Notification service
+component 483 845 132 103 Service log
+topic 447 745 195 100 platform.notifications.ingress
+channel 642 755 50 50 New rule hits
+channel 642 805 50 90 New rule hits in markdown
+component 655 600 109 100 Insights results aggregator
+channel 764 600 90 50 Rule hits from aggregator DB
+channel 764 650 90 50 Rule disable and feedback
+component 495 536 213 82 Smart proxy
+component 499 659 94 86 AMS
+interface 389 536 106 82 Smart proxy REST API
+interface 321 311 51 442 3Scale
+channel 149 755 298 34 Notifications from notification backend
+channel 149 789 240 61 Notifications in ServiceLog
+component 33 730 116 126 Customer
+component 9 301 162 116 Insights Advisor
+component 21 454 146 84 OCM
+component 21 538 146 84 ACM
+component 21 622 146 84 curl
+channel 171 301 150 57 Request to Smart proxy
+channel 171 358 150 57 Response from Smart proxy
+channel 167 528 154 57 Request to Smart proxy
+channel 167 585 154 57 Response from Smart proxy
+component 1101 953 94 103 Thanos
+component 1098 1054 97 115 URP Model
+component 947 947 98 102 Thanos cache
+component 950 1047 95 126 URP Inference service
+component 801 949 105 116 URP Data engineering service
+channel 907 972 47 46 Cache to Data engineering service
+channel 839 1072 55 57 Inference service to Data engineering service
+channel 1041 968 52 52 Thanos to cache
+channel 1049 1078 45 42 URP Model to Inference service
+channel 606 335 51 40 Rules content
+channel 745 290 46 35 Rules

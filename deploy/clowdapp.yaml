@@ -1,0 +1,311 @@
+# Copyright 2021 Red Hat, Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: ccx-smart-proxy
+
+objects:
+- kind: HorizontalPodAutoscaler
+  apiVersion: autoscaling/v1
+  metadata:
+    labels:
+      app: ccx-data-pipeline
+    name: ccx-smart-proxy-service
+  spec:
+    minReplicas: ${{MIN_REPLICAS}}
+    maxReplicas: ${{MAX_REPLICAS}}
+    scaleTargetRef:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: ccx-smart-proxy-service
+    targetCPUUtilizationPercentage: 80
+
+- apiVersion: cloud.redhat.com/v1alpha1
+  kind: ClowdApp
+  metadata:
+    name: ccx-smart-proxy
+  spec:
+    envName: ${ENV_NAME}
+    inMemoryDb: true
+    sharedInMemoryDbAppName: valkey-writer
+    testing:
+      iqePlugin: ccx
+    dependencies:
+      - valkey-writer
+      - ccx-insights-results
+    deployments:
+      - name: service
+        minReplicas: ${{MIN_REPLICAS}}
+        webServices:
+          public:
+            enabled: true
+            apiPath: insights-results-aggregator
+          private:
+            enabled: true
+          metrics:
+            enabled: true
+        podSpec:
+          env:
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ADDRESS
+              value: ":8000"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_DBG_PREFIX
+              value: "${IRSP_API_DBG_PREFIX}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_PREFIX
+              value: "${IRSP_API_V1_PREFIX}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V1_SPEC_FILE
+              value: "/openapi/v1/openapi.json"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_PREFIX
+              value: "${IRSP_API_V2_PREFIX}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__API_V2_SPEC_FILE
+              value: "/openapi/v2/openapi.json"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__DEBUG
+              value: "${DEBUG}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__AUTH
+              value: "${AUTH}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__AUTH_TYPE
+              value: "xrh"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ENABLE_INTERNAL_RULES_ORGANIZATIONS
+              value: "${IRSP_ENABLE_INTERNAL_ORGANIZATIONS}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__ORG_CLUSTERS_FALLBACK
+              value: "${ORG_CLUSTERS_FALLBACK}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVER__USE_RBAC
+              value: "${USE_RBAC}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__AGGREGATOR
+              value: ${INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__CONTENT
+              value: ${INSIGHTS_CONTENT_SERVICE_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__GROUPS_POLL_TIME
+              value: ${INSIGHTS_CONTENT_SERVICE_POLL_TIME}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__UPGRADE_RISKS_PREDICTION
+              value: ${INSIGHTS_DATA_ENGINEERING_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__DATABASE
+              value: ${INSIGHTS_REDIS_DATABASE}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__TIMEOUT_SECONDS
+              value: ${INSIGHTS_REDIS_TIMEOUT_SECONDS}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__RBAC__URL
+              value: "${RBAC_SERVER_URL}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__RBAC__ENFORCE
+              value: "${ENFORCE_RBAC}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SETUP__INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
+              value: "${IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE}"
+            - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_CLOUD_WATCH_ENABLED
+              value: ${LOGGING_TO_CLOUD_WATCH_ENABLED}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOG_LEVEL
+              value: ${LOG_LEVEL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_SENTRY_ENABLED
+              value: ${SENTRY_ENABLED}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__DEBUG
+              value: ${CLOUDWATCH_DEBUG}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: aws_region
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__LOG_GROUP
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: log_group_name
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__AWS_ACCESS_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: aws_access_key_id
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__CLOUDWATCH__AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cloudwatch
+                  key: aws_secret_access_key
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__LOGGING__LOGGING_TO_SENTRY_ENABLED
+              value: ${SENTRY_ENABLED}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SENTRY__DSN
+              valueFrom:
+                secretKeyRef:
+                  key: dsn
+                  name: insights-results-smart-proxy-dsn
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SENTRY__ENVIRONMENT
+              value: ${ENV_NAME}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__URL
+              value: ${AMS_API_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: ams-client-auth
+                  key: amsclient_id
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ams-client-auth
+                  key: amsclient_secret
+                  optional: true
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__PAGE_SIZE
+              value: ${AMS_API_PAGESIZE}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__CLUSTER_LIST_CACHING
+              value: ${AMS_API_CLUSTER_LIST_CACHING}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__AMSCLIENT__TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ams-client-auth
+                  key: amsclient_token
+                  optional: true
+          image: ${IMAGE}:${IMAGE_TAG}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: ${IRSP_API_V1_PREFIX}openapi.json
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: ${IRSP_API_V2_PREFIX}openapi.json
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - mountPath: /internal-rules-organizations
+            name: internal-rules-organizations
+            readOnly: true
+          volumes:
+          - name: internal-rules-organizations
+            secret:
+              secretName: internal-rules-organizations
+              optional: true
+- kind: Service
+  apiVersion: v1
+  metadata:
+    annotations:
+      prometheus.io/path: ${IRSP_API_V1_PREFIX}metrics
+      prometheus.io/port: "8080"
+      prometheus.io/scheme: http
+      prometheus.io/scrape: "true"
+    name: ccx-smart-proxy
+    labels:
+      app: ccx-smart-proxy
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      protocol: TCP
+      targetPort: 8000
+    selector:
+      app: ccx-smart-proxy
+    sessionAffinity: None
+    type: ClusterIP
+
+parameters:
+- description: Image name
+  name: IMAGE
+  required: true
+  value: quay.io/redhat-services-prod/obsint-processing-tenant/smart-proxy/smart-proxy
+- description: Image tag
+  name: IMAGE_TAG
+  required: true
+- description: Determines Clowder deployment
+  name: CLOWDER_ENABLED
+  value: "true"
+- description: ClowdEnv Name
+  name: ENV_NAME
+  required: true
+- description: Minimum number of pods to use when autoscaling is enabled
+  name: MIN_REPLICAS
+  value: '1'
+- description: Minimum number of pods to use when autoscaling is enabled
+  name: MAX_REPLICAS
+  value: '1'
+- name: CPU_LIMIT
+  value: 100m
+- name: MEMORY_LIMIT
+  value: 300Mi
+- name: CPU_REQUEST
+  value: 50m
+- name: MEMORY_REQUEST
+  value: 150Mi
+
+- name: DEBUG
+  value: "true"
+- name: AUTH
+  value: "true"
+- name: IRSP_ENABLE_INTERNAL_ORGANIZATIONS
+  value: "false"
+- name: IRSP_INTERNAL_RULES_ORGANIZATIONS_CSV_FILE
+  value: "/internal-rules-organizations/internal_rules_organizations.csv"
+- name: INSIGHTS_RESULTS_AGGREGATOR_SERVICE_URL
+  value: "http://ccx-insights-results-aggregator:10000/api/v1/"
+- name: INSIGHTS_CONTENT_SERVICE_URL
+  value: "http://ccx-insights-content-service:10000/api/v1/"
+- name: INSIGHTS_DATA_ENGINEERING_URL
+  value: "http://ccx-upgrades-data-eng-svc:8000/"
+- name: INSIGHTS_REDIS_DATABASE
+  value: "0"
+- name: INSIGHTS_REDIS_TIMEOUT_SECONDS
+  value: "30"
+- name: INSIGHTS_CONTENT_SERVICE_POLL_TIME
+  value: "60s"
+- name: IRSP_API_DBG_PREFIX
+  required: true
+  value: /api/insights-results-aggregator/dbg/
+- name: IRSP_API_V1_PREFIX
+  required: true
+  value: /api/insights-results-aggregator/v1/
+- name: IRSP_API_V2_PREFIX
+  required: true
+  value: /api/insights-results-aggregator/v2/
+- name: LOGGING_TO_CLOUD_WATCH_ENABLED
+  value: "true"
+  required: true
+- name: LOG_LEVEL
+  value: "INFO"
+- name: SENTRY_ENABLED
+  value: "false"
+- name: CLOUDWATCH_DEBUG
+  value: "false"
+  required: true
+- name: AMS_API_URL
+  value: "https://api.stage.openshift.com"
+- name: AMS_API_PAGESIZE
+  value: "-1"
+- name: AMS_API_CLUSTER_LIST_CACHING
+  value: "false"
+- name: ORG_CLUSTERS_FALLBACK
+  value: "false"
+- name: USE_RBAC
+  value: "false"
+- name: RBAC_SERVER_URL
+  value: "http://rbac-service:8000/api/rbac/v1"
+- name: ENFORCE_RBAC
+  value: "false"

@@ -1,0 +1,582 @@
+@startuml
+namespace amsclient {
+    interface AMSClient  {
+        + GetClustersForOrganization( types.OrgID,  []string,  []string) ([]types.ClusterInfo, error)
+        + GetClusterDetailsFromExternalClusterID( types.ClusterName) types.ClusterInfo
+        + GetSingleClusterInfoForOrganization( types.OrgID,  types.ClusterName) (types.ClusterInfo, error)
+
+    }
+    class Configuration << (S,Aquamarine) >> {
+        + Token string
+        + ClientID string
+        + ClientSecret string
+        + URL string
+        + PageSize int
+
+    }
+    class amsClientImpl << (S,Aquamarine) >> {
+        - connection *ocm-sdk-go.Connection
+        - pageSize int
+
+        - executeSubscriptionListRequest(subscriptionListRequest *v1.SubscriptionsListRequest, searchQuery string) ([]types.ClusterInfo, error)
+
+        + GetClustersForOrganization(orgID types.OrgID, statusFilter []string, statusNegativeFilter []string) ([]types.ClusterInfo, error)
+        + GetClusterDetailsFromExternalClusterID(externalID types.ClusterName) types.ClusterInfo
+        + GetSingleClusterInfoForOrganization(orgID types.OrgID, clusterID types.ClusterName) (types.ClusterInfo, error)
+        + GetInternalOrgIDFromExternal(orgID types.OrgID) (string, error)
+
+    }
+}
+
+"amsclient.AMSClient" <|-- "amsclient.amsClientImpl"
+
+namespace conf {
+    class MetricsConfiguration << (S,Aquamarine) >> {
+        + Namespace string
+
+    }
+    class SetupConfiguration << (S,Aquamarine) >> {
+        + InternalRulesOrganizationsCSVFile string
+
+    }
+}
+
+
+namespace content {
+    class RuleContentDirectoryTimeoutError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class RulesWithContentStorage << (S,Aquamarine) >> {
+        - rules <font color=blue>map</font>[insights-results-types.RuleID]*insights-results-types.RuleContent
+        - rulesWithContent <font color=blue>map</font>[ruleIDAndErrorKey]*insights-results-types.RuleWithContent
+        - recommendationsWithContent <font color=blue>map</font>[insights-results-types.RuleID]*insights-results-types.RuleWithContent
+        - internalRuleIDs []insights-results-types.RuleID
+        - externalRuleIDs []insights-results-types.RuleID
+
+        - getRuleContent(ruleID insights-results-types.RuleID) (*insights-results-types.RuleContent, bool)
+
+        + GetRuleWithErrorKeyContent(ruleID insights-results-types.RuleID, errorKey insights-results-types.ErrorKey) (*insights-results-types.RuleWithContent, bool)
+        + GetContentForRecommendation(ruleID insights-results-types.RuleID) (*insights-results-types.RuleWithContent, bool)
+        + GetAllContentV1() []insights-results-types.RuleContentV1
+        + GetAllContentV2() []insights-results-types.RuleContentV2
+        + SetRuleWithContent(ruleID insights-results-types.RuleID, errorKey insights-results-types.ErrorKey, ruleWithContent *insights-results-types.RuleWithContent) 
+        + SetRule(ruleID insights-results-types.RuleID, ruleContent insights-results-types.RuleContent) 
+        + ResetContent() 
+        + GetRuleIDs() []string
+        + GetInternalRuleIDs() []insights-results-types.RuleID
+        + GetExternalRuleIDs() []insights-results-types.RuleID
+        + GetExternalRuleSeverities() (<font color=blue>map</font>[insights-results-types.RuleID]int, []int)
+        + GetExternalRulesManagedInfo() <font color=blue>map</font>[insights-results-types.RuleID]bool
+
+    }
+    class ruleIDAndErrorKey << (S,Aquamarine) >> {
+        + RuleID insights-results-types.RuleID
+        + ErrorKey insights-results-types.ErrorKey
+
+    }
+}
+"sync.RWMutex" *-- "content.RulesWithContentStorage"
+
+
+namespace helpers {
+    class helpers.APIRequest << (T, #FF7700) >>  {
+    }
+    class helpers.APIResponse << (T, #FF7700) >>  {
+    }
+    class mockAMSClient << (S,Aquamarine) >> {
+        - clustersPerOrg <font color=blue>map</font>[insights-results-types.OrgID][]insights-results-types.ClusterInfo
+
+        + GetClustersForOrganization(orgID insights-results-types.OrgID, unused1 []string, unused2 []string) ([]insights-results-types.ClusterInfo, error)
+        + GetClusterDetailsFromExternalClusterID(id insights-results-types.ClusterName) insights-results-types.ClusterInfo
+        + GetSingleClusterInfoForOrganization(orgID insights-results-types.OrgID, clusterID insights-results-types.ClusterName) (insights-results-types.ClusterInfo, error)
+
+    }
+    class "helpers.APIRequest" as helpersAPIRequest {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "helpers.APIResponse" as helpersAPIResponse {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace main {
+    class main.ExitCode << (T, #FF7700) >>  {
+    }
+}
+
+
+namespace server {
+    class AMSAPIUnavailableError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class AggregatorServiceUnavailableError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class AuthenticationError << (S,Aquamarine) >> {
+        - errString string
+
+        + Error() string
+
+    }
+    class BadBodyContent << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class Configuration << (S,Aquamarine) >> {
+        + Address string
+        + APIdbgPrefix string
+        + APIv1Prefix string
+        + APIv2Prefix string
+        + APIv1SpecFile string
+        + APIv2SpecFile string
+        + Debug bool
+        + Auth bool
+        + AuthType string
+        + UseHTTPS bool
+        + EnableCORS bool
+        + EnableInternalRulesOrganizations bool
+        + InternalRulesOrganizations []insights-results-types.OrgID
+        + LogAuthToken bool
+        + UseOrgClustersFallback bool
+
+    }
+    class ContentServiceUnavailableError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class HTTPServer << (S,Aquamarine) >> {
+        - amsClient amsclient.AMSClient
+
+        + Config Configuration
+        + InfoParams <font color=blue>map</font>[string]string
+        + ServicesConfig services.Configuration
+        + GroupsChannel <font color=blue>chan</font> []groups.Group
+        + ErrorFoundChannel <font color=blue>chan</font> bool
+        + ErrorChannel <font color=blue>chan</font> error
+        + Serv *http.Server
+
+        - readAckList(writer http.ResponseWriter, request *http.Request) 
+        - getAcknowledge(writer http.ResponseWriter, request *http.Request) 
+        - acknowledgePost(writer http.ResponseWriter, request *http.Request) 
+        - updateAcknowledge(writer http.ResponseWriter, request *http.Request) 
+        - deleteAcknowledge(writer http.ResponseWriter, request *http.Request) 
+        - ackRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID, justification string) error
+        - updateAckRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID, justification string) error
+        - deleteAckRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID) error
+        - readListOfAckedRules(orgID insights-results-types.OrgID) ([]insights-results-types.SystemWideRuleDisable, error)
+        - readRuleDisableStatus(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID) (insights-results-types.Acknowledgement, bool, error)
+        - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
+        - adddbgEndpointsToRouter(router *mux.Router) 
+        - addV1EndpointsToRouter(router *mux.Router) 
+        - addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
+        - addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
+        - addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) 
+        - addV1ContentEndpointsToRouter(router *mux.Router) 
+        - addV2EndpointsToRouter(router *mux.Router) 
+        - addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
+        - addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) 
+        - addV2ContentEndpointsToRouter(router *mux.Router, apiPrefix string) 
+        - getGroups(writer http.ResponseWriter, _ *http.Request) 
+        - getContentForRuleV1(writer http.ResponseWriter, request *http.Request) 
+        - getContentV1(writer http.ResponseWriter, request *http.Request) 
+        - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
+        - getRuleIDs(writer http.ResponseWriter, request *http.Request) 
+        - getOrganizationOverview(clusterInfoList []types.ClusterInfo, clusterRecommendationsMap insights-results-types.ClusterRecommendationMap, systemWideDisabledRules <font color=blue>map</font>[insights-results-types.RuleID]bool, disabledRulesPerCluster <font color=blue>map</font>[insights-results-types.ClusterName][]insights-results-types.RuleID) (types.OrgOverviewResponse, error)
+        - overviewEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) 
+        - infoMap(writer http.ResponseWriter, request *http.Request) 
+        - fillInSmartProxyInfoParams() <font color=blue>map</font>[string]string
+        - fillInContentServiceInfoParams() <font color=blue>map</font>[string]string
+        - fillInAggregatorInfoParams() <font color=blue>map</font>[string]string
+        - getContentCheckInternal(ruleID insights-results-types.RuleID, request *http.Request) (*insights-results-types.RuleWithContent, error)
+        - getRuleWithGroups(writer http.ResponseWriter, request *http.Request, ruleID insights-results-types.RuleID) (*insights-results-types.RuleWithContent, []groups.Group, error)
+        - getRecommendationContent(writer http.ResponseWriter, request *http.Request) 
+        - getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) 
+        - getRecommendations(writer http.ResponseWriter, request *http.Request) 
+        - getRuleAcksMap(orgID insights-results-types.OrgID) <font color=blue>map</font>[insights-results-types.RuleID]bool
+        - getRuleDisabledClusters(writer http.ResponseWriter, orgID insights-results-types.OrgID, clusterList []insights-results-types.ClusterName) <font color=blue>map</font>[insights-results-types.RuleID][]insights-results-types.ClusterName
+        - getClustersView(writer http.ResponseWriter, request *http.Request) 
+        - getSingleClusterInfo(writer http.ResponseWriter, request *http.Request) 
+        - getUserDisabledRulesPerCluster(orgID insights-results-types.OrgID) <font color=blue>map</font>[insights-results-types.ClusterName][]insights-results-types.RuleID
+        - getImpactingRecommendations(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, clusterList []insights-results-types.ClusterName) (insights-results-types.RecommendationImpactedClusters, error)
+        - getClustersAndRecommendations(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, clusterList []insights-results-types.ClusterName) (insights-results-types.ClusterRecommendationMap, error)
+        - getContentWithGroups(writer http.ResponseWriter, request *http.Request) 
+        - getImpactedClusters(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, selector insights-results-types.RuleSelector, activeClustersInfo []insights-results-types.ClusterInfo, useAggregatorFallback bool) ([]insights-results-types.HittingClustersData, error)
+        - getClustersDetailForRule(writer http.ResponseWriter, request *http.Request) 
+        - getListOfDisabledClusters(orgID insights-results-types.OrgID, ruleSelector insights-results-types.RuleSelector) ([]insights-results-types.DisabledClusterInfo, error)
+        - processClustersDetailResponse(impactedClusters []insights-results-types.HittingClustersData, disabledClusters []insights-results-types.DisabledClusterInfo, clusterInfo []insights-results-types.ClusterInfo, writer http.ResponseWriter) error
+        - postRating(writer http.ResponseWriter, request *http.Request) 
+        - postRatingToAggregator(orgID insights-results-types.OrgID, request *http.Request, writer http.ResponseWriter) (*insights-results-types.RuleRating, bool)
+        - getRatingForRecommendation(writer http.ResponseWriter, orgID insights-results-types.OrgID, ruleID insights-results-types.RuleID) (insights-results-types.RuleRating, error)
+        - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
+        - extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
+        - extractOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
+        - readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (insights-results-types.UserID, insights-results-types.OrgID, insights-results-types.ImpactingFlag, error)
+        - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
+        - addEndpointsToRouter(router *mux.Router) 
+        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
+        - evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) 
+        - sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, error)
+        - composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)
+        - getClusterInfoFromAMS(orgID insights-results-types.OrgID) ([]insights-results-types.ClusterInfo, error)
+        - readClusterIDsForOrgID(orgID insights-results-types.OrgID) ([]insights-results-types.ClusterName, error)
+        - readClusterInfoForOrgID(orgID insights-results-types.OrgID) ([]insights-results-types.ClusterInfo, error)
+        - getClusterDetailsFromAggregator(orgID insights-results-types.OrgID) ([]insights-results-types.ClusterName, error)
+        - readAggregatorReportForClusterID(orgID insights-results-types.OrgID, clusterID insights-results-types.ClusterName, userID insights-results-types.UserID, writer http.ResponseWriter) (*insights-results-types.ReportResponse, bool)
+        - readAggregatorReportMetainfoForClusterID(orgID insights-results-types.OrgID, clusterID insights-results-types.ClusterName, userID insights-results-types.UserID, writer http.ResponseWriter) (*insights-results-types.ReportResponseMetainfo, bool)
+        - readAggregatorReportForClusterList(orgID insights-results-types.OrgID, clusterList []string, writer http.ResponseWriter) (*insights-results-types.ClusterReports, bool)
+        - readAggregatorReportForClusterListFromBody(orgID insights-results-types.OrgID, request *http.Request, writer http.ResponseWriter) (*insights-results-types.ClusterReports, bool)
+        - readAggregatorRuleForClusterID(orgID insights-results-types.OrgID, clusterID insights-results-types.ClusterName, userID insights-results-types.UserID, ruleID insights-results-types.RuleID, errorKey insights-results-types.ErrorKey, writer http.ResponseWriter) (*insights-results-types.RuleOnReport, bool)
+        - fetchAggregatorReport(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ReportResponse, bool, insights-results-types.ClusterName)
+        - fetchAggregatorReportMetainfo(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ReportResponseMetainfo, bool, insights-results-types.ClusterName)
+        - fetchAggregatorReports(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ClusterReports, bool)
+        - fetchAggregatorReportsUsingRequestBodyClusterList(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ClusterReports, bool)
+        - buildReportEndpointResponse(writer http.ResponseWriter, request *http.Request, aggregatorResponse *insights-results-types.ReportResponse, clusterID insights-results-types.ClusterName, osdFlag bool) ([]insights-results-types.RuleWithContentResponse, int, error)
+        - reportEndpointV1(writer http.ResponseWriter, request *http.Request) 
+        - reportEndpointV2(writer http.ResponseWriter, request *http.Request) 
+        - getKnownUserAgentProduct(request *http.Request) string
+        - reportMetainfoEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - getRuleCount(visibleRules []insights-results-types.RuleWithContentResponse, noContentRulesCnt int, disabledRulesCnt int, clusterID insights-results-types.ClusterName) int
+        - reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - fetchAggregatorReportRule(writer http.ResponseWriter, request *http.Request) (*insights-results-types.RuleOnReport, bool)
+        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - checkInternalRulePermissions(request *http.Request) error
+        - getGroupsConfig() ([]groups.Group, error)
+        - readListOfClusterDisabledRules(orgID insights-results-types.OrgID) ([]insights-results-types.DisabledRule, error)
+        - readListOfDisabledRulesForClusters(writer http.ResponseWriter, orgID insights-results-types.OrgID, clusterList []insights-results-types.ClusterName) ([]insights-results-types.DisabledRule, error)
+        - getClusterListAndUserData(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID) ([]insights-results-types.ClusterInfo, insights-results-types.ClusterRecommendationMap, <font color=blue>map</font>[insights-results-types.RuleID]bool, <font color=blue>map</font>[insights-results-types.ClusterName][]insights-results-types.RuleID)
+
+        + Authentication(next http.Handler, noAuthURLs []string) http.Handler
+        + GetCurrentUserID(request *http.Request) (insights-results-types.UserID, error)
+        + GetCurrentOrgID(request *http.Request) (insights-results-types.OrgID, error)
+        + GetCurrentOrgIDUserIDFromToken(request *http.Request) (insights-results-types.OrgID, insights-results-types.UserID, error)
+        + GetAuthToken(request *http.Request) (*insights-results-types.Identity, error)
+        + Initialize() http.Handler
+        + Start() error
+        + Stop(ctx context.Context) error
+        + SetAMSInfoInReport(clusterID insights-results-types.ClusterName, report *insights-results-types.SmartProxyReportV2) 
+
+    }
+    class NoBodyError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class ParamsParsingError << (S,Aquamarine) >> {
+        + Error() string
+
+    }
+    class ProxyOptions << (S,Aquamarine) >> {
+        + RequestModifiers []RequestModifier
+        + ResponseModifiers []ResponseModifier
+
+    }
+    class RouterMissingParamError << (S,Aquamarine) >> {
+        - paramName string
+
+        + Error() string
+
+    }
+    class RouterParsingError << (S,Aquamarine) >> {
+        - paramName string
+        - paramValue <font color=blue>interface</font>{}
+        - errString string
+
+        + Error() string
+
+    }
+    class infoEndpointStruct << (S,Aquamarine) >> {
+        + Status string
+        + Info <font color=blue>map</font>[string]string
+
+    }
+    class server.RequestModifier << (T, #FF7700) >>  {
+    }
+    class server.ResponseModifier << (T, #FF7700) >>  {
+    }
+    class "<font color=blue>func</font>(*http.Request) (*http.Request, error)" as fontcolorbluefuncfonthttpRequesthttpRequesterror {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "<font color=blue>func</font>(*http.Response) (*http.Response, error)" as fontcolorbluefuncfonthttpResponsehttpResponseerror {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+namespace services {
+    class Configuration << (S,Aquamarine) >> {
+        + AggregatorBaseEndpoint string
+        + ContentBaseEndpoint string
+        + GroupsPollingTime time.Duration
+        + ContentDirectoryTimeout time.Duration
+
+    }
+}
+
+
+namespace types {
+    class ClusterInfo << (S,Aquamarine) >> {
+        + ID ClusterName
+        + DisplayName string
+        + Managed bool
+        + Status string
+
+    }
+    class ClusterListView << (S,Aquamarine) >> {
+        + ClusterID insights-results-types.ClusterName
+        + ClusterName string
+        + Managed bool
+        + LastCheckedAt Timestamp
+        + TotalHitCount uint32
+        + HitsByTotalRisk <font color=blue>map</font>[int]int
+        + Version insights-results-types.Version
+
+    }
+    class ClusterOverview << (S,Aquamarine) >> {
+        + TotalRisksHit []int
+        + TagsHit []string
+
+    }
+    class ClustersDetailData << (S,Aquamarine) >> {
+        + EnabledClusters []insights-results-types.HittingClustersData
+        + DisabledClusters []insights-results-types.DisabledClusterInfo
+
+    }
+    class ClustersDetailResponse << (S,Aquamarine) >> {
+        + Data ClustersDetailData
+        + Status string
+
+    }
+    class InfoResponse << (S,Aquamarine) >> {
+        + SmartProxy <font color=blue>map</font>[string]string
+        + Aggregator <font color=blue>map</font>[string]string
+        + ContentService <font color=blue>map</font>[string]string
+
+    }
+    class OrgOverviewResponse << (S,Aquamarine) >> {
+        + ClustersHit int
+        + ClustersHitByTotalRisk <font color=blue>map</font>[int]int
+        + ClustersHitByTag <font color=blue>map</font>[string]int
+
+    }
+    class RecommendationContent << (S,Aquamarine) >> {
+        + RuleSelector insights-results-types.RuleSelector
+        + Description string
+        + Generic string
+        + Reason string
+        + Resolution string
+        + MoreInfo string
+        + TotalRisk uint8
+        + Impact uint8
+        + Likelihood uint8
+        + PublishDate time.Time
+        + Tags []string
+
+    }
+    class RecommendationContentUserData << (S,Aquamarine) >> {
+        + RuleSelector insights-results-types.RuleSelector
+        + Description string
+        + Generic string
+        + Reason string
+        + Resolution string
+        + MoreInfo string
+        + TotalRisk uint8
+        + Impact uint8
+        + Likelihood uint8
+        + PublishDate time.Time
+        + Tags []string
+        + Rating insights-results-types.UserVote
+        + AckedCount uint32
+        + Disabled bool
+        + ResolutionRisk uint8
+
+    }
+    class RecommendationListView << (S,Aquamarine) >> {
+        + RuleID insights-results-types.RuleID
+        + Description string
+        + Generic string
+        + PublishDate time.Time
+        + TotalRisk uint8
+        + ResolutionRisk uint8
+        + Impact uint8
+        + Likelihood uint8
+        + Tags []string
+        + Disabled bool
+        + ImpactedClustersCnt uint32
+
+    }
+    class ReportResponseMetaV1 << (S,Aquamarine) >> {
+        + Count int
+        + LastCheckedAt Timestamp
+
+    }
+    class ReportResponseMetaV2 << (S,Aquamarine) >> {
+        + DisplayName string
+        + Managed bool
+        + Count int
+        + LastCheckedAt Timestamp
+        + GatheredAt Timestamp
+
+    }
+    class RuleWithContent << (S,Aquamarine) >> {
+        + Module insights-results-types.RuleID
+        + Name string
+        + Summary string
+        + Reason string
+        + Resolution string
+        + MoreInfo string
+        + ErrorKey insights-results-types.ErrorKey
+        + Description string
+        + TotalRisk int
+        + ResolutionRisk int
+        + Impact int
+        + Likelihood int
+        + PublishDate time.Time
+        + Active bool
+        + Internal bool
+        + Generic string
+        + Tags []string
+        + OSDCustomer bool
+
+    }
+    class RuleWithContentResponse << (S,Aquamarine) >> {
+        + RuleID insights-results-types.RuleID
+        + ErrorKey insights-results-types.ErrorKey
+        + CreatedAt string
+        + Description string
+        + Generic string
+        + Reason string
+        + Resolution string
+        + MoreInfo string
+        + TotalRisk int
+        + Disabled bool
+        + DisableFeedback string
+        + DisabledAt insights-results-types.Timestamp
+        + Internal bool
+        + UserVote insights-results-types.UserVote
+        + TemplateData <font color=blue>interface</font>{}
+        + Tags []string
+        + Impacted Timestamp
+
+    }
+    class SmartProxyReport << (S,Aquamarine) >> {
+        + Meta insights-results-types.ReportResponseMeta
+        + Data []RuleWithContentResponse
+
+    }
+    class SmartProxyReportV1 << (S,Aquamarine) >> {
+        + Meta ReportResponseMetaV1
+        + Data []RuleWithContentResponse
+
+    }
+    class SmartProxyReportV2 << (S,Aquamarine) >> {
+        + Meta ReportResponseMetaV2
+        + Data []RuleWithContentResponse
+
+    }
+    class types.ClusterName << (T, #FF7700) >>  {
+    }
+    class types.ErrorKeyMetadataV1 << (T, #FF7700) >>  {
+    }
+    class types.ErrorKeyMetadataV2 << (T, #FF7700) >>  {
+    }
+    class types.ImpactingFlag << (T, #FF7700) >>  {
+    }
+    class types.OrgID << (T, #FF7700) >>  {
+    }
+    class types.ReportResponseMeta << (T, #FF7700) >>  {
+    }
+    class types.RuleContent << (T, #FF7700) >>  {
+    }
+    class types.RuleContentV1 << (T, #FF7700) >>  {
+    }
+    class types.RuleContentV2 << (T, #FF7700) >>  {
+    }
+    class types.RuleErrorKeyContentV1 << (T, #FF7700) >>  {
+    }
+    class types.RuleErrorKeyContentV2 << (T, #FF7700) >>  {
+    }
+    class types.RuleID << (T, #FF7700) >>  {
+    }
+    class types.RuleRating << (T, #FF7700) >>  {
+    }
+    class types.Timestamp << (T, #FF7700) >>  {
+    }
+    class types.UserID << (T, #FF7700) >>  {
+    }
+    class types.UserVote << (T, #FF7700) >>  {
+    }
+    class "insights-results-types.ClusterName" as insightsresultstypesClusterName {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.ErrorKeyMetadataV1" as insightsresultstypesErrorKeyMetadataV1 {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.ErrorKeyMetadataV2" as insightsresultstypesErrorKeyMetadataV2 {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.OrgID" as insightsresultstypesOrgID {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.ReportResponseMeta" as insightsresultstypesReportResponseMeta {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.RuleContent" as insightsresultstypesRuleContent {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.RuleContentV1" as insightsresultstypesRuleContentV1 {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.RuleContentV2" as insightsresultstypesRuleContentV2 {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.RuleErrorKeyContentV1" as insightsresultstypesRuleErrorKeyContentV1 {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.RuleErrorKeyContentV2" as insightsresultstypesRuleErrorKeyContentV2 {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.RuleID" as insightsresultstypesRuleID {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.RuleRating" as insightsresultstypesRuleRating {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.Timestamp" as insightsresultstypesTimestamp {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.UserID" as insightsresultstypesUserID {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "insights-results-types.UserVote" as insightsresultstypesUserVote {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+
+"__builtin__.int" #.. "main.ExitCode"
+"__builtin__.int" #.. "types.ImpactingFlag"
+"helpers.helpersAPIRequest" #.. "helpers.APIRequest"
+"helpers.helpersAPIResponse" #.. "helpers.APIResponse"
+"server.fontcolorbluefuncfonthttpRequesthttpRequesterror" #.. "server.RequestModifier"
+"server.fontcolorbluefuncfonthttpResponsehttpResponseerror" #.. "server.ResponseModifier"
+"types.insightsresultstypesClusterName" #.. "types.ClusterName"
+"types.insightsresultstypesErrorKeyMetadataV1" #.. "types.ErrorKeyMetadataV1"
+"types.insightsresultstypesErrorKeyMetadataV2" #.. "types.ErrorKeyMetadataV2"
+"types.insightsresultstypesOrgID" #.. "types.OrgID"
+"types.insightsresultstypesReportResponseMeta" #.. "types.ReportResponseMeta"
+"types.insightsresultstypesRuleContent" #.. "types.RuleContent"
+"types.insightsresultstypesRuleContentV1" #.. "types.RuleContentV1"
+"types.insightsresultstypesRuleContentV2" #.. "types.RuleContentV2"
+"types.insightsresultstypesRuleErrorKeyContentV1" #.. "types.RuleErrorKeyContentV1"
+"types.insightsresultstypesRuleErrorKeyContentV2" #.. "types.RuleErrorKeyContentV2"
+"types.insightsresultstypesRuleID" #.. "types.RuleID"
+"types.insightsresultstypesRuleRating" #.. "types.RuleRating"
+"types.insightsresultstypesTimestamp" #.. "types.Timestamp"
+"types.insightsresultstypesUserID" #.. "types.UserID"
+"types.insightsresultstypesUserVote" #.. "types.UserVote"
+@enduml

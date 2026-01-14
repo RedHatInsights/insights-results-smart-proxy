@@ -1,0 +1,186 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Insights Results Aggregator",
+    "description": "Aggregation service for the results of running Insights rules.",
+    "version": "0.0.0",
+    "contact": {}
+  },
+  "paths": {
+    "/organizations": {
+      "get": {
+        "summary": "Returns a list of available organization IDs.",
+        "operationId": "getOrganizations",
+        "description": "[DEBUG ONLY] List of organizations for which at least one Insights report is available via the API.",
+        "responses": {
+          "200": {
+            "description": "A JSON array of organization IDs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "organizations": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 0
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "debug"
+        ],
+        "parameters": []
+      }
+    },
+    "/organizations/{orgIds}": {
+      "delete": {
+        "summary": "Deletes organization data from database.",
+        "operationId": "deleteOrganizations",
+        "description": "[DEBUG ONLY] All database entries related to the specified organization IDs will be deleted.",
+        "parameters": [
+          {
+            "name": "orgIds",
+            "in": "path",
+            "required": true,
+            "description": "IDs of the organizations whose data are supposed to be deleted.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deletion was successful."
+          }
+        },
+        "tags": [
+          "debug"
+        ]
+      }
+    },
+    "/clusters/{clusterIds}": {
+      "delete": {
+        "summary": "Deletes cluster data from database.",
+        "operationId": "deleteClusters",
+        "description": "[DEBUG ONLY] All database entries related to the specified cluster IDs will be deleted.",
+        "parameters": [
+          {
+            "name": "clusterIds",
+            "in": "path",
+            "required": true,
+            "description": "IDs of the clusters whose data are supposed to be deleted.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 36,
+                "maxLength": 36,
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deletion was successful."
+          }
+        },
+        "tags": [
+          "debug"
+        ]
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/get_vote": {
+      "get": {
+        "summary": "Returns vote for the rule with cluster for current user",
+        "operationId": "getVoteForRule",
+        "description": "[DEBUG ONLY] Returns vote for the rule(ruleId) with cluster(clusterId) for current user(from auth token)",
+        "parameters": [
+          {
+            "name": "clusterId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the cluster which must conform to UUID format",
+            "schema": {
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "format": "uuid"
+            },
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+          },
+          {
+            "name": "ruleId",
+            "in": "path",
+            "required": true,
+            "description": "ID of a rule",
+            "schema": {
+              "type": "string"
+            },
+            "example": "some.python.module"
+          },
+          {
+            "name": "errorKey",
+            "in": "path",
+            "required": true,
+            "description": "ID of the error key",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ERROR_COOL_NAME"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "vote": {
+                      "type": "integer",
+                      "example": "1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "rule",
+          "debug"
+        ]
+      }
+    }
+  },
+  "security": [],
+  "servers": [],
+  "components": {
+    "links": {},
+    "callbacks": {},
+    "schemas": {}
+  }
+}

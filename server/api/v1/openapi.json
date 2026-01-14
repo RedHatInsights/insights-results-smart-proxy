@@ -1,0 +1,1482 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Insights Results Aggregator",
+    "version": "1.0.0",
+    "description": "Aggregation service for the results of running Insights rules.",
+    "contact": {}
+  },
+  "paths": {
+    "/openapi.json": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "openapi": {
+                      "type": "string"
+                    },
+                    "info": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "paths": {
+                      "description": "Available paths and their descriptions.",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON containing the OpenAPI specification for this service."
+          }
+        },
+        "operationId": "getOpenApi",
+        "summary": "Returns the OpenAPI specification JSON.",
+        "description": "The OpenAPI specification of this REST API service that is represented in formatted and human-readable JSON is available under this endpoint."
+      }
+    },
+    "/info": {
+      "get": {
+        "summary": "Returns basic information about Smart Proxy, Insights Results Aggregator, and Content Service.",
+        "description": "InfoEndpoint returns basic information about Smart Proxy, Insights Results Aggregator, and Content Service version, utils repository version, commit hash etc.",
+        "operationId": "InfoEndpoint",
+        "responses": {
+          "200": {
+            "description": "An object containing information about Smart Proxy, Insights Results Aggregator, and Content Service.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "info": {
+                      "type": "object",
+                      "properties": {
+                        "SmartProxy": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "Aggregator": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "ContentService": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {}
+            },
+            "description": "Default response containing all metrics in semi-structured text format"
+          }
+        },
+        "operationId": "getMetrics",
+        "summary": "Read all metrics exposed by this service",
+        "description": "Set of metrics provided by insights-operator-utils library providing total number of requests counter, API endpoints response times, and counter of HTTP status code responses. Additionally it is possible to consume all metrics provided by Go runtime. These metrics start with go_ and process_ prefixes."
+      }
+    },
+    "/groups": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "groups": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON array of groups."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "503": {
+            "content": {
+              "text/plain": {}
+            },
+            "description": "Content service is unavailable"
+          }
+        },
+        "operationId": "getRuleGroups",
+        "summary": "Get all rule groups and their relevant information",
+        "description": "This simply redirects to an endpoint of the same name of a service called insights-content-service"
+      }
+    },
+    "/organizations/{orgId}/clusters": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "orgId",
+            "description": "ID of the requested organization.",
+            "schema": {
+              "format": "int32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clusters": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/clusterId"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON array of clusters that belong to the specified organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        },
+        "operationId": "getClustersForOrganization",
+        "summary": "Returns a list of clusters associated with the specified organization ID.",
+        "description": "Returns a list of clusters, ie. cluster IDs, that are associated with the specified organization ID from the last 3 hours. For a complete list of clusters, please use API v2. Please note that there is 1:N organization to cluster mapping, ie. one cluster belongs exactly to one organization."
+      }
+    },
+    "/clusters/{clusterList}/reports": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "name": "clusterList",
+            "description": "A comma separated list of cluster IDs. Each ID must conform to UUID format. An example: `34c3ecc5-624a-49a5-bab8-4fdc5e51a266.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/clusterId"
+              }
+            },
+            "in": "path",
+            "required": true,
+            "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reportsResponse"
+                }
+              }
+            },
+            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster."
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        },
+        "operationId": "getReportsForClusters",
+        "summary": "Returns the latest reports for the given list of clusters.",
+        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of path."
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/like": {
+      "put": {
+        "tags": [
+          "rule",
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "$ref": "#/components/parameters/ruleId"
+          },
+          {
+            "$ref": "#/components/parameters/errorKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
+          }
+        },
+        "operationId": "addLikeToRule",
+        "summary": "Puts like for the rule with cluster for current user",
+        "description": "Puts like for the rule(ruleId) with cluster(clusterId) for current user(from auth token)"
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/dislike": {
+      "put": {
+        "tags": [
+          "rule",
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "$ref": "#/components/parameters/ruleId"
+          },
+          {
+            "$ref": "#/components/parameters/errorKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
+          }
+        },
+        "operationId": "addDislikeToRule",
+        "summary": "Puts dislike for the rule with cluster for current user",
+        "description": "Puts dislike for the rule(ruleId) with cluster(clusterId) for current user(from auth token)"
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/reset_vote": {
+      "put": {
+        "tags": [
+          "rule",
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "$ref": "#/components/parameters/ruleId"
+          },
+          {
+            "$ref": "#/components/parameters/errorKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
+          }
+        },
+        "operationId": "resetVoteForRule",
+        "summary": "Resets vote for the rule with cluster for current user",
+        "description": "Resets vote for the rule(ruleId) with cluster(clusterId) for current user(from auth token)"
+      }
+    },
+    "/rule_ids": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON array of all the rule IDs."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        },
+        "operationId": "getRuleIDs",
+        "summary": "Returns the rule IDs of all the rules.",
+        "description": "Returns a list of the names of the rules. Rule name consist of its ID represented as a string."
+      }
+    },
+    "/rules/{ruleId}/content": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ruleId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content": {
+                      "$ref": "#/components/schemas/ruleContent"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON object with the content."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Item not found in the storage"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Rule ID is not available"
+          },
+          "503": {
+            "$ref": "#/components/responses/unavailable"
+          }
+        },
+        "operationId": "getContentForRule",
+        "summary": "Get all static content for the given ruleId",
+        "description": "The static content is taken from the cache periodically updated from the content service"
+      }
+    },
+    "/content": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "content": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ruleContent"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "A JSON object with the content."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        },
+        "operationId": "getContent",
+        "summary": "Get all static content",
+        "description": "The static content is taken from the cache periodically updated from the content service"
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/disable": {
+      "put": {
+        "tags": [
+          "rule",
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "$ref": "#/components/parameters/ruleId"
+          },
+          {
+            "$ref": "#/components/parameters/errorKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
+          }
+        },
+        "operationId": "disableRule",
+        "summary": "Disables a rule/health check recommendation for specified cluster",
+        "description": "Disables a rule (ruleId) for cluster (clusterId) for current organization/user"
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/disable_feedback": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "tags": [
+          "rule",
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "$ref": "#/components/parameters/ruleId"
+          },
+          {
+            "$ref": "#/components/parameters/errorKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "test"
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Status ok"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
+          }
+        },
+        "operationId": "disableRuleFeedback",
+        "summary": "Returns rule/health check's disable feedback",
+        "description": "Returns rule/health check's disable feedback"
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleId}/error_key/{errorKey}/enable": {
+      "put": {
+        "tags": [
+          "rule",
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "$ref": "#/components/parameters/ruleId"
+          },
+          {
+            "$ref": "#/components/parameters/errorKey"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/status"
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the rule ID and error key combination doesn't exist in the content service"
+          }
+        },
+        "operationId": "enableRule",
+        "summary": "Re-enables a rule/health check recommendation for specified cluster",
+        "description": "Enables a rule (ruleId) for cluster (clusterId) for current organization/user"
+      }
+    },
+    "/org_overview": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary of results by cluster",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/overviewResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        },
+        "operationId": "getOverviewForOrganization",
+        "summary": "Retrieve an overview of rule hits affecting all clusters in an organization. Organization ID is retrieved from the auth token.",
+        "description": "Retrieves an overview data about the clusters being hit by rules. The cluster list is retrieved from the AMS API. Takes into account managed clusters and rules, acknowledged rules as well as disabled clusters."
+      },
+      "post": {
+        "operationId": "postOverviewForOrganization",
+        "summary": "DEPRACATED: Use GET instead. Retrieve an overview of rule hits affecting all clusters in an organization. Organization ID is retrieved from the auth token.",
+        "description": "DEPRACATED: Use GET instead. Retrieves an overview data about the clusters being hit by rules. This method doesn't take into account managed clusters, rules that were acked or clusters that were disabled. For this functionality, use GET method.",
+        "requestBody": {
+          "description": "List of cluster IDs. Each ID must conform to UUID format.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clusters": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/clusterId"
+                    }
+                  }
+                }
+              },
+              "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+            }
+          },
+          "required": true
+        },
+        "tags": [
+          "prod"
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/overviewResponse"
+                }
+              }
+            },
+            "description": "Status ok"
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    },
+    "/clusters/{clusterId}/report": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "$ref": "#/components/parameters/osdEligible"
+          },
+          {
+            "name": "get_disabled",
+            "description": "If true, disabled rules will be sent too.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest available report for the given organization and cluster combination. Returns rules and their descriptions that were hit by the cluster. Disabled rules are ommitted by default unless the get_disabled query param is provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response data type for GET /clusters/{clusterId}/report endpoint",
+                  "type": "object",
+                  "properties": {
+                    "report": {
+                      "description": "",
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/reportData"
+                          }
+                        },
+                        "meta": {
+                          "description": "",
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "format": "int32",
+                              "type": "integer"
+                            },
+                            "last_checked_at": {
+                              "format": "date-time",
+                              "type": "string",
+                              "description": "[Optional] Timestamp of the last analysis"
+                            }
+                          },
+                          "example": {
+                            "count": 9,
+                            "last_checked_at": "2020-12-08T09:45:23Z"
+                          }
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "404": {
+            "description": "Resource not found, usually caused when the cluster ID is not registered and request come from Insights Operator."
+          }
+        },
+        "deprecated": false,
+        "operationId": "getReportForCluster",
+        "summary": "Returns the latest insights report for a cluster.",
+        "description": "The report is specified by the cluster ID from params and information about the org_id and user_id is taken from the token. The latest report available for the given combination will be returned."
+      }
+    },
+    "/clusters/{clusterId}/report/info": {
+      "get": {
+        "summary": "Returns metainformations about the latest report for the given cluster.",
+        "operationId": "getReportMetainfoForCluster",
+        "description": "The report is specified by the cluster ID. Metainformation about the latest report available for the given combination will be returned.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metainformation about the latest available report for the given organization and cluster combination.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metainfo": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer",
+                          "format": "int32",
+                          "description": "Number of rules that were hit by the cluster. -1 is returned when no rules are defined for the cluster.",
+                          "example": "1"
+                        },
+                        "last_checked_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "[Optional] Timestamp when the report has been produced.",
+                          "example": "2020-01-23T16:15:59.478901889Z"
+                        },
+                        "stored_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Timestamp when the report has been written into database.",
+                          "example": "2020-01-23T16:15:59.478901889Z"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        },
+        "tags": [
+          "prod"
+        ]
+      }
+    },
+    "/clusters/{clusterId}/rules/{ruleIdAndErrorKey}/report": {
+      "get": {
+        "tags": [
+          "prod"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/clusterId"
+          },
+          {
+            "name": "ruleIdAndErrorKey",
+            "in": "path",
+            "description": "ruleId and errorKey separated by \"|\"",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/osdEligible"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest available rule report for the given organization, cluster combination and rule ID. Returns rule and it description that were hit by the cluster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Response data type for GET /clusters/{clusterId}/rules/{ruleIdAndErrorKey}/report endpoint",
+                  "type": "object",
+                  "properties": {
+                    "report": {
+                      "$ref": "#/components/schemas/reportData"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        },
+        "operationId": "getSingleReportForCluster",
+        "summary": "Returns the latest single rule report for a cluster that contains information and content.",
+        "description": "The rule is specified by the cluster ID and rule ID from params and information about the org_id and user_id is taken from the token. The latest rule report available for the given combination will be returned."
+      }
+    },
+    "/clusters/reports": {
+      "post": {
+        "tags": [
+          "prod"
+        ],
+        "summary": "Returns the latest reports for the given list of clusters.",
+        "description": "Reports that are going to be returned are specified by list of cluster IDs that is part of request body.",
+        "operationId": "getReportsForClustersPost",
+        "requestBody": {
+          "description": "List of cluster IDs. Each ID must conform to UUID format.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clusters": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/clusterId"
+                    }
+                  }
+                }
+              },
+              "example": "{\"clusters\": [\"34c3ecc5-624a-49a5-bab8-4fdc5e51a266\"]}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Latest available report for the given list of cluster IDs. Returns rules and their descriptions that were hit by the cluster.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reportsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request, usually caused when some cluster belongs to different organization."
+          },
+          "403": {
+            "$ref": "#/components/responses/unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ruleContent": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "more_info": {
+            "type": "string"
+          },
+          "generic": {
+            "type": "string"
+          },
+          "plugin": {
+            "$ref": "#/components/schemas/ruleContentPlugin"
+          },
+          "error_keys": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ruleContentErrorKey"
+            }
+          },
+          "HasReason": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ruleContentPlugin": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "product_code": {
+            "type": "string"
+          },
+          "python_module": {
+            "type": "string"
+          }
+        }
+      },
+      "ruleContentErrorKey": {
+        "type": "object",
+        "properties": {
+          "generic": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "impact": {
+                "type": "string"
+              },
+              "likelihood": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              },
+              "publish_date": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "total_risk": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "more_info": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "HasReason": {
+            "type": "boolean"
+          }
+        }
+      },
+      "reportData": {
+        "description": "Array of ruleHit instances",
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "description": "ID of a rule.",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "description": "The title of the rule, a short description.",
+            "type": "string"
+          },
+          "details": {
+            "description": "Details of the rule - templates rendered on frontend.",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Reason for the issue, giving the user more accurate description of the cause.",
+            "type": "string"
+          },
+          "resolution": {
+            "description": "Resolution steps of the issue, possibly linking to a resolution article in the knowledge base.",
+            "type": "string"
+          },
+          "more_info": {
+            "description": "",
+            "type": "string"
+          },
+          "total_risk": {
+            "description": "Total risk - calculated from rule impact and likelihood.",
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "disabled": {
+            "description": "If this rule result disabled or not. This field can be used in the UI to show only specific set of rules results.",
+            "type": "boolean"
+          },
+          "disable_feedback": {
+            "type": "string"
+          },
+          "disabled_at": {
+            "type": "string"
+          },
+          "internal": {
+            "type": "boolean"
+          },
+          "user_vote": {
+            "format": "int32",
+            "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
+            "enum": [
+              "-1",
+              "0",
+              "1"
+            ],
+            "type": "integer"
+          },
+          "extra_data": {
+            "description": "Used as templating data for other content (details, resolution, etc.), has varying structure depending on the rules in the report.",
+            "type": "object"
+          },
+          "tags": {
+            "description": "List of tags that the rule contains, forming rule groups.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "rule_id": "ccx_rules_ocm.tutorial_rule.report",
+          "created_at": "2020-04-08T00:42:00Z",
+          "description": "Introducing Insights for Red Hat OpenShift Container Platform",
+          "details": "Red Hat Insights for OpenShift is a proactive management solution. It provides ongoing infrastructure analyses of your Red Hat OpenShift Container Platform 4.2 and later installations. Red Hat Insights helps you identify, prioritize, and resolve risks to security, performance, availability, and stability before they become urgent issues.\nRed Hat Insights for OpenShift uses the Remote Health Monitoring feature of OpenShift 4. The health checks are created by Red Hat subject matter experts and assessed according to severity and impact.\nThis is an example  recommendation that you can safely ignore. To disable it, click  the triple-dot menu button next to the header, and select Disable.\n\n[Knowledgebase Article](https://access.redhat.com/search/#/knowledgebase)\n\n",
+          "reason": "",
+          "resolution": "",
+          "total_risk": 1,
+          "disabled": false,
+          "disable_feedback": "",
+          "disabled_at": "",
+          "internal": false,
+          "user_vote": 0,
+          "extra_data": {
+            "error_key": "TUTORIAL_ERROR",
+            "type": "rule"
+          },
+          "tags": [
+            "openshift",
+            "service_availability"
+          ]
+        }
+      },
+      "reportsResponse": {
+        "description": "Reports for a set of clusters",
+        "type": "object",
+        "properties": {
+          "clusters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "reports": {
+            "type": "object",
+            "additionalProperties": {
+              "description": "",
+              "type": "object",
+              "properties": {
+                "analysis_metadata": {
+                  "type": "object",
+                  "properties": {
+                    "execution_context": {
+                      "description": "",
+                      "type": "string"
+                    },
+                    "finish": {
+                      "format": "date-time",
+                      "description": "",
+                      "type": "string"
+                    },
+                    "plugin_sets": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "commit": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "version": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "example": {
+                        "insights-core": {
+                          "commit": "placeholder",
+                          "version": "insights-core-3.0.176-1"
+                        }
+                      }
+                    },
+                    "start": {
+                      "format": "date-time",
+                      "description": "",
+                      "type": "string"
+                    }
+                  }
+                },
+                "fingerprints": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "info": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reportsComponent"
+                  }
+                },
+                "reports": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reportsComponent"
+                  }
+                },
+                "skips": {
+                  "type": "array",
+                  "items": {
+                    "title": "Root Type for reportsSkipsDetails",
+                    "type": "object",
+                    "properties": {
+                      "details": {
+                        "type": "string"
+                      },
+                      "reason": {
+                        "type": "string"
+                      },
+                      "rule_fqdn": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "example": {
+                      "details": "All: ['ccx_rules_ocp.external.rules.container_max_root_partition_size.check_container_runtime_config'] Any: ",
+                      "reason": "MISSING_REQUIREMENTS",
+                      "rule_fqdn": "ccx_rules_ocp.external.rules.container_max_root_partition_size.report",
+                      "type": "skip"
+                    }
+                  }
+                },
+                "system": {
+                  "description": "",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "metadata": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "generated_at": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "reportsComponent": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "component": {
+            "description": "",
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          },
+          "info_id": {
+            "type": "string"
+          },
+          "key": {
+            "description": "",
+            "type": "string"
+          },
+          "rule_id": {
+            "description": "",
+            "type": "string"
+          },
+          "tags": {
+            "description": "",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "description": "",
+            "type": "string"
+          },
+          "links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "overviewResponse": {
+        "type": "object",
+        "properties": {
+          "overview": {
+            "type": "object",
+            "properties": {
+              "clusters_hit": {
+                "description": "Number of clusters with at least 1 Insights hit.",
+                "type": "integer",
+                "example": 1
+              },
+              "hit_by_risk": {
+                "type": "object",
+                "additionalProperties": {
+                  "description": "Number of clusters hit by rules for each criticality",
+                  "type": "integer",
+                  "example": 1
+                }
+              },
+              "hit_by_tag": {
+                "type": "object",
+                "additionalProperties": {
+                  "description": "Number of clusters hit by rules for each category",
+                  "type": "integer",
+                  "example": 1
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "clusterId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "ID of cluster in UUID format.",
+        "maxLength": 36,
+        "minLength": 36
+      }
+    },
+    "responses": {
+      "unavailable": {
+        "description": "Content service is unavailable",
+        "content": {
+          "text/plain": {}
+        }
+      },
+      "unauthorized": {
+        "description": "The requester is unauthorized. If using a service account, you may not belong to the right group with the right role. Please make sure you configured your user access on the console.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "Account does not have the required permissions"
+                }
+              }
+            }
+          }
+        }
+      },
+      "status": {
+        "description": "Status ok",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "example": "ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "clusterId": {
+        "name": "clusterId",
+        "in": "path",
+        "description": "ID of the cluster which must conform to UUID format.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/clusterId"
+        },
+        "example": "34c3ecc5-624a-49a5-bab8-4fdc5e51a266"
+      },
+      "ruleId": {
+        "name": "ruleId",
+        "in": "path",
+        "description": "ID of a rule.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "some.python.module"
+      },
+      "errorKey": {
+        "name": "errorKey",
+        "in": "path",
+        "description": "ID of the error key",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "ERROR_COOL_NAME"
+      },
+      "osdEligible": {
+        "name": "osd_eligible",
+        "in": "query",
+        "description": "If true, only OSD eligible rules will be sent.",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}

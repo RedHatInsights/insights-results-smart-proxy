@@ -1,0 +1,685 @@
+// Copyright 2020, 2021, 2022, 2023 Red Hat, Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package content_test
+
+import (
+	"fmt"
+	"math/rand"
+	"net/http"
+	"testing"
+	"time"
+
+	ics_server "github.com/RedHatInsights/insights-content-service/server"
+	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
+	ctypes "github.com/RedHatInsights/insights-results-types"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/RedHatInsights/insights-results-smart-proxy/content"
+	"github.com/RedHatInsights/insights-results-smart-proxy/services"
+	"github.com/RedHatInsights/insights-results-smart-proxy/tests/helpers"
+	"github.com/RedHatInsights/insights-results-smart-proxy/types"
+)
+
+const (
+	testTimeout = 10 * time.Second
+	internalStr = "internal"
+	externalStr = "external"
+	ocsStr      = "ocs"
+)
+
+var (
+	random       = rand.New(rand.NewSource(time.Now().Unix()))
+	testVersions = []string{"v1", "v2"}
+
+	getRuleContentHelperFuncs = []func(testing.TB){
+		testGetRuleContentV1,
+		testGetRuleContentV2,
+	}
+)
+
+func testGetRuleContentV1(t testing.TB) {
+	t.Helper()
+	ruleContent, err := content.GetRuleContentV1(testdata.Rule1ID)
+	helpers.FailOnError(t, err)
+	assert.NotNil(t, ruleContent)
+
+	assert.Equal(t, content.RuleContentToV1(&testdata.RuleContent1), *ruleContent)
+}
+
+func testGetRuleContentV2(t testing.TB) {
+	t.Helper()
+	ruleContent, err := content.GetRuleContentV2(testdata.Rule1ID)
+	helpers.FailOnError(t, err)
+	assert.NotNil(t, ruleContent)
+
+	assert.Equal(t, content.RuleContentToV2(&testdata.RuleContent1), *ruleContent)
+}
+
+func TestGetRuleContent(t *testing.T) {
+	defer content.ResetContent()
+
+	for i := range testVersions {
+		t.Run(testVersions[i], func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+					Method:   http.MethodGet,
+					Endpoint: ics_server.AllContentEndpoint,
+				}, &helpers.APIResponse{
+					StatusCode: http.StatusOK,
+					Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+				})
+
+				content.UpdateContent(helpers.DefaultServicesConfig)
+				getRuleContentHelperFuncs[i](t)
+			}, testTimeout)
+		})
+	}
+}
+
+func TestGetRuleContent_CallMultipleTimes(t *testing.T) {
+	defer content.ResetContent()
+	const N = 10
+
+	for j := range testVersions {
+		t.Run(testVersions[j], func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+				helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+					Method:   http.MethodGet,
+					Endpoint: ics_server.AllContentEndpoint,
+				}, &helpers.APIResponse{
+					StatusCode: http.StatusOK,
+					Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+				})
+
+				content.UpdateContent(helpers.DefaultServicesConfig)
+
+				for i := 0; i < N; i++ {
+					getRuleContentHelperFuncs[j](t)
+				}
+			}, testTimeout)
+		})
+	}
+}
+
+func TestUpdateContent_CallMultipleTimes(t *testing.T) {
+	defer content.ResetContent()
+	const N = 10
+
+	for j := range testVersions {
+		t.Run(testVersions[j], func(t *testing.T) {
+			helpers.RunTestWithTimeout(t, func(t testing.TB) {
+				defer helpers.CleanAfterGock(t)
+				for i := 0; i < N; i++ {
+					helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+						Method:   http.MethodGet,
+						Endpoint: ics_server.AllContentEndpoint,
+					}, &helpers.APIResponse{
+						StatusCode: http.StatusOK,
+						Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+					})
+				}
+
+				for i := 0; i < N; i++ {
+					content.UpdateContent(helpers.DefaultServicesConfig)
+				}
+
+				for i := 0; i < N; i++ {
+					getRuleContentHelperFuncs[j](t)
+				}
+			}, testTimeout)
+		})
+	}
+}
+
+func TestUpdateContentBadTime(t *testing.T) {
+	defer content.ResetContent()
+	// using testdata.RuleContent4 because contains datetime in a different format
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc4": testdata.RuleContent4,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	helpers.FailOnError(t, err)
+}
+
+func TestResetContentWhenUpdating(t *testing.T) {
+	defer content.ResetContent()
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory5Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		ruleIDs, err := content.GetRuleIDs()
+		assert.Nil(t, err)
+		assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(ruleIDs))
+	}, testTimeout)
+}
+
+func TestResetContent(t *testing.T) {
+	defer content.ResetContent()
+	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
+	ruleIDs, err := content.GetRuleIDs()
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(ruleIDs))
+
+	content.ResetContent()
+
+	ruleIDs, err = content.GetRuleIDs()
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(ruleIDs))
+}
+
+func TestGetAllContent(t *testing.T) {
+	defer content.ResetContent()
+	content.LoadRuleContent(&testdata.RuleContentDirectory3Rules)
+
+	t.Run("v1", func(t *testing.T) {
+		rules, err := content.GetAllContentV1()
+		assert.Nil(t, err)
+		assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
+	})
+
+	t.Run("v2", func(t *testing.T) {
+		rules, err := content.GetAllContentV2()
+		assert.Nil(t, err)
+		assert.Equal(t, len(testdata.RuleContentDirectory3Rules.Rules), len(rules))
+	})
+}
+
+func TestFetchRuleContent_OSDEligibleNotRequiredAdmin(t *testing.T) {
+	defer content.ResetContent()
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		rule := testdata.RuleOnReport1
+		ruleContent, osdFiltered, err := content.FetchRuleContent(&rule, true)
+		assert.False(t, osdFiltered)
+		assert.NotNil(t, ruleContent)
+		assert.Nil(t, err)
+
+		ruleID := testdata.RuleOnReport1.Module
+		errorKey := testdata.RuleOnReport1.ErrorKey
+		ruleWithContent, _ := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+		ruleWithContentResponse := &types.RuleWithContentResponse{
+			CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+			Description:     ruleWithContent.Description,
+			ErrorKey:        errorKey,
+			Generic:         ruleWithContent.Generic,
+			Reason:          ruleWithContent.Reason,
+			Resolution:      ruleWithContent.Resolution,
+			MoreInfo:        ruleWithContent.MoreInfo,
+			TotalRisk:       ruleWithContent.TotalRisk,
+			RuleID:          ruleID,
+			TemplateData:    rule.TemplateData,
+			Tags:            ruleWithContent.Tags,
+			UserVote:        rule.UserVote,
+			Disabled:        rule.Disabled,
+			DisableFeedback: rule.DisableFeedback,
+			DisabledAt:      rule.DisabledAt,
+			Internal:        ruleWithContent.Internal,
+		}
+
+		assert.Equal(t, ruleWithContentResponse, ruleContent)
+	}, testTimeout)
+}
+
+func TestFetchRuleContent_NotOSDEligible(t *testing.T) {
+	defer content.ResetContent()
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		rule := testdata.RuleOnReport1
+		ruleContent, osdFiltered, err := content.FetchRuleContent(&rule, false)
+		assert.False(t, osdFiltered)
+		assert.NotNil(t, ruleContent)
+		assert.Nil(t, err)
+
+		ruleID := testdata.RuleOnReport1.Module
+		errorKey := testdata.RuleOnReport1.ErrorKey
+		ruleWithContent, _ := content.GetRuleWithErrorKeyContent(ruleID, errorKey)
+		ruleWithContentResponse := &types.RuleWithContentResponse{
+			CreatedAt:       ruleWithContent.PublishDate.UTC().Format(time.RFC3339),
+			Description:     ruleWithContent.Description,
+			ErrorKey:        errorKey,
+			Generic:         ruleWithContent.Generic,
+			Reason:          ruleWithContent.Reason,
+			Resolution:      ruleWithContent.Resolution,
+			MoreInfo:        ruleWithContent.MoreInfo,
+			TotalRisk:       ruleWithContent.TotalRisk,
+			RuleID:          ruleID,
+			TemplateData:    rule.TemplateData,
+			Tags:            ruleWithContent.Tags,
+			UserVote:        rule.UserVote,
+			Disabled:        rule.Disabled,
+			DisableFeedback: rule.DisableFeedback,
+			DisabledAt:      rule.DisabledAt,
+			Internal:        ruleWithContent.Internal,
+		}
+
+		assert.Equal(t, ruleWithContentResponse, ruleContent)
+	}, testTimeout)
+}
+
+func TestFetchRuleContent_DisabledRuleExist(t *testing.T) {
+	defer content.ResetContent()
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		var rule = ctypes.RuleOnReport{
+			Module:          testdata.Rule1.Module,
+			ErrorKey:        testdata.RuleErrorKey1.ErrorKey,
+			UserVote:        ctypes.UserVoteNone,
+			Disabled:        true,
+			DisableFeedback: "",
+			DisabledAt:      "",
+			TemplateData:    testdata.Rule1ExtraData,
+		}
+
+		ruleContent, osdFiltered, err := content.FetchRuleContent(&rule, false)
+		assert.False(t, osdFiltered)
+		assert.NotNil(t, ruleContent)
+		assert.Nil(t, err)
+	}, testTimeout)
+}
+
+func TestFetchRuleContent_RuleDoesNotExist(t *testing.T) {
+	defer content.ResetContent()
+	helpers.RunTestWithTimeout(t, func(t testing.TB) {
+		defer helpers.CleanAfterGock(t)
+		helpers.GockExpectAPIRequest(t, helpers.DefaultServicesConfig.ContentBaseEndpoint, &helpers.APIRequest{
+			Method:   http.MethodGet,
+			Endpoint: ics_server.AllContentEndpoint,
+		}, &helpers.APIResponse{
+			StatusCode: http.StatusOK,
+			Body:       helpers.MustGobSerialize(t, testdata.RuleContentDirectory3Rules),
+		})
+
+		content.UpdateContent(helpers.DefaultServicesConfig)
+
+		var rule = ctypes.RuleOnReport{
+			Module:          ctypes.RuleID("ccx_rules_ocp.deprecated_a_long_time_ago_should_not_exist"),
+			ErrorKey:        testdata.RuleErrorKey1.ErrorKey,
+			UserVote:        ctypes.UserVoteNone,
+			Disabled:        false,
+			DisableFeedback: "",
+			DisabledAt:      "",
+			TemplateData:    nil,
+		}
+
+		ruleContent, _, err := content.FetchRuleContent(&rule, false)
+		assert.Nil(t, ruleContent)
+		assert.NotNil(t, err)
+	}, testTimeout)
+}
+
+func TestUpdateContentInvalidStatus(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.Status = "foo"
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	assert.NotNil(t, err)
+}
+
+func TestUpdateContentMissingStatus(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.Status = ""
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	helpers.FailOnError(t, err)
+}
+
+func TestUpdateContentInvalidPublishDate(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.PublishDate = "invalid date"
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	assert.NotNil(t, err)
+}
+
+func TestUpdateContentMissingPublishDate(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent4
+	ek := ruleContent.ErrorKeys[testdata.ErrorKey4]
+	ek.Metadata.PublishDate = ""
+	ruleContent.ErrorKeys[testdata.ErrorKey4] = ek
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc4": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetRuleWithErrorKeyContent(testdata.Rule4ID, testdata.ErrorKey4)
+	helpers.FailOnError(t, err)
+}
+
+func TestGetContentForRecommendationOK(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent1
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	_, err := content.GetContentForRecommendation(testdata.Rule1CompositeID)
+	helpers.FailOnError(t, err)
+}
+
+func TestGetContentForRecommendationNotFound(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": testdata.RuleContent1,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	// GetContentForRecommendation doesn't care about proper ID format
+	_, err := content.GetContentForRecommendation("not found")
+	assert.NotNil(t, err)
+}
+
+func TestGetContentForRecommendationBadID(t *testing.T) {
+	defer content.ResetContent()
+
+	ruleContent := testdata.RuleContent1
+	ruleContent.Plugin.PythonModule = ""
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": ruleContent,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	// rule doesn't even get loaded because of improper PythonModule
+	_, err := content.GetContentForRecommendation(testdata.Rule1CompositeID)
+	assert.NotNil(t, err)
+}
+
+// TestGetInternalRuleIDs tests if storage.internalRuleIDs is filled correctly
+func TestGetInternalRuleIDs(t *testing.T) {
+	defer content.ResetContent()
+
+	internalRule1, internalRule2, externalRule1 := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	ocsRule := testdata.RuleContent1
+	fakeRuleAsInternal(&internalRule1)
+	fakeRuleAsInternal(&internalRule2)
+	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsOcs(&ocsRule)
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": internalRule1,
+			"rc2": internalRule2,
+			"rc3": externalRule1,
+			"rc4": ocsRule,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	internalRuleIDs, err := content.GetInternalRuleIDs()
+	assert.Nil(t, err)
+	assert.Equal(t, 3, len(internalRuleIDs))
+}
+
+// TestGetExternalRuleIDs tests if storage.externalRuleIDs is filled correctly
+func TestGetExternalRuleIDs(t *testing.T) {
+	defer content.ResetContent()
+
+	externalRule1, externalRule2 := testdata.RuleContent1, testdata.RuleContent1
+	externalRule3, internalRule4, ocsRule := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsExternal(&externalRule2)
+	fakeRuleAsExternal(&externalRule3)
+	fakeRuleAsInternal(&internalRule4)
+	fakeRuleAsOcs(&ocsRule)
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": externalRule1,
+			"rc2": externalRule2,
+			"rc3": externalRule3,
+			"rc4": internalRule4,
+			"rc5": ocsRule,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	externalRuleIDs, err := content.GetExternalRuleIDs()
+	assert.Nil(t, err)
+	t.Logf("%v", externalRuleIDs)
+	assert.Equal(t, 3, len(externalRuleIDs))
+}
+
+// TestGetExternalRuleSeveritiesTwoUnique tests GetExternalRuleSeverities
+func TestGetExternalRuleSeverities1Unique(t *testing.T) {
+	defer content.ResetContent()
+
+	// same total risk
+	externalRule1, externalRule2, internalRule1 := testdata.RuleContent1, testdata.RuleContent1, testdata.RuleContent1
+	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsExternal(&externalRule2)
+	fakeRuleAsInternal(&internalRule1)
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": externalRule1,
+			"rc2": externalRule2,
+			"rc3": internalRule1,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
+	helpers.FailOnError(t, err)
+	assert.Equal(t, 2, len(recommendationSeverities))
+	// rules have the same severity
+	assert.Equal(t, 1, len(uniqueSeverities))
+}
+
+// TestGetExternalRuleSeverities2Unique tests GetExternalRuleSeverities
+func TestGetExternalRuleSeverities2Unique(t *testing.T) {
+	defer content.ResetContent()
+
+	externalRule1, externalRule2, internalRule1 := testdata.RuleContent1, testdata.RuleContent2, testdata.RuleContent1
+	fakeRuleAsExternal(&externalRule1)
+	fakeRuleAsExternal(&externalRule2)
+	fakeRuleAsInternal(&internalRule1)
+
+	ruleContentDirectory := ctypes.RuleContentDirectory{
+		Config: ctypes.GlobalRuleConfig{
+			Impact: testdata.ImpactStrToInt,
+		},
+		Rules: map[string]ctypes.RuleContent{
+			"rc1": externalRule1,
+			"rc2": externalRule2,
+			"rc3": internalRule1,
+		},
+	}
+
+	content.LoadRuleContent(&ruleContentDirectory)
+
+	recommendationSeverities, uniqueSeverities, err := content.GetExternalRuleSeverities()
+	helpers.FailOnError(t, err)
+	assert.Equal(t, 2, len(recommendationSeverities))
+	// rules have different severity
+	assert.Equal(t, 2, len(uniqueSeverities))
+}
+
+func TestContentLoop(_ *testing.T) {
+	go content.RunUpdateContentLoop(services.Configuration{
+		GroupsPollingTime: 1 * time.Second,
+	})
+	content.SetContentDirectoryTimeout(1 * time.Second)
+	time.Sleep(2 * time.Second)
+	content.StopUpdateContentLoop()
+}
+
+func TestRuleContentDirectoryTimeoutErrorError(t *testing.T) {
+	ruleContentDirectoryTimeoutError := content.RuleContentDirectoryTimeoutError{}
+	errString := ruleContentDirectoryTimeoutError.Error()
+	assert.NotEmpty(t, errString)
+}
+
+func fakeRuleAsInternal(ruleContent *ctypes.RuleContent) {
+	modifyPluginPythonModule(ruleContent, internalStr)
+}
+
+func fakeRuleAsExternal(ruleContent *ctypes.RuleContent) {
+	modifyPluginPythonModule(ruleContent, externalStr)
+}
+
+func fakeRuleAsOcs(ruleContent *ctypes.RuleContent) {
+	modifyPluginPythonModule(ruleContent, ocsStr)
+}
+func modifyPluginPythonModule(ruleContent *ctypes.RuleContent, injectStr string) {
+	ruleContentCopy := ruleContent
+	ruleContentCopy.Plugin.PythonModule = fmt.Sprintf("testcontent.%v.%v.rule", injectStr, random.Int())
+	*ruleContent = *ruleContentCopy
+}
