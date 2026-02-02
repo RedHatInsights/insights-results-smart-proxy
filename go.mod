@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/BurntSushi/toml v1.6.0
-	github.com/RedHatInsights/insights-content-service v1.0.0
+	github.com/RedHatInsights/insights-content-service v1.1.1
 	github.com/RedHatInsights/insights-operator-utils v1.27.0
 	github.com/RedHatInsights/insights-results-aggregator v1.4.3
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
