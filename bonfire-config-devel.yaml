@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-     
+
 
 # Bonfire deployment configuration
 # Defines where to fetch the file that defines application configs
@@ -60,7 +60,7 @@ apps:
         IMAGE: quay.io/<user>/insights-results-smart-proxy
     - name: insights-content-service
       host: github
-      repo: RedHatInsights/insights-content-service
+      repo: RedHatInsights/content-service
       path: deploy/clowdapp.yaml
       ref: <branch>
       parameters:

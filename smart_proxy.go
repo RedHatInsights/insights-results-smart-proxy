@@ -28,7 +28,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/logger"
 	"github.com/rs/zerolog/log"
 

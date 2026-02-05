@@ -29,7 +29,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/content-service/groups"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"
