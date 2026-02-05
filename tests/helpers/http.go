@@ -22,7 +22,7 @@ import (
 	"github.com/RedHatInsights/insights-results-smart-proxy/auth"
 	"github.com/RedHatInsights/insights-results-smart-proxy/content"
 
-	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 
 	"github.com/RedHatInsights/insights-results-smart-proxy/server"

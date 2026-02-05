@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	ics_server "github.com/RedHatInsights/insights-content-service/server"
+	ics_server "github.com/RedHatInsights/content-service/server"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ctypes "github.com/RedHatInsights/insights-results-types"
 	"github.com/stretchr/testify/assert"

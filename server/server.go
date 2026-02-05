@@ -39,7 +39,7 @@ import (
 	// disable "G108 (CWE-): Profiling endpoint is automatically exposed on /debug/pprof"
 	_ "net/http/pprof" // #nosec G108
 
-	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/content-service/groups"
 	httputils "github.com/RedHatInsights/insights-operator-utils/http"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	utypes "github.com/RedHatInsights/insights-operator-utils/types"

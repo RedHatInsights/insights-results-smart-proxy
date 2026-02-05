@@ -42,7 +42,7 @@ const (
 	// ReportForListOfClustersPayloadEndpoint returns the latest reports for the given list of clusters
 	// Reports that are going to be returned are specified by list of cluster IDs that is part of request body
 	ReportForListOfClustersPayloadEndpoint = "clusters/reports"
-	// RuleGroupsEndpoint is a simple redirect endpoint to the insights-content-service API specified in configuration
+	// RuleGroupsEndpoint is a simple redirect endpoint to the content-service API specified in configuration
 	RuleGroupsEndpoint = "groups"
 	// RuleContent returns static content for {rule_id}
 	RuleContent = "rules/{rule_id}/content"

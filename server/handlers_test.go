@@ -21,8 +21,8 @@ import (
 	"testing"
 	"time"
 
-	// "github.com/RedHatInsights/insights-content-service/groups"
-	"github.com/RedHatInsights/insights-content-service/groups"
+	// "github.com/RedHatInsights/content-service/groups"
+	"github.com/RedHatInsights/content-service/groups"
 	"github.com/RedHatInsights/insights-operator-utils/responses"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"

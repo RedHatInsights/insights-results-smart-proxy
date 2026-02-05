@@ -21,7 +21,7 @@ Insights Results Smart Proxy is a service that acts as a proxy between the diffe
 data pipeline clients and the different services providing the required information.
 
 It provides access to the [Insights Results Aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
-and to the [Insights Content Service](https://github.com/RedHatInsights/insights-content-service),
+and to the [Insights Content Service](https://github.com/RedHatInsights/content-service),
 providing the clients with different endpoints for accesing both report results and rule content metadata
 from a single service.
 

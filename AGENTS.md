@@ -252,7 +252,7 @@ Before pushing changes, ensure:
 - [GoDoc API Documentation](https://godoc.org/github.com/RedHatInsights/insights-results-smart-proxy)
 - [Insights Behavioral Spec](https://github.com/RedHatInsights/insights-behavioral-spec)
 - [Insights Results Aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
-- [Insights Content Service](https://github.com/RedHatInsights/insights-content-service)
+- [Insights Content Service](https://github.com/RedHatInsights/content-service)
 - [app-common-go](https://github.com/RedHatInsights/app-common-go)
 - [Upgrade Risk Prediction Service](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng)
 - [AMS (OCM Account Management Service)](https://github.com/openshift-online/ocm-sdk-go/tree/main/accountsmgmt/v1)

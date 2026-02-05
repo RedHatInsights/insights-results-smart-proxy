@@ -41,5 +41,5 @@ remmediations, tags and also groups, that will be consumed primarily by
 
 ## Source code
 
-* Repository: [https://github.com/RedHatInsights/insights-content-service/](https://github.com/RedHatInsights/insights-content-service/)
+* Repository: [https://github.com/RedHatInsights/content-service/](https://github.com/RedHatInsights/content-service/)
 * Written in: Go

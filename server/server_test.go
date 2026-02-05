@@ -25,7 +25,7 @@ import (
 
 	data "github.com/RedHatInsights/insights-results-smart-proxy/tests/testdata"
 
-	"github.com/RedHatInsights/insights-content-service/groups"
+	"github.com/RedHatInsights/content-service/groups"
 	iou_helpers "github.com/RedHatInsights/insights-operator-utils/tests/helpers"
 	"github.com/RedHatInsights/insights-results-aggregator-data/testdata"
 	ctypes "github.com/RedHatInsights/insights-results-types"
