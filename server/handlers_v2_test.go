@@ -48,41 +48,58 @@ var (
 func TestHTTPServer_SetRating(t *testing.T) {
 	defer helpers.CleanAfterGock(t)
 
-	rating := `{"rule": "rule_module|error_key","rating":-1}`
-	aggregatorResponse := fmt.Sprintf(`{"status":"ok", "ratings":%s}`, rating)
+	var ratingTests = []struct {
+		statusCode   int
+		requestBody  string
+		responseBody string
+	}{
+		{http.StatusOK, `{"rule": "rule_module|error_key","rating":-1}`, `{"status":"ok", "ratings":%s}`},
+		{http.StatusBadRequest, `{"rule_module|error_key","rating":0}`, `{"status":"ok", "ratings":%s}`},
+		{http.StatusForbidden, `{"rule": "rule_module|error_key","rating":-1}`, `{"status":"ok", "ratings":%s}`},
+		{http.StatusNotFound, `{"rule": "rule_module|error_key","rating":-1}`, `{"status":"ok", "ratings":%s}`},
+		{http.StatusInternalServerError, `{"rule": "rule_module|error_key","rating":-1}`, `{"status":"ok", "ratings":%s}`},
+		{http.StatusServiceUnavailable, `{"rule": "rule_module|error_key","rating":-1}`, `{"status":"ok", "ratings":%s}`},
+	}
 
-	helpers.GockExpectAPIRequest(
-		t,
-		helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
-		&helpers.APIRequest{
-			Method:       http.MethodPost,
-			Endpoint:     ira_server.Rating,
-			EndpointArgs: []interface{}{testdata.OrgID},
-			Body:         rating,
-		},
-		&helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       aggregatorResponse,
-		},
-	)
+	for _, tt := range ratingTests {
+		t.Run(fmt.Sprintf("%d", tt.statusCode), func(t *testing.T) {
+			defer helpers.CleanAfterGock(t)
+			aggregatorResponse := fmt.Sprintf(tt.responseBody, tt.requestBody)
 
-	helpers.AssertAPIv2Request(
-		t,
-		&helpers.DefaultServerConfig,
-		nil,
-		nil,
-		nil,
-		nil,
-		&helpers.APIRequest{
-			Method:      http.MethodPost,
-			Endpoint:    server.Rating,
-			Body:        rating,
-			XRHIdentity: goodXRHAuthToken,
-		}, &helpers.APIResponse{
-			StatusCode: http.StatusOK,
-			Body:       rating,
-		},
-	)
+			helpers.GockExpectAPIRequest(
+				t,
+				helpers.DefaultServicesConfig.AggregatorBaseEndpoint,
+				&helpers.APIRequest{
+					Method:       http.MethodPost,
+					Endpoint:     ira_server.Rating,
+					EndpointArgs: []interface{}{testdata.OrgID},
+					Body:         tt.requestBody,
+				},
+				&helpers.APIResponse{
+					StatusCode: tt.statusCode,
+					Body:       aggregatorResponse,
+				},
+			)
+
+			helpers.AssertAPIv2Request(
+				t,
+				&helpers.DefaultServerConfig,
+				nil,
+				nil,
+				nil,
+				nil,
+				&helpers.APIRequest{
+					Method:      http.MethodPost,
+					Endpoint:    server.Rating,
+					Body:        tt.requestBody,
+					XRHIdentity: goodXRHAuthToken,
+				}, &helpers.APIResponse{
+					StatusCode: tt.statusCode,
+				},
+			)
+		})
+	}
+
 }
 
 // TestHTTPServer_ClustersDetailEndpointAggregatorResponseOk verifies that
