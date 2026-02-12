@@ -46,12 +46,14 @@ func (server *HTTPServer) postRating(writer http.ResponseWriter, request *http.R
 	if !successful {
 		log.Error().Msg("Unable to get response from aggregator")
 		// All errors already handled
+		return
 	}
 
 	bodyContent, err := json.Marshal(rating)
 	if err != nil {
 		log.Error().Err(err).Msg("Unable to unmarshall the response from aggregator")
 		handleServerError(writer, err)
+		return
 	}
 
 	err = responses.Send(http.StatusOK, writer, bodyContent)
@@ -75,6 +77,15 @@ func (server HTTPServer) postRatingToAggregator(
 		handleServerError(writer, err)
 		return nil, false
 	}
+
+	var bodyCheck ctypes.RuleRating
+	err = json.Unmarshal(body, &bodyCheck)
+	if err != nil {
+		err := &BadBodyContent{}
+		handleServerError(writer, err)
+		return nil, false
+	}
+
 	// #nosec G107
 	// nolint:bodyclose // TODO: remove once the bodyclose library fixes this bug
 	aggregatorResp, err := http.Post(aggregatorURL, JSONContentType, bytes.NewBuffer(body))
@@ -84,6 +95,23 @@ func (server HTTPServer) postRatingToAggregator(
 	}
 
 	defer services.CloseResponseBody(aggregatorResp)
+
+	if aggregatorResp.StatusCode != http.StatusOK {
+		responseBytes, err := io.ReadAll(aggregatorResp.Body)
+		if err != nil {
+			log.Error().Err(err).Msg("postRatingToAggregator problem reading response body")
+			handleServerError(writer, err)
+			return nil, false
+		}
+
+		err = responses.Send(aggregatorResp.StatusCode, writer, responseBytes)
+		if err != nil {
+			log.Error().Err(err).Msg(problemSendingResponseError)
+			handleServerError(writer, err)
+			return nil, false
+		}
+		return nil, false
+	}
 
 	var aggregatorResponse struct {
 		Rating ctypes.RuleRating `json:"ratings"`
