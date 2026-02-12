@@ -24,6 +24,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: joselsegura/processing-tools/.github/workflows/bdd.yml@reusable-bdd
+    uses: joselsegura/processing-tools/.github/workflows/bdd-go.yml@reusable-bdd
     with:
       service: "smart-proxy-tests"
