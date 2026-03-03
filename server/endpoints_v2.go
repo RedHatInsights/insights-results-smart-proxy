@@ -70,6 +70,11 @@ const (
 	// request ID
 	StatusOfRequestID = "cluster/{cluster}/request/{request_id}/status"
 
+	// StatusOfRequestIDReproducer should return the status of processing one given
+	// request ID, returning the same exact response as the /status endpoint.
+	// This is a reproducer for a performance issue affecting the newest IO version.
+	StatusOfRequestIDReproducer = "cluster/{cluster}/request/{request_id}/status_dbg"
+
 	// RuleHitsForRequestID should return simplified results for given
 	// cluster and requestID
 	RuleHitsForRequestID = "cluster/{cluster}/request/{request_id}/report"
@@ -166,11 +171,13 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 }
 
 // addV2RedisEndpointsToRouter method registers handlers for endpoints that depend on our Redis storage
-// to provide responses.
+// to provide responses. These endpoints are used by the insights-operator, which is a versioned product,
+// meaning these endpoints have to be 100% backwards compatible.
 func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPrefix string) {
 	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForCluster).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForClusterPostVariant).Methods(http.MethodPost)
 	router.HandleFunc(apiPrefix+StatusOfRequestID, server.getRequestStatusForCluster).Methods(http.MethodGet)
+	router.HandleFunc(apiPrefix+StatusOfRequestIDReproducer, server.getRequestStatusForClusterReproducer).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RuleHitsForRequestID, server.getReportForRequest).Methods(http.MethodGet)
 }
 

@@ -1354,6 +1354,68 @@ func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter,
 	}
 }
 
+// getRequestStatusForClusterReproducer implements an endpoint returning the status of a
+// given request ID, replicating the /status endpoint.
+// This is a reproducer for a performance issue affecting the insights-operator. We need to ensure
+// that the responses are consistent before making ANY changes to the real endpoint, since we need
+// to be 100% backwards compatible.
+func (server *HTTPServer) getRequestStatusForClusterReproducer(writer http.ResponseWriter, request *http.Request) {
+	orgID, err := server.GetCurrentOrgID(request)
+	if err != nil {
+		log.Error().Msg(authTokenFormatError)
+		handleServerError(writer, err)
+		return
+	}
+
+	clusterID, successful := httputils.ReadClusterName(writer, request)
+	if !successful {
+		// error handled by function
+		return
+	}
+
+	requestID, err := readRequestID(writer, request)
+	if err != nil {
+		// error handled by function
+		return
+	}
+
+	// make sure we don't access server.redis when it's nil
+	if !server.checkRedisClientReadiness(writer) {
+		// error handled by function
+		return
+	}
+
+	// perform EXISTS query to check whether an archive (request_id) was processed
+	err = server.redis.GetRequestStatus(orgID, clusterID, requestID)
+	if err != nil {
+		switch err.(type) {
+		case *utypes.ItemNotFoundError:
+			// keep same message as in the original endpoint
+			err := responses.SendNotFound(writer, RequestIDNotFound)
+			if err != nil {
+				log.Error().Err(err).Msg(responseDataError)
+			}
+			return
+		default:
+			handleServerError(writer, err)
+			return
+		}
+	}
+
+	// prepare response
+	responseData := map[string]interface{}{}
+	responseData["cluster"] = string(clusterID)
+	responseData["requestID"] = requestID
+	responseData["status"] = StatusProcessed
+
+	// send response to client
+	err = responses.SendOK(writer, responseData)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+}
+
 // getRequestsForCluster method implements endpoint that should return a list of
 // all request IDs and their details for given cluster
 func (server *HTTPServer) getRequestsForCluster(writer http.ResponseWriter, request *http.Request) {
