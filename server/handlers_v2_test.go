@@ -1510,6 +1510,201 @@ func TestHTTPServer_GetRequestStatusForCluster_RequestIDOnSecondPage(t *testing.
 	}, testTimeout)
 }
 
+func TestHTTPServer_GetRequestStatusForClusterReproducer_RedisNil(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, nil, nil, nil, nil, nil)
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestIDReproducer,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.RequestID1},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetRequestStatusForClusterReproducer_RedisError500(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
+
+		expectedKey := fmt.Sprintf(services.RequestIDCheck, testdata.OrgID, testdata.ClusterName, data.RequestID1)
+		redisServer.ExpectExists(expectedKey).SetErr(errors.New("Redis server failure"))
+
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestIDReproducer,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.RequestID1},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusInternalServerError,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetRequestStatusForClusterReproducer_RequestNotFound(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
+
+		expectedKey := fmt.Sprintf(services.RequestIDCheck, testdata.OrgID, testdata.ClusterName, data.RequestID1)
+		redisServer.ExpectExists(expectedKey).SetVal(0)
+
+		// request ID not found
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestIDReproducer,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.RequestID1},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusNotFound,
+				Body:       fmt.Sprintf(`{"status":"%v"}`, server.RequestIDNotFound),
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetRequestStatusForClusterReproducer_BadRequestClusterID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
+
+		// invalid clusterID
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestIDReproducer,
+				EndpointArgs: []interface{}{testdata.BadClusterName, data.RequestID1}, // bad cluster name
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status":"Error during parsing param 'cluster' with value 'aaaa'. Error: 'invalid UUID length: 4'"}`,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetRequestStatusForClusterReproducer_BadRequestID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
+
+		// invalid requestID in endpoint arg
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestIDReproducer,
+				EndpointArgs: []interface{}{testdata.ClusterName, "_"}, // invalid requestID
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusBadRequest,
+				Body:       `{"status":"Error during parsing param 'request_id' with value '_'. Error: 'invalid request ID: '_''"}`,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetRequestStatusForClusterReproducer_BadAuthToken(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		// mock server not needed because the request will not get to part requiring Redis
+		redisClient, _ := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
+
+		// bad token
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestIDReproducer,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.RequestID1},
+				XRHIdentity:  invalidXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusForbidden,
+			},
+		)
+	}, testTimeout)
+}
+
+func TestHTTPServer_GetRequestStatusForClusterReproducer_SingleRequestID(t *testing.T) {
+	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
+		defer helpers.CleanAfterGock(t)
+
+		redisClient, redisServer := helpers.GetMockRedis()
+
+		testServer := helpers.CreateHTTPServer(&helpers.DefaultServerConfig, nil, nil, &redisClient, nil, nil, nil, nil)
+
+		expectedKey := fmt.Sprintf(services.RequestIDCheck, testdata.OrgID, testdata.ClusterName, data.RequestID1)
+		redisServer.ExpectExists(expectedKey).SetVal(1)
+
+		expectedResponse := fmt.Sprintf(`{"cluster":"%v","requestID":"%v","status":"processed"}`, testdata.ClusterName, data.RequestID1)
+
+		// given request ID found in the list
+		iou_helpers.AssertAPIRequest(
+			t,
+			testServer,
+			serverConfigXRH.APIv2Prefix,
+			&helpers.APIRequest{
+				Method:       http.MethodGet,
+				Endpoint:     server.StatusOfRequestIDReproducer,
+				EndpointArgs: []interface{}{testdata.ClusterName, data.RequestID1},
+				XRHIdentity:  goodXRHAuthToken,
+			}, &helpers.APIResponse{
+				StatusCode: http.StatusOK,
+				Body:       expectedResponse,
+			},
+		)
+
+		helpers.RedisExpectationsMet(t, redisServer)
+	}, testTimeout)
+}
+
 func TestHTTPServer_GetRequestsForCluster_OK1Request(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)

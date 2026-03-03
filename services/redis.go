@@ -50,6 +50,10 @@ var (
 	// matching "organization:%v:cluster:%v:request:".
 	RequestIDsScanPattern = "organization:%v:cluster:%v:request:?*"
 
+	// RequestIDCheck is used as part of an EXISTS command to check whether a given request_id has been
+	// successfully processed and stored in the Redis storage.
+	RequestIDCheck = "organization:%v:cluster:%v:request:%v"
+
 	// SimplifiedReportKey is a key under which the information about specific requests is stored
 	SimplifiedReportKey = "organization:%v:cluster:%v:request:%v:reports"
 )
@@ -73,6 +77,11 @@ type RedisInterface interface {
 		types.ClusterName,
 		types.RequestID,
 	) ([]types.RuleID, error)
+	GetRequestStatus(
+		types.OrgID,
+		types.ClusterName,
+		types.RequestID,
+	) error
 }
 
 // RedisClient is a local type which embeds the imported redis.Client to include its own functionality
@@ -252,6 +261,34 @@ func (redisClient *RedisClient) GetRuleHitsForRequest(
 		}
 
 		ruleHits = append(ruleHits, types.RuleID(ruleHit))
+	}
+
+	return
+}
+
+// GetRequestStatus is used to check for the existence of a given cluster + request_id
+// in Redis. Since every request_id is stored as a separate key, we can simply check for
+// the presence of the full key (org_id + cluster_id + request_id) to confirm that the
+// archive has been been processed successfully without having to iterate over a list of request_ids.
+func (redisClient *RedisClient) GetRequestStatus(
+	orgID types.OrgID,
+	clusterID types.ClusterName,
+	requestID types.RequestID,
+) (err error) {
+	key := fmt.Sprintf(RequestIDCheck, orgID, clusterID, requestID)
+
+	exists, err := redisClient.Connection.Exists(context.Background(), key).Result()
+	if err != nil {
+		log.Error().Err(err).Msg(redisCmdExecutionFailedMsg)
+		return
+	}
+
+	// given cluster + request ID not found in Redis storage
+	// note: go-redis EXISTS command returns IntCmd, not BoolCmd, hence this check
+	if exists == 0 {
+		err = &utypes.ItemNotFoundError{ItemID: requestID}
+		log.Warn().Err(err).Msgf("request data for request_id %v not found in Redis", requestID)
+		return
 	}
 
 	return
