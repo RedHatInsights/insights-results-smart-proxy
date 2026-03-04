@@ -70,11 +70,6 @@ const (
 	// request ID
 	StatusOfRequestID = "cluster/{cluster}/request/{request_id}/status"
 
-	// StatusOfRequestIDReproducer should return the status of processing one given
-	// request ID, returning the same exact response as the /status endpoint.
-	// This is a reproducer for a performance issue affecting the newest IO version.
-	StatusOfRequestIDReproducer = "cluster/{cluster}/request/{request_id}/status_dbg"
-
 	// RuleHitsForRequestID should return simplified results for given
 	// cluster and requestID
 	RuleHitsForRequestID = "cluster/{cluster}/request/{request_id}/report"
@@ -177,7 +172,6 @@ func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPre
 	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForCluster).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForClusterPostVariant).Methods(http.MethodPost)
 	router.HandleFunc(apiPrefix+StatusOfRequestID, server.getRequestStatusForCluster).Methods(http.MethodGet)
-	router.HandleFunc(apiPrefix+StatusOfRequestIDReproducer, server.getRequestStatusForClusterReproducer).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+RuleHitsForRequestID, server.getReportForRequest).Methods(http.MethodGet)
 }
 
