@@ -1281,85 +1281,11 @@ func (server *HTTPServer) processClustersDetailResponse(
 	return responses.Send(http.StatusOK, writer, response)
 }
 
-// getRequestStatusForCluster method implements endpoint that should return a status
-// for given request ID.
+// getRequestStatusForCluster implements an endpoint returning the status of a
+// given request ID.
+// This endpoint was previously causing a performance issue affecting the insights-operator. We need to ensure
+// that this endpoint will always be 100% backwards compatible.
 func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter, request *http.Request) {
-	orgID, err := server.GetCurrentOrgID(request)
-	if err != nil {
-		log.Error().Msg(authTokenFormatError)
-		handleServerError(writer, err)
-		return
-	}
-
-	clusterID, successful := httputils.ReadClusterName(writer, request)
-	if !successful {
-		// error handled by function
-		return
-	}
-
-	requestID, err := readRequestID(writer, request)
-	if err != nil {
-		// error handled by function
-		return
-	}
-
-	// make sure we don't access server.redis when it's nil
-	if !server.checkRedisClientReadiness(writer) {
-		// error has been handled already
-		return
-	}
-
-	// get request ID list from Redis using SCAN command
-	requestIDsForCluster, err := server.redis.GetRequestIDsForClusterID(orgID, clusterID)
-	if err != nil {
-		handleServerError(writer, err)
-		return
-	}
-	if len(requestIDsForCluster) == 0 {
-		err := responses.SendNotFound(writer, RequestsForClusterNotFound)
-		if err != nil {
-			log.Error().Err(err).Msg(responseDataError)
-		}
-		return
-	}
-
-	// try to find the required request ID in list of requests IDs from Redis
-	var found bool
-	for _, storedRequestID := range requestIDsForCluster {
-		if storedRequestID == requestID {
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		err := responses.SendNotFound(writer, RequestIDNotFound)
-		if err != nil {
-			log.Error().Err(err).Msg(responseDataError)
-		}
-		return
-	}
-
-	// prepare data structure
-	responseData := map[string]interface{}{}
-	responseData["cluster"] = string(clusterID)
-	responseData["requestID"] = requestID
-	responseData["status"] = StatusProcessed
-
-	// send response to client
-	err = responses.SendOK(writer, responseData)
-	if err != nil {
-		handleServerError(writer, err)
-		return
-	}
-}
-
-// getRequestStatusForClusterReproducer implements an endpoint returning the status of a
-// given request ID, replicating the /status endpoint.
-// This is a reproducer for a performance issue affecting the insights-operator. We need to ensure
-// that the responses are consistent before making ANY changes to the real endpoint, since we need
-// to be 100% backwards compatible.
-func (server *HTTPServer) getRequestStatusForClusterReproducer(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
 		log.Error().Msg(authTokenFormatError)

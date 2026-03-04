@@ -488,9 +488,9 @@
     },
     "/cluster/{clusterId}/request/{requestId}/status": {
       "get": {
-        "summary": "Check status of a given cluster's request",
+        "summary": "Check the status of a given request_id, representing a single archive uploaded by the Insights Operator to Ingress. Doesn't distinguish between regular archives and those collected on-demand",
         "operationId": "getRequestStatusForCluster",
-        "description": "The status of the request with given ID if found. The cluster ID is required so only requests for the given cluster are returned, if any. Response should have the following format: ```\n{\n\"cluster\": \"{clusterID}\",\n\"requestID\":\"{requestID}\",\n\"status\": \"{string}\"\n}\n```",
+        "description": "This endpoint is to be used as a simple check whether a given cluster archive has been processed successfully. It's primarily used by the Insights Operator's on-demand data gathering feature to check whether an archive has been processed and stored successfully. The response should have the following format: ```\n{\n\"cluster\": \"{clusterID}\",\n\"requestID\":\"{requestID}\",\n\"status\": \"{string}\"\n}\n```",
         "parameters": [
           {
             "name": "clusterId",
@@ -512,7 +512,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Stored status for the given cluster and request IDs",
+            "description": "A successful response means that the given request_id (a single Insights Operator archive uploaded to Ingress) has been successfully processed, stored, and the Insights results are available for retrieval",
             "content": {
               "application/json": {
                 "schema": {
@@ -538,13 +538,13 @@
             }
           },
           "400": {
-            "description": "Invalid request or invalid cluster ID"
+            "description": "Invalid request, invalid cluster_id param or invalid request_id param"
           },
           "403": {
             "$ref": "#/components/responses/unauthorized"
           },
           "404": {
-            "description": "Request ID or cluster ID not found"
+            "description": "Request ID not found for given org_id and cluster_id. Doesn't distinguish between different processing states. The 404 response simply indicates that we don't have any information about the given request_id"
           }
         }
       }
