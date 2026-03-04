@@ -1281,7 +1281,7 @@ func (server *HTTPServer) processClustersDetailResponse(
 	return responses.Send(http.StatusOK, writer, response)
 }
 
-// getRequestStatusForClusterReproducer implements an endpoint returning the status of a
+// getRequestStatusForCluster implements an endpoint returning the status of a
 // given request ID.
 // This endpoint was previously causing a performance issue affecting the insights-operator. We need to ensure
 // that this endpoint will always be 100% backwards compatible.
