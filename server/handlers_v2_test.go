@@ -1249,7 +1249,7 @@ func TestHTTPServer_GetSingleClusterInfoClusterNotFound(t *testing.T) {
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestStatusForClusterReproducer_RedisNil(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_RedisNil(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -1271,7 +1271,7 @@ func TestHTTPServer_GetRequestStatusForClusterReproducer_RedisNil(t *testing.T) 
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestStatusForClusterReproducer_RedisError500(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_RedisError500(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -1300,7 +1300,7 @@ func TestHTTPServer_GetRequestStatusForClusterReproducer_RedisError500(t *testin
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestStatusForClusterReproducer_RequestNotFound(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_RequestNotFound(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -1331,7 +1331,7 @@ func TestHTTPServer_GetRequestStatusForClusterReproducer_RequestNotFound(t *test
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestStatusForClusterReproducer_BadRequestClusterID(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_BadRequestClusterID(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -1358,7 +1358,7 @@ func TestHTTPServer_GetRequestStatusForClusterReproducer_BadRequestClusterID(t *
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestStatusForClusterReproducer_BadRequestID(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_BadRequestID(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -1385,7 +1385,7 @@ func TestHTTPServer_GetRequestStatusForClusterReproducer_BadRequestID(t *testing
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestStatusForClusterReproducer_BadAuthToken(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_BadAuthToken(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
@@ -1411,7 +1411,7 @@ func TestHTTPServer_GetRequestStatusForClusterReproducer_BadAuthToken(t *testing
 	}, testTimeout)
 }
 
-func TestHTTPServer_GetRequestStatusForClusterReproducer_SingleRequestID(t *testing.T) {
+func TestHTTPServer_GetRequestStatusForCluster_SingleRequestID(t *testing.T) {
 	helpers.RunTestWithTimeout(t, func(tt testing.TB) {
 		defer helpers.CleanAfterGock(t)
 
