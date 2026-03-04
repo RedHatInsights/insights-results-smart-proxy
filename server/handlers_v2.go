@@ -1282,10 +1282,9 @@ func (server *HTTPServer) processClustersDetailResponse(
 }
 
 // getRequestStatusForClusterReproducer implements an endpoint returning the status of a
-// given request ID, replicating the /status endpoint.
-// This is a reproducer for a performance issue affecting the insights-operator. We need to ensure
-// that the responses are consistent before making ANY changes to the real endpoint, since we need
-// to be 100% backwards compatible.
+// given request ID.
+// This endpoint was previously causing a performance issue affecting the insights-operator. We need to ensure
+// that this endpoint will always be 100% backwards compatible.
 func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
