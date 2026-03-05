@@ -38,6 +38,8 @@ const (
 	GeneratedAt = "2020-03-06T12:00:00Z"
 
 	NamespaceUUID1 = "00000000-aaaa-bbbb-cccc-eeeeeeeeeeee"
+
+	RequestID1 = "requestID1"
 )
 
 var (

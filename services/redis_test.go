@@ -417,6 +417,24 @@ func TestGetRuleHitsForRequest_FoundInvalidRuleID(t *testing.T) {
 	helpers.RedisExpectationsMet(t, server)
 }
 
+func TestGetRuleHitsForRequest_FoundEmptyRuleID(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.SimplifiedReportKey, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	// empty rule_id edge case
+	server.ExpectHMGet(
+		expectedKey, services.RequestIDFieldName, services.RuleHitsFieldName,
+	).SetVal([]interface{}{"requestID123", ""})
+
+	ruleHits, err := client.GetRuleHitsForRequest(testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	assert.NoError(t, err)
+	assert.Len(t, ruleHits, 0)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
 func TestGetRuleHitsForRequest_Error(t *testing.T) {
 	client, server := helpers.GetMockRedis()
 
@@ -447,6 +465,46 @@ func TestGetRuleHitsForRequest_OKScanError(t *testing.T) {
 	ruleHits, err := client.GetRuleHitsForRequest(testdata.OrgID, testdata.ClusterName1, "requestID123")
 	assert.Error(t, err)
 	assert.Len(t, ruleHits, 0)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRequestStatus_Found(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.RequestIDCheck, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectExists(expectedKey).SetVal(1)
+
+	err := client.GetRequestStatus(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	assert.NoError(t, err)
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRequestStatus_NotFound(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.RequestIDCheck, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectExists(expectedKey).SetVal(0)
+
+	err := client.GetRequestStatus(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	assert.Error(t, err)
+	assert.IsType(t, err, &utypes.ItemNotFoundError{})
+
+	helpers.RedisExpectationsMet(t, server)
+}
+
+func TestGetRequestStatus_Error(t *testing.T) {
+	client, server := helpers.GetMockRedis()
+
+	expectedKey := fmt.Sprintf(services.RequestIDCheck, testdata.OrgID, testdata.ClusterName1, "requestID123")
+
+	server.ExpectExists(expectedKey).SetErr(errTest)
+
+	err := client.GetRequestStatus(testdata.OrgID, testdata.ClusterName1, "requestID123")
+	assert.Error(t, err)
 
 	helpers.RedisExpectationsMet(t, server)
 }

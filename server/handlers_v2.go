@@ -1281,8 +1281,10 @@ func (server *HTTPServer) processClustersDetailResponse(
 	return responses.Send(http.StatusOK, writer, response)
 }
 
-// getRequestStatusForCluster method implements endpoint that should return a status
-// for given request ID.
+// getRequestStatusForCluster implements an endpoint returning the status of a
+// given request ID.
+// This endpoint was previously causing a performance issue affecting the insights-operator. We need to ensure
+// that this endpoint will always be 100% backwards compatible.
 func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter, request *http.Request) {
 	orgID, err := server.GetCurrentOrgID(request)
 	if err != nil {
@@ -1305,42 +1307,28 @@ func (server *HTTPServer) getRequestStatusForCluster(writer http.ResponseWriter,
 
 	// make sure we don't access server.redis when it's nil
 	if !server.checkRedisClientReadiness(writer) {
-		// error has been handled already
+		// error handled by function
 		return
 	}
 
-	// get request ID list from Redis using SCAN command
-	requestIDsForCluster, err := server.redis.GetRequestIDsForClusterID(orgID, clusterID)
+	// perform EXISTS query to check whether an archive (request_id) was processed
+	err = server.redis.GetRequestStatus(orgID, clusterID, requestID)
 	if err != nil {
-		handleServerError(writer, err)
-		return
-	}
-	if len(requestIDsForCluster) == 0 {
-		err := responses.SendNotFound(writer, RequestsForClusterNotFound)
-		if err != nil {
-			log.Error().Err(err).Msg(responseDataError)
-		}
-		return
-	}
-
-	// try to find the required request ID in list of requests IDs from Redis
-	var found bool
-	for _, storedRequestID := range requestIDsForCluster {
-		if storedRequestID == requestID {
-			found = true
-			break
+		switch err.(type) {
+		case *utypes.ItemNotFoundError:
+			// keep same message as in the original endpoint
+			err := responses.SendNotFound(writer, RequestIDNotFound)
+			if err != nil {
+				log.Error().Err(err).Msg(responseDataError)
+			}
+			return
+		default:
+			handleServerError(writer, err)
+			return
 		}
 	}
 
-	if !found {
-		err := responses.SendNotFound(writer, RequestIDNotFound)
-		if err != nil {
-			log.Error().Err(err).Msg(responseDataError)
-		}
-		return
-	}
-
-	// prepare data structure
+	// prepare response
 	responseData := map[string]interface{}{}
 	responseData["cluster"] = string(clusterID)
 	responseData["requestID"] = requestID

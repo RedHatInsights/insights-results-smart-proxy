@@ -166,7 +166,8 @@ func (server *HTTPServer) addV2EndpointsToRouter(router *mux.Router) {
 }
 
 // addV2RedisEndpointsToRouter method registers handlers for endpoints that depend on our Redis storage
-// to provide responses.
+// to provide responses. These endpoints are used by the insights-operator, which is a versioned product,
+// meaning these endpoints have to be 100% backwards compatible.
 func (server *HTTPServer) addV2RedisEndpointsToRouter(router *mux.Router, apiPrefix string) {
 	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForCluster).Methods(http.MethodGet)
 	router.HandleFunc(apiPrefix+ListAllRequestIDs, server.getRequestsForClusterPostVariant).Methods(http.MethodPost)
