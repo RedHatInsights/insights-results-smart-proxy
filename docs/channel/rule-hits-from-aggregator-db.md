@@ -19,4 +19,3 @@ layout: default
 
 *Insights Results Aggregator* retrieves rule hits records from SQL
 database (AWS RDS, PostgreSQL, or SQLite).
-

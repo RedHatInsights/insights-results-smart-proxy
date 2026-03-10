@@ -204,9 +204,9 @@ namespace content {
         + GetContentForRecommendation(ruleID insights-results-types.RuleID) (*insights-results-types.RuleWithContent, bool)
         + GetAllContentV1() []insights-results-types.RuleContentV1
         + GetAllContentV2() []insights-results-types.RuleContentV2
-        + SetRuleWithContent(ruleID insights-results-types.RuleID, errorKey insights-results-types.ErrorKey, ruleWithContent *insights-results-types.RuleWithContent) 
-        + SetRule(ruleID insights-results-types.RuleID, ruleContent insights-results-types.RuleContent) 
-        + ResetContent() 
+        + SetRuleWithContent(ruleID insights-results-types.RuleID, errorKey insights-results-types.ErrorKey, ruleWithContent *insights-results-types.RuleWithContent)
+        + SetRule(ruleID insights-results-types.RuleID, ruleContent insights-results-types.RuleContent)
+        + ResetContent()
         + GetRuleIDs() []string
         + GetInternalRuleIDs() []insights-results-types.RuleID
         + GetExternalRuleIDs() []insights-results-types.RuleID
@@ -303,67 +303,67 @@ namespace server {
         + ErrorChannel <font color=blue>chan</font> error
         + Serv *http.Server
 
-        - readAckList(writer http.ResponseWriter, request *http.Request) 
-        - getAcknowledge(writer http.ResponseWriter, request *http.Request) 
-        - acknowledgePost(writer http.ResponseWriter, request *http.Request) 
-        - updateAcknowledge(writer http.ResponseWriter, request *http.Request) 
-        - deleteAcknowledge(writer http.ResponseWriter, request *http.Request) 
+        - readAckList(writer http.ResponseWriter, request *http.Request)
+        - getAcknowledge(writer http.ResponseWriter, request *http.Request)
+        - acknowledgePost(writer http.ResponseWriter, request *http.Request)
+        - updateAcknowledge(writer http.ResponseWriter, request *http.Request)
+        - deleteAcknowledge(writer http.ResponseWriter, request *http.Request)
         - ackRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID, justification string) error
         - updateAckRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID, justification string) error
         - deleteAckRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID) error
         - readListOfAckedRules(orgID insights-results-types.OrgID) ([]insights-results-types.SystemWideRuleDisable, error)
         - readRuleDisableStatus(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID) (insights-results-types.Acknowledgement, bool, error)
         - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
-        - adddbgEndpointsToRouter(router *mux.Router) 
-        - addV1EndpointsToRouter(router *mux.Router) 
-        - addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
-        - addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
-        - addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) 
-        - addV1ContentEndpointsToRouter(router *mux.Router) 
-        - addV2EndpointsToRouter(router *mux.Router) 
-        - addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
-        - addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) 
-        - addV2ContentEndpointsToRouter(router *mux.Router, apiPrefix string) 
-        - getGroups(writer http.ResponseWriter, _ *http.Request) 
-        - getContentForRuleV1(writer http.ResponseWriter, request *http.Request) 
-        - getContentV1(writer http.ResponseWriter, request *http.Request) 
-        - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
-        - getRuleIDs(writer http.ResponseWriter, request *http.Request) 
+        - adddbgEndpointsToRouter(router *mux.Router)
+        - addV1EndpointsToRouter(router *mux.Router)
+        - addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string)
+        - addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string)
+        - addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string)
+        - addV1ContentEndpointsToRouter(router *mux.Router)
+        - addV2EndpointsToRouter(router *mux.Router)
+        - addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string)
+        - addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string)
+        - addV2ContentEndpointsToRouter(router *mux.Router, apiPrefix string)
+        - getGroups(writer http.ResponseWriter, _ *http.Request)
+        - getContentForRuleV1(writer http.ResponseWriter, request *http.Request)
+        - getContentV1(writer http.ResponseWriter, request *http.Request)
+        - getClustersForOrg(writer http.ResponseWriter, request *http.Request)
+        - getRuleIDs(writer http.ResponseWriter, request *http.Request)
         - getOrganizationOverview(clusterInfoList []types.ClusterInfo, clusterRecommendationsMap insights-results-types.ClusterRecommendationMap, systemWideDisabledRules <font color=blue>map</font>[insights-results-types.RuleID]bool, disabledRulesPerCluster <font color=blue>map</font>[insights-results-types.ClusterName][]insights-results-types.RuleID) (types.OrgOverviewResponse, error)
-        - overviewEndpoint(writer http.ResponseWriter, request *http.Request) 
-        - overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) 
-        - infoMap(writer http.ResponseWriter, request *http.Request) 
+        - overviewEndpoint(writer http.ResponseWriter, request *http.Request)
+        - overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request)
+        - infoMap(writer http.ResponseWriter, request *http.Request)
         - fillInSmartProxyInfoParams() <font color=blue>map</font>[string]string
         - fillInContentServiceInfoParams() <font color=blue>map</font>[string]string
         - fillInAggregatorInfoParams() <font color=blue>map</font>[string]string
         - getContentCheckInternal(ruleID insights-results-types.RuleID, request *http.Request) (*insights-results-types.RuleWithContent, error)
         - getRuleWithGroups(writer http.ResponseWriter, request *http.Request, ruleID insights-results-types.RuleID) (*insights-results-types.RuleWithContent, []groups.Group, error)
-        - getRecommendationContent(writer http.ResponseWriter, request *http.Request) 
-        - getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) 
-        - getRecommendations(writer http.ResponseWriter, request *http.Request) 
+        - getRecommendationContent(writer http.ResponseWriter, request *http.Request)
+        - getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request)
+        - getRecommendations(writer http.ResponseWriter, request *http.Request)
         - getRuleAcksMap(orgID insights-results-types.OrgID) <font color=blue>map</font>[insights-results-types.RuleID]bool
         - getRuleDisabledClusters(writer http.ResponseWriter, orgID insights-results-types.OrgID, clusterList []insights-results-types.ClusterName) <font color=blue>map</font>[insights-results-types.RuleID][]insights-results-types.ClusterName
-        - getClustersView(writer http.ResponseWriter, request *http.Request) 
-        - getSingleClusterInfo(writer http.ResponseWriter, request *http.Request) 
+        - getClustersView(writer http.ResponseWriter, request *http.Request)
+        - getSingleClusterInfo(writer http.ResponseWriter, request *http.Request)
         - getUserDisabledRulesPerCluster(orgID insights-results-types.OrgID) <font color=blue>map</font>[insights-results-types.ClusterName][]insights-results-types.RuleID
         - getImpactingRecommendations(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, clusterList []insights-results-types.ClusterName) (insights-results-types.RecommendationImpactedClusters, error)
         - getClustersAndRecommendations(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, clusterList []insights-results-types.ClusterName) (insights-results-types.ClusterRecommendationMap, error)
-        - getContentWithGroups(writer http.ResponseWriter, request *http.Request) 
+        - getContentWithGroups(writer http.ResponseWriter, request *http.Request)
         - getImpactedClusters(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, selector insights-results-types.RuleSelector, activeClustersInfo []insights-results-types.ClusterInfo, useAggregatorFallback bool) ([]insights-results-types.HittingClustersData, error)
-        - getClustersDetailForRule(writer http.ResponseWriter, request *http.Request) 
+        - getClustersDetailForRule(writer http.ResponseWriter, request *http.Request)
         - getListOfDisabledClusters(orgID insights-results-types.OrgID, ruleSelector insights-results-types.RuleSelector) ([]insights-results-types.DisabledClusterInfo, error)
         - processClustersDetailResponse(impactedClusters []insights-results-types.HittingClustersData, disabledClusters []insights-results-types.DisabledClusterInfo, clusterInfo []insights-results-types.ClusterInfo, writer http.ResponseWriter) error
-        - postRating(writer http.ResponseWriter, request *http.Request) 
+        - postRating(writer http.ResponseWriter, request *http.Request)
         - postRatingToAggregator(orgID insights-results-types.OrgID, request *http.Request, writer http.ResponseWriter) (*insights-results-types.RuleRating, bool)
         - getRatingForRecommendation(writer http.ResponseWriter, orgID insights-results-types.OrgID, ruleID insights-results-types.RuleID) (insights-results-types.RuleRating, error)
         - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - extractOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (insights-results-types.UserID, insights-results-types.OrgID, insights-results-types.ImpactingFlag, error)
-        - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
-        - addEndpointsToRouter(router *mux.Router) 
-        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
-        - evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) 
+        - mainEndpoint(writer http.ResponseWriter, _ *http.Request)
+        - addEndpointsToRouter(router *mux.Router)
+        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request)
+        - evaluateProxyError(writer http.ResponseWriter, err error, baseURL string)
         - sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, error)
         - composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)
         - getClusterInfoFromAMS(orgID insights-results-types.OrgID) ([]insights-results-types.ClusterInfo, error)
@@ -380,15 +380,15 @@ namespace server {
         - fetchAggregatorReports(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ClusterReports, bool)
         - fetchAggregatorReportsUsingRequestBodyClusterList(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ClusterReports, bool)
         - buildReportEndpointResponse(writer http.ResponseWriter, request *http.Request, aggregatorResponse *insights-results-types.ReportResponse, clusterID insights-results-types.ClusterName, osdFlag bool) ([]insights-results-types.RuleWithContentResponse, int, error)
-        - reportEndpointV1(writer http.ResponseWriter, request *http.Request) 
-        - reportEndpointV2(writer http.ResponseWriter, request *http.Request) 
+        - reportEndpointV1(writer http.ResponseWriter, request *http.Request)
+        - reportEndpointV2(writer http.ResponseWriter, request *http.Request)
         - getKnownUserAgentProduct(request *http.Request) string
-        - reportMetainfoEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - reportMetainfoEndpoint(writer http.ResponseWriter, request *http.Request)
         - getRuleCount(visibleRules []insights-results-types.RuleWithContentResponse, noContentRulesCnt int, disabledRulesCnt int, clusterID insights-results-types.ClusterName) int
-        - reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request) 
-        - reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request)
+        - reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request)
         - fetchAggregatorReportRule(writer http.ResponseWriter, request *http.Request) (*insights-results-types.RuleOnReport, bool)
-        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request)
         - checkInternalRulePermissions(request *http.Request) error
         - getGroupsConfig() ([]groups.Group, error)
         - readListOfClusterDisabledRules(orgID insights-results-types.OrgID) ([]insights-results-types.DisabledRule, error)
@@ -403,7 +403,7 @@ namespace server {
         + Initialize() http.Handler
         + Start() error
         + Stop(ctx context.Context) error
-        + SetAMSInfoInReport(clusterID insights-results-types.ClusterName, report *insights-results-types.SmartProxyReportV2) 
+        + SetAMSInfoInReport(clusterID insights-results-types.ClusterName, report *insights-results-types.SmartProxyReportV2)
 
     }
     class NoBodyError << (S,Aquamarine) >> {
@@ -787,9 +787,9 @@ namespace content {
         + GetContentForRecommendation(ruleID insights-results-types.RuleID) (*insights-results-types.RuleWithContent, bool)
         + GetAllContentV1() []insights-results-types.RuleContentV1
         + GetAllContentV2() []insights-results-types.RuleContentV2
-        + SetRuleWithContent(ruleID insights-results-types.RuleID, errorKey insights-results-types.ErrorKey, ruleWithContent *insights-results-types.RuleWithContent) 
-        + SetRule(ruleID insights-results-types.RuleID, ruleContent insights-results-types.RuleContent) 
-        + ResetContent() 
+        + SetRuleWithContent(ruleID insights-results-types.RuleID, errorKey insights-results-types.ErrorKey, ruleWithContent *insights-results-types.RuleWithContent)
+        + SetRule(ruleID insights-results-types.RuleID, ruleContent insights-results-types.RuleContent)
+        + ResetContent()
         + GetRuleIDs() []string
         + GetInternalRuleIDs() []insights-results-types.RuleID
         + GetExternalRuleIDs() []insights-results-types.RuleID
@@ -884,67 +884,67 @@ namespace server {
         + ErrorChannel <font color=blue>chan</font> error
         + Serv *http.Server
 
-        - readAckList(writer http.ResponseWriter, request *http.Request) 
-        - getAcknowledge(writer http.ResponseWriter, request *http.Request) 
-        - acknowledgePost(writer http.ResponseWriter, request *http.Request) 
-        - updateAcknowledge(writer http.ResponseWriter, request *http.Request) 
-        - deleteAcknowledge(writer http.ResponseWriter, request *http.Request) 
+        - readAckList(writer http.ResponseWriter, request *http.Request)
+        - getAcknowledge(writer http.ResponseWriter, request *http.Request)
+        - acknowledgePost(writer http.ResponseWriter, request *http.Request)
+        - updateAcknowledge(writer http.ResponseWriter, request *http.Request)
+        - deleteAcknowledge(writer http.ResponseWriter, request *http.Request)
         - ackRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID, justification string) error
         - updateAckRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID, justification string) error
         - deleteAckRuleSystemWide(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID) error
         - readListOfAckedRules(orgID insights-results-types.OrgID) ([]insights-results-types.SystemWideRuleDisable, error)
         - readRuleDisableStatus(ruleID insights-results-types.Component, errorKey insights-results-types.ErrorKey, orgID insights-results-types.OrgID) (insights-results-types.Acknowledgement, bool, error)
         - getAuthTokenHeader(w http.ResponseWriter, r *http.Request) (string, bool)
-        - adddbgEndpointsToRouter(router *mux.Router) 
-        - addV1EndpointsToRouter(router *mux.Router) 
-        - addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
-        - addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
-        - addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) 
-        - addV1ContentEndpointsToRouter(router *mux.Router) 
-        - addV2EndpointsToRouter(router *mux.Router) 
-        - addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string) 
-        - addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string) 
-        - addV2ContentEndpointsToRouter(router *mux.Router, apiPrefix string) 
-        - getGroups(writer http.ResponseWriter, _ *http.Request) 
-        - getContentForRuleV1(writer http.ResponseWriter, request *http.Request) 
-        - getContentV1(writer http.ResponseWriter, request *http.Request) 
-        - getClustersForOrg(writer http.ResponseWriter, request *http.Request) 
-        - getRuleIDs(writer http.ResponseWriter, request *http.Request) 
+        - adddbgEndpointsToRouter(router *mux.Router)
+        - addV1EndpointsToRouter(router *mux.Router)
+        - addV1ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string)
+        - addV1DebugEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string)
+        - addV1RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string)
+        - addV1ContentEndpointsToRouter(router *mux.Router)
+        - addV2EndpointsToRouter(router *mux.Router)
+        - addV2ReportsEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseURL string)
+        - addV2RuleEndpointsToRouter(router *mux.Router, apiPrefix string, aggregatorBaseEndpoint string)
+        - addV2ContentEndpointsToRouter(router *mux.Router, apiPrefix string)
+        - getGroups(writer http.ResponseWriter, _ *http.Request)
+        - getContentForRuleV1(writer http.ResponseWriter, request *http.Request)
+        - getContentV1(writer http.ResponseWriter, request *http.Request)
+        - getClustersForOrg(writer http.ResponseWriter, request *http.Request)
+        - getRuleIDs(writer http.ResponseWriter, request *http.Request)
         - getOrganizationOverview(clusterInfoList []types.ClusterInfo, clusterRecommendationsMap insights-results-types.ClusterRecommendationMap, systemWideDisabledRules <font color=blue>map</font>[insights-results-types.RuleID]bool, disabledRulesPerCluster <font color=blue>map</font>[insights-results-types.ClusterName][]insights-results-types.RuleID) (types.OrgOverviewResponse, error)
-        - overviewEndpoint(writer http.ResponseWriter, request *http.Request) 
-        - overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request) 
-        - infoMap(writer http.ResponseWriter, request *http.Request) 
+        - overviewEndpoint(writer http.ResponseWriter, request *http.Request)
+        - overviewEndpointWithClusterIDs(writer http.ResponseWriter, request *http.Request)
+        - infoMap(writer http.ResponseWriter, request *http.Request)
         - fillInSmartProxyInfoParams() <font color=blue>map</font>[string]string
         - fillInContentServiceInfoParams() <font color=blue>map</font>[string]string
         - fillInAggregatorInfoParams() <font color=blue>map</font>[string]string
         - getContentCheckInternal(ruleID insights-results-types.RuleID, request *http.Request) (*insights-results-types.RuleWithContent, error)
         - getRuleWithGroups(writer http.ResponseWriter, request *http.Request, ruleID insights-results-types.RuleID) (*insights-results-types.RuleWithContent, []groups.Group, error)
-        - getRecommendationContent(writer http.ResponseWriter, request *http.Request) 
-        - getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request) 
-        - getRecommendations(writer http.ResponseWriter, request *http.Request) 
+        - getRecommendationContent(writer http.ResponseWriter, request *http.Request)
+        - getRecommendationContentWithUserData(writer http.ResponseWriter, request *http.Request)
+        - getRecommendations(writer http.ResponseWriter, request *http.Request)
         - getRuleAcksMap(orgID insights-results-types.OrgID) <font color=blue>map</font>[insights-results-types.RuleID]bool
         - getRuleDisabledClusters(writer http.ResponseWriter, orgID insights-results-types.OrgID, clusterList []insights-results-types.ClusterName) <font color=blue>map</font>[insights-results-types.RuleID][]insights-results-types.ClusterName
-        - getClustersView(writer http.ResponseWriter, request *http.Request) 
-        - getSingleClusterInfo(writer http.ResponseWriter, request *http.Request) 
+        - getClustersView(writer http.ResponseWriter, request *http.Request)
+        - getSingleClusterInfo(writer http.ResponseWriter, request *http.Request)
         - getUserDisabledRulesPerCluster(orgID insights-results-types.OrgID) <font color=blue>map</font>[insights-results-types.ClusterName][]insights-results-types.RuleID
         - getImpactingRecommendations(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, clusterList []insights-results-types.ClusterName) (insights-results-types.RecommendationImpactedClusters, error)
         - getClustersAndRecommendations(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, clusterList []insights-results-types.ClusterName) (insights-results-types.ClusterRecommendationMap, error)
-        - getContentWithGroups(writer http.ResponseWriter, request *http.Request) 
+        - getContentWithGroups(writer http.ResponseWriter, request *http.Request)
         - getImpactedClusters(writer http.ResponseWriter, orgID insights-results-types.OrgID, userID insights-results-types.UserID, selector insights-results-types.RuleSelector, activeClustersInfo []insights-results-types.ClusterInfo, useAggregatorFallback bool) ([]insights-results-types.HittingClustersData, error)
-        - getClustersDetailForRule(writer http.ResponseWriter, request *http.Request) 
+        - getClustersDetailForRule(writer http.ResponseWriter, request *http.Request)
         - getListOfDisabledClusters(orgID insights-results-types.OrgID, ruleSelector insights-results-types.RuleSelector) ([]insights-results-types.DisabledClusterInfo, error)
         - processClustersDetailResponse(impactedClusters []insights-results-types.HittingClustersData, disabledClusters []insights-results-types.DisabledClusterInfo, clusterInfo []insights-results-types.ClusterInfo, writer http.ResponseWriter) error
-        - postRating(writer http.ResponseWriter, request *http.Request) 
+        - postRating(writer http.ResponseWriter, request *http.Request)
         - postRatingToAggregator(orgID insights-results-types.OrgID, request *http.Request, writer http.ResponseWriter) (*insights-results-types.RuleRating, bool)
         - getRatingForRecommendation(writer http.ResponseWriter, orgID insights-results-types.OrgID, ruleID insights-results-types.RuleID) (insights-results-types.RuleRating, error)
         - newExtractUserIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - extractUserIDOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - extractOrgIDFromTokenToURLRequestModifier(newEndpoint string) RequestModifier
         - readParamsGetRecommendations(writer http.ResponseWriter, request *http.Request) (insights-results-types.UserID, insights-results-types.OrgID, insights-results-types.ImpactingFlag, error)
-        - mainEndpoint(writer http.ResponseWriter, _ *http.Request) 
-        - addEndpointsToRouter(router *mux.Router) 
-        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request) 
-        - evaluateProxyError(writer http.ResponseWriter, err error, baseURL string) 
+        - mainEndpoint(writer http.ResponseWriter, _ *http.Request)
+        - addEndpointsToRouter(router *mux.Router)
+        - proxyTo(baseURL string, options *ProxyOptions) <font color=blue>func</font>(http.ResponseWriter, *http.Request)
+        - evaluateProxyError(writer http.ResponseWriter, err error, baseURL string)
         - sendRequest(client http.Client, req *http.Request, options *ProxyOptions, writer http.ResponseWriter) (*http.Response, []byte, error)
         - composeEndpoint(baseEndpoint string, currentEndpoint string) (*url.URL, error)
         - getClusterInfoFromAMS(orgID insights-results-types.OrgID) ([]insights-results-types.ClusterInfo, error)
@@ -961,15 +961,15 @@ namespace server {
         - fetchAggregatorReports(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ClusterReports, bool)
         - fetchAggregatorReportsUsingRequestBodyClusterList(writer http.ResponseWriter, request *http.Request) (*insights-results-types.ClusterReports, bool)
         - buildReportEndpointResponse(writer http.ResponseWriter, request *http.Request, aggregatorResponse *insights-results-types.ReportResponse, clusterID insights-results-types.ClusterName, osdFlag bool) ([]insights-results-types.RuleWithContentResponse, int, error)
-        - reportEndpointV1(writer http.ResponseWriter, request *http.Request) 
-        - reportEndpointV2(writer http.ResponseWriter, request *http.Request) 
+        - reportEndpointV1(writer http.ResponseWriter, request *http.Request)
+        - reportEndpointV2(writer http.ResponseWriter, request *http.Request)
         - getKnownUserAgentProduct(request *http.Request) string
-        - reportMetainfoEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - reportMetainfoEndpoint(writer http.ResponseWriter, request *http.Request)
         - getRuleCount(visibleRules []insights-results-types.RuleWithContentResponse, noContentRulesCnt int, disabledRulesCnt int, clusterID insights-results-types.ClusterName) int
-        - reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request) 
-        - reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - reportForListOfClustersEndpoint(writer http.ResponseWriter, request *http.Request)
+        - reportForListOfClustersPayloadEndpoint(writer http.ResponseWriter, request *http.Request)
         - fetchAggregatorReportRule(writer http.ResponseWriter, request *http.Request) (*insights-results-types.RuleOnReport, bool)
-        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request) 
+        - singleRuleEndpoint(writer http.ResponseWriter, request *http.Request)
         - checkInternalRulePermissions(request *http.Request) error
         - getGroupsConfig() ([]groups.Group, error)
         - readListOfClusterDisabledRules(orgID insights-results-types.OrgID) ([]insights-results-types.DisabledRule, error)
@@ -984,7 +984,7 @@ namespace server {
         + Initialize() http.Handler
         + Start() error
         + Stop(ctx context.Context) error
-        + SetAMSInfoInReport(clusterID insights-results-types.ClusterName, report *insights-results-types.SmartProxyReportV2) 
+        + SetAMSInfoInReport(clusterID insights-results-types.ClusterName, report *insights-results-types.SmartProxyReportV2)
 
     }
     class NoBodyError << (S,Aquamarine) >> {

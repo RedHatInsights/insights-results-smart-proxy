@@ -11,7 +11,7 @@ layout: default
 
 ## Type
 
-* Service (filter) 
+* Service (filter)
 
 
 

@@ -11,7 +11,7 @@ layout: default
 
 ## Type
 
-* Service (filter) 
+* Service (filter)
 
 
 
@@ -41,4 +41,3 @@ This service is based on *Insights Core Messaging* framework.
 
 * Repository: [https://github.com/RedHatInsights/dvo-extractor](https://github.com/RedHatInsights/dvo-extractor)
 * Written in: Python
-

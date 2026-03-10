@@ -44,4 +44,3 @@ for the same cluster.
 
 * Repository: [https://github.com/RedHatInsights/insights-results-aggregator](https://github.com/RedHatInsights/insights-results-aggregator)
 * Written in: Go
-
