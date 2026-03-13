@@ -66,9 +66,9 @@ install-addlicense:
 
 golangci-lint: install-golangci-lint
 	@echo "Running linters and formatters with auto-fix...";
-	@echo "-----------------------------------------------------------------------"; 
+	@echo "-----------------------------------------------------------------------";
 	@echo -e "\033[1;33mReview golangci-lint fixes and resolve any issues it couldn’t auto-fix\033[0m"
-	@echo "-----------------------------------------------------------------------"; 
+	@echo "-----------------------------------------------------------------------";
 	golangci-lint run --fix
 	golangci-lint fmt
 

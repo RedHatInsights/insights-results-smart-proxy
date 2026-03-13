@@ -15,7 +15,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-dashboard-insights-ccx-smart-proxy  
+  name: grafana-dashboard-insights-ccx-smart-proxy
   labels:
     grafana_dashboard: "true"
   annotations:

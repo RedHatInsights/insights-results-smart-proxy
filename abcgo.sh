@@ -50,4 +50,3 @@ else
     echo -e "${GREEN_BG}[OK]${NC} ABC metrics are ok for all functions in all packages"
     exit 0
 fi
-

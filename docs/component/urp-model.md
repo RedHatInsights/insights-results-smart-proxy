@@ -32,4 +32,3 @@ future.
 
 * Repository: [https://gitlab.cee.redhat.com/ccx/ccx-upgrades-inference](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-inference)
 * Written in: Python
-

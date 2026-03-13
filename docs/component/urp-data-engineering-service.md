@@ -39,4 +39,3 @@ an upgrade or not. The data it sends to this service is collected from
 
 * Repository: [https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng)
 * Written in: Python
-

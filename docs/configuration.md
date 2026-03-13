@@ -80,7 +80,7 @@ groups_poll_time = "60s"
   which is the one that will return the upgrade risks prediction results.
 * `groups_poll_time` is the time between polls to the content service to
   retrieve updated static content, like groups or rule contents
-  
+
 The `groups_poll_time` must be configured as an string that can be parsed by the
 function [`time.ParseDuration`](https://golang.org/pkg/time/#ParseDuration) from
 Golang standard library.
@@ -162,6 +162,3 @@ All the environment variables must have the `INSIGHTS_RESULTS_SMART_PROXY`
 preffix, followed by the section name and the configuration paramater, both in
 upper case. The characters `__` should be used as separater between the preffix,
 the section name and the configuration parameter in each variable name.
-
-
-

@@ -40,4 +40,3 @@ each message consists of an object with various attributes described in schema.
 ## Additional information
 
 N/A
-

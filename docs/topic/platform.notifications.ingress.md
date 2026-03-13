@@ -36,4 +36,3 @@ When changes (new issues) has been found in *CCX Notification Service*, notifica
 ## Additional information
 
 N/A
-

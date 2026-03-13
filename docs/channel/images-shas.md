@@ -18,4 +18,3 @@ layout: default
 ## Description
 
 List of images SHAs.
-

@@ -31,4 +31,3 @@ Other relevant information about *DVO Extractor* can be found on address
 ## Schema
 
 N/A
-
