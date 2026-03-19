@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
-.PHONY: default clean build shellcheck abcgo golangci-lint style run test cover rest_api_tests rules_content sqlite_db license before-commit openapi-check help install-addlicense install-golangci-lint
+.PHONY: default clean build shellcheck abcgo lint openapi-check style run test cover coverage \
+	license before-commit help function-list install-addlicense
 
 SOURCES:=$(shell find . -name '*.go')
 BINARY:=insights-results-smart-proxy
@@ -20,16 +21,18 @@ ${BINARY}: ${SOURCES}
 	./build.sh
 
 shellcheck: ## Run shellcheck
-	shellcheck --exclude=SC1090,SC2086,SC2034,SC1091,SC2317 *.sh
+	pre-commit run --all-files shellcheck
 
 abcgo: ## Run ABC metrics checker
-	@echo "Run ABC metrics checker"
-	./abcgo.sh
+	pre-commit run --all-files abcgo
+
+lint:
+	pre-commit run --all-files golangci-lint-full
 
 openapi-check:
 	./check_openapi.sh
 
-style: shellcheck abcgo golangci-lint ## Run all the formatting related commands (fmt, vet, lint, cyclo) + check shell scripts
+style: shellcheck abcgo lint ## Run all the formatting related commands (abcgo, golangci-lint) + check shell scripts
 
 run: clean build ## Build the project and executes the binary
 	./insights-results-smart-proxy
@@ -63,19 +66,3 @@ function-list: ${BINARY} ## List all functions in generated binary file
 
 install-addlicense:
 	[[ `command -v addlicense` ]] || go install github.com/google/addlicense
-
-golangci-lint: install-golangci-lint
-	@echo "Running linters and formatters with auto-fix...";
-	@echo "-----------------------------------------------------------------------";
-	@echo -e "\033[1;33mReview golangci-lint fixes and resolve any issues it couldn’t auto-fix\033[0m"
-	@echo "-----------------------------------------------------------------------";
-	golangci-lint run --fix
-	golangci-lint fmt
-
-install-golangci-lint:
-	@if [ "$$(uname)" = "Darwin" ]; then \
-		brew install golangci-lint; \
-		brew upgrade golangci-lint; \
-	else \
-		go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.0.2; \
-	fi
