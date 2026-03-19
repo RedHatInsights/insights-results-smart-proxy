@@ -17,9 +17,10 @@
 
 """Simple preprocessor for generating area maps for Overall Architecture page."""
 
+from pathlib import Path
+
 import PIL.Image as Image
 from PIL import ImageDraw
-from pathlib import Path
 
 template_file = "overall-architecture-template.html"
 output_file = "overall-architecture.html"
@@ -31,12 +32,12 @@ output_image = "Overall_architecture.png"
 
 
 def load_text_file(filename):
-    with open(filename, "r") as fin:
+    with open(filename) as fin:
         return fin.read()
 
 
 def load_file_as_lines(filename):
-    with open(areas_file, "r") as fin:
+    with open(areas_file) as fin:
         return fin.read().splitlines()
 
 
@@ -58,8 +59,11 @@ def make_href(node_type, node):
 
 
 def format_area(x, y, width, height, node, href):
-    space = 16*" "
-    return f'{space}<area shape="rect" coords="{x}, {y}, {x+width}, {y+height}" title="{node}" alt="{node}" href="{href}" />\n'
+    space = 16 * " "
+    return (
+        f'{space}<area shape="rect" coords="{x}, {y}, {x + width}, {y + height}" '
+        f'title="{node}" alt="{node}" href="{href}" />\n'
+    )
 
 
 def generate_area_maps(areas):
@@ -79,12 +83,12 @@ def generate_area_maps(areas):
 
 def draw_areas(input_image_file_name, output_image_file_name, areas):
     colors = {
-            "component":"#80008020",
-            "channel":"#00800020",
-            "topic":"#00008020",
-            "storage":"#80000020",
-            "interface":"#80800020",
-            }
+        "component": "#80008020",
+        "channel": "#00800020",
+        "topic": "#00008020",
+        "storage": "#80000020",
+        "interface": "#80800020",
+    }
 
     # we need to open the image and get rid of the orinal alpha channel
     # because draw.io put meaningles information there
@@ -99,7 +103,7 @@ def draw_areas(input_image_file_name, output_image_file_name, areas):
         width = int(splitted[3])
         height = int(splitted[4])
         color = colors[node_type]
-        draw.rectangle((x, y, x+width, y+height), outline="black", fill=color)
+        draw.rectangle((x, y, x + width, y + height), outline="black", fill=color)
 
     image.save(output_image_file_name)
 
