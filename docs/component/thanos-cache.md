@@ -31,4 +31,3 @@ is quite low for now, we decided to use this simpler approach.
 
 * Repository: [https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng](https://gitlab.cee.redhat.com/ccx/ccx-upgrades-data-eng)
 * Written in: Python
-

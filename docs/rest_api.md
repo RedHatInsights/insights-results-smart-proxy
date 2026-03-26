@@ -39,4 +39,3 @@ curl -H 'Accept: application/json' -H "Authorization: Bearer ${ACCESS_TOKEN}" ht
 
 `ACCESS_TOKEN` can be retrieved from `OFFLINE_TOKEN` provided to user. Details
 are explained in internal documentation.
-

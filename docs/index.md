@@ -31,4 +31,3 @@ data pipeline clients and the different services providing the required informat
 * [Interface with OCM UI](ocm_interface.md)
 * [Interface with OCP WebConsole](ocp_interface.md)
 * [Interface with ACM](acm_interface_req_rep.md )
-

@@ -19,4 +19,3 @@ layout: default
 
 *CCX Notification Service* retrieves rule hits records from SQL
 database (AWS RDS, PostgreSQL, or SQLite).
-
