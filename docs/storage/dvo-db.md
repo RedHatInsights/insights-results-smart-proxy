@@ -34,4 +34,3 @@ Database migration is fully supported too for this storage.
 ## Storage schema and description
 
 * N/A
-

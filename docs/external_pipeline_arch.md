@@ -31,4 +31,3 @@ nav_order: 10
 
 * [Animation: IO pulling data from CCX data pipeline](images/io-pulling-only.gif)
 * [Animation: IO exposing data via Prometheus metrics](images/io-pulling-prometheus-anim.gif)
-

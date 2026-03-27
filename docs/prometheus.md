@@ -7,7 +7,7 @@ nav_order: 5
 It is possible to use `/metrics` REST API endpoint to read all metrics exposed
 to Prometheus or to any tool that is compatible with it.
 
-## API related metrics 
+## API related metrics
 
 There are a set of metrics provieded by `insights-operator-utils` library, all
 of them related with the API usage. These are the API metrics exposed:
@@ -25,7 +25,7 @@ This enhanced metric include the following label:
 - `endpoint`: The API endpoint pattern
 - `user_agent`: Normalized user agent (e.g., "insights-operator", "browser", "curl", etc.)
 
-   
+
 Additionally it is possible to consume all metrics provided by Go runtime. There
 metrics start with `go_` and `process_` prefixes.
 

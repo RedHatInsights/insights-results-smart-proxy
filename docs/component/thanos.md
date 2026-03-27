@@ -22,12 +22,11 @@ layout: default
 ## Interfaces
 
 * Input:
-    - 
+    -
 * Output:
-    - 
+    -
 
 ## Source code
 
 * Repository: []()
-* Written in: 
-
+* Written in:
