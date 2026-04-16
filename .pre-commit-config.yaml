@@ -32,7 +32,7 @@ repos:
       - id: golangci-lint-full
 
   - repo: https://github.com/RedHatInsights/processing-tools
-    rev: v0.1.0
+    rev: v0.3.1
     hooks:
       - id: abcgo
         args: ['--threshold=64']
@@ -40,7 +40,7 @@ repos:
       - id: go-version-consistency
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+    rev: v0.15.10
     hooks:
       # Adding a set of rules to ruff check to match pyupgrade rules
       - id: ruff-check
@@ -56,6 +56,6 @@ repos:
   #     - id: hadolint
 
   - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 43.110.10
+    rev: 43.125.0
     hooks:
       - id: renovate-config-validator
