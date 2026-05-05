@@ -1,0 +1,10 @@
+name: Go tests
+
+on:
+  pull_request:
+
+jobs:
+  gotests:
+    uses: RedHatInsights/processing-tools/.github/workflows/gotests.yaml@v0.4.2
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
