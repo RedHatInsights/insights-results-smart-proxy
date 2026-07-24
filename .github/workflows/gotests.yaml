@@ -1,3 +1,5 @@
+# This workflow is synced from RedHatInsights/processing-tools automatically; do not edit in downstream repos.
+
 name: Go tests
 
 on:
@@ -7,6 +9,8 @@ on:
 
 jobs:
   gotests:
-    uses: RedHatInsights/processing-tools/.github/workflows/gotests.yaml@v0.4.3
+    uses: RedHatInsights/processing-tools/.github/workflows/gotests.yaml@v0.4.4
+    with:
+      coverage_threshold: 72
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
