@@ -24,6 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     name: OpenAPI checks
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: check openapi specs
         run: make openapi-check
