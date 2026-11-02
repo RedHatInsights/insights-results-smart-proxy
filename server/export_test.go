@@ -27,8 +27,12 @@ package server
 // to see why this trick is needed.
 
 var (
-	FillImpacted      = fillImpacted
-	HandleServerError = handleServerError
-	AcmUserAgent      = acmUserAgent
-	ComposeEndpoint   = (*HTTPServer).composeEndpoint
+	FillImpacted             = fillImpacted
+	HandleServerError        = handleServerError
+	AcmUserAgent             = acmUserAgent
+	ComposeEndpoint          = (*HTTPServer).composeEndpoint
+	RenderRuleWithContent    = (*HTTPServer).renderReport
+	RenderDVORecommendations = (*HTTPServer).renderDVOReport
+	CallRenderer             = (*HTTPServer).callRenderer
+	ReadRenderParam          = readRenderParam
 )

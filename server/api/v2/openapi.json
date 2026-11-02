@@ -198,6 +198,16 @@
               "default": false
             },
             "required": false
+          },
+          {
+            "name": "render",
+            "description": "If true, DoT.js templates in recommendation fields are rendered by the template renderer service. Fields that fail to render keep their unresolved templates and the failure is reported in the recommendation's rendering status.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -801,6 +811,16 @@
             "schema": {
               "$ref": "#/components/schemas/requestId"
             }
+          },
+          {
+            "name": "render",
+            "description": "If true, DoT.js templates in recommendation fields are rendered by the template renderer service. Fields that fail to render keep their unresolved templates and the failure is reported in the recommendation's rendering status.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -1505,7 +1525,11 @@
                         "rating": {
                           "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
                           "type": "integer",
-                          "enum": [-1, 0, 1]
+                          "enum": [
+                            -1,
+                            0,
+                            1
+                          ]
                         },
                         "hosts_acked_count": {
                           "type": "integer"
@@ -2416,7 +2440,11 @@
           },
           "rating": {
             "type": "integer",
-            "enum": [-1, 0, 1],
+            "enum": [
+              -1,
+              0,
+              1
+            ],
             "description": "User rating - value of user rating. -1 is dislike, 0 is no vote, 1 is like."
           }
         }

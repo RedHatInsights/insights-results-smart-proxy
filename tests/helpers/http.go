@@ -103,6 +103,7 @@ var (
 	DefaultServicesConfig = services.Configuration{
 		AggregatorBaseEndpoint:  "http://localhost:8080/",
 		ContentBaseEndpoint:     "http://localhost:8082/",
+		RendererBaseEndpoint:    "http://localhost:8084/",
 		GroupsPollingTime:       1 * time.Minute,
 		ContentDirectoryTimeout: 100 * time.Millisecond,
 	}

@@ -1726,6 +1726,12 @@ func (server *HTTPServer) getDVONamespacesForCluster(writer http.ResponseWriter,
 		return
 	}
 
+	render, err := readRenderParam(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
 	clusterID, successful := httputils.ReadClusterName(writer, request)
 	// Error message handled by function
 	if !successful {
@@ -1785,6 +1791,13 @@ func (server *HTTPServer) getDVONamespacesForCluster(writer http.ResponseWriter,
 	responseData["namespace"] = workloadsProcessed.Namespace
 	responseData["metadata"] = workloadsProcessed.Metadata
 	responseData["recommendations"] = workloadsProcessed.Recommendations
+
+	if render {
+		if err = server.renderDVOReport(workloadsProcessed.Recommendations); err != nil {
+			handleServerError(writer, err)
+			return
+		}
+	}
 
 	// send response to client
 	err = responses.SendOK(writer, responseData)

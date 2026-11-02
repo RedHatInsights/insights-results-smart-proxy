@@ -52,25 +52,34 @@ type ImpactingFlag int
 // a unique identifier of payloads. Empty string represents a missing request ID.
 type RequestID types.RequestID
 
+// RenderingStatus reports the outcome of server-side template rendering for a
+// single recommendation. Failed fields keep their unresolved templates in the
+// response and are listed in Errors.
+type RenderingStatus struct {
+	Status string            `json:"status"`
+	Errors map[string]string `json:"errors,omitempty"`
+}
+
 // RuleWithContentResponse represents a single rule in the response of /report endpoint
 type RuleWithContentResponse struct {
-	RuleID          types.RuleID    `json:"rule_id"`
-	ErrorKey        types.ErrorKey  `json:"-"`
-	CreatedAt       string          `json:"created_at"`
-	Description     string          `json:"description"`
-	Generic         string          `json:"details"`
-	Reason          string          `json:"reason"`
-	Resolution      string          `json:"resolution"`
-	MoreInfo        string          `json:"more_info"`
-	TotalRisk       int             `json:"total_risk"`
-	Disabled        bool            `json:"disabled"`
-	DisableFeedback string          `json:"disable_feedback"`
-	DisabledAt      types.Timestamp `json:"disabled_at"`
-	Internal        bool            `json:"internal"`
-	UserVote        types.UserVote  `json:"user_vote"`
-	TemplateData    interface{}     `json:"extra_data"`
-	Tags            []string        `json:"tags"`
-	Impacted        Timestamp       `json:"impacted,omitempty"`
+	RuleID          types.RuleID     `json:"rule_id"`
+	ErrorKey        types.ErrorKey   `json:"-"`
+	CreatedAt       string           `json:"created_at"`
+	Description     string           `json:"description"`
+	Generic         string           `json:"details"`
+	Reason          string           `json:"reason"`
+	Resolution      string           `json:"resolution"`
+	MoreInfo        string           `json:"more_info"`
+	TotalRisk       int              `json:"total_risk"`
+	Disabled        bool             `json:"disabled"`
+	DisableFeedback string           `json:"disable_feedback"`
+	DisabledAt      types.Timestamp  `json:"disabled_at"`
+	Internal        bool             `json:"internal"`
+	UserVote        types.UserVote   `json:"user_vote"`
+	TemplateData    interface{}      `json:"extra_data"`
+	Tags            []string         `json:"tags"`
+	Impacted        Timestamp        `json:"impacted,omitempty"`
+	Rendering       *RenderingStatus `json:"rendering,omitempty"`
 }
 
 // RecommendationContent is a rule content struct used for Insights Advisor,

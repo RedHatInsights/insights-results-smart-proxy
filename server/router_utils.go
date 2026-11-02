@@ -36,6 +36,9 @@ const (
 	OSDEligibleParam = "osd_eligible"
 	// GetDisabledParam parameter
 	GetDisabledParam = "get_disabled"
+	// RenderParam parameter used to request server-side rendering of
+	// DoT.js templates in recommendations
+	RenderParam = "render"
 	// ImpactingParam parameter used to show/hide recommendations not hitting any clusters
 	ImpactingParam = "impacting"
 	// RuleIDParamName parameter name in the URL
@@ -154,6 +157,12 @@ func readQueryBoolParam(name string, defaultValue bool, request *http.Request) (
 // if available
 func readGetDisabledParam(request *http.Request) (bool, error) {
 	return readQueryBoolParam(GetDisabledParam, false, request)
+}
+
+// readRenderParam returns the value of the "render" parameter in query if
+// available
+func readRenderParam(request *http.Request) (bool, error) {
+	return readQueryBoolParam(RenderParam, false, request)
 }
 
 // readOSDEligibleParam returns the value of the "osd_eligible" parameter in query
