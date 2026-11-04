@@ -103,6 +103,14 @@ func (*UpgradesDataEngServiceUnavailableError) Error() string {
 	return "Upgrade Failure Prediction service is unreachable"
 }
 
+// RendererServiceUnavailableError error is used when the insights-content-template-renderer service cannot be reached
+// or returns an unexpected response
+type RendererServiceUnavailableError struct{}
+
+func (*RendererServiceUnavailableError) Error() string {
+	return "Template rendering service is unreachable"
+}
+
 // AMSAPIUnavailableError error is used when AMS API is not available and is the only source of data
 type AMSAPIUnavailableError struct{}
 
@@ -137,7 +145,7 @@ func handleServerError(writer http.ResponseWriter, err error) {
 		respErr = responses.SendForbidden(writer, err.Error())
 	case *ContentServiceUnavailableError, *AggregatorServiceUnavailableError,
 		*AMSAPIUnavailableError, *content.RuleContentDirectoryTimeoutError,
-		*UpgradesDataEngServiceUnavailableError:
+		*UpgradesDataEngServiceUnavailableError, *RendererServiceUnavailableError:
 		respErr = responses.SendServiceUnavailable(writer, err.Error())
 	default:
 		level = log.Error

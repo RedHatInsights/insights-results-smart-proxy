@@ -78,6 +78,7 @@ type DVORecommendation struct {
 	TotalRisk    int                    `json:"total_risk"`
 	TemplateData map[string]interface{} `json:"extra_data"`
 	Objects      []DVOObject            `json:"objects"`
+	Rendering    *RenderingStatus       `json:"rendering,omitempty"`
 }
 
 // DVOObject structure

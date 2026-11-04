@@ -34,6 +34,7 @@ use_rbac = false
 aggregator = "http://localhost:8080/api/v1/"
 content = "http://localhost:8082/api/v1/"
 upgrade_risks_prediction = "http://localhost:8083/"
+renderer = "http://localhost:8084/"
 groups_poll_time = "60s"
 content_directory_timeout = "5s"
 
