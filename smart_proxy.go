@@ -58,7 +58,23 @@ const (
 	commandPrintHelp    = "print-help"
 	commandPrintConfig  = "print-config"
 	commandPrintEnv     = "print-env"
+
+	// defaultRedisReadyWaitInterval is how long to sleep between Redis connect/PING
+	// attempts when Redis is not ready yet at startup.
+	defaultRedisReadyWaitInterval = 2 * time.Second
+
+	// defaultRedisReadyWaitTimeout is the maximum time to wait for Redis before
+	// giving up and exiting.
+	defaultRedisReadyWaitTimeout = 5 * time.Minute
 )
+
+// redisReadyWaitInterval is the pause between Redis readiness checks.
+// Overridable in unit tests.
+var redisReadyWaitInterval = defaultRedisReadyWaitInterval
+
+// redisReadyWaitTimeout is the maximum time to wait for Redis.
+// Overridable in unit tests.
+var redisReadyWaitTimeout = defaultRedisReadyWaitTimeout
 
 const helpMessageTemplate = `
 Smart Proxy service for insights results
@@ -137,13 +153,9 @@ func startServer() ExitCode {
 		log.Info().Msg("AMSClient successfully created")
 	}
 
-	redisClient, err := services.NewRedisClient(redisConf)
+	redisClient, err := waitUntilRedisReady(redisConf)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to initialize Redis server")
-		return ExitStatusServerError
-	}
-	if err = redisClient.HealthCheck(); err != nil {
-		log.Error().Err(err).Msg("failed to ping Redis server")
+		log.Error().Err(err).Msg("Redis did not become ready in time")
 		return ExitStatusServerError
 	}
 	log.Info().Msg("Redis client created, Redis server is responding")
@@ -169,6 +181,41 @@ func startServer() ExitCode {
 	}
 
 	return ExitStatusOK
+}
+
+// waitUntilRedisReady creates a Redis client and PING-checks it, retrying on
+// connection/PING failures until Redis is ready or redisReadyWaitTimeout elapses.
+// Startup waits for Redis (e.g. valkey-writer) instead of exiting immediately
+// and triggering CrashLoopBackoff.
+func waitUntilRedisReady(redisConf services.RedisConfiguration) (services.RedisInterface, error) {
+	deadline := time.Now().Add(redisReadyWaitTimeout)
+
+	for {
+		if time.Now().After(deadline) {
+			return nil, fmt.Errorf("Redis not ready within %s", redisReadyWaitTimeout)
+		}
+
+		redisClient, err := services.NewRedisClient(redisConf)
+		if err != nil {
+			log.Warn().Err(err).Msgf(
+				"Redis not ready yet (client init); waiting %s before retry",
+				redisReadyWaitInterval,
+			)
+			time.Sleep(redisReadyWaitInterval)
+			continue
+		}
+
+		if err = redisClient.HealthCheck(); err != nil {
+			log.Warn().Err(err).Msgf(
+				"Redis not ready yet (PING); waiting %s before retry",
+				redisReadyWaitInterval,
+			)
+			time.Sleep(redisReadyWaitInterval)
+			continue
+		}
+
+		return redisClient, nil
+	}
 }
 
 // fillInInfoParams function fills-in additional info used by /info endpoint

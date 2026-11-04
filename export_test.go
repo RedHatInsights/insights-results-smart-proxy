@@ -27,12 +27,15 @@ package main
 // to see why this trick is needed for using package internal
 // symbols (externally invisible) in unit tests.
 var (
-	StartServer      = startServer
-	PrintVersionInfo = printVersionInfo
-	PrintHelp        = printHelp
-	PrintConfig      = printConfig
-	PrintEnv         = printEnv
-	Main             = main
-	FillInInfoParams = fillInInfoParams
-	HandleCommand    = handleCommand
+	StartServer               = startServer
+	PrintVersionInfo          = printVersionInfo
+	PrintHelp                 = printHelp
+	PrintConfig               = printConfig
+	PrintEnv                  = printEnv
+	Main                      = main
+	FillInInfoParams          = fillInInfoParams
+	HandleCommand             = handleCommand
+	WaitUntilRedisReady       = waitUntilRedisReady
+	RedisReadyWaitIntervalPtr = &redisReadyWaitInterval
+	RedisReadyWaitTimeoutPtr  = &redisReadyWaitTimeout
 )
