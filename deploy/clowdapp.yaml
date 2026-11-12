@@ -92,6 +92,8 @@ objects:
               value: ${INSIGHTS_CONTENT_SERVICE_POLL_TIME}
             - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__UPGRADE_RISKS_PREDICTION
               value: ${INSIGHTS_DATA_ENGINEERING_URL}
+            - name: INSIGHTS_RESULTS_SMART_PROXY__SERVICES__RENDERER
+              value: ${TEMPLATE_RENDERER_URL}
             - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__DATABASE
               value: ${INSIGHTS_REDIS_DATABASE}
             - name: INSIGHTS_RESULTS_SMART_PROXY__REDIS__TIMEOUT_SECONDS
@@ -270,6 +272,8 @@ parameters:
   value: "http://ccx-insights-content-service:10000/api/v1/"
 - name: INSIGHTS_DATA_ENGINEERING_URL
   value: "http://ccx-upgrades-data-eng-svc:8000/"
+- name: TEMPLATE_RENDERER_URL
+  value: "http://insights-content-template-renderer-svc:8000/"
 - name: INSIGHTS_REDIS_DATABASE
   value: "0"
 - name: INSIGHTS_REDIS_TIMEOUT_SECONDS
