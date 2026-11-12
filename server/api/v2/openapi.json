@@ -826,6 +826,16 @@
             "schema": {
               "$ref": "#/components/schemas/requestId"
             }
+          },
+          {
+            "name": "render",
+            "description": "If true, DoT.js templates in recommendation fields are rendered by the template renderer service. Fields that fail to render keep their unresolved templates and the failure is reported in the recommendation's rendering status.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -934,6 +944,27 @@
                                 }
                               }
                             }
+                          },
+                          "rendering": {
+                            "description": "Outcome of the server-side template rendering, present only when the render query parameter is used. Fields that failed to render keep their unresolved templates and are listed in errors.",
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "description": "Status of the template rendering",
+                                "type": "string",
+                                "enum": [
+                                  "ok",
+                                  "failed"
+                                ]
+                              },
+                              "errors": {
+                                "description": "Error messages of the fields that failed to render, keyed by field name",
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              }
+                            }
                           }
                         }
                       }
@@ -958,6 +989,21 @@
           },
           "404": {
             "description": "Data for cluster and namespace were not found in the storage."
+          },
+          "503": {
+            "description": "Template renderer service is unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
