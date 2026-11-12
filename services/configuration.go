@@ -34,6 +34,7 @@ type Configuration struct {
 	AggregatorBaseEndpoint         string        `mapstructure:"aggregator" toml:"aggregator"`
 	ContentBaseEndpoint            string        `mapstructure:"content" toml:"content"`
 	UpgradeRisksPredictionEndpoint string        `mapstructure:"upgrade_risks_prediction" toml:"upgrade_risks_prediction"`
+	RendererBaseEndpoint           string        `mapstructure:"renderer" toml:"renderer"`
 	GroupsPollingTime              time.Duration `mapstructure:"groups_poll_time" toml:"groups_poll_time"`
 	ContentDirectoryTimeout        time.Duration `mapstructure:"content_directory_timeout" toml:"content_directory_timeout"`
 }

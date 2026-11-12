@@ -975,6 +975,12 @@ func (server HTTPServer) reportEndpointV1(writer http.ResponseWriter, request *h
 
 // reportEndpointV2 serves /report endpoint with cluster_name field in the metadata
 func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *http.Request) {
+	render, err := readRenderParam(request)
+	if err != nil {
+		handleServerError(writer, err)
+		return
+	}
+
 	aggregatorResponse, successful, clusterID := server.fetchAggregatorReport(writer, request)
 	if !successful {
 		return
@@ -984,8 +990,6 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 
 	server.SetAMSInfoInReport(clusterID, &report)
 
-	var err error
-
 	if report.Data, report.Meta.Count, err = server.buildReportEndpointResponse(
 		writer, request, aggregatorResponse, clusterID, report.Meta.Managed); err == nil {
 		// fill in timestamps
@@ -993,6 +997,14 @@ func (server HTTPServer) reportEndpointV2(writer http.ResponseWriter, request *h
 		report.Meta.GatheredAt = aggregatorResponse.Meta.GatheredAt
 
 		fillImpacted(report.Data, aggregatorResponse.Report)
+
+		if render {
+			if err = server.renderReport(request.Context(), report.Data); err != nil {
+				handleServerError(writer, err)
+				return
+			}
+		}
+
 		sendReportReponse(writer, report)
 	}
 }

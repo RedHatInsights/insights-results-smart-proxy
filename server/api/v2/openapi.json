@@ -198,6 +198,16 @@
               "default": false
             },
             "required": false
+          },
+          {
+            "name": "render",
+            "description": "If true, DoT.js templates in recommendation fields are rendered by the template renderer service. Fields that fail to render keep their unresolved templates and the failure is reported in the recommendation's rendering status.",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "required": false
           }
         ],
         "responses": {
@@ -219,6 +229,21 @@
           },
           "404": {
             "description": "Cluster report is not available, probably not connected cluster."
+          },
+          "503": {
+            "description": "Template renderer service is unreachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1505,7 +1530,11 @@
                         "rating": {
                           "description": "User vote - value of user voting. -1 is dislike vote, 0 is no vote, 1 is like vote.",
                           "type": "integer",
-                          "enum": [-1, 0, 1]
+                          "enum": [
+                            -1,
+                            0,
+                            1
+                          ]
                         },
                         "hosts_acked_count": {
                           "type": "integer"
@@ -1967,6 +1996,27 @@
             "description": "[Optional] Timestamp when the rule first started hitting",
             "format": "date-time",
             "type": "string"
+          },
+          "rendering": {
+            "description": "Outcome of the server-side template rendering, present only when the render query parameter is used. Fields that failed to render keep their unresolved templates and are listed in errors.",
+            "type": "object",
+            "properties": {
+              "status": {
+                "description": "Status of the template rendering",
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "failed"
+                ]
+              },
+              "errors": {
+                "description": "Error messages of the fields that failed to render, keyed by field name",
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "example": {
@@ -2416,7 +2466,11 @@
           },
           "rating": {
             "type": "integer",
-            "enum": [-1, 0, 1],
+            "enum": [
+              -1,
+              0,
+              1
+            ],
             "description": "User rating - value of user rating. -1 is dislike, 0 is no vote, 1 is like."
           }
         }
