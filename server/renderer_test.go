@@ -180,6 +180,89 @@ func TestRenderRuleWithContentEmpty(t *testing.T) {
 	require.NoError(t, server.RenderRuleWithContent(testServer, context.Background(), nil))
 }
 
+func TestRenderDVORecommendations(t *testing.T) {
+	rendererServer := startRendererMock(t, func(items []map[string]interface{}) rendererResponse {
+		require.Len(t, items, 1)
+		return rendererResponse{
+			Items: []rendererResponseItem{{
+				// what the renderer returns for the templates below
+				// with data {"name": "test-workload"}
+				Rendered: map[string]string{
+					"reason":     "Reason test-workload",
+					"resolution": "Resolution test-workload",
+					"details":    "Details test-workload",
+				},
+				Errors: map[string]string{
+					"more_info": "Failed to render template: TypeError: pydata.missing is undefined",
+				},
+			}},
+		}
+	})
+
+	testServer := rendererTestServer(rendererServer.URL)
+
+	recommendations := []types.DVORecommendation{
+		{
+			Check:        "test_rule_check",
+			Reason:       "Reason {{=pydata.name}}",
+			Resolution:   "Resolution {{=pydata.name}}",
+			MoreInfo:     "More info {{=pydata.missing.value()}}",
+			Details:      "Details {{=pydata.name}}",
+			TemplateData: map[string]interface{}{"name": "test-workload"},
+		},
+	}
+
+	require.NoError(t, server.RenderDVORecommendations(testServer, context.Background(), recommendations))
+
+	assert.Equal(t, "Reason test-workload", recommendations[0].Reason)
+	assert.Equal(t, "Resolution test-workload", recommendations[0].Resolution)
+	assert.Equal(t, "Details test-workload", recommendations[0].Details)
+	assert.Equal(t, "More info {{=pydata.missing.value()}}", recommendations[0].MoreInfo)
+	require.NotNil(t, recommendations[0].Rendering)
+	assert.Equal(t, "failed", recommendations[0].Rendering.Status)
+	assert.Contains(t, recommendations[0].Rendering.Errors["more_info"], "pydata.missing")
+}
+
+func TestRenderDVORecommendationsWithoutTemplateData(t *testing.T) {
+	// recommendations without extra_data must not break the whole request:
+	// the renderer requires an object, so nil template data is normalized
+	var requestedData []map[string]interface{}
+
+	rendererServer := startRendererMock(t, func(items []map[string]interface{}) rendererResponse {
+		requestedData = items
+		return rendererResponse{
+			Items: []rendererResponseItem{{
+				// with empty template data, pydata.name is undefined
+				Rendered: map[string]string{},
+				Errors: map[string]string{
+					"reason": "Failed to render template: TypeError: pydata.name is undefined",
+				},
+			}},
+		}
+	})
+
+	testServer := rendererTestServer(rendererServer.URL)
+
+	recommendations := []types.DVORecommendation{
+		{
+			Check:  "test_rule_check",
+			Reason: "Reason {{=pydata.name}}",
+			// TemplateData left nil on purpose
+		},
+	}
+
+	require.NoError(t, server.RenderDVORecommendations(testServer, context.Background(), recommendations))
+
+	require.Len(t, requestedData, 1)
+	assert.NotNil(t, requestedData[0]["data"], "nil template data must be sent as an object, not null")
+
+	// the renderer cannot resolve pydata.name with empty template data
+	assert.Equal(t, "Reason {{=pydata.name}}", recommendations[0].Reason)
+	require.NotNil(t, recommendations[0].Rendering)
+	assert.Equal(t, "failed", recommendations[0].Rendering.Status)
+	assert.Contains(t, recommendations[0].Rendering.Errors["reason"], "pydata.name")
+}
+
 func TestCallRendererServiceUnavailable(t *testing.T) {
 	rendererServer := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)

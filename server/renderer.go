@@ -191,6 +191,48 @@ func (server *HTTPServer) renderReport(ctx context.Context, rules []types.RuleWi
 	return nil
 }
 
+// renderDVOReport renders the DoT.js templates of the given
+// DVO recommendations with the per-workload data (extra_data), following the
+// same contract as renderReport.
+func (server *HTTPServer) renderDVOReport(
+	ctx context.Context,
+	recommendations []types.DVORecommendation,
+) error {
+	if len(recommendations) == 0 {
+		return nil
+	}
+
+	items := make([]rendererRenderItem, 0, len(recommendations))
+
+	for i := range recommendations {
+		recommendation := &recommendations[i]
+		templates := map[string]string{
+			"reason":     recommendation.Reason,
+			"resolution": recommendation.Resolution,
+			"more_info":  recommendation.MoreInfo,
+			"details":    recommendation.Details,
+		}
+		items = append(items, rendererRenderItem{
+			Template: templates,
+			// normalize nil template data, the renderer requires an object
+			Data: toStringMap(recommendation.TemplateData),
+		})
+	}
+
+	renderedItems, err := server.callRenderer(ctx, items)
+	if err != nil {
+		return err
+	}
+
+	for i := range recommendations {
+		applyRenderingStatus(&recommendations[i].Reason, &recommendations[i].Resolution,
+			&recommendations[i].MoreInfo, &recommendations[i].Details,
+			renderedItems[i], &recommendations[i].Rendering)
+	}
+
+	return nil
+}
+
 // applyRenderingStatus replaces the given recommendation fields with their
 // rendered texts and fills in the rendering status. Field order in field
 // pointers must match rendererTemplateFields order.
