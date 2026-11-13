@@ -79,7 +79,7 @@ require (
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.18.6 // indirect
+	github.com/klauspost/compress v1.20.2 // indirect
 	github.com/lib/pq v1.12.3 // indirect
 	github.com/lzap/cloudwatchwriter2 v1.6.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
