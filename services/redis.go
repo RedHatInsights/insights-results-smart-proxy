@@ -91,12 +91,21 @@ type RedisClient struct {
 
 // NewRedisClient creates a new Redis client based on configuration and returns RedisInterface
 func NewRedisClient(conf RedisConfiguration) (RedisInterface, error) {
+	log.Info().
+		Str("endpoint", conf.RedisEndpoint).
+		Int("database", conf.RedisDatabase).
+		Bool("tls", conf.RedisUseTLS).
+		Bool("password_set", conf.RedisPassword != "").
+		Bool("username_set", conf.RedisUsername != "").
+		Msg("Creating Redis client")
+
 	client, err := redis.CreateRedisClient(
 		conf.RedisEndpoint,
 		conf.RedisDatabase,
 		conf.RedisUsername,
 		conf.RedisPassword,
 		conf.RedisTimeoutSeconds,
+		conf.RedisUseTLS,
 	)
 	if err != nil {
 		return nil, err
