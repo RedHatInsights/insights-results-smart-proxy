@@ -233,6 +233,10 @@ func updateRedisConfig() {
 	if clowder.LoadedConfig.InMemoryDb.Password != nil {
 		Config.RedisConf.RedisPassword = *clowder.LoadedConfig.InMemoryDb.Password
 	}
+	// Clowder's elasticache provider hardcodes sslMode=true even when transit
+	// encryption is off. AUTH tokens only exist with transit encryption, so key
+	// TLS off a nonempty password to avoid breaking plaintext caches.
+	Config.RedisConf.RedisUseTLS = Config.RedisConf.RedisPassword != ""
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
