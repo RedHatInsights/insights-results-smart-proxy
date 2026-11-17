@@ -5,8 +5,8 @@ go 1.26.0
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/RedHatInsights/content-service v1.2.0
-	github.com/RedHatInsights/insights-operator-utils v1.28.1-0.20261117092247-d510e49787dd
-	github.com/RedHatInsights/insights-results-aggregator v1.4.4-0.20261117092507-7b781adc9513
+	github.com/RedHatInsights/insights-operator-utils v1.28.0
+	github.com/RedHatInsights/insights-results-aggregator v1.4.3
 	github.com/RedHatInsights/insights-results-aggregator-data v1.3.9
 	github.com/RedHatInsights/insights-results-types v1.23.5
 	github.com/go-redis/redismock/v9 v9.2.0
