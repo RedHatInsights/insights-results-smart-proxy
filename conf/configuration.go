@@ -134,6 +134,8 @@ func LoadConfiguration(defaultConfigFile string) error {
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix(envPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "__"))
+	// Register so AutomaticEnv can override when the key is absent from config.toml.
+	viper.SetDefault("redis.use_tls", false)
 
 	err = viper.Unmarshal(&Config)
 	if err != nil {
@@ -233,6 +235,10 @@ func updateRedisConfig() {
 	if clowder.LoadedConfig.InMemoryDb.Password != nil {
 		Config.RedisConf.RedisPassword = *clowder.LoadedConfig.InMemoryDb.Password
 	}
+	// Clowder's elasticache provider hardcodes sslMode=true even when transit
+	// encryption is off. AUTH tokens only exist with transit encryption, so key
+	// TLS off a nonempty password to avoid breaking plaintext caches.
+	Config.RedisConf.RedisUseTLS = Config.RedisConf.RedisPassword != ""
 }
 
 // checkIfFileExists returns nil if path doesn't exist or isn't a file,
